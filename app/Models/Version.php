@@ -16,7 +16,7 @@ class Version extends Model
      * @var array
      */
     protected $fillable = [
-        'version_nr',
+        'number',
         'path',
         'processed',
         'media_id',
