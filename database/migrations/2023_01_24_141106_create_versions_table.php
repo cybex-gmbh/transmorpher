@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('versions', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('number');
-            $table->string('path');
+            $table->string('filename');
             $table->boolean('processed')->default(0);
             $table->foreignId('media_id')->constrained();
             $table->timestamps();
