@@ -13,6 +13,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 
 class ImageController extends Controller
 {
@@ -52,7 +53,7 @@ class ImageController extends Controller
         $diskOriginals        = Storage::disk(config('transmorpher.disks.originals'));
         $diskImageDerivatives = Storage::disk(config('transmorpher.disks.imageDerivatives'));
 
-        // Hash of transformation parameters to identify already generated derivatives.
+        // Hash of transformation parameters and current version number to identify already generated derivatives.
         $derivativeFilename = hash('sha256', $transformations . $currentVersionNumber);
 
         // Path for (existing) derivative.
@@ -73,7 +74,17 @@ class ImageController extends Controller
             $constraint->upsize();
         })->encode($transformationsArray['f'], $transformationsArray['q'] ?? null);
 
+        // Temporary file is needed since optimizers only work locally.
+        $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
+
+        file_put_contents($tempFile, $derivative);
+
+        ImageOptimizer::optimize($tempFile);
+
+        $derivative = file_get_contents($tempFile);
         $diskImageDerivatives->put($derivativePath, $derivative);
+
+        unlink($tempFile);
 
         return response($derivative, 200, ['Content-Type' => $diskImageDerivatives->mimeType($derivativePath)]);
     }
