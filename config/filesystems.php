@@ -56,6 +56,11 @@ return [
             'throw' => false,
         ],
 
+        'imageDerivatives' => [
+            'driver' => 'local',
+            'root' => storage_path('app/derivatives'),
+            'throw' => false,
+        ],
     ],
 
     /*

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Image
+Route::get('/{user}/{media}/{transformations?}', [ImageController::class, 'get']);

@@ -17,7 +17,7 @@ class Version extends Model
      */
     protected $fillable = [
         'number',
-        'path',
+        'filename',
         'processed',
         'media_id',
     ];
