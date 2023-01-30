@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Enums\MediaType;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\User;
+use Aws\CloudFront\CloudFrontClient;
+use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -12,7 +14,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 
 class ImageController extends Controller
@@ -50,7 +51,6 @@ class ImageController extends Controller
         $currentVersionNumber = $media->Versions()->max('number');
         $currentVersion       = $media->Versions()->whereNumber($currentVersionNumber)->first();
 
-        $diskOriginals        = Storage::disk(config('transmorpher.disks.originals'));
         $diskImageDerivatives = Storage::disk(config('transmorpher.disks.imageDerivatives'));
 
         // Hash of transformation parameters and current version number to identify already generated derivatives.
@@ -67,24 +67,12 @@ class ImageController extends Controller
         $transformationsArray = $this->getTransformations($transformations);
 
         $originalFilePath = sprintf('%s/%s/%s', $user->name, $media->identifier, $currentVersion->filename);
-        $image            = Image::make($diskOriginals->get($originalFilePath));
 
-        $derivative = $image->resize($transformationsArray['w'] ?? null, $transformationsArray['h'] ?? null, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        })->encode($transformationsArray['f'], $transformationsArray['q'] ?? null);
+        // Apply transformations to image.
+        $derivative = config('transmorpher.transmorpher')::transmorph($originalFilePath, $transformationsArray);
+        $derivative = $this->optimizeDerivative($derivative);
 
-        // Temporary file is needed since optimizers only work locally.
-        $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
-
-        file_put_contents($tempFile, $derivative);
-
-        ImageOptimizer::optimize($tempFile);
-
-        $derivative = file_get_contents($tempFile);
         $diskImageDerivatives->put($derivativePath, $derivative);
-
-        unlink($tempFile);
 
         return response($derivative, 200, ['Content-Type' => $diskImageDerivatives->mimeType($derivativePath)]);
     }
@@ -112,10 +100,27 @@ class ImageController extends Controller
         $filename = sprintf('%d-%s', $versionNumber, $imageFile->getClientOriginalName());
 
         // Save image to disk.
-        $disk->putFileAs($path, $imageFile, $filename);
+        $filePath = $disk->putFileAs($path, $imageFile, $filename);
 
         // Create new version in database.
-        $media->Versions()->create(['number' => $versionNumber, 'filename' => $filename]);
+        $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $filename]);
+
+        // Invalidate cache and delete entry if failed.
+        if (config('transmorpher.aws.cloudfront_distribution_id')) {
+            try {
+                $this->invalidateCdnCache($path);
+            } catch (Exception) {
+                $disk->delete($filePath);
+                $version->delete();
+
+                return [
+                    'success' => false,
+                    'response' => 'Cache invalidation failed.',
+                    'identifier' => $media->identifier,
+                    'client' => $user->name,
+                ];
+            }
+        }
 
         return [
             'success'    => true,
@@ -147,5 +152,57 @@ class ImageController extends Controller
         }
 
         return $transformationsArray;
+    }
+
+    /**
+     * @param $derivative
+     *
+     * @return false|string
+     */
+    public function optimizeDerivative($derivative): string|false
+    {
+        // Temporary file is needed since optimizers only work locally.
+        $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
+
+        file_put_contents($tempFile, $derivative);
+
+        // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
+        ImageOptimizer::optimize($tempFile);
+
+        $derivative = file_get_contents($tempFile);
+
+        unlink($tempFile);
+
+        return $derivative;
+    }
+
+    private function invalidateCdnCache(string $path): void
+    {
+        $invalidationPath = sprintf('%s/%s/*', Storage::disk(config('transmorpher.disks.imageDerivatives'))->path(''), $path);
+
+        $cloudFrontClient = new CloudFrontClient([
+            'version'     => 'latest',
+            'region'      => config('transmorpher.aws.region'),
+            'credentials' => [
+                'key'    => config('transmorpher.aws.key'),
+                'secret' => config('transmorpher.aws.secret'),
+            ],
+        ]);
+
+        $cloudFrontClient->createInvalidation([
+            'DistributionId'    => config('transmorpher.aws.cloudfront_distribution_id'),
+            'InvalidationBatch' => [
+                'CallerReference' => $this->getCallerReference(),
+                'Paths'           => [
+                    'Items'    => [$invalidationPath],
+                    'Quantity' => 1,
+                ],
+            ],
+        ]);
+    }
+
+    private function getCallerReference(): string
+    {
+        return uniqid();
     }
 }

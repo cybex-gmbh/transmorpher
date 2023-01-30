@@ -196,6 +196,9 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        App\Providers\InterventionTransmorpherServiceProvider::class,
+        App\Providers\InterventionConverterServiceProvider::class,
+
     ],
 
     /*
@@ -210,7 +213,9 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'Image' => Intervention\Image\Facades\Image::class
+        'Image' => Intervention\Image\Facades\Image::class,
+        'InterventionTransmorpher' => App\Facades\InterventionTransmorpherFacade::class,
+        'InterventionConverter' => App\Facades\InterventionConverterFacade::class,
     ])->toArray(),
 
 ];
