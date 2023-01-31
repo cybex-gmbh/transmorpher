@@ -4,9 +4,9 @@ namespace App\Helpers\InterventionTransmorpher;
 
 use App\Interfaces\TransmorpherInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Support\Facades\Storage;
+use Image;
 use Intervention\Image\Exception\NotSupportedException;
-use Intervention\Image\Image;
+use Storage;
 
 class InterventionTransmorpher implements TransmorpherInterface
 {
@@ -49,10 +49,8 @@ class InterventionTransmorpher implements TransmorpherInterface
      * @param     $image
      * @param int $width
      * @param int $height
-     *
-     * @return Image
      */
-    public function resize($image, int $width, int $height): Image
+    public function resize($image, int $width, int $height)
     {
         return $image->resize($width, $height, function ($constraint) {
             $constraint->aspectRatio();

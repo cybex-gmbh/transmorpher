@@ -198,6 +198,7 @@ return [
 
         App\Providers\InterventionTransmorpherServiceProvider::class,
         App\Providers\InterventionConverterServiceProvider::class,
+        App\Providers\FilePathHelperServiceProvider::class,
 
     ],
 
@@ -216,6 +217,7 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'InterventionTransmorpher' => App\Facades\InterventionTransmorpherFacade::class,
         'InterventionConverter' => App\Facades\InterventionConverterFacade::class,
+        'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
     ])->toArray(),
 
 ];

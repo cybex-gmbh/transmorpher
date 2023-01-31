@@ -1,10 +1,33 @@
 <?php
 
-use App\Facades\InterventionConverterFacade;
-use App\Facades\InterventionTransmorpherFacade;
+use InterventionConverter;
+use InterventionTransmorpher;
 
 return [
     /*
+    |--------------------------------------------------------------------------
+    | Development mode
+    |--------------------------------------------------------------------------
+    |
+    | When this is set to true, derivatives will always be regenerated.
+    | Only needs to be considered when the option to store derivatives is also true.
+    |
+    */
+    'dev_mode' => env('TRANSMORPHER_DEV_MODE'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Store derivatives
+    |--------------------------------------------------------------------------
+    |
+    | When this is set to false, derivatives won't be saved to disk.
+    | Only applies to image derivatives, since video derivatives have to be saved.
+    |
+    */
+    'store_derivatives' => env('TRANSMORPHER_STORE_DERIVATIVES'),
+
+
+   /*
    |--------------------------------------------------------------------------
    | Storage Disks
    |--------------------------------------------------------------------------
@@ -14,11 +37,11 @@ return [
    */
 
     'disks' => [
-        'originals' => 'imageOriginals',
-        'imageDerivatives' => 'imageDerivatives'
+        'originals' => env('TRANSMORPHER_DISK_MAIN'),
+        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES'),
     ],
 
-    /*
+   /*
    |--------------------------------------------------------------------------
    | Transmorpher
    |--------------------------------------------------------------------------
@@ -30,7 +53,7 @@ return [
    |
    */
 
-    'transmorpher' => InterventionTransmorpherFacade::class,
+    'transmorpher' => InterventionTransmorpher::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -40,15 +63,15 @@ return [
     | The Format Converters which are used for applying format conversions.
     |
     | Available Converters:
-    | - InterventionConverter(based on Intervention Image)
+    | - InterventionConverter (based on Intervention Image)
     |
     */
 
     'converters' => [
-        'jpg' => InterventionConverterFacade::class,
-        'png' => InterventionConverterFacade::class,
-        'gif' => InterventionConverterFacade::class,
-        'webp' => InterventionConverterFacade::class,
+        'jpg' => InterventionConverter::class,
+        'png' => InterventionConverter::class,
+        'gif' => InterventionConverter::class,
+        'webp' => InterventionConverter::class,
     ],
 
     /*

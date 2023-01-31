@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App;
 use App\Enums\MediaType;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\User;
 use Aws\CloudFront\CloudFrontClient;
 use Exception;
+use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
+use Storage;
 
 class ImageController extends Controller
 {
@@ -47,32 +49,24 @@ class ImageController extends Controller
      */
     public function get(User $user, string $identifier, string $transformations = ''): Response|Application|ResponseFactory
     {
-        $media                = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $currentVersionNumber = $media->Versions()->max('number');
-        $currentVersion       = $media->Versions()->whereNumber($currentVersionNumber)->first();
-
         $diskImageDerivatives = Storage::disk(config('transmorpher.disks.imageDerivatives'));
-
-        // Hash of transformation parameters and current version number to identify already generated derivatives.
-        $derivativeFilename = hash('sha256', $transformations . $currentVersionNumber);
-
-        // Path for (existing) derivative.
-        $derivativePath = sprintf('%s/%s/%s', $user->name, $identifier, $derivativeFilename);
+        $transformationsArray = $this->getTransformations($transformations);
+        $derivativePath       = FilePathHelper::getImageDerivativePath($user, $transformations, $identifier, $transformationsArray);
 
         // Check if derivative already exists and return if so.
-        if ($diskImageDerivatives->exists($derivativePath)) {
+        if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $diskImageDerivatives->exists($derivativePath)) {
             return response($diskImageDerivatives->get($derivativePath), 200, ['Content-Type' => $diskImageDerivatives->mimeType($derivativePath)]);
         }
 
-        $transformationsArray = $this->getTransformations($transformations);
-
-        $originalFilePath = sprintf('%s/%s/%s', $user->name, $media->identifier, $currentVersion->filename);
+        $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
 
         // Apply transformations to image.
         $derivative = config('transmorpher.transmorpher')::transmorph($originalFilePath, $transformationsArray);
         $derivative = $this->optimizeDerivative($derivative);
 
-        $diskImageDerivatives->put($derivativePath, $derivative);
+        if (config('transmorpher.store_derivatives')) {
+            $diskImageDerivatives->put($derivativePath, $derivative);
+        }
 
         return response($derivative, 200, ['Content-Type' => $diskImageDerivatives->mimeType($derivativePath)]);
     }
@@ -88,27 +82,20 @@ class ImageController extends Controller
      *
      * @return array
      */
-    private function saveImage(UploadedFile $imageFile, User $user, string $identifier, FilesystemAdapter $disk): array
+    protected function saveImage(UploadedFile $imageFile, User $user, string $identifier, FilesystemAdapter $disk): array
     {
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
+        $basePath      = FilePathHelper::getOriginalsBasePath($user, $identifier);
+        $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
 
-        // Path structure: <username>/<identifier>
-        $path = sprintf('%s/%s', $user->name, $media->identifier);
-
-        // Filename structure: <versionNr>-<filename>
-        $filename = sprintf('%d-%s', $versionNumber, $imageFile->getClientOriginalName());
-
-        // Save image to disk.
-        $filePath = $disk->putFileAs($path, $imageFile, $filename);
-
-        // Create new version in database.
-        $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $filename]);
+        $filePath = $disk->putFileAs($basePath, $imageFile, $fileName);
+        $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
         // Invalidate cache and delete entry if failed.
         if (config('transmorpher.aws.cloudfront_distribution_id')) {
             try {
-                $this->invalidateCdnCache($path);
+                $this->invalidateCdnCache($basePath);
             } catch (Exception) {
                 $disk->delete($filePath);
                 $version->delete();
@@ -136,15 +123,14 @@ class ImageController extends Controller
      *
      * @return array|null
      */
-    private function getTransformations(string $transformations): array|null
+    protected function getTransformations(string $transformations): array|null
     {
         if (!$transformations) {
             return null;
         }
 
         $transformationsArray = null;
-
-        $parameters = explode('+', $transformations);
+        $parameters           = explode('+', $transformations);
 
         foreach ($parameters as $parameter) {
             [$key, $value] = explode('-', $parameter);
@@ -159,24 +145,27 @@ class ImageController extends Controller
      *
      * @return false|string
      */
-    public function optimizeDerivative($derivative): string|false
+    protected function optimizeDerivative($derivative): string|false
     {
         // Temporary file is needed since optimizers only work locally.
         $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
-
         file_put_contents($tempFile, $derivative);
 
         // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
         ImageOptimizer::optimize($tempFile);
 
         $derivative = file_get_contents($tempFile);
-
         unlink($tempFile);
 
         return $derivative;
     }
 
-    private function invalidateCdnCache(string $path): void
+    /**
+     * @param string $path
+     *
+     * @return void
+     */
+    protected function invalidateCdnCache(string $path): void
     {
         $invalidationPath = sprintf('%s/%s/*', Storage::disk(config('transmorpher.disks.imageDerivatives'))->path(''), $path);
 
@@ -201,7 +190,10 @@ class ImageController extends Controller
         ]);
     }
 
-    private function getCallerReference(): string
+    /**
+     * @return string
+     */
+    protected function getCallerReference(): string
     {
         return uniqid();
     }
