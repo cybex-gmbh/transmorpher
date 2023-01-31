@@ -25,7 +25,7 @@ class InterventionTransmorpher implements TransmorpherInterface
             throw new FileNotFoundException(sprintf('File not found at path "%s" on configured disk', $pathToOriginalImage));
         }
 
-        $image = \Intervention\Image\Facades\Image::make($imageData);
+        $image = Image::make($imageData);
 
         if (!$transformations) {
             return $imageData;
