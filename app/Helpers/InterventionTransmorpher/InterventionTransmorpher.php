@@ -86,6 +86,6 @@ class InterventionTransmorpher implements TransmorpherInterface
      */
     public function getSupportedFormats(): array
     {
-        return array_column(Converter::cases(), 'value');
+        return Converter::getMimeTypes();
     }
 }

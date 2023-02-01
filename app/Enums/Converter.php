@@ -20,4 +20,14 @@ enum Converter: string
     {
         return app(config(sprintf('transmorpher.converters.%s', $this->value)));
     }
+
+    /**
+     * Retrieve the mime types which are defined in the enum cases.
+     *
+     * @return array
+     */
+    public static function getMimeTypes(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }
