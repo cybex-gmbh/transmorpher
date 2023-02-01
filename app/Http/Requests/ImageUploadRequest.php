@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\Converter;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ImageUploadRequest extends FormRequest
@@ -25,7 +26,10 @@ class ImageUploadRequest extends FormRequest
     {
         return [
             'identifier' => ['required', 'string'],
-            'image' => ['required', 'mimes:jpeg,jpg,png,gif,webp'],
+            'image' => [
+                'required',
+                sprintf('mimes:%s', implode(',', array_column(Converter::cases(), 'value'))),
+            ],
         ];
     }
 }
