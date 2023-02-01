@@ -28,7 +28,7 @@ class ImageController extends Controller
      *
      * @return JsonResponse
      */
-    public function store(ImageUploadRequest $request): JsonResponse
+    public function put(ImageUploadRequest $request): JsonResponse
     {
         $user       = $request->user();
         $imageFile  = $request->file('image');

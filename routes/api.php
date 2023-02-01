@@ -17,6 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->group(
     function () {
         // Image
-        Route::post('/image/upload', [ImageController::class, 'store']);
+        Route::post('/image/upload', [ImageController::class, 'put']);
     }
 );
