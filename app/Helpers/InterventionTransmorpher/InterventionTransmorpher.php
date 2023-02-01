@@ -5,6 +5,7 @@ namespace App\Helpers\InterventionTransmorpher;
 use App\Enums\Converter;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use App\Interfaces\ConvertedImageInterface;
 use App\Interfaces\TransmorpherInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Image;
@@ -44,7 +45,7 @@ class InterventionTransmorpher implements TransmorpherInterface
         $image = $this->resize($image, $width, $height);
 
         if ($format) {
-            return $this->format($image->stream(), $format, $quality);
+            $this->format($image->stream(), $format, $quality)->getBinary();
         }
 
         return $image->stream();
@@ -73,9 +74,9 @@ class InterventionTransmorpher implements TransmorpherInterface
      * @param string   $format
      * @param int|null $quality
      *
-     * @return Image|string
+     * @return ConvertedImageInterface
      */
-    public function format($image, string $format, int $quality = null): Image|string
+    public function format($image, string $format, int $quality = null): ConvertedImageInterface
     {
         return Converter::from($format)->getConverter()->encode($image, $format, $quality);
     }

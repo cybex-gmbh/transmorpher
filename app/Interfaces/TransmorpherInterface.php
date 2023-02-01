@@ -30,7 +30,7 @@ interface TransmorpherInterface
      * @param string   $format
      * @param int|null $quality
      */
-    public function format($image, string $format, int $quality = null);
+    public function format($image, string $format, int $quality = null): ConvertedImageInterface;
 
     /**
      * @return array

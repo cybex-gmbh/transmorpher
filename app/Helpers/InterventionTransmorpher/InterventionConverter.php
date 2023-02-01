@@ -2,6 +2,8 @@
 
 namespace App\Helpers\InterventionTransmorpher;
 
+use App\Helpers\ConvertedImage;
+use App\Interfaces\ConvertedImageInterface;
 use App\Interfaces\ConverterInterface;
 use Image;
 
@@ -14,10 +16,10 @@ class InterventionConverter implements ConverterInterface
      * @param string       $format
      * @param int|null     $quality
      */
-    public function encode(string|Image $image, string $format, int $quality = null)
+    public function encode(string|Image $image, string $format, int $quality = null): ConvertedImageInterface
     {
-        $image = ($image instanceof Image ? $image : Image::make($image));
+        $convertedImage = Image::make($image)->encode($format, $quality);
 
-        return $image->encode($format, $quality);
+        return ConvertedImage::createFromString($convertedImage);
     }
 }
