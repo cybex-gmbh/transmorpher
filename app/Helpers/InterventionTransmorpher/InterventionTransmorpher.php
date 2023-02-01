@@ -13,6 +13,8 @@ use Storage;
 class InterventionTransmorpher implements TransmorpherInterface
 {
     /**
+     * Transmorph image based on specified transformations.
+     *
      * @param string     $pathToOriginalImage
      * @param array|null $transformations
      *
@@ -49,6 +51,9 @@ class InterventionTransmorpher implements TransmorpherInterface
     }
 
     /**
+     * Resize an image based on specified width and height.
+     * Keeps the aspect ratio and prevents upsizing.
+     *
      * @param     $image
      * @param int $width
      * @param int $height
@@ -62,6 +67,8 @@ class InterventionTransmorpher implements TransmorpherInterface
     }
 
     /**
+     * Use a converter class to encode the image to given format and quality.
+     *
      * @param          $image
      * @param string   $format
      * @param int|null $quality

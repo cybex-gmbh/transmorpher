@@ -8,6 +8,9 @@ use App\Models\User;
 class FilePathHelper
 {
     /**
+     * Get the path to an (existing) image derivative.
+     * Path structure: derivatives/images/{username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
+     *
      * @param User       $user
      * @param string     $transformations
      * @param string     $identifier
@@ -26,7 +29,6 @@ class FilePathHelper
         // Hash of transformation parameters and current version number to identify already generated derivatives.
         $derivativeHash = hash('sha256', $transformations . $currentVersionNumber);
 
-        // Path for (existing) derivative.
         return sprintf('derivatives/images/%s/%s/%d/%sx_%sy_%sq_%s.%s',
             $user->name,
             $identifier,
@@ -40,6 +42,9 @@ class FilePathHelper
     }
 
     /**
+     * Get the path to an original image.
+     * Path structure: originals/{username}/{identifier}/{filename}
+     *
      * @param User   $user
      * @param string $identifier
      *
@@ -52,11 +57,13 @@ class FilePathHelper
         $currentVersionNumber = $mediaVersions->max('number');
         $currentVersion       = $mediaVersions->whereNumber($currentVersionNumber)->first();
 
-        // Path structure: originals/<username>/<identifier>
         return sprintf('%s/%s', $this->getOriginalsBasePath($user, $identifier), $currentVersion->filename);
     }
 
     /**
+     * Get the base path for original media.
+     * Path structure: originals/{username}/{identifier}/
+     *
      * @param User   $user
      * @param string $identifier
      *
@@ -68,6 +75,9 @@ class FilePathHelper
     }
 
     /**
+     * Create the filename for an original.
+     * Filename structure: {versionNumber}-{filename}
+     *
      * @param int    $versionNumber
      * @param string $fileName
      *
@@ -75,7 +85,6 @@ class FilePathHelper
      */
     public function createOriginalFileName(int $versionNumber, string $fileName): string
     {
-        // Filename structure: <versionNr>-<fileName>
         return sprintf('%d-%s', $versionNumber, $fileName);
     }
 }

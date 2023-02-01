@@ -42,6 +42,8 @@ class ImageController extends Controller
     }
 
     /**
+     * Handles incoming image derivative requests.
+     *
      * @param User   $user
      * @param string $identifier
      * @param string $transformations
@@ -118,6 +120,8 @@ class ImageController extends Controller
     }
 
     /**
+     * Convert transformations request parameter to array.
+     *
      * @param string $transformations
      *
      * @return array|null
@@ -140,6 +144,9 @@ class ImageController extends Controller
     }
 
     /**
+     * Optimize an image derivative.
+     * Creates a temporary file since image optimizers only work locally.
+     *
      * @param $derivative
      *
      * @return false|string
@@ -160,6 +167,8 @@ class ImageController extends Controller
     }
 
     /**
+     * Invalidates the CloudFront CDN cache.
+     *
      * @param string $path
      *
      * @return void
@@ -190,6 +199,8 @@ class ImageController extends Controller
     }
 
     /**
+     * Returns a unique caller reference used in the invalidation request for CloudFront.
+     *
      * @return string
      */
     protected function getCallerReference(): string

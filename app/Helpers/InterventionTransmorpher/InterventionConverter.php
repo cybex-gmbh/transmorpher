@@ -8,6 +8,8 @@ use Image;
 class InterventionConverter implements ConverterInterface
 {
     /**
+     * Encode to specified format and if possible set quality.
+     *
      * @param string|Image $image
      * @param string       $format
      * @param int|null     $quality

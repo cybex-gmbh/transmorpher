@@ -27,31 +27,31 @@ return [
     'store_derivatives' => env('TRANSMORPHER_STORE_DERIVATIVES'),
 
 
-   /*
-   |--------------------------------------------------------------------------
-   | Storage Disks
-   |--------------------------------------------------------------------------
-   |
-   | The disks on which the Transmorpher operates.
-   |
-   */
+    /*
+    |--------------------------------------------------------------------------
+    | Storage Disks
+    |--------------------------------------------------------------------------
+    |
+    | The disks on which the Transmorpher operates.
+    |
+    */
 
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_MAIN'),
         'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES'),
     ],
 
-   /*
-   |--------------------------------------------------------------------------
-   | Transmorpher
-   |--------------------------------------------------------------------------
-   |
-   | The Transmorpher which is used for applying transformations.
-   |
-   | Available Transmorphers:
-   | - InterventionTransmorpher (based on Intervention Image)
-   |
-   */
+    /*
+    |--------------------------------------------------------------------------
+    | Transmorpher
+    |--------------------------------------------------------------------------
+    |
+    | The Transmorpher which is used for applying transformations.
+    |
+    | Available Transmorphers:
+    | - InterventionTransmorpher (based on Intervention Image)
+    |
+    */
 
     'transmorpher' => InterventionTransmorpher::class,
 
@@ -79,7 +79,7 @@ return [
     | AWS Information
     |--------------------------------------------------------------------------
     |
-    | Information which is needed for using AWS as Storage and CDN provider.
+    | Information which is needed for using AWS as CDN provider.
     |
     */
 

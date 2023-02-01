@@ -11,6 +11,11 @@ enum Converter: string
     case GIF = 'gif';
     case WEBP = 'webp';
 
+    /**
+     * Retrieve converter class from the value specified in the transmorpher config.
+     *
+     * @return ConverterInterface
+     */
     public function getConverter(): ConverterInterface
     {
         return app(config(sprintf('transmorpher.converters.%s', $this->value)));
