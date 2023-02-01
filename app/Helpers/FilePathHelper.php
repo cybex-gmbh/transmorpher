@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Enums\Transformation;
 use App\Models\User;
 
 class FilePathHelper
@@ -30,11 +31,11 @@ class FilePathHelper
             $user->name,
             $identifier,
             $currentVersionNumber,
-            $transformationsArray['w'] ?? '',
-            $transformationsArray['h'] ?? '',
-            $transformationsArray['q'] ?? '',
+            $transformationsArray[Transformation::WIDTH->value] ?? '',
+            $transformationsArray[Transformation::HEIGHT->value] ?? '',
+            $transformationsArray[Transformation::QUALITY->value] ?? '',
             $derivativeHash,
-            $transformationsArray['f'] ?? $originalFileExtension,
+            $transformationsArray[Transformation::FORMAT->value] ?? $originalFileExtension,
         );
     }
 

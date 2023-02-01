@@ -34,10 +34,10 @@ class InterventionTransmorpher implements TransmorpherInterface
             return $imageData;
         }
 
-        $width   = $transformations['w'] ?? $image->getWidth();
-        $height  = $transformations['h'] ?? $image->getHeight();
-        $format  = $transformations['f'] ?? null;
-        $quality = $transformations['q'] ?? null;
+        $width   = $transformations[Transformation::WIDTH->value] ?? $image->getWidth();
+        $height  = $transformations[Transformation::HEIGHT->value] ?? $image->getHeight();
+        $format  = $transformations[Transformation::FORMAT->value] ?? null;
+        $quality = $transformations[Transformation::QUALITY->value] ?? null;
 
         $image = $this->resize($image, $width, $height);
 
