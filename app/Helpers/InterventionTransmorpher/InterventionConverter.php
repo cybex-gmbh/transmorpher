@@ -14,10 +14,8 @@ class InterventionConverter implements ConverterInterface
      */
     public function encode(string|Image $image, string $format, int $quality = null)
     {
-        if ($image instanceof Image) {
-            return $image->encode($format, $quality);
-        }
+        $image = ($image instanceof Image ? $image : Image::make($image));
 
-        return Image::make($image)->encode($format, $quality);
+        return $image->encode($format, $quality);
     }
 }

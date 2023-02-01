@@ -13,6 +13,6 @@ class InterventionConverterFacade extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return 'InterventionConverter';
+        return 'intervention.converter';
     }
 }

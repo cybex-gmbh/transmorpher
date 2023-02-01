@@ -13,6 +13,6 @@ class FilePathHelperFacade extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return 'FilePathHelper';
+        return 'file.path';
     }
 }

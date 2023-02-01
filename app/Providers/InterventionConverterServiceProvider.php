@@ -15,7 +15,7 @@ class InterventionConverterServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(
-            'InterventionConverter', function () {
+            'intervention.converter', function () {
             return new InterventionConverter();
         });
     }
