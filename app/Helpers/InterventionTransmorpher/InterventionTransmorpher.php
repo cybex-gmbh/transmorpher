@@ -8,7 +8,7 @@ use App\Enums\Transformation;
 use App\Interfaces\ConvertedImageInterface;
 use App\Interfaces\TransmorpherInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Image;
+use InterventionImage;
 use Storage;
 
 class InterventionTransmorpher implements TransmorpherInterface
@@ -31,7 +31,7 @@ class InterventionTransmorpher implements TransmorpherInterface
         }
 
         $imageData = $disk->get($pathToOriginalImage);
-        $image     = Image::make($imageData);
+        $image     = InterventionImage::make($imageData);
 
         if (!$transformations) {
             return $imageData;

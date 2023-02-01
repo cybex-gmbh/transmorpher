@@ -213,7 +213,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'Image' => Intervention\Image\Facades\Image::class,
+        'InterventionImage' => Intervention\Image\Facades\Image::class,
         'Transmorpher' => App\Facades\TransmorpherFacade::class,
         'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
     ])->toArray(),
