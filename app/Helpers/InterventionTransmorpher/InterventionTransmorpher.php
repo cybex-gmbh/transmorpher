@@ -85,11 +85,6 @@ class InterventionTransmorpher implements TransmorpherInterface
      */
     public function getSupportedFormats(): array
     {
-        return [
-            'jpg',
-            'png',
-            'gif',
-            'webp',
-        ];
+        return array_column(Converter::cases(), 'value');
     }
 }
