@@ -4,7 +4,7 @@ namespace App\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class InterventionTransmorpherFacade extends Facade
+class TransmorpherFacade extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -13,6 +13,6 @@ class InterventionTransmorpherFacade extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return 'InterventionTransmorpher';
+        return 'transmorpher';
     }
 }

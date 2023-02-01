@@ -17,6 +17,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 use Storage;
+use Transmorpher;
 
 class ImageController extends Controller
 {
@@ -61,7 +62,7 @@ class ImageController extends Controller
         $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
 
         // Apply transformations to image.
-        $derivative = config('transmorpher.transmorpher')::transmorph($originalFilePath, $transformationsArray);
+        $derivative = Transmorpher::transmorph($originalFilePath, $transformationsArray);
         $derivative = $this->optimizeDerivative($derivative);
 
         if (config('transmorpher.store_derivatives')) {

@@ -196,7 +196,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        App\Providers\InterventionTransmorpherServiceProvider::class,
+        App\Providers\TransmorpherServiceProvider::class,
         App\Providers\InterventionConverterServiceProvider::class,
         App\Providers\FilePathHelperServiceProvider::class,
 
@@ -215,7 +215,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'Image' => Intervention\Image\Facades\Image::class,
-        'InterventionTransmorpher' => App\Facades\InterventionTransmorpherFacade::class,
+        'Transmorpher' => App\Facades\TransmorpherFacade::class,
         'InterventionConverter' => App\Facades\InterventionConverterFacade::class,
         'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
     ])->toArray(),

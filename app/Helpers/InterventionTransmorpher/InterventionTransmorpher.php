@@ -2,10 +2,10 @@
 
 namespace App\Helpers\InterventionTransmorpher;
 
+use App\Enums\Converter;
 use App\Interfaces\TransmorpherInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Image;
-use Intervention\Image\Exception\NotSupportedException;
 use Storage;
 
 class InterventionTransmorpher implements TransmorpherInterface
@@ -19,13 +19,14 @@ class InterventionTransmorpher implements TransmorpherInterface
      */
     public function transmorph(string $pathToOriginalImage, array $transformations = null): string
     {
-        $imageData = Storage::disk(config('transmorpher.disks.originals'))->get($pathToOriginalImage);
+        $disk = Storage::disk(config('transmorpher.disks.originals'));
 
-        if (!$imageData) {
+        if (!$disk->exists($pathToOriginalImage)) {
             throw new FileNotFoundException(sprintf('File not found at path "%s" on configured disk', $pathToOriginalImage));
         }
 
-        $image = Image::make($imageData);
+        $imageData = $disk->get($pathToOriginalImage);
+        $image     = Image::make($imageData);
 
         if (!$transformations) {
             return $imageData;
@@ -67,13 +68,7 @@ class InterventionTransmorpher implements TransmorpherInterface
      */
     public function format($image, string $format, int $quality = null): Image|string
     {
-        return match ($format) {
-            'jpg' => config('transmorpher.converters.jpg')::encode($image, $format, $quality),
-            'png' => config('transmorpher.converters.png')::encode($image, $format, $quality),
-            'gif' => config('transmorpher.converters.gif')::encode($image, $format, $quality),
-            'webp' => config('transmorpher.converters.webp')::encode($image, $format, $quality),
-            default => throw new NotSupportedException(sprintf('Format %s not supported by %s', $format, $this::class)),
-        };
+        return Converter::from($format)->getConverter()->encode($image, $format, $quality);
     }
 
     /**

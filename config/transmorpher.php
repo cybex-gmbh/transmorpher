@@ -1,7 +1,7 @@
 <?php
 
-use InterventionConverter;
-use InterventionTransmorpher;
+use App\Helpers\InterventionTransmorpher\InterventionTransmorpher;
+use App\Helpers\InterventionTransmorpher\InterventionConverter;
 
 return [
     /*
