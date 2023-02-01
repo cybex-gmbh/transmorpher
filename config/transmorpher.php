@@ -1,7 +1,7 @@
 <?php
 
-use App\Helpers\InterventionTransmorpher\InterventionTransmorpher;
-use App\Helpers\InterventionTransmorpher\InterventionConverter;
+use App\Classes\Intervention\Converter;
+use App\Classes\Intervention\Transmorpher;
 
 return [
     /*
@@ -49,11 +49,11 @@ return [
     | The Transmorpher which is used for applying transformations.
     |
     | Available Transmorphers:
-    | - InterventionTransmorpher (based on Intervention Image)
+    | -  Intervention\Transmorpher (based on Intervention Image)
     |
     */
 
-    'transmorpher' => InterventionTransmorpher::class,
+    'transmorpher' => Transmorpher::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -63,15 +63,15 @@ return [
     | The Format Converters which are used for applying format conversions.
     |
     | Available Converters:
-    | - InterventionConverter (based on Intervention Image)
+    | - Intervention\Converter (based on Intervention Image)
     |
     */
 
     'converters' => [
-        'jpg' => InterventionConverter::class,
-        'png' => InterventionConverter::class,
-        'gif' => InterventionConverter::class,
-        'webp' => InterventionConverter::class,
+        'jpg' => Converter::class,
+        'png' => Converter::class,
+        'gif' => Converter::class,
+        'webp' => Converter::class,
     ],
 
     /*

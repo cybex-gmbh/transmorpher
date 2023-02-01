@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Helpers\InterventionTransmorpher;
+namespace App\Classes\Intervention;
 
-use App\Helpers\ConvertedImage;
 use App\Interfaces\ConvertedImageInterface;
 use App\Interfaces\ConverterInterface;
 use InterventionImage;
 
-class InterventionConverter implements ConverterInterface
+class Converter implements ConverterInterface
 {
     /**
      * Encode to specified format and if possible set quality.

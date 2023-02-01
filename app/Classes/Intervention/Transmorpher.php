@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers\InterventionTransmorpher;
+namespace App\Classes\Intervention;
 
 use App\Enums\Converter;
 use App\Enums\MediaStorage;
@@ -11,7 +11,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use InterventionImage;
 use Storage;
 
-class InterventionTransmorpher implements TransmorpherInterface
+class Transmorpher implements TransmorpherInterface
 {
     /**
      * Transmorph image based on specified transformations.
