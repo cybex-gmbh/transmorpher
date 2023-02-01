@@ -56,17 +56,17 @@ class ImageController extends Controller
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $diskImageDerivatives->exists($derivativePath)) {
-            return response($diskImageDerivatives->get($derivativePath), 200, ['Content-Type' => $diskImageDerivatives->mimeType($derivativePath)]);
-        }
+            $derivative = $diskImageDerivatives->get($derivativePath);
+        } else {
+            $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
 
-        $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
+            // Apply transformations to image.
+            $derivative = Transmorpher::transmorph($originalFilePath, $transformationsArray);
+            $derivative = $this->optimizeDerivative($derivative);
 
-        // Apply transformations to image.
-        $derivative = Transmorpher::transmorph($originalFilePath, $transformationsArray);
-        $derivative = $this->optimizeDerivative($derivative);
-
-        if (config('transmorpher.store_derivatives')) {
-            $diskImageDerivatives->put($derivativePath, $derivative);
+            if (config('transmorpher.store_derivatives')) {
+                $diskImageDerivatives->put($derivativePath, $derivative);
+            }
         }
 
         return response($derivative, 200, ['Content-Type' => $diskImageDerivatives->mimeType($derivativePath)]);
@@ -93,6 +93,8 @@ class ImageController extends Controller
         $filePath = $disk->putFileAs($basePath, $imageFile, $fileName);
         $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
+        $success = true;
+
         // Invalidate cache and delete entry if failed.
         if (config('transmorpher.aws.cloudfront_distribution_id')) {
             try {
@@ -101,18 +103,14 @@ class ImageController extends Controller
                 $disk->delete($filePath);
                 $version->delete();
 
-                return [
-                    'success' => false,
-                    'response' => 'Cache invalidation failed.',
-                    'identifier' => $media->identifier,
-                    'client' => $user->name,
-                ];
+                $success = false;
+                $versionNumber -= 1;
             }
         }
 
         return [
-            'success'    => true,
-            'response'   => "Successfully added new image version.",
+            'success'    => $success,
+            'response'   => $success ? "Successfully added new image version." : 'Cache invalidation failed.',
             'identifier' => $media->identifier,
             'version'    => $versionNumber,
             'client'     => $user->name,
