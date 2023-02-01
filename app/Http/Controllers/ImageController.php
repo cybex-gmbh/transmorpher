@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App;
+use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\User;
@@ -16,7 +17,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
-use Storage;
 use Transmorpher;
 
 class ImageController extends Controller
@@ -33,7 +33,7 @@ class ImageController extends Controller
         $user       = $request->user();
         $imageFile  = $request->file('image');
         $identifier = $request->get('identifier');
-        $disk       = Storage::disk(config('transmorpher.disks.originals'));
+        $disk       = MediaStorage::ORIGINALS->getDisk();
 
         // Save image to disk and create database entry.
         $response = $this->saveImage($imageFile, $user, $identifier, $disk);
@@ -50,7 +50,7 @@ class ImageController extends Controller
      */
     public function get(User $user, string $identifier, string $transformations = ''): Response|Application|ResponseFactory
     {
-        $diskImageDerivatives = Storage::disk(config('transmorpher.disks.imageDerivatives'));
+        $diskImageDerivatives = MediaStorage::IMAGE_DERIVATIVES->getDisk();
         $transformationsArray = $this->getTransformations($transformations);
         $derivativePath       = FilePathHelper::getImageDerivativePath($user, $transformations, $identifier, $transformationsArray);
 
@@ -166,7 +166,7 @@ class ImageController extends Controller
      */
     protected function invalidateCdnCache(string $path): void
     {
-        $invalidationPath = sprintf('%s/%s/*', Storage::disk(config('transmorpher.disks.imageDerivatives'))->path(''), $path);
+        $invalidationPath = sprintf('%s/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path(''), $path);
 
         $cloudFrontClient = new CloudFrontClient([
             'version'     => 'latest',

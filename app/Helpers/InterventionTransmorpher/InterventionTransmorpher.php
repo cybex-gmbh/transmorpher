@@ -3,6 +3,8 @@
 namespace App\Helpers\InterventionTransmorpher;
 
 use App\Enums\Converter;
+use App\Enums\MediaStorage;
+use App\Enums\Transformation;
 use App\Interfaces\TransmorpherInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Image;
@@ -19,7 +21,7 @@ class InterventionTransmorpher implements TransmorpherInterface
      */
     public function transmorph(string $pathToOriginalImage, array $transformations = null): string
     {
-        $disk = Storage::disk(config('transmorpher.disks.originals'));
+        $disk = MediaStorage::ORIGINALS->getDisk();
 
         if (!$disk->exists($pathToOriginalImage)) {
             throw new FileNotFoundException(sprintf('File not found at path "%s" on configured disk', $pathToOriginalImage));
