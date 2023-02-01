@@ -35,12 +35,7 @@ class ConvertedImage implements ConvertedImageInterface
      */
     public function getBinary(): string
     {
-        // Try to detect an encoding, if no encoding is detected we assume it's binary.
-        if (mb_detect_encoding($this->image, null, true) === false) {
-            return $this->image;
-        }
-
-        return base64_decode($this->image);
+        return $this->image;
     }
 
     /**
@@ -50,10 +45,6 @@ class ConvertedImage implements ConvertedImageInterface
      */
     public function getBase64(): string
     {
-        if (base64_decode($this->image, true) === false) {
-            return base64_encode($this->image);
-        }
-
-        return $this->image;
+        return base64_encode($this->image);
     }
 }
