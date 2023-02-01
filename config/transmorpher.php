@@ -53,7 +53,7 @@ return [
     |
     */
 
-    'transmorpher' => Transmorpher::class,
+    'transmorpher_class' => Transmorpher::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -67,7 +67,7 @@ return [
     |
     */
 
-    'converters' => [
+    'converter_classes' => [
         'jpg' => Converter::class,
         'png' => Converter::class,
         'gif' => Converter::class,

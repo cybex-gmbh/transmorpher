@@ -14,7 +14,7 @@ class TransmorpherServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('transmorpher', fn(): TransmorpherInterface => new (config('transmorpher.transmorpher')));
+        $this->app->singleton('transmorpher', fn(): TransmorpherInterface => new (config('transmorpher.transmorpher_class')));
     }
 
     /**

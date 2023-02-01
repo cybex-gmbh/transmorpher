@@ -18,7 +18,7 @@ enum Converter: string
      */
     public function getConverter(): ConverterInterface
     {
-        return app(config(sprintf('transmorpher.converters.%s', $this->value)));
+        return app(config(sprintf('transmorpher.converter_classes.%s', $this->value)));
     }
 
     /**
