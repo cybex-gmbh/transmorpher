@@ -45,7 +45,7 @@ class Transmorpher implements TransmorpherInterface
         $image = $this->resize($image, $width, $height);
 
         if ($format) {
-            $this->format($image->stream(), $format, $quality)->getBinary();
+            return $this->format($image->stream(), $format, $quality)->getBinary();
         }
 
         return $image->stream();
