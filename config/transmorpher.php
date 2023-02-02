@@ -2,6 +2,7 @@
 
 use App\Classes\Intervention\Converter;
 use App\Classes\Intervention\Transmorpher;
+use App\Classes\Transcoder;
 
 return [
     /*
@@ -39,6 +40,7 @@ return [
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_MAIN'),
         'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES'),
+        'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES'),
     ],
 
     /*
@@ -72,6 +74,35 @@ return [
         'png' => Converter::class,
         'gif' => Converter::class,
         'webp' => Converter::class,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Transcoder
+    |--------------------------------------------------------------------------
+    |
+    | The Transcoder which is used for transcoding videos.
+    |
+    | Available Transcoders:
+    | -  Transcoder (uses FFmpeg and Laravel Queue for transcoding)
+    |
+    */
+
+    'transcoder_class' => Transcoder::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Representations
+    |--------------------------------------------------------------------------
+    |
+    | The representations which are created when transcoding a video.
+    |
+    | You can choose from:
+    | 144, 240, 360, 480, 720, 1080, 1440, 2160
+    |
+    */
+    'representations' => [
+        720,
     ],
 
     /*

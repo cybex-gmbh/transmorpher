@@ -9,6 +9,7 @@ enum MediaStorage: string
 {
     case ORIGINALS = 'originals';
     case IMAGE_DERIVATIVES = 'imageDerivatives';
+    case VIDEO_DERIVATIVES = 'videoDerivatives';
 
     /**
      * Retrieve storage disk from the value specified in the transmorpher config.

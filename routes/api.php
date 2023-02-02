@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,5 +19,8 @@ Route::middleware('auth:sanctum')->group(
     function () {
         // Image
         Route::post('/image/upload', [ImageController::class, 'put']);
+
+        // Video
+        Route::post('/video/upload', [VideoController::class, 'put']);
     }
 );
