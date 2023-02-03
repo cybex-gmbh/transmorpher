@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\MediaStorage;
 use App\Models\Media;
 use App\Models\Version;
+use CdnHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -121,8 +122,10 @@ class TranscodeVideo implements ShouldQueue
         } else {
             $this->derivativesDisk->deleteDirectory($this->tempPathOnStorage);
         }
-
-        $this->invalidateCdnCache();
+        
+        if (CdnHelper::isConfigured()) {
+            CdnHelper::createInvalidation(sprintf('%s/*', $this->destinationPath));
+        }
     }
 
     protected function openVideo(FFMpeg $ffmpeg): StreamingMedia

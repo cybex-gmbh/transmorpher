@@ -3,6 +3,7 @@
 use App\Classes\Intervention\Converter;
 use App\Classes\Intervention\Transmorpher;
 use App\Classes\Transcoder;
+use App\Helpers\CloudFrontHelper;
 
 return [
     /*
@@ -104,6 +105,17 @@ return [
     'representations' => [
         720,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | CDN Helper
+    |--------------------------------------------------------------------------
+    |
+    | Helper for creating CDN invalidations.
+    |
+    */
+
+    'cdn_helper' => CloudFrontHelper::class,
 
     /*
     |--------------------------------------------------------------------------

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use CdnHelper;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\User;
-use Aws\CloudFront\CloudFrontClient;
 use Exception;
 use FilePathHelper;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -85,7 +85,7 @@ class ImageController extends Controller
      *
      * @return array
      */
-    protected function saveImage(UploadedFile $imageFile, User $user, string $identifier, FilesystemAdapter $disk): array
+    protected function saveImage(UploadedFile $imageFile, User $user, string $identifier, Filesystem $disk): array
     {
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
@@ -98,9 +98,9 @@ class ImageController extends Controller
         $success = true;
 
         // Invalidate cache and delete entry if failed.
-        if (config('transmorpher.aws.cloudfront_distribution_id')) {
+        if (CdnHelper::isConfigured()) {
             try {
-                $this->invalidateCdnCache($basePath);
+                CdnHelper::createInvalidation(sprintf('%s/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path(''), $basePath));
             } catch (Exception) {
                 $disk->delete($filePath);
                 $version->delete();
@@ -164,47 +164,5 @@ class ImageController extends Controller
         unlink($tempFile);
 
         return $derivative;
-    }
-
-    /**
-     * Invalidates the CloudFront CDN cache.
-     *
-     * @param string $path
-     *
-     * @return void
-     */
-    protected function invalidateCdnCache(string $path): void
-    {
-        $invalidationPath = sprintf('%s/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path(''), $path);
-
-        $cloudFrontClient = new CloudFrontClient([
-            'version'     => 'latest',
-            'region'      => config('transmorpher.aws.region'),
-            'credentials' => [
-                'key'    => config('transmorpher.aws.key'),
-                'secret' => config('transmorpher.aws.secret'),
-            ],
-        ]);
-
-        $cloudFrontClient->createInvalidation([
-            'DistributionId'    => config('transmorpher.aws.cloudfront_distribution_id'),
-            'InvalidationBatch' => [
-                'CallerReference' => $this->getCallerReference(),
-                'Paths'           => [
-                    'Items'    => [$invalidationPath],
-                    'Quantity' => 1,
-                ],
-            ],
-        ]);
-    }
-
-    /**
-     * Returns a unique caller reference used in the invalidation request for CloudFront.
-     *
-     * @return string
-     */
-    protected function getCallerReference(): string
-    {
-        return uniqid();
     }
 }

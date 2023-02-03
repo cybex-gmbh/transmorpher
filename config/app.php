@@ -196,6 +196,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        App\Providers\CdnHelperServiceProvider::class,
         App\Providers\FilePathHelperServiceProvider::class,
         App\Providers\TranscoderServiceProvider::class,
         App\Providers\TransmorpherServiceProvider::class,
@@ -214,6 +215,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
+        'CdnHelper' => App\Facades\CdnHelperFacade::class,
         'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
         'Transcoder' => App\Facades\TranscoderFacade::class,
