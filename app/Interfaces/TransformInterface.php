@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface TransmorpherInterface
+interface TransformInterface
 {
     /**
      * Transmorph image based on specified transformations.
@@ -29,6 +29,8 @@ interface TransmorpherInterface
      * @param          $image
      * @param string   $format
      * @param int|null $quality
+     *
+     * @return ConvertedImageInterface
      */
     public function format($image, string $format, int $quality = null): ConvertedImageInterface;
 

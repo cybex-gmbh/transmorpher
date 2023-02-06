@@ -3,10 +3,10 @@
 namespace App\Classes\Intervention;
 
 use App\Interfaces\ConvertedImageInterface;
-use App\Interfaces\ConverterInterface;
+use App\Interfaces\ConvertInterface;
 use InterventionImage;
 
-class Converter implements ConverterInterface
+class Convert implements ConvertInterface
 {
     /**
      * Encode to specified format and if possible set quality.
@@ -14,6 +14,8 @@ class Converter implements ConverterInterface
      * @param string|InterventionImage $image
      * @param string                   $format
      * @param int|null                 $quality
+     *
+     * @return ConvertedImageInterface
      */
     public function encode(string|InterventionImage $image, string $format, int $quality = null): ConvertedImageInterface
     {
