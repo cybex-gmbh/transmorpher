@@ -325,9 +325,9 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function invalidateCdnCache(): void
     {
-        // If this fails, the 'failed()'-method will handle cleanup.
+        // If this fails, the 'failed()'-method will handle the cleanup.
         if (CdnHelper::isConfigured()) {
-            CdnHelper::createInvalidation(sprintf('%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
+            CdnHelper::createInvalidation(sprintf('/%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
         }
     }
 }

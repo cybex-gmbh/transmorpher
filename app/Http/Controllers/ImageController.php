@@ -100,7 +100,7 @@ class ImageController extends Controller
         // Invalidate cache and delete entry if failed.
         if (CdnHelper::isConfigured()) {
             try {
-                CdnHelper::createInvalidation(sprintf('%s/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path(''), $basePath));
+                CdnHelper::createInvalidation(sprintf('/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
             } catch (Exception) {
                 $disk->delete($filePath);
                 $version->delete();
