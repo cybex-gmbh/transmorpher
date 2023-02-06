@@ -28,7 +28,7 @@ class CloudFrontHelper implements CdnHelperInterface
         $cloudFrontClient->createInvalidation([
             'DistributionId'    => config('transmorpher.aws.cloudfront_distribution_id'),
             'InvalidationBatch' => [
-                'CallerReference' => static::getCallerReference(),
+                'CallerReference' => $this->getCallerReference(),
                 'Paths'           => [
                     'Items'    => [$invalidationPath],
                     'Quantity' => 1,
@@ -52,7 +52,7 @@ class CloudFrontHelper implements CdnHelperInterface
      *
      * @return string
      */
-    protected static function getCallerReference(): string
+    protected function getCallerReference(): string
     {
         return uniqid();
     }

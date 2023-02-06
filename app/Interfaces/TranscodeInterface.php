@@ -4,7 +4,6 @@ namespace App\Interfaces;
 
 use App\Models\Media;
 use App\Models\Version;
-use Illuminate\Contracts\Filesystem\Filesystem;
 
 interface TranscodeInterface
 {
@@ -16,11 +15,10 @@ interface TranscodeInterface
      * @param Version    $version
      * @param string     $callbackUrl
      * @param string     $idToken
-     * @param Filesystem $disk
      *
      * @return bool
      */
-    public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, Filesystem $disk): bool;
+    public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken): bool;
 
     /**
      * Inform client package about the transcoding result.

@@ -29,13 +29,13 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $derivativesDisk;
     protected S3         $s3;
 
-    protected string $diskTempPath;
     protected string $tempPath;
+    protected string $tempPathOnDisk;
     protected string $destinationBasePath;
     protected string $fileName;
 
     protected const DASH = 'dash';
-    protected const HLS = 'hls';
+    protected const HLS  = 'hls';
 
     /**
      * Create a new job instance.
@@ -179,10 +179,10 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function setFilePaths(): void
     {
-        [, $this->fileName]         = explode('-', pathinfo($this->originalFilePath, PATHINFO_FILENAME), 2);
+        [, $this->fileName]        = explode('-', pathinfo($this->originalFilePath, PATHINFO_FILENAME), 2);
         $this->destinationBasePath = FilePathHelper::getVideoDerivativeBasePath($this->media->User, $this->media->identifier);
         $this->tempPath            = $this->getTempPath();
-        $this->diskTempPath        = $this->derivativesDisk->path($this->tempPath);
+        $this->tempPathOnDisk      = $this->derivativesDisk->path($this->tempPath);
     }
 
     /**
@@ -239,7 +239,7 @@ class TranscodeVideo implements ShouldQueue
     {
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         $this->isLocalFilesystem($this->derivativesDisk) ?
-            $video->save(FilePathHelper::getVideoDerivativePath($this->diskTempPath, $format, $this->fileName))
+            $video->save(FilePathHelper::getVideoDerivativePath($this->tempPathOnDisk, $format, $this->fileName))
             : $this->saveToCloud($video, $format);
     }
 
@@ -258,7 +258,7 @@ class TranscodeVideo implements ShouldQueue
             'options' => [
                 'dest'     => sprintf('s3://%s/%s/%s',
                     config('filesystems.disks.s3VideoDerivatives.bucket'),
-                    $this->diskTempPath,
+                    $this->tempPathOnDisk,
                     $format
                 ),
                 'filename' => $this->fileName,
@@ -306,16 +306,14 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function moveFromCloudTempDirectory(): void
     {
-        $hlsFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, static::HLS));
+        $hlsFiles  = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, static::HLS));
         $dashFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, static::DASH));
 
-        foreach($hlsFiles as $file)
-        {
+        foreach ($hlsFiles as $file) {
             $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, static::HLS, basename($file)));
         }
 
-        foreach($dashFiles as $file)
-        {
+        foreach ($dashFiles as $file) {
             $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, static::DASH, basename($file)));
         }
     }

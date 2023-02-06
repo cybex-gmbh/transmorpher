@@ -198,6 +198,7 @@ return [
 
         App\Providers\CdnHelperServiceProvider::class,
         App\Providers\FilePathHelperServiceProvider::class,
+        App\Providers\SqsFifoServiceProvider::class,
         App\Providers\TranscodeServiceProvider::class,
         App\Providers\TransmorpherServiceProvider::class,
 

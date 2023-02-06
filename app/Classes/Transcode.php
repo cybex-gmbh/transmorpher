@@ -8,26 +8,29 @@ use App\Jobs\TranscodeVideo;
 use App\Models\Media;
 use App\Models\Version;
 use Http;
-use Illuminate\Contracts\Filesystem\Filesystem;
 
 class Transcode implements TranscodeInterface
 {
-
     /**
      * Creates a job which handles the transcoding of a video.
      *
-     * @param string     $originalFilePath
-     * @param Media      $media
-     * @param Version    $version
-     * @param string     $callbackUrl
-     * @param string     $idToken
-     * @param Filesystem $disk
+     * @param string  $originalFilePath
+     * @param Media   $media
+     * @param Version $version
+     * @param string  $callbackUrl
+     * @param string  $idToken
      *
      * @return bool
      */
-    public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, Filesystem $disk): bool
+    public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken): bool
     {
-        TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken, $disk);
+        /*
+        * When using SQS FIFO:
+        * Messages in a SQS FIFO queue are processed in order per message group id.
+        * To ensure parallel processing those message group ids should be unique.
+        * See SqsFifoQueue class.
+        */
+        TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken);
 
         return true;
     }
