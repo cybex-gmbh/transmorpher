@@ -18,7 +18,7 @@ class Transform implements TransformInterface
      * @param string     $pathToOriginalImage
      * @param array|null $transformations
      *
-     * @return string
+     * @return string Binary string of the image.
      * @throws FileNotFoundException
      */
     public function transmorph(string $pathToOriginalImage, array $transformations = null): string
