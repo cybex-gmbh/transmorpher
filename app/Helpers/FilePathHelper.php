@@ -61,6 +61,35 @@ class FilePathHelper
     }
 
     /**
+     * Get the path to a video derivative.
+     * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+     *
+     * @param string $basePath
+     * @param string $format
+     * @param string $fileName
+     *
+     * @return string
+     */
+    public function getVideoDerivativePath(string $basePath, string $format, string $fileName): string
+    {
+        return sprintf('%s/%s/%s', $basePath, $format, $fileName);
+    }
+
+    /**
+     * Get the base path for video derivatives.
+     * Path structure: derivatives/videos/{username}/{identifier}/
+     *
+     * @param User   $user
+     * @param string $identifier
+     *
+     * @return string
+     */
+    public function getVideoDerivativeBasePath(User $user, string $identifier): string
+    {
+        return sprintf('derivatives/videos/%s/%s', $user->name, $identifier);
+    }
+
+    /**
      * Get the base path for original media.
      * Path structure: originals/{username}/{identifier}/
      *

@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\MediaStorage;
+use FilePathHelper;
 use App\Models\Media;
 use App\Models\Version;
 use CdnHelper;
@@ -28,10 +29,9 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $derivativesDisk;
     protected S3         $s3;
 
-    protected string $tempDestinationPath;
-    protected string $tempPathOnStorage;
-    protected string $destinationPathOnStorage;
-    protected string $destinationPath;
+    protected string $diskTempPath;
+    protected string $tempPath;
+    protected string $destinationBasePath;
     protected string $fileName;
 
     protected const DASH = 'dash';
@@ -57,25 +57,15 @@ class TranscodeVideo implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $this->originalsDisk   = MediaStorage::ORIGINALS->getDisk();
         $this->derivativesDisk = MediaStorage::VIDEO_DERIVATIVES->getDisk();
-
-        $config = [
-            'version'     => 'latest',
-            'region'      => 'eu-central-1',
-            'credentials' => [
-                'key'    => config('transmorpher.aws.key'),
-                'secret' => config('transmorpher.aws.secret'),
-            ],
-        ];
-
-        $this->s3 = new S3($config);
+        $this->s3              = $this->getConfiguredS3();
 
         $this->transcodeVideo();
 
-        Transcode::callback(true, $this->callbackUrl, $this->idToken);
+        Transcode::callback(true, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number);
     }
 
     /**
@@ -85,49 +75,64 @@ class TranscodeVideo implements ShouldQueue
      *
      * @return void
      */
-    public function failed(Throwable $exception)
+    public function failed(Throwable $exception): void
     {
         // Properties are not initialized here.
-        $tempPathOnStorage = sprintf('derivatives/videos/%s/%s-%d-temp', $this->media->User->name, $this->media->identifier, $this->version->number);
+        $tempPath = $this->getTempPath();
 
-        MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPathOnStorage);
+        MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPath);
         MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
         $this->version->delete();
 
-        Transcode::callback(false, $this->callbackUrl, $this->idToken);
+        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number - 1);
     }
 
-    protected function transcodeVideo()
+    /**
+     * Return a configuration for S3 used by the PHP-FFmpeg-Streaming package.
+     *
+     * @return S3
+     */
+    protected function getConfiguredS3(): S3
+    {
+        $config = [
+            'version'     => 'latest',
+            'region'      => 'eu-central-1',
+            'credentials' => [
+                'key'    => config('transmorpher.aws.key'),
+                'secret' => config('transmorpher.aws.secret'),
+            ],
+        ];
+
+        return new S3($config);
+    }
+
+    /**
+     * Initiates all steps necessary to transcode a video.
+     *
+     * @return void
+     */
+    protected function transcodeVideo(): void
     {
         $ffmpeg = FFMpeg::create();
         $video  = $this->openVideo($ffmpeg);
 
-        // TODO Look into extracting this into the FilePathHelper.
-        [, $this->fileName]    = explode('-', pathinfo($this->originalFilePath, PATHINFO_FILENAME), 2);
-
-        $this->destinationPathOnStorage = sprintf('derivatives/videos/%s/%s', $this->media->User->name, $this->media->identifier);
-        $this->destinationPath          = $this->derivativesDisk->path($this->destinationPathOnStorage);
-
-        $this->tempPathOnStorage =
-            sprintf('derivatives/videos/%s/%s-%d-temp', $this->media->User->name, $this->media->identifier, $this->version->number);
-        $this->tempDestinationPath = $this->derivativesDisk->path($this->tempPathOnStorage);
+        // Set necessary file path information.
+        $this->setFilePaths();
 
         $this->generateHls($video);
         $this->generateDash($video);
 
         // Derivatives are generated at this point and located in the temporary folder.
-        if ($this->version->is(Version::whereNumber($this->media->Versions()->max('number'))->first())) {
-            $this->derivativesDisk->deleteDirectory($this->destinationPathOnStorage);
-            $this->moveFromTempDirectory();
-        } else {
-            $this->derivativesDisk->deleteDirectory($this->tempPathOnStorage);
-        }
-
-        if (CdnHelper::isConfigured()) {
-            CdnHelper::createInvalidation(sprintf('%s/*', $this->destinationPath));
-        }
+        $this->moveToDestinationPath();
     }
 
+    /**
+     * Open a video to use it with FFmpeg.
+     *
+     * @param FFMpeg $ffmpeg
+     *
+     * @return StreamingMedia
+     */
     protected function openVideo(FFMpeg $ffmpeg): StreamingMedia
     {
         return $this->isLocalFilesystem($this->originalsDisk) ?
@@ -135,6 +140,25 @@ class TranscodeVideo implements ShouldQueue
             : $this->openFromCloud($ffmpeg);
     }
 
+    /**
+     * Checks whether the used disk is a local disk.
+     *
+     * @param Filesystem $disk
+     *
+     * @return bool
+     */
+    protected function isLocalFilesystem(Filesystem $disk): bool
+    {
+        return $disk->getAdapter() instanceof LocalFilesystemAdapter;
+    }
+
+    /**
+     * Opens a video from the cloud.
+     *
+     * @param FFMpeg $ffmpeg
+     *
+     * @return StreamingMedia
+     */
     protected function openFromCloud(FFmpeg $ffmpeg): StreamingMedia
     {
         $fromS3 = [
@@ -148,40 +172,93 @@ class TranscodeVideo implements ShouldQueue
         return $ffmpeg->openFromCloud($fromS3);
     }
 
-    protected function generateHls(StreamingMedia $video)
+    /**
+     * Sets the file name and file paths which are needed for the transcoding process.
+     *
+     * @return void
+     */
+    protected function setFilePaths(): void
+    {
+        [, $this->fileName]         = explode('-', pathinfo($this->originalFilePath, PATHINFO_FILENAME), 2);
+        $this->destinationBasePath = FilePathHelper::getVideoDerivativeBasePath($this->media->User, $this->media->identifier);
+        $this->tempPath            = $this->getTempPath();
+        $this->diskTempPath        = $this->derivativesDisk->path($this->tempPath);
+    }
+
+    /**
+     * Returns a path used to temporarily store video derivatives.
+     *
+     * @return string
+     */
+    protected function getTempPath(): string
+    {
+        return sprintf('%s-%d-temp', FilePathHelper::getVideoDerivativeBasePath($this->media->User, $this->media->identifier), $this->version->number);
+    }
+
+    /**
+     * Generates HLS video representations.
+     *
+     * @param StreamingMedia $video
+     *
+     * @return void
+     */
+    protected function generateHls(StreamingMedia $video): void
     {
         $video = $video->hls()
             ->x264()
             ->autoGenerateRepresentations(config('transmorpher.representations'));
 
-        $this->saveVideo($video, self::HLS);
+        $this->saveVideo($video, static::HLS);
     }
 
-    protected function generateDash(StreamingMedia $video)
+    /**
+     * Generates DASH video representations.
+     *
+     * @param StreamingMedia $video
+     *
+     * @return void
+     */
+    protected function generateDash(StreamingMedia $video): void
     {
         $video = $video->dash()
             ->x264()
             ->autoGenerateRepresentations(config('transmorpher.representations'));
 
-        $this->saveVideo($video, self::DASH);
+        $this->saveVideo($video, static::DASH);
     }
 
+    /**
+     * Saves the transcoded video to storage.
+     *
+     * @param Streaming $video
+     * @param string    $format
+     *
+     * @return void
+     */
     protected function saveVideo(Streaming $video, string $format): void
     {
-        // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded at simultaneously.
+        // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         $this->isLocalFilesystem($this->derivativesDisk) ?
-            $video->save(sprintf('%s/%s/%s', $this->tempDestinationPath, $format, $this->fileName))
+            $video->save(FilePathHelper::getVideoDerivativePath($this->diskTempPath, $format, $this->fileName))
             : $this->saveToCloud($video, $format);
     }
 
-    protected function saveToCloud(Streaming $video, string $format)
+    /**
+     * Saves the transcoded video to a cloud storage.
+     *
+     * @param Streaming $video
+     * @param string    $format
+     *
+     * @return void
+     */
+    protected function saveToCloud(Streaming $video, string $format): void
     {
         $toS3 = [
             'cloud'   => $this->s3,
             'options' => [
                 'dest'     => sprintf('s3://%s/%s/%s',
                     config('filesystems.disks.s3VideoDerivatives.bucket'),
-                    $this->tempDestinationPath,
+                    $this->diskTempPath,
                     $format
                 ),
                 'filename' => $this->fileName,
@@ -192,27 +269,32 @@ class TranscodeVideo implements ShouldQueue
     }
 
     /**
-     * @param Filesystem $disk
+     * Handles the move from the temporary path to the destination path.
      *
-     * @return bool
+     * @return void
      */
-    protected function isLocalFilesystem(Filesystem $disk): bool
+    protected function moveToDestinationPath(): void
     {
-        return $disk->getAdapter() instanceof LocalFilesystemAdapter;
+        if ($this->version->number === $this->media->Versions()->max('number')) {
+            $this->derivativesDisk->deleteDirectory($this->destinationBasePath);
+            $this->moveFromTempDirectory();
+            $this->invalidateCdnCache();
+        } else {
+            $this->derivativesDisk->deleteDirectory($this->tempPath);
+        }
     }
 
-    protected function invalidateCdnCache()
-    {
-        // TODO Do this.
-        // TODO Maybe extract logic from ImageController.
-    }
-
-    protected function moveFromTempDirectory()
+    /**
+     * Moves the transcoded video from the temporary path to the destination path.
+     *
+     * @return void
+     */
+    protected function moveFromTempDirectory(): void
     {
         if ($this->isLocalFilesystem($this->derivativesDisk)) {
-            $this->derivativesDisk->move($this->tempPathOnStorage, $this->destinationPathOnStorage);
+            $this->derivativesDisk->move($this->tempPath, $this->destinationBasePath);
         } else {
-            $this->moveCloudTempDirectory();
+            $this->moveFromCloudTempDirectory();
         }
     }
 
@@ -222,22 +304,32 @@ class TranscodeVideo implements ShouldQueue
      *
      * @return void
      */
-    protected function moveCloudTempDirectory()
+    protected function moveFromCloudTempDirectory(): void
     {
-        $hlsFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPathOnStorage, self::HLS));
-        $dashFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPathOnStorage, self::DASH));
+        $hlsFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, static::HLS));
+        $dashFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, static::DASH));
 
         foreach($hlsFiles as $file)
         {
-            $this->derivativesDisk->move($file, sprintf('%s/%s/%s', $this->destinationPathOnStorage, self::HLS, basename($file)));
+            $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, static::HLS, basename($file)));
         }
 
         foreach($dashFiles as $file)
         {
-            $this->derivativesDisk->move($file, sprintf('%s/%s/%s', $this->destinationPathOnStorage, self::DASH, basename($file)));
+            $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, static::DASH, basename($file)));
         }
     }
 
-    // TODO Cleanup this mess.
-    // TODO Add PhpDoc everywhere.
+    /**
+     * Invalidates the CDN cache.
+     *
+     * @return void
+     */
+    protected function invalidateCdnCache(): void
+    {
+        // If this fails, the 'failed()'-method will handle cleanup.
+        if (CdnHelper::isConfigured()) {
+            CdnHelper::createInvalidation(sprintf('%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
+        }
+    }
 }
