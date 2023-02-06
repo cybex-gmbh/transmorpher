@@ -4,7 +4,7 @@ namespace App\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class TranscoderFacade extends Facade
+class TranscodeFacade extends Facade
 {
     /**
      * Get the registered name of the component.
@@ -13,6 +13,6 @@ class TranscoderFacade extends Facade
      */
     protected static function getFacadeAccessor(): string
     {
-        return 'transcoder';
+        return 'transcode';
     }
 }

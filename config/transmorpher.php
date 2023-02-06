@@ -2,7 +2,7 @@
 
 use App\Classes\Intervention\Converter;
 use App\Classes\Intervention\Transmorpher;
-use App\Classes\Transcoder;
+use App\Classes\Transcode;
 use App\Helpers\CloudFrontHelper;
 
 return [
@@ -79,17 +79,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Transcoder
+    | Transcode Class
     |--------------------------------------------------------------------------
     |
-    | The Transcoder which is used for transcoding videos.
+    | The class which is used for transcoding videos.
     |
-    | Available Transcoders:
-    | -  Transcoder (uses FFmpeg and Laravel Queue for transcoding)
+    | Available Transcode classes:
+    | -  Transcode (uses FFmpeg and Laravel Queue for transcoding)
     |
     */
 
-    'transcoder_class' => Transcoder::class,
+    'transcode_class' => Transcode::class,
 
     /*
     |--------------------------------------------------------------------------

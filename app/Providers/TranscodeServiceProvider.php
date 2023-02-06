@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Interfaces\TranscoderInterface;
+use App\Interfaces\TranscodeInterface;
 use Illuminate\Support\ServiceProvider;
 
-class TranscoderServiceProvider extends ServiceProvider
+class TranscodeServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -14,7 +14,7 @@ class TranscoderServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('transcoder', fn(): TranscoderInterface => new (config('transmorpher.transcoder_class')));
+        $this->app->singleton('transcode', fn(): TranscodeInterface => new (config('transmorpher.transcode_class')));
     }
 
     /**

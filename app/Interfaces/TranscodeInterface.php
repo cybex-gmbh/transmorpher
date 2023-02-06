@@ -6,7 +6,7 @@ use App\Models\Media;
 use App\Models\Version;
 use Illuminate\Contracts\Filesystem\Filesystem;
 
-interface TranscoderInterface
+interface TranscodeInterface
 {
     /**
      * @param string  $originalFilePath

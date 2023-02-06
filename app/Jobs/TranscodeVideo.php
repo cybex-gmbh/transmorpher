@@ -18,7 +18,7 @@ use Streaming\FFMpeg;
 use Streaming\Media as StreamingMedia;
 use Streaming\Streaming;
 use Throwable;
-use Transcoder;
+use Transcode;
 
 class TranscodeVideo implements ShouldQueue
 {
@@ -75,7 +75,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->transcodeVideo();
 
-        Transcoder::callback(true, $this->callbackUrl, $this->idToken);
+        Transcode::callback(true, $this->callbackUrl, $this->idToken);
     }
 
     /**
@@ -94,7 +94,7 @@ class TranscodeVideo implements ShouldQueue
         MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
         $this->version->delete();
 
-        Transcoder::callback(false, $this->callbackUrl, $this->idToken);
+        Transcode::callback(false, $this->callbackUrl, $this->idToken);
     }
 
     protected function transcodeVideo()
@@ -122,7 +122,7 @@ class TranscodeVideo implements ShouldQueue
         } else {
             $this->derivativesDisk->deleteDirectory($this->tempPathOnStorage);
         }
-        
+
         if (CdnHelper::isConfigured()) {
             CdnHelper::createInvalidation(sprintf('%s/*', $this->destinationPath));
         }

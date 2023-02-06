@@ -2,13 +2,13 @@
 
 namespace App\Classes;
 
-use App\Interfaces\TranscoderInterface;
+use App\Interfaces\TranscodeInterface;
 use App\Jobs\TranscodeVideo;
 use App\Models\Media;
 use App\Models\Version;
 use Illuminate\Contracts\Filesystem\Filesystem;
 
-class Transcoder implements TranscoderInterface
+class Transcode implements TranscodeInterface
 {
 
     public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, Filesystem $disk): bool

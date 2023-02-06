@@ -10,7 +10,7 @@ use FilePathHelper;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
-use Transcoder;
+use Transcode;
 
 class VideoController extends Controller
 {
@@ -56,7 +56,7 @@ class VideoController extends Controller
         $filePath = $disk->putFileAs($basePath, $videoFile, $fileName);
         $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
-        $success = Transcoder::createJob($filePath, $media, $version, $idToken, $callbackUrl, $disk);
+        $success = Transcode::createJob($filePath, $media, $version, $idToken, $callbackUrl, $disk);
 
         return [
             'success'    => $success,
