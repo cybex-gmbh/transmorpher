@@ -9,22 +9,30 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 interface TranscodeInterface
 {
     /**
-     * @param string  $originalFilePath
-     * @param Media   $media
-     * @param Version $version
-     * @param string  $callbackUrl
-     * @param string  $idToken
+     * Creates a job which handles the transcoding of a video.
+     *
+     * @param string     $originalFilePath
+     * @param Media      $media
+     * @param Version    $version
+     * @param string     $callbackUrl
+     * @param string     $idToken
+     * @param Filesystem $disk
      *
      * @return bool
      */
     public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, Filesystem $disk): bool;
 
     /**
+     * Inform client package about the transcoding result.
+     *
      * @param bool   $success
      * @param string $callbackUrl
      * @param string $idToken
+     * @param string $userName
+     * @param string $identifier
+     * @param int    $versionNumber
      *
-     * @return mixed
+     * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $idToken): mixed;
+    public function callback(bool $success, string $callbackUrl, string $idToken, string $userName, string $identifier, int $versionNumber): void;
 }

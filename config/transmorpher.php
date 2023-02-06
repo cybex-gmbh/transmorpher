@@ -131,5 +131,16 @@ return [
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
         'region' => env('AWS_DEFAULT_REGION'),
         'cloudfront_distribution_id' => env('AWS_CLOUDFRONT_DISTRIBUTION_ID')
-    ]
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Signing Keypair
+    |--------------------------------------------------------------------------
+    |
+    | The keypair which is used for signing requests to the client package.
+    |
+    */
+
+    'signing_keypair' => env('TRANSMORPHER_SIGNING_KEYPAIR')
 ];

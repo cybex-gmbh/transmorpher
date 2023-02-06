@@ -3,10 +3,10 @@
 namespace App\Jobs;
 
 use App\Enums\MediaStorage;
-use FilePathHelper;
 use App\Models\Media;
 use App\Models\Version;
 use CdnHelper;
+use FilePathHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Queue\ShouldQueue;

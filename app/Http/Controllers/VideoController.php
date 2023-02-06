@@ -37,6 +37,10 @@ class VideoController extends Controller
     }
 
     /**
+     * Saves an uploaded video to the specified disk.
+     * Creates a new version for the identifier in the database.
+     * Initiates a transcoding job.
+     *
      * @param UploadedFile $videoFile
      * @param User         $user
      * @param string       $identifier
@@ -56,11 +60,18 @@ class VideoController extends Controller
         $filePath = $disk->putFileAs($basePath, $videoFile, $fileName);
         $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
-        $success = Transcode::createJob($filePath, $media, $version, $idToken, $callbackUrl, $disk);
+        $success = Transcode::createJob($filePath, $media, $version, $callbackUrl, $idToken, $disk);
+
+        if (!$success) {
+            $disk->delete($filePath);
+            $version->delete();
+
+            $versionNumber -= 1;
+        }
 
         return [
             'success'    => $success,
-            'response'   => $success ? "Successfully uploaded video, transcoding has started." : 'Error',
+            'response'   => $success ? "Successfully uploaded video, transcoding has started." : 'There was an error when uploading the video.',
             'identifier' => $media->identifier,
             'version'    => $versionNumber,
             'client'     => $user->name,

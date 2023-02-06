@@ -1,5 +1,6 @@
 <?php
 
+use App\Helpers\SodiumHelper;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
@@ -24,3 +25,5 @@ Route::middleware('auth:sanctum')->group(
         Route::post('/video/upload', [VideoController::class, 'put']);
     }
 );
+
+Route::get('publickey', fn(): string => SodiumHelper::getPublicKey());
