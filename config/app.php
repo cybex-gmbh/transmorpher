@@ -198,7 +198,7 @@ return [
 
         App\Providers\CdnHelperServiceProvider::class,
         App\Providers\FilePathHelperServiceProvider::class,
-        App\Providers\TranscoderServiceProvider::class,
+        App\Providers\TranscodeServiceProvider::class,
         App\Providers\TransmorpherServiceProvider::class,
 
     ],
@@ -218,7 +218,7 @@ return [
         'CdnHelper' => App\Facades\CdnHelperFacade::class,
         'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
-        'Transcoder' => App\Facades\TranscoderFacade::class,
+        'Transcode' => App\Facades\TranscodeFacade::class,
         'Transmorpher' => App\Facades\TransmorpherFacade::class,
     ])->toArray(),
 
