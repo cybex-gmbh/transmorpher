@@ -7,7 +7,7 @@ interface ConverterInterface
     /**
      * Encode to specified format and if possible set quality.
      *
-     * @param string   $image
+     * @param string   $image Binary string of the image.
      * @param string   $format
      * @param int|null $quality
      */
