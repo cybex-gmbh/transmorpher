@@ -23,58 +23,34 @@ class VideoController extends Controller
      */
     public function put(VideoUploadRequest $request): JsonResponse
     {
-        $user        = $request->user();
-        $videoFile   = $request->file('video');
-        $identifier  = $request->get('identifier');
-        $idToken     = $request->get('id_token');
-        $callbackUrl = $request->get('callback_url');
-        $disk        = MediaStorage::ORIGINALS->getDisk();
-
-        // Save video to disk, create database entry and dispatch transcoding job.
-        $response = $this->processVideo($videoFile, $user, $identifier, $idToken, $callbackUrl, $disk);
-
-        return response()->json($response, 201);
-    }
-
-    /**
-     * Saves an uploaded video to the specified disk.
-     * Creates a new version for the identifier in the database.
-     * Initiates a transcoding job.
-     *
-     * @param UploadedFile $videoFile
-     * @param User         $user
-     * @param string       $identifier
-     * @param string       $idToken
-     * @param string       $callbackUrl
-     * @param Filesystem   $disk
-     *
-     * @return array
-     */
-    protected function processVideo(UploadedFile $videoFile, User $user, string $identifier, string $idToken, string $callbackUrl, Filesystem $disk): array
-    {
+        $user          = $request->user();
+        $videoFile     = $request->file('video');
+        $identifier    = $request->get('identifier');
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::VIDEO]);
         $versionNumber = $media->Versions()->max('number') + 1;
-        $basePath      = FilePathHelper::getOriginalsBasePath($user, $identifier);
-        $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $videoFile->getClientOriginalName());
 
-        $filePath = $disk->putFileAs($basePath, $videoFile, $fileName);
+        $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $videoFile->getClientOriginalName());
+        $basePath      = FilePathHelper::getOriginalsBasePath($user, $identifier);
+        $originalsDisk = MediaStorage::ORIGINALS->getDisk();
+
+        $filePath = $originalsDisk->putFileAs($basePath, $videoFile, $fileName);
         $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
-        $success = Transcode::createJob($filePath, $media, $version, $callbackUrl, $idToken, $disk);
+        $success = Transcode::createJob($filePath, $media, $version, $request->get('callback_url'), $request->get('id_token'));
 
         if (!$success) {
-            $disk->delete($filePath);
+            $originalsDisk->delete($filePath);
             $version->delete();
 
             $versionNumber -= 1;
         }
 
-        return [
+        return response()->json([
             'success'    => $success,
             'response'   => $success ? "Successfully uploaded video, transcoding has started." : 'There was an error when uploading the video.',
             'identifier' => $media->identifier,
             'version'    => $versionNumber,
             'client'     => $user->name,
-        ];
+        ], 201);
     }
 }
