@@ -20,12 +20,18 @@ class SqsFifoConnector extends SqsConnector
     {
         $config = $this->getDefaultConfiguration($config);
 
-        if ($config['key'] && $config['secret']) {
-            $config['credentials'] = Arr::only($config, ['key', 'secret']);
+        if (! empty($config['key']) && ! empty($config['secret'])) {
+            $config['credentials'] = Arr::only($config, ['key', 'secret', 'token']);
         }
 
         return new SqsFifoQueue(
-            new SqsClient($config), $config['queue'], Arr::get($config, 'prefix', '')
+            new SqsClient(
+                Arr::except($config, ['token'])
+            ),
+            $config['queue'],
+            $config['prefix'] ?? '',
+            $config['suffix'] ?? '',
+            $config['after_commit'] ?? null
         );
     }
 }
