@@ -62,7 +62,7 @@ class ImageController extends Controller
             $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
 
             // Apply transformations to image.
-            $derivative = Transform::transmorph($originalFilePath, $transformationsArray);
+            $derivative = Transform::transform($originalFilePath, $transformationsArray);
             $derivative = $this->optimizeDerivative($derivative);
 
             if (config('transmorpher.store_derivatives')) {

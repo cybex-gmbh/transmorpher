@@ -12,7 +12,7 @@ interface TransformInterface
      *
      * @return string Binary string of the image.
      */
-    public function transmorph(string $pathToOriginalImage, array $transformations = null): string;
+    public function transform(string $pathToOriginalImage, array $transformations = null): string;
 
     /**
      * @return array
