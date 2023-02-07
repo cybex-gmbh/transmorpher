@@ -1,10 +1,7 @@
 <?php
 
-use App\Classes\Intervention\Convert;
-use App\Classes\Intervention\Transform;
 use App\Classes\Transcode;
 use App\Helpers\CloudFrontHelper;
-
 
 return [
     /*
@@ -57,7 +54,7 @@ return [
     |
     */
 
-    'transform_class' => Transform::class,
+    'transform_class' => App\Classes\Intervention\Transform::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -72,10 +69,10 @@ return [
     */
 
     'convert_classes' => [
-        'jpg' => Convert::class,
-        'png' => Convert::class,
-        'gif' => Convert::class,
-        'webp' => Convert::class,
+        'jpg' => App\Classes\Intervention\Convert::class,
+        'png' => App\Classes\Intervention\Convert::class,
+        'gif' => App\Classes\Intervention\Convert::class,
+        'webp' => App\Classes\Intervention\Convert::class,
     ],
 
     /*

@@ -21,7 +21,7 @@ class Transform implements TransformInterface
      * @return string Binary string of the image.
      * @throws FileNotFoundException
      */
-    public function transmorph(string $pathToOriginalImage, array $transformations = null): string
+    public function transform(string $pathToOriginalImage, array $transformations = null): string
     {
         $disk = MediaStorage::ORIGINALS->getDisk();
 
