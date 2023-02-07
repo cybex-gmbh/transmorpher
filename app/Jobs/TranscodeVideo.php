@@ -96,7 +96,7 @@ class TranscodeVideo implements ShouldQueue
     {
         $config = [
             'version'     => 'latest',
-            'region'      => 'eu-central-1',
+            'region'      => config('transmorpher.aws.region'),
             'credentials' => [
                 'key'    => config('transmorpher.aws.key'),
                 'secret' => config('transmorpher.aws.secret'),
