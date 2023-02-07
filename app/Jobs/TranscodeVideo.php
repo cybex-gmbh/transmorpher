@@ -279,6 +279,8 @@ class TranscodeVideo implements ShouldQueue
             $this->derivativesDisk->deleteDirectory($this->destinationBasePath);
             $this->moveFromTempDirectory();
             $this->invalidateCdnCache();
+
+            $this->version->update(['processed' => true]);
         } else {
             $this->derivativesDisk->deleteDirectory($this->tempPath);
         }
