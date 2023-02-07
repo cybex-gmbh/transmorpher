@@ -1,6 +1,6 @@
 <?php
 
-use App\Helpers\SodiumHelper;
+use App\Helpers\SigningHelper;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
@@ -26,4 +26,4 @@ Route::middleware('auth:sanctum')->group(
     }
 );
 
-Route::get('publickey', fn(): string => SodiumHelper::getPublicKey());
+Route::get('publickey', fn(): string => SigningHelper::getPublicKey());

@@ -2,7 +2,7 @@
 
 namespace App\Classes;
 
-use App\Helpers\SodiumHelper;
+use App\Helpers\SigningHelper;
 use App\Interfaces\TranscodeInterface;
 use App\Jobs\TranscodeVideo;
 use App\Models\Media;
@@ -58,7 +58,7 @@ class Transcode implements TranscodeInterface
             'id_token'   => $idToken,
         ];
 
-        $signedResponse = SodiumHelper::sign(json_encode($response));
+        $signedResponse = SigningHelper::sign(json_encode($response));
 
         Http::post($callbackUrl, [$signedResponse]);
     }
