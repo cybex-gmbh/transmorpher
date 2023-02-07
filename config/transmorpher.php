@@ -1,8 +1,5 @@
 <?php
 
-use App\Classes\Transcode;
-use App\Helpers\CloudFrontHelper;
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -87,7 +84,7 @@ return [
     |
     */
 
-    'transcode_class' => Transcode::class,
+    'transcode_class' => App\Classes\Transcode::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -113,7 +110,7 @@ return [
     |
     */
 
-    'cdn_helper' => CloudFrontHelper::class,
+    'cdn_helper' => App\Helpers\CloudFrontHelper::class,
 
     /*
     |--------------------------------------------------------------------------
