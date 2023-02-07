@@ -200,8 +200,7 @@ return [
         App\Providers\FilePathHelperServiceProvider::class,
         App\Providers\SqsFifoServiceProvider::class,
         App\Providers\TranscodeServiceProvider::class,
-        App\Providers\TransmorpherServiceProvider::class,
-
+        App\Providers\TransformServiceProvider::class,
     ],
 
     /*
@@ -220,7 +219,7 @@ return [
         'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
         'Transcode' => App\Facades\TranscodeFacade::class,
-        'Transmorpher' => App\Facades\TransmorpherFacade::class,
+        'Transform' => App\Facades\TransformFacade::class,
     ])->toArray(),
 
 ];

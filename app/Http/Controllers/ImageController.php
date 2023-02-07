@@ -17,7 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
-use Transmorpher;
+use Transform;
 
 class ImageController extends Controller
 {
@@ -63,7 +63,7 @@ class ImageController extends Controller
             $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
 
             // Apply transformations to image.
-            $derivative = Transmorpher::transmorph($originalFilePath, $transformationsArray);
+            $derivative = Transform::transmorph($originalFilePath, $transformationsArray);
             $derivative = $this->optimizeDerivative($derivative);
 
             if (config('transmorpher.store_derivatives')) {

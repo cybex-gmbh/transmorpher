@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Interfaces\TransmorpherInterface;
+use App\Interfaces\TransformInterface;
 use Illuminate\Support\ServiceProvider;
 
-class TransmorpherServiceProvider extends ServiceProvider
+class TransformServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -14,7 +14,7 @@ class TransmorpherServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('transmorpher', fn(): TransmorpherInterface => new (config('transmorpher.transmorpher_class')));
+        $this->app->singleton('transform', fn(): TransformInterface => new (config('transmorpher.transform_class')));
     }
 
     /**

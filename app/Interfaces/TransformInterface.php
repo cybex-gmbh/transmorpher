@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface TransmorpherInterface
+interface TransformInterface
 {
     /**
      * Transmorph image based on specified transformations.
