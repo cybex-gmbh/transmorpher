@@ -2,9 +2,9 @@
 
 namespace App\Enums;
 
-use App\Interfaces\ConverterInterface;
+use App\Interfaces\ConvertInterface;
 
-enum Converter: string
+enum ImageFormat: string
 {
     case JPG = 'jpg';
     case PNG = 'png';
@@ -14,11 +14,11 @@ enum Converter: string
     /**
      * Retrieve converter class from the value specified in the transmorpher config.
      *
-     * @return ConverterInterface
+     * @return ConvertInterface
      */
-    public function getConverter(): ConverterInterface
+    public function getConverter(): ConvertInterface
     {
-        return app(config(sprintf('transmorpher.converter_classes.%s', $this->value)));
+        return app(config(sprintf('transmorpher.convert_classes.%s', $this->value)));
     }
 
     /**

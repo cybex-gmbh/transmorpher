@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Http\Requests\ImageUploadRequest;
@@ -17,7 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
-use Transmorpher;
+use Transform;
 
 class ImageController extends Controller
 {
@@ -63,7 +62,7 @@ class ImageController extends Controller
             $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
 
             // Apply transformations to image.
-            $derivative = Transmorpher::transmorph($originalFilePath, $transformationsArray);
+            $derivative = Transform::transform($originalFilePath, $transformationsArray);
             $derivative = $this->optimizeDerivative($derivative);
 
             if (config('transmorpher.store_derivatives')) {

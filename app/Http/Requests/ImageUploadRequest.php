@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\Converter;
+use App\Enums\ImageFormat;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ImageUploadRequest extends FormRequest
@@ -28,7 +28,7 @@ class ImageUploadRequest extends FormRequest
             'identifier' => ['required', 'string'],
             'image' => [
                 'required',
-                sprintf('mimes:%s', implode(',', Converter::getMimeTypes())),
+                sprintf('mimes:%s', implode(',', ImageFormat::getMimeTypes())),
             ],
         ];
     }

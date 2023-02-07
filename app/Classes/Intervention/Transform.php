@@ -2,16 +2,15 @@
 
 namespace App\Classes\Intervention;
 
-use App\Enums\Converter;
+use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Interfaces\ConvertedImageInterface;
-use App\Interfaces\TransmorpherInterface;
+use App\Interfaces\TransformInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use InterventionImage;
-use Storage;
 
-class Transmorpher implements TransmorpherInterface
+class Transform implements TransformInterface
 {
     /**
      * Transmorph image based on specified transformations.
@@ -22,7 +21,7 @@ class Transmorpher implements TransmorpherInterface
      * @return string Binary string of the image.
      * @throws FileNotFoundException
      */
-    public function transmorph(string $pathToOriginalImage, array $transformations = null): string
+    public function transform(string $pathToOriginalImage, array $transformations = null): string
     {
         $disk = MediaStorage::ORIGINALS->getDisk();
 
@@ -78,7 +77,7 @@ class Transmorpher implements TransmorpherInterface
      */
     public function format($image, string $format, int $quality = null): ConvertedImageInterface
     {
-        return Converter::from($format)->getConverter()->encode($image, $format, $quality);
+        return ImageFormat::from($format)->getConverter()->encode($image, $format, $quality);
     }
 
     /**
@@ -86,6 +85,6 @@ class Transmorpher implements TransmorpherInterface
      */
     public function getSupportedFormats(): array
     {
-        return Converter::getMimeTypes();
+        return ImageFormat::getMimeTypes();
     }
 }

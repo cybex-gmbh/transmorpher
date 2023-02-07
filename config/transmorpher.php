@@ -1,8 +1,5 @@
 <?php
 
-use App\Classes\Intervention\Converter;
-use App\Classes\Intervention\Transmorpher;
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -43,35 +40,35 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Transmorpher
+    | Transform class
     |--------------------------------------------------------------------------
     |
-    | The Transmorpher which is used for applying transformations.
+    | The Transform class which is used for applying transformations.
     |
-    | Available Transmorphers:
-    | -  Intervention\Transmorpher (based on Intervention Image)
+    | Available Transform classes:
+    | -  Intervention\Transform (based on Intervention Image)
     |
     */
 
-    'transmorpher_class' => Transmorpher::class,
+    'transform_class' => App\Classes\Intervention\Transform::class,
 
     /*
     |--------------------------------------------------------------------------
-    | Format Converters
+    | Convert classes
     |--------------------------------------------------------------------------
     |
-    | The Format Converters which are used for applying format conversions.
+    | The Convert classes which are used for applying format conversions.
     |
-    | Available Converters:
-    | - Intervention\Converter (based on Intervention Image)
+    | Available Convert classes:
+    | - Intervention\Convert (based on Intervention Image)
     |
     */
 
-    'converter_classes' => [
-        'jpg' => Converter::class,
-        'png' => Converter::class,
-        'gif' => Converter::class,
-        'webp' => Converter::class,
+    'convert_classes' => [
+        'jpg' => App\Classes\Intervention\Convert::class,
+        'png' => App\Classes\Intervention\Convert::class,
+        'gif' => App\Classes\Intervention\Convert::class,
+        'webp' => App\Classes\Intervention\Convert::class,
     ],
 
     /*

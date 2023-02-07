@@ -14,8 +14,7 @@ class FilePathHelperServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(
-            'file.path', FilePathHelper::class);
+        $this->app->singleton('file.path', FilePathHelper::class);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace App\Interfaces;
 
-interface TransmorpherInterface
+interface TransformInterface
 {
     /**
      * Transmorph image based on specified transformations.
@@ -12,7 +12,7 @@ interface TransmorpherInterface
      *
      * @return string Binary string of the image.
      */
-    public function transmorph(string $pathToOriginalImage, array $transformations = null): string;
+    public function transform(string $pathToOriginalImage, array $transformations = null): string;
 
     /**
      * @return array
