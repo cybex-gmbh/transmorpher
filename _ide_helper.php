@@ -17746,14 +17746,14 @@
          *
          * @param string $pathToOriginalImage
          * @param array|null $transformations
-         * @return string 
+         * @return string Binary string of the image.
          * @throws FileNotFoundException
          * @static 
          */ 
-        public static function transmorph($pathToOriginalImage, $transformations = null)
+        public static function transform($pathToOriginalImage, $transformations = null)
         {
                         /** @var \App\Classes\Intervention\Transform $instance */
-                        return $instance->transmorph($pathToOriginalImage, $transformations);
+                        return $instance->transform($pathToOriginalImage, $transformations);
         }
                     /**
          * Resize an image based on specified width and height.
