@@ -185,6 +185,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Intervention\Image\ImageServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -194,6 +195,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+
+        App\Providers\TransmorpherServiceProvider::class,
+        App\Providers\FilePathHelperServiceProvider::class,
 
     ],
 
@@ -209,7 +213,9 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // 'ExampleClass' => App\Example\ExampleClass::class,
+        'InterventionImage' => Intervention\Image\Facades\Image::class,
+        'Transmorpher' => App\Facades\TransmorpherFacade::class,
+        'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
     ])->toArray(),
 
 ];

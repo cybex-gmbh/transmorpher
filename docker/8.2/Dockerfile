@@ -39,6 +39,13 @@ RUN apt-get update \
     && apt-get install -y yarn \
     && apt-get install -y mysql-client \
     && apt-get install -y postgresql-client-$POSTGRES_VERSION \
+    && apt-get install -y imagemagick \
+    && apt-get install -y php-imagick \
+    && apt-get install -y jpegoptim \
+    && apt-get install -y optipng \
+    && apt-get install -y pngquant \
+    && apt-get install -y gifsicle \
+    && apt-get install -y webp \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
