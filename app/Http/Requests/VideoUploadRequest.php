@@ -19,6 +19,13 @@ class VideoUploadRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
+     * Mimetypes to mimes:
+     *      video/x-msvideo	=> avi
+     *      video/mpeg      => mpeg mpg mpe m1v m2v
+     *      video/ogg		=> ogv
+     *      video/webm		=> webm
+     *      video/mp4		=> mp4 mp4v mpg4
+     *
      * @return array<string, mixed>
      */
     public function rules(): array
@@ -27,7 +34,7 @@ class VideoUploadRequest extends FormRequest
             'identifier' => ['required', 'string'],
             'video' => [
                 'required',
-                'mimes:mp4',
+                'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4',
             ],
             'id_token' => ['required', 'string'],
             'callback_url' => ['required', 'string', 'url']
