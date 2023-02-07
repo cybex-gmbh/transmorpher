@@ -122,7 +122,7 @@ class TranscodeVideo implements ShouldQueue
         $this->generateHls($video);
         $this->generateDash($video);
 
-        // Derivatives are generated at this point and located in the temporary folder.
+        // Derivatives are generated at this point of time and located in the temporary folder.
         $this->moveToDestinationPath();
     }
 
