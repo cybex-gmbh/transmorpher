@@ -14,7 +14,7 @@ class CloudFrontHelper implements CdnHelperInterface
      *
      * @return void
      */
-    public function createInvalidation(string $invalidationPath): void
+    public function invalidate(string $invalidationPath): void
     {
         $cloudFrontClient = new CloudFrontClient([
             'version'     => 'latest',

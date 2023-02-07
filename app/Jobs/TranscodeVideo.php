@@ -329,7 +329,7 @@ class TranscodeVideo implements ShouldQueue
     {
         // If this fails, the 'failed()'-method will handle the cleanup.
         if (CdnHelper::isConfigured()) {
-            CdnHelper::createInvalidation(sprintf('/%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
+            CdnHelper::invalidate(sprintf('/%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
         }
     }
 }

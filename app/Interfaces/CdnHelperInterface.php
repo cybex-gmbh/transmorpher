@@ -11,7 +11,7 @@ interface CdnHelperInterface
      *
      * @return void
      */
-    public function createInvalidation(string $invalidationPath): void;
+    public function invalidate(string $invalidationPath): void;
 
     /**
      * Return whether the CDN is configured.
