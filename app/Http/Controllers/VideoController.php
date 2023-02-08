@@ -47,7 +47,7 @@ class VideoController extends Controller
 
         return response()->json([
             'success'    => $success,
-            'response'   => $success ? "Successfully uploaded video, transcoding has started." : 'There was an error when uploading the video.',
+            'response'   => $success ? "Successfully uploaded video, transcoding job has been dispatched." : 'There was an error when uploading the video.',
             'identifier' => $media->identifier,
             'version'    => $versionNumber,
             'client'     => $user->name,

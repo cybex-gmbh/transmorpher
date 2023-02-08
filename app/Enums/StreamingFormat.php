@@ -18,7 +18,7 @@ enum StreamingFormat: string
     public function configure(StreamingMedia $video): Streaming
     {
         $format = $this->value;
-        $codec = config('transmorpher.video_codec');
+        $codec  = config('transmorpher.video_codec');
 
         return $video->$format()
             ->$codec()
