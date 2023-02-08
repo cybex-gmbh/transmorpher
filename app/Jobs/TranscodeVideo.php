@@ -7,6 +7,7 @@ use App\Enums\StreamingFormat;
 use App\Models\Media;
 use App\Models\Version;
 use CdnHelper;
+use CloudStorage;
 use FilePathHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -15,7 +16,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use League\Flysystem\Local\LocalFilesystemAdapter;
-use Streaming\Clouds\S3;
 use Streaming\FFMpeg;
 use Streaming\Media as StreamingMedia;
 use Streaming\Streaming;
@@ -28,7 +28,6 @@ class TranscodeVideo implements ShouldQueue
 
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
-    protected S3         $s3;
 
     protected string $tempPath;
     protected string $tempPathOnDisk;
@@ -59,7 +58,6 @@ class TranscodeVideo implements ShouldQueue
     {
         $this->originalsDisk   = MediaStorage::ORIGINALS->getDisk();
         $this->derivativesDisk = MediaStorage::VIDEO_DERIVATIVES->getDisk();
-        $this->s3              = $this->getConfiguredS3();
 
         $this->transcodeVideo();
 
@@ -83,25 +81,6 @@ class TranscodeVideo implements ShouldQueue
         $this->version->delete();
 
         Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number - 1);
-    }
-
-    /**
-     * Return a configuration for S3 used by the PHP-FFmpeg-Streaming package.
-     *
-     * @return S3
-     */
-    protected function getConfiguredS3(): S3
-    {
-        $config = [
-            'version'     => 'latest',
-            'region'      => config('transmorpher.aws.region'),
-            'credentials' => [
-                'key'    => config('transmorpher.aws.key'),
-                'secret' => config('transmorpher.aws.secret'),
-            ],
-        ];
-
-        return new S3($config);
     }
 
     /**
@@ -137,7 +116,7 @@ class TranscodeVideo implements ShouldQueue
     {
         return $this->isLocalFilesystem($this->originalsDisk) ?
             $ffmpeg->open($this->originalsDisk->path($this->originalFilePath))
-            : $this->openFromCloud($ffmpeg);
+            : $ffmpeg->openFromCloud(CloudStorage::getOpenConfiguration($this->originalsDisk->path($this->originalFilePath)));
     }
 
     /**
@@ -150,26 +129,6 @@ class TranscodeVideo implements ShouldQueue
     protected function isLocalFilesystem(Filesystem $disk): bool
     {
         return $disk->getAdapter() instanceof LocalFilesystemAdapter;
-    }
-
-    /**
-     * Opens a video from the cloud.
-     *
-     * @param FFMpeg $ffmpeg
-     *
-     * @return StreamingMedia
-     */
-    protected function openFromCloud(FFmpeg $ffmpeg): StreamingMedia
-    {
-        $fromS3 = [
-            'cloud'   => $this->s3,
-            'options' => [
-                'Bucket' => config('filesystems.disks.s3Main.bucket'),
-                'Key'    => $this->originalsDisk->path($this->originalFilePath),
-            ],
-        ];
-
-        return $ffmpeg->openFromCloud($fromS3);
     }
 
     /**
@@ -208,32 +167,7 @@ class TranscodeVideo implements ShouldQueue
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         $this->isLocalFilesystem($this->derivativesDisk) ?
             $video->save(FilePathHelper::getVideoDerivativePath($this->tempPathOnDisk, $format, $this->fileName))
-            : $this->saveToCloud($video, $format);
-    }
-
-    /**
-     * Saves the transcoded video to a cloud storage.
-     *
-     * @param Streaming $video
-     * @param string    $format
-     *
-     * @return void
-     */
-    protected function saveToCloud(Streaming $video, string $format): void
-    {
-        $toS3 = [
-            'cloud'   => $this->s3,
-            'options' => [
-                'dest'     => sprintf('s3://%s/%s/%s',
-                    config('filesystems.disks.s3VideoDerivatives.bucket'),
-                    $this->tempPathOnDisk,
-                    $format
-                ),
-                'filename' => $this->fileName,
-            ],
-        ];
-
-        $video->save(null, $toS3);
+            : $video->save(null, CloudStorage::getSaveConfiguration(sprintf('%s/%s', $this->tempPathOnDisk, $format), $this->fileName));
     }
 
     /**

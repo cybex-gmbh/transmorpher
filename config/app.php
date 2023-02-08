@@ -197,6 +197,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         App\Providers\CdnHelperServiceProvider::class,
+        App\Providers\CloudStorageServiceProvider::class,
         App\Providers\FilePathHelperServiceProvider::class,
         App\Providers\SqsFifoServiceProvider::class,
         App\Providers\TranscodeServiceProvider::class,
@@ -216,6 +217,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'CdnHelper' => App\Facades\CdnHelperFacade::class,
+        'CloudStorage' => App\Facades\CloudStorageFacade::class,
         'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
         'Transcode' => App\Facades\TranscodeFacade::class,

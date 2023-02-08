@@ -9372,11 +9372,6 @@
             /**
      * 
      *
-     * @method static mixed getJobBackoff(mixed $job)
-     * @method static mixed getJobExpiration(mixed $job)
-     * @method static void createPayloadUsing(callable|null $callback)
-     * @method static \Illuminate\Container\Container getContainer()
-     * @method static void setContainer(\Illuminate\Container\Container $container)
      * @see \Illuminate\Queue\QueueManager
      * @see \Illuminate\Queue\Queue
      * @see \Illuminate\Support\Testing\Fakes\QueueFake
@@ -9832,6 +9827,99 @@
         {
                         /** @var \Illuminate\Support\Testing\Fakes\QueueFake $instance */
                         return $instance->setConnectionName($name);
+        }
+                    /**
+         * Delete all of the jobs from the queue.
+         *
+         * @param string $queue
+         * @return int 
+         * @static 
+         */ 
+        public static function clear($queue)
+        {            //Method inherited from \Illuminate\Queue\SqsQueue         
+                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        return $instance->clear($queue);
+        }
+                    /**
+         * Get the queue or return the default.
+         *
+         * @param string|null $queue
+         * @return string 
+         * @static 
+         */ 
+        public static function getQueue($queue)
+        {            //Method inherited from \Illuminate\Queue\SqsQueue         
+                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        return $instance->getQueue($queue);
+        }
+                    /**
+         * Get the underlying SQS instance.
+         *
+         * @return \Aws\Sqs\SqsClient 
+         * @static 
+         */ 
+        public static function getSqs()
+        {            //Method inherited from \Illuminate\Queue\SqsQueue         
+                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        return $instance->getSqs();
+        }
+                    /**
+         * Get the backoff for an object-based queue handler.
+         *
+         * @param mixed $job
+         * @return mixed 
+         * @static 
+         */ 
+        public static function getJobBackoff($job)
+        {            //Method inherited from \Illuminate\Queue\Queue         
+                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        return $instance->getJobBackoff($job);
+        }
+                    /**
+         * Get the expiration timestamp for an object-based queue handler.
+         *
+         * @param mixed $job
+         * @return mixed 
+         * @static 
+         */ 
+        public static function getJobExpiration($job)
+        {            //Method inherited from \Illuminate\Queue\Queue         
+                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        return $instance->getJobExpiration($job);
+        }
+                    /**
+         * Register a callback to be executed when creating job payloads.
+         *
+         * @param callable|null $callback
+         * @return void 
+         * @static 
+         */ 
+        public static function createPayloadUsing($callback)
+        {            //Method inherited from \Illuminate\Queue\Queue         
+                        \App\Classes\FifoQueue\SqsFifoQueue::createPayloadUsing($callback);
+        }
+                    /**
+         * Get the container instance being used by the connection.
+         *
+         * @return \Illuminate\Container\Container 
+         * @static 
+         */ 
+        public static function getContainer()
+        {            //Method inherited from \Illuminate\Queue\Queue         
+                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        return $instance->getContainer();
+        }
+                    /**
+         * Set the IoC container instance.
+         *
+         * @param \Illuminate\Container\Container $container
+         * @return void 
+         * @static 
+         */ 
+        public static function setContainer($container)
+        {            //Method inherited from \Illuminate\Queue\Queue         
+                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        $instance->setContainer($container);
         }
          
     }
@@ -17611,64 +17699,34 @@
      
 }
 
-        namespace Intervention\Image\Facades { 
+        namespace App\Facades { 
             /**
      * 
      *
      */ 
-        class Image {
+        class CdnHelperFacade {
                     /**
-         * Overrides configuration settings
+         * Create a CDN invalidation.
          *
-         * @param array $config
-         * @return self 
+         * @param string $invalidationPath
+         * @return void 
          * @static 
          */ 
-        public static function configure($config = [])
+        public static function invalidate($invalidationPath)
         {
-                        /** @var \Intervention\Image\ImageManager $instance */
-                        return $instance->configure($config);
+                        /** @var \App\Helpers\CloudFrontHelper $instance */
+                        $instance->invalidate($invalidationPath);
         }
                     /**
-         * Initiates an Image instance from different input types
+         * Return whether the CDN is configured.
          *
-         * @param mixed $data
-         * @return \Intervention\Image\Image 
+         * @return bool 
          * @static 
          */ 
-        public static function make($data)
+        public static function isConfigured()
         {
-                        /** @var \Intervention\Image\ImageManager $instance */
-                        return $instance->make($data);
-        }
-                    /**
-         * Creates an empty image canvas
-         *
-         * @param int $width
-         * @param int $height
-         * @param mixed $background
-         * @return \Intervention\Image\Image 
-         * @static 
-         */ 
-        public static function canvas($width, $height, $background = null)
-        {
-                        /** @var \Intervention\Image\ImageManager $instance */
-                        return $instance->canvas($width, $height, $background);
-        }
-                    /**
-         * Create new cached image and run callback
-         * (requires additional package intervention/imagecache)
-         *
-         * @param \Closure $callback
-         * @param int $lifetime
-         * @param boolean $returnObj
-         * @return \Image 
-         * @static 
-         */ 
-        public static function cache($callback, $lifetime = null, $returnObj = false)
-        {
-                        /** @var \Intervention\Image\ImageManager $instance */
-                        return $instance->cache($callback, $lifetime, $returnObj);
+                        /** @var \App\Helpers\CloudFrontHelper $instance */
+                        return $instance->isConfigured();
         }
          
     }
@@ -17676,66 +17734,174 @@
      * 
      *
      */ 
-        class Image {
+        class CloudStorageFacade {
                     /**
-         * Overrides configuration settings
+         * Returns the configuration for opening data from the cloud storage.
          *
-         * @param array $config
-         * @return self 
+         * @param string $key
+         * @return array 
          * @static 
          */ 
-        public static function configure($config = [])
+        public static function getOpenConfiguration($key)
         {
-                        /** @var \Intervention\Image\ImageManager $instance */
-                        return $instance->configure($config);
+                        /** @var \App\Helpers\S3Helper $instance */
+                        return $instance->getOpenConfiguration($key);
         }
                     /**
-         * Initiates an Image instance from different input types
+         * Returns the configuration for saving data to the cloud storage.
          *
-         * @param mixed $data
-         * @return \Intervention\Image\Image 
+         * @param string $destinationPath
+         * @param string $fileName
+         * @return array 
          * @static 
          */ 
-        public static function make($data)
+        public static function getSaveConfiguration($destinationPath, $fileName)
         {
-                        /** @var \Intervention\Image\ImageManager $instance */
-                        return $instance->make($data);
-        }
-                    /**
-         * Creates an empty image canvas
-         *
-         * @param int $width
-         * @param int $height
-         * @param mixed $background
-         * @return \Intervention\Image\Image 
-         * @static 
-         */ 
-        public static function canvas($width, $height, $background = null)
-        {
-                        /** @var \Intervention\Image\ImageManager $instance */
-                        return $instance->canvas($width, $height, $background);
-        }
-                    /**
-         * Create new cached image and run callback
-         * (requires additional package intervention/imagecache)
-         *
-         * @param \Closure $callback
-         * @param int $lifetime
-         * @param boolean $returnObj
-         * @return \Image 
-         * @static 
-         */ 
-        public static function cache($callback, $lifetime = null, $returnObj = false)
-        {
-                        /** @var \Intervention\Image\ImageManager $instance */
-                        return $instance->cache($callback, $lifetime, $returnObj);
+                        /** @var \App\Helpers\S3Helper $instance */
+                        return $instance->getSaveConfiguration($destinationPath, $fileName);
         }
          
     }
-     
-}
-
-    namespace App\Facades { 
+            /**
+     * 
+     *
+     */ 
+        class FilePathHelperFacade {
+                    /**
+         * Get the path to an (existing) image derivative.
+         * 
+         * Path structure: derivatives/images/{username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
+         *
+         * @param \App\Models\User $user
+         * @param string $transformations
+         * @param string $identifier
+         * @param array|null $transformationsArray
+         * @return string 
+         * @static 
+         */ 
+        public static function getImageDerivativePath($user, $transformations, $identifier, $transformationsArray = null)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->getImageDerivativePath($user, $transformations, $identifier, $transformationsArray);
+        }
+                    /**
+         * Get the path to an original image.
+         * 
+         * Path structure: originals/{username}/{identifier}/{filename}
+         *
+         * @param \App\Models\User $user
+         * @param string $identifier
+         * @return string 
+         * @static 
+         */ 
+        public static function getImageOriginalPath($user, $identifier)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->getImageOriginalPath($user, $identifier);
+        }
+                    /**
+         * Get the path to a video derivative.
+         * 
+         * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+         *
+         * @param string $basePath
+         * @param string $format
+         * @param string $fileName
+         * @return string 
+         * @static 
+         */ 
+        public static function getVideoDerivativePath($basePath, $format, $fileName)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->getVideoDerivativePath($basePath, $format, $fileName);
+        }
+                    /**
+         * Get the base path for video derivatives.
+         * 
+         * Path structure: derivatives/videos/{username}/{identifier}/
+         *
+         * @param \App\Models\User $user
+         * @param string $identifier
+         * @return string 
+         * @static 
+         */ 
+        public static function getVideoDerivativeBasePath($user, $identifier)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->getVideoDerivativeBasePath($user, $identifier);
+        }
+                    /**
+         * Get the base path for original media.
+         * 
+         * Path structure: originals/{username}/{identifier}/
+         *
+         * @param \App\Models\User $user
+         * @param string $identifier
+         * @return string 
+         * @static 
+         */ 
+        public static function getOriginalsBasePath($user, $identifier)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->getOriginalsBasePath($user, $identifier);
+        }
+                    /**
+         * Create the filename for an original.
+         * 
+         * Filename structure: {versionNumber}-{filename}
+         *
+         * @param int $versionNumber
+         * @param string $fileName
+         * @return string 
+         * @static 
+         */ 
+        public static function createOriginalFileName($versionNumber, $fileName)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->createOriginalFileName($versionNumber, $fileName);
+        }
+         
+    }
+            /**
+     * 
+     *
+     */ 
+        class TranscodeFacade {
+                    /**
+         * Creates a job which handles the transcoding of a video.
+         *
+         * @param string $originalFilePath
+         * @param \App\Models\Media $media
+         * @param \App\Models\Version $version
+         * @param string $callbackUrl
+         * @param string $idToken
+         * @return bool 
+         * @static 
+         */ 
+        public static function createJob($originalFilePath, $media, $version, $callbackUrl, $idToken)
+        {
+                        /** @var \App\Classes\Transcode $instance */
+                        return $instance->createJob($originalFilePath, $media, $version, $callbackUrl, $idToken);
+        }
+                    /**
+         * Inform client package about the transcoding result.
+         *
+         * @param bool $success
+         * @param string $callbackUrl
+         * @param string $idToken
+         * @param string $userName
+         * @param string $identifier
+         * @param int $versionNumber
+         * @return void 
+         * @static 
+         */ 
+        public static function callback($success, $callbackUrl, $idToken, $userName, $identifier, $versionNumber)
+        {
+                        /** @var \App\Classes\Transcode $instance */
+                        $instance->callback($success, $callbackUrl, $idToken, $userName, $identifier, $versionNumber);
+        }
+         
+    }
             /**
      * 
      *
@@ -17797,72 +17963,127 @@
         }
          
     }
+     
+}
+
+    namespace Intervention\Image\Facades { 
             /**
      * 
      *
      */ 
-        class FilePathHelperFacade {
+        class Image {
                     /**
-         * Get the path to an (existing) image derivative.
-         * 
-         * Path structure: derivatives/images/{username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
+         * Overrides configuration settings
          *
-         * @param \App\Models\User $user
-         * @param string $transformations
-         * @param string $identifier
-         * @param array|null $transformationsArray
-         * @return string 
+         * @param array $config
+         * @return self 
          * @static 
          */ 
-        public static function getImageDerivativePath($user, $transformations, $identifier, $transformationsArray = null)
+        public static function configure($config = [])
         {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getImageDerivativePath($user, $transformations, $identifier, $transformationsArray);
+                        /** @var \Intervention\Image\ImageManager $instance */
+                        return $instance->configure($config);
         }
                     /**
-         * Get the path to an original image.
-         * 
-         * Path structure: originals/{username}/{identifier}/{filename}
+         * Initiates an Image instance from different input types
          *
-         * @param \App\Models\User $user
-         * @param string $identifier
-         * @return string 
+         * @param mixed $data
+         * @return \Intervention\Image\Image 
          * @static 
          */ 
-        public static function getImageOriginalPath($user, $identifier)
+        public static function make($data)
         {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getImageOriginalPath($user, $identifier);
+                        /** @var \Intervention\Image\ImageManager $instance */
+                        return $instance->make($data);
         }
                     /**
-         * Get the base path for original media.
-         * 
-         * Path structure: originals/{username}/{identifier}/
+         * Creates an empty image canvas
          *
-         * @param \App\Models\User $user
-         * @param string $identifier
-         * @return string 
+         * @param int $width
+         * @param int $height
+         * @param mixed $background
+         * @return \Intervention\Image\Image 
          * @static 
          */ 
-        public static function getOriginalsBasePath($user, $identifier)
+        public static function canvas($width, $height, $background = null)
         {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getOriginalsBasePath($user, $identifier);
+                        /** @var \Intervention\Image\ImageManager $instance */
+                        return $instance->canvas($width, $height, $background);
         }
                     /**
-         * Create the filename for an original.
-         * 
-         * Filename structure: {versionNumber}-{filename}
+         * Create new cached image and run callback
+         * (requires additional package intervention/imagecache)
          *
-         * @param int $versionNumber
-         * @param string $fileName
-         * @return string 
+         * @param \Closure $callback
+         * @param int $lifetime
+         * @param boolean $returnObj
+         * @return \Image 
          * @static 
          */ 
-        public static function createOriginalFileName($versionNumber, $fileName)
+        public static function cache($callback, $lifetime = null, $returnObj = false)
         {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->createOriginalFileName($versionNumber, $fileName);
+                        /** @var \Intervention\Image\ImageManager $instance */
+                        return $instance->cache($callback, $lifetime, $returnObj);
+        }
+         
+    }
+            /**
+     * 
+     *
+     */ 
+        class Image {
+                    /**
+         * Overrides configuration settings
+         *
+         * @param array $config
+         * @return self 
+         * @static 
+         */ 
+        public static function configure($config = [])
+        {
+                        /** @var \Intervention\Image\ImageManager $instance */
+                        return $instance->configure($config);
+        }
+                    /**
+         * Initiates an Image instance from different input types
+         *
+         * @param mixed $data
+         * @return \Intervention\Image\Image 
+         * @static 
+         */ 
+        public static function make($data)
+        {
+                        /** @var \Intervention\Image\ImageManager $instance */
+                        return $instance->make($data);
+        }
+                    /**
+         * Creates an empty image canvas
+         *
+         * @param int $width
+         * @param int $height
+         * @param mixed $background
+         * @return \Intervention\Image\Image 
+         * @static 
+         */ 
+        public static function canvas($width, $height, $background = null)
+        {
+                        /** @var \Intervention\Image\ImageManager $instance */
+                        return $instance->canvas($width, $height, $background);
+        }
+                    /**
+         * Create new cached image and run callback
+         * (requires additional package intervention/imagecache)
+         *
+         * @param \Closure $callback
+         * @param int $lifetime
+         * @param boolean $returnObj
+         * @return \Image 
+         * @static 
+         */ 
+        public static function cache($callback, $lifetime = null, $returnObj = false)
+        {
+                        /** @var \Intervention\Image\ImageManager $instance */
+                        return $instance->cache($callback, $lifetime, $returnObj);
         }
          
     }
@@ -22193,9 +22414,12 @@ namespace  {
             class Validator extends \Illuminate\Support\Facades\Validator {}
             class View extends \Illuminate\Support\Facades\View {}
             class Vite extends \Illuminate\Support\Facades\Vite {}
-            class InterventionImage extends \Intervention\Image\Facades\Image {}
-            class Transform extends \App\Facades\TransformFacade {}
+            class CdnHelper extends \App\Facades\CdnHelperFacade {}
+            class CloudStorage extends \App\Facades\CloudStorageFacade {}
             class FilePathHelper extends \App\Facades\FilePathHelperFacade {}
+            class InterventionImage extends \Intervention\Image\Facades\Image {}
+            class Transcode extends \App\Facades\TranscodeFacade {}
+            class Transform extends \App\Facades\TransformFacade {}
             class Image extends \Intervention\Image\Facades\Image {}
             class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}
             class ImageOptimizer extends \Spatie\LaravelImageOptimizer\Facades\ImageOptimizer {}
