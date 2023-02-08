@@ -125,7 +125,7 @@ return [
     |
     */
 
-    'cloud_storage_helper' => App\Helpers\S3Helper::class,
+    'cloud_storage_helper' => App\Helpers\PhpFfmpegVideoStreaming\S3Helper::class,
 
     /*
     |--------------------------------------------------------------------------

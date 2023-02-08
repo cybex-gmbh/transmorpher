@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Helpers;
+namespace App\Helpers\PhpFfmpegVideoStreaming;
 
 use App\Interfaces\CloudStorageInterface;
 use Streaming\Clouds\S3;
