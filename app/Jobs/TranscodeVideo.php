@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\MediaStorage;
+use App\Enums\StreamingFormat;
 use App\Models\Media;
 use App\Models\Version;
 use CdnHelper;
@@ -33,9 +34,6 @@ class TranscodeVideo implements ShouldQueue
     protected string $tempPathOnDisk;
     protected string $destinationBasePath;
     protected string $fileName;
-
-    protected const DASH = 'dash';
-    protected const HLS  = 'hls';
 
     /**
      * Create a new job instance.
@@ -119,8 +117,10 @@ class TranscodeVideo implements ShouldQueue
         // Set necessary file path information.
         $this->setFilePaths();
 
-        $this->generateHls($video);
-        $this->generateDash($video);
+        // Generate HLS
+        $this->saveVideo(StreamingFormat::HLS->configure($video), StreamingFormat::HLS->value);
+        // Generate DASH
+        $this->saveVideo(StreamingFormat::DASH->configure($video), StreamingFormat::DASH->value);
 
         // Derivatives are generated at this point of time and located in the temporary folder.
         $this->moveToDestinationPath();
@@ -193,38 +193,6 @@ class TranscodeVideo implements ShouldQueue
     protected function getTempPath(): string
     {
         return sprintf('%s-%d-temp', FilePathHelper::getVideoDerivativeBasePath($this->media->User, $this->media->identifier), $this->version->number);
-    }
-
-    /**
-     * Generates HLS video representations.
-     *
-     * @param StreamingMedia $video
-     *
-     * @return void
-     */
-    protected function generateHls(StreamingMedia $video): void
-    {
-        $video = $video->hls()
-            ->x264()
-            ->autoGenerateRepresentations(config('transmorpher.representations'));
-
-        $this->saveVideo($video, static::HLS);
-    }
-
-    /**
-     * Generates DASH video representations.
-     *
-     * @param StreamingMedia $video
-     *
-     * @return void
-     */
-    protected function generateDash(StreamingMedia $video): void
-    {
-        $video = $video->dash()
-            ->x264()
-            ->autoGenerateRepresentations(config('transmorpher.representations'));
-
-        $this->saveVideo($video, static::DASH);
     }
 
     /**
@@ -308,15 +276,15 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function moveFromCloudTempDirectory(): void
     {
-        $hlsFiles  = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, static::HLS));
-        $dashFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, static::DASH));
+        $hlsFiles  = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, StreamingFormat::HLS->value));
+        $dashFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, StreamingFormat::DASH->value));
 
         foreach ($hlsFiles as $file) {
-            $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, static::HLS, basename($file)));
+            $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, StreamingFormat::HLS->value, basename($file)));
         }
 
         foreach ($dashFiles as $file) {
-            $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, static::DASH, basename($file)));
+            $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, StreamingFormat::DASH->value, basename($file)));
         }
     }
 
