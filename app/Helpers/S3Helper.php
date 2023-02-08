@@ -19,7 +19,7 @@ class S3Helper implements CloudStorageInterface
         return [
             'cloud'   => $this->getS3(),
             'options' => [
-                'Bucket' => config('filesystems.disks.s3Main.bucket'),
+                'Bucket' => config(sprintf('filesystems.disks.%s.bucket', config('transmorpher.disks.originals'))),
                 'Key'    => $key,
             ],
         ];
@@ -39,7 +39,7 @@ class S3Helper implements CloudStorageInterface
             'cloud'   => $this->getS3(),
             'options' => [
                 'dest'     => sprintf('s3://%s/%s',
-                    config('filesystems.disks.%s.bucket', config('transmorpher.disks.videoDerivatives')),
+                    config(sprintf('filesystems.disks.%s.bucket', config('transmorpher.disks.videoDerivatives'))),
                     $destinationPath
                 ),
                 'filename' => $fileName,
