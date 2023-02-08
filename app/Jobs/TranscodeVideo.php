@@ -30,7 +30,6 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $derivativesDisk;
 
     protected string $tempPath;
-    protected string $tempPathOnDisk;
     protected string $destinationBasePath;
     protected string $fileName;
 
@@ -74,7 +73,7 @@ class TranscodeVideo implements ShouldQueue
     public function failed(Throwable $exception): void
     {
         // Properties are not initialized here.
-        $tempPath = $this->getTempPath();
+        $tempPath = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
 
         MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPath);
         MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
@@ -106,7 +105,7 @@ class TranscodeVideo implements ShouldQueue
     }
 
     /**
-     * Open a video to use it with FFmpeg.
+     * Load a video to use it with FFmpeg.
      *
      * @param FFMpeg $ffmpeg
      *
@@ -138,20 +137,8 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function setFilePaths(): void
     {
-        [, $this->fileName]        = explode('-', pathinfo($this->originalFilePath, PATHINFO_FILENAME), 2);
-        $this->destinationBasePath = FilePathHelper::getVideoDerivativeBasePath($this->media->User, $this->media->identifier);
-        $this->tempPath            = $this->getTempPath();
-        $this->tempPathOnDisk      = $this->derivativesDisk->path($this->tempPath);
-    }
-
-    /**
-     * Returns a path used to temporarily store video derivatives.
-     *
-     * @return string
-     */
-    protected function getTempPath(): string
-    {
-        return sprintf('%s-%d-temp', FilePathHelper::getVideoDerivativeBasePath($this->media->User, $this->media->identifier), $this->version->number);
+        $this->destinationBasePath = FilePathHelper::getBasePathForVideoDerivatives($this->media->User, $this->media->identifier);
+        $this->tempPath            = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
     }
 
     /**
@@ -166,8 +153,12 @@ class TranscodeVideo implements ShouldQueue
     {
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         $this->isLocalFilesystem($this->derivativesDisk) ?
-            $video->save(FilePathHelper::getVideoDerivativePath($this->tempPathOnDisk, $format, $this->fileName))
-            : $video->save(null, CloudStorage::getSaveConfiguration(sprintf('%s/%s', $this->tempPathOnDisk, $format), $this->fileName));
+            $video->save($this->derivativesDisk->path(FilePathHelper::getPathToTempVideoDerivative($this->media->User, $this->media->identifier, $this->version->number, $format)))
+            : $video->save(null,
+                CloudStorage::getSaveConfiguration(
+                    sprintf('%s/%s', $this->derivativesDisk->path($this->tempPath), $format), $this->media->identifier
+                )
+            );
     }
 
     /**
@@ -210,15 +201,17 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function moveFromCloudTempDirectory(): void
     {
-        $hlsFiles  = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, StreamingFormat::HLS->value));
-        $dashFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, StreamingFormat::DASH->value));
+        $hlsFiles   = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, StreamingFormat::HLS->value));
+        $dashFiles  = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempPath, StreamingFormat::DASH->value));
+        $user       = $this->media->User;
+        $identifier = $this->media->identifier;
 
         foreach ($hlsFiles as $file) {
-            $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, StreamingFormat::HLS->value, basename($file)));
+            $this->derivativesDisk->move($file, FilePathHelper::getPathToVideoDerivative($user, $identifier, StreamingFormat::HLS->value, basename($file)));
         }
 
         foreach ($dashFiles as $file) {
-            $this->derivativesDisk->move($file, FilePathHelper::getVideoDerivativePath($this->destinationBasePath, StreamingFormat::DASH->value, basename($file)));
+            $this->derivativesDisk->move($file, FilePathHelper::getPathToVideoDerivative($user, $identifier, StreamingFormat::DASH->value, basename($file)));
         }
     }
 

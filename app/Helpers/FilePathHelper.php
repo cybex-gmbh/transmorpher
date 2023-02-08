@@ -18,7 +18,7 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getImageDerivativePath(User $user, string $transformations, string $identifier, array $transformationsArray = null): string
+    public function getPathToImageDerivative(User $user, string $transformations, string $identifier, array $transformationsArray = null): string
     {
         $media                 = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $mediaVersions         = $media->Versions();
@@ -50,29 +50,30 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getImageOriginalPath(User $user, string $identifier): string
+    public function getPathToOriginalImage(User $user, string $identifier): string
     {
         $media                = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $mediaVersions        = $media->Versions();
         $currentVersionNumber = $mediaVersions->max('number');
         $currentVersion       = $mediaVersions->whereNumber($currentVersionNumber)->first();
 
-        return sprintf('%s/%s', $this->getOriginalsBasePath($user, $identifier), $currentVersion->filename);
+        return sprintf('%s/%s', $this->getBasePathForOriginals($user, $identifier), $currentVersion->filename);
     }
 
     /**
      * Get the path to a video derivative.
      * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
      *
-     * @param string $basePath
-     * @param string $format
-     * @param string $fileName
+     * @param User        $user
+     * @param string      $identifier
+     * @param string      $format
+     * @param string|null $fileName
      *
      * @return string
      */
-    public function getVideoDerivativePath(string $basePath, string $format, string $fileName): string
+    public function getPathToVideoDerivative(User $user, string $identifier, string $format, string $fileName = null): string
     {
-        return sprintf('%s/%s/%s', $basePath, $format, $fileName);
+        return sprintf('%s/%s/%s', $this->getBasePathForVideoDerivatives($user, $identifier), $format, $fileName ?? $identifier);
     }
 
     /**
@@ -84,9 +85,41 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getVideoDerivativeBasePath(User $user, string $identifier): string
+    public function getBasePathForVideoDerivatives(User $user, string $identifier): string
     {
         return sprintf('derivatives/videos/%s/%s', $user->name, $identifier);
+    }
+
+    /**
+     * Get the path to a temporary video derivative.
+     * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+     *
+     * @param User        $user
+     * @param string      $identifier
+     * @param int         $versionNumber
+     * @param string      $format
+     * @param string|null $fileName
+     *
+     * @return string
+     */
+    public function getPathToTempVideoDerivative(User $user, string $identifier, int $versionNumber, string $format, string $fileName = null): string
+    {
+        return sprintf('%s/%s/%s', $this->getBasePathForTempVideoDerivatives($user, $identifier, $versionNumber), $format, $fileName ?? $identifier);
+    }
+
+    /**
+     * Get the path to a video derivative.
+     * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+     *
+     * @param User   $user
+     * @param string $identifier
+     * @param int    $versionNumber
+     *
+     * @return string
+     */
+    public function getBasePathForTempVideoDerivatives(User $user, string $identifier, int $versionNumber): string
+    {
+        return sprintf('%s-%d-temp', FilePathHelper::getBasePathForVideoDerivatives($user, $identifier), $versionNumber);
     }
 
     /**
@@ -98,7 +131,7 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getOriginalsBasePath(User $user, string $identifier): string
+    public function getBasePathForOriginals(User $user, string $identifier): string
     {
         return sprintf('originals/%s/%s', $user->name, $identifier);
     }

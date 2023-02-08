@@ -56,7 +56,7 @@ class Transcode implements TranscodeInterface
     {
         $response = [
             'success'    => $success,
-            'response'   => $success ? "Successfully transcoded video." : 'Video transcoding failed.',
+            'response'   => $success ? 'Successfully transcoded video.' : 'Video transcoding failed.',
             'identifier' => $identifier,
             'version'    => $versionNumber,
             'client'     => $userName,
@@ -65,6 +65,6 @@ class Transcode implements TranscodeInterface
 
         $signedResponse = SigningHelper::sign(json_encode($response));
 
-        Http::post($callbackUrl, [$signedResponse]);
+//        Http::post($callbackUrl, [$signedResponse]);
     }
 }

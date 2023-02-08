@@ -5,11 +5,8 @@ namespace App\Http\Controllers;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Http\Requests\VideoUploadRequest;
-use App\Models\User;
 use FilePathHelper;
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\UploadedFile;
 use Transcode;
 
 class VideoController extends Controller
@@ -30,7 +27,7 @@ class VideoController extends Controller
         $versionNumber = $media->Versions()->max('number') + 1;
 
         $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $videoFile->getClientOriginalName());
-        $basePath      = FilePathHelper::getOriginalsBasePath($user, $identifier);
+        $basePath      = FilePathHelper::getBasePathForOriginals($user, $identifier);
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
         $filePath = $originalsDisk->putFileAs($basePath, $videoFile, $fileName);

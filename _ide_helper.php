@@ -9829,41 +9829,6 @@
                         return $instance->setConnectionName($name);
         }
                     /**
-         * Delete all of the jobs from the queue.
-         *
-         * @param string $queue
-         * @return int 
-         * @static 
-         */ 
-        public static function clear($queue)
-        {            //Method inherited from \Illuminate\Queue\SqsQueue         
-                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
-                        return $instance->clear($queue);
-        }
-                    /**
-         * Get the queue or return the default.
-         *
-         * @param string|null $queue
-         * @return string 
-         * @static 
-         */ 
-        public static function getQueue($queue)
-        {            //Method inherited from \Illuminate\Queue\SqsQueue         
-                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
-                        return $instance->getQueue($queue);
-        }
-                    /**
-         * Get the underlying SQS instance.
-         *
-         * @return \Aws\Sqs\SqsClient 
-         * @static 
-         */ 
-        public static function getSqs()
-        {            //Method inherited from \Illuminate\Queue\SqsQueue         
-                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
-                        return $instance->getSqs();
-        }
-                    /**
          * Get the backoff for an object-based queue handler.
          *
          * @param mixed $job
@@ -9872,7 +9837,7 @@
          */ 
         public static function getJobBackoff($job)
         {            //Method inherited from \Illuminate\Queue\Queue         
-                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        /** @var \Illuminate\Queue\SyncQueue $instance */
                         return $instance->getJobBackoff($job);
         }
                     /**
@@ -9884,7 +9849,7 @@
          */ 
         public static function getJobExpiration($job)
         {            //Method inherited from \Illuminate\Queue\Queue         
-                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        /** @var \Illuminate\Queue\SyncQueue $instance */
                         return $instance->getJobExpiration($job);
         }
                     /**
@@ -9896,7 +9861,7 @@
          */ 
         public static function createPayloadUsing($callback)
         {            //Method inherited from \Illuminate\Queue\Queue         
-                        \App\Classes\FifoQueue\SqsFifoQueue::createPayloadUsing($callback);
+                        \Illuminate\Queue\SyncQueue::createPayloadUsing($callback);
         }
                     /**
          * Get the container instance being used by the connection.
@@ -9906,7 +9871,7 @@
          */ 
         public static function getContainer()
         {            //Method inherited from \Illuminate\Queue\Queue         
-                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        /** @var \Illuminate\Queue\SyncQueue $instance */
                         return $instance->getContainer();
         }
                     /**
@@ -9918,7 +9883,7 @@
          */ 
         public static function setContainer($container)
         {            //Method inherited from \Illuminate\Queue\Queue         
-                        /** @var \App\Classes\FifoQueue\SqsFifoQueue $instance */
+                        /** @var \Illuminate\Queue\SyncQueue $instance */
                         $instance->setContainer($container);
         }
          
@@ -17779,10 +17744,10 @@
          * @return string 
          * @static 
          */ 
-        public static function getImageDerivativePath($user, $transformations, $identifier, $transformationsArray = null)
+        public static function getPathToImageDerivative($user, $transformations, $identifier, $transformationsArray = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getImageDerivativePath($user, $transformations, $identifier, $transformationsArray);
+                        return $instance->getPathToImageDerivative($user, $transformations, $identifier, $transformationsArray);
         }
                     /**
          * Get the path to an original image.
@@ -17794,26 +17759,27 @@
          * @return string 
          * @static 
          */ 
-        public static function getImageOriginalPath($user, $identifier)
+        public static function getPathToOriginalImage($user, $identifier)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getImageOriginalPath($user, $identifier);
+                        return $instance->getPathToOriginalImage($user, $identifier);
         }
                     /**
          * Get the path to a video derivative.
          * 
          * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
          *
-         * @param string $basePath
+         * @param \App\Models\User $user
+         * @param string $identifier
          * @param string $format
-         * @param string $fileName
+         * @param string|null $fileName
          * @return string 
          * @static 
          */ 
-        public static function getVideoDerivativePath($basePath, $format, $fileName)
+        public static function getPathToVideoDerivative($user, $identifier, $format, $fileName = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getVideoDerivativePath($basePath, $format, $fileName);
+                        return $instance->getPathToVideoDerivative($user, $identifier, $format, $fileName);
         }
                     /**
          * Get the base path for video derivatives.
@@ -17825,10 +17791,44 @@
          * @return string 
          * @static 
          */ 
-        public static function getVideoDerivativeBasePath($user, $identifier)
+        public static function getBasePathForVideoDerivatives($user, $identifier)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getVideoDerivativeBasePath($user, $identifier);
+                        return $instance->getBasePathForVideoDerivatives($user, $identifier);
+        }
+                    /**
+         * Get the path to a temporary video derivative.
+         * 
+         * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+         *
+         * @param \App\Models\User $user
+         * @param string $identifier
+         * @param int $versionNumber
+         * @param string $format
+         * @param string|null $fileName
+         * @return string 
+         * @static 
+         */ 
+        public static function getPathToTempVideoDerivative($user, $identifier, $versionNumber, $format, $fileName = null)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->getPathToTempVideoDerivative($user, $identifier, $versionNumber, $format, $fileName);
+        }
+                    /**
+         * Get the path to a video derivative.
+         * 
+         * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+         *
+         * @param \App\Models\User $user
+         * @param string $identifier
+         * @param int $versionNumber
+         * @return string 
+         * @static 
+         */ 
+        public static function getBasePathForTempVideoDerivatives($user, $identifier, $versionNumber)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->getBasePathForTempVideoDerivatives($user, $identifier, $versionNumber);
         }
                     /**
          * Get the base path for original media.
@@ -17840,10 +17840,10 @@
          * @return string 
          * @static 
          */ 
-        public static function getOriginalsBasePath($user, $identifier)
+        public static function getBasePathForOriginals($user, $identifier)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getOriginalsBasePath($user, $identifier);
+                        return $instance->getBasePathForOriginals($user, $identifier);
         }
                     /**
          * Create the filename for an original.

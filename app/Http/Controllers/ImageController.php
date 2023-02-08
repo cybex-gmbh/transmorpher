@@ -54,13 +54,13 @@ class ImageController extends Controller
     {
         $diskImageDerivatives = MediaStorage::IMAGE_DERIVATIVES->getDisk();
         $transformationsArray = $this->getTransformations($transformations);
-        $derivativePath       = FilePathHelper::getImageDerivativePath($user, $transformations, $identifier, $transformationsArray);
+        $derivativePath       = FilePathHelper::getPathToImageDerivative($user, $transformations, $identifier, $transformationsArray);
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $diskImageDerivatives->exists($derivativePath)) {
             $derivative = $diskImageDerivatives->get($derivativePath);
         } else {
-            $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
+            $originalFilePath = FilePathHelper::getPathToOriginalImage($user, $identifier);
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);
@@ -89,7 +89,7 @@ class ImageController extends Controller
     {
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
-        $basePath      = FilePathHelper::getOriginalsBasePath($user, $identifier);
+        $basePath      = FilePathHelper::getBasePathForOriginals($user, $identifier);
         $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
 
         $filePath = $disk->putFileAs($basePath, $imageFile, $fileName);
