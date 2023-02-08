@@ -169,8 +169,14 @@ class TranscodeVideo implements ShouldQueue
     protected function moveToDestinationPath(): void
     {
         if ($this->version->number === $this->media->Versions()->max('number')) {
+            // This will make sure we can invalidate the cache and prevent deleting the current derivative before we are certain the transcoding can finish.
+            // If this fails, the job will stop and cleanup will be done in the failed() method.
+            $this->invalidateCdnCache();
+
             $this->derivativesDisk->deleteDirectory($this->destinationBasePath);
             $this->moveFromTempDirectory();
+
+            // Invalidate the cache again for the newly generated derivative.
             $this->invalidateCdnCache();
 
             $this->version->update(['processed' => true]);
