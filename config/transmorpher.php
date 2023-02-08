@@ -34,7 +34,7 @@ return [
     */
 
     'disks' => [
-        'originals' => env('TRANSMORPHER_DISK_MAIN'),
+        'originals' => env('TRANSMORPHER_DISK_ORIGINALS'),
         'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES'),
         'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES'),
     ],

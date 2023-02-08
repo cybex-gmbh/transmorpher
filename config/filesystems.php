@@ -44,12 +44,33 @@ return [
             'throw' => false,
         ],
 
-        's3Main' => [
+        'localOriginals' => [
+            'driver' => 'local',
+            'root' => storage_path('app/originals'),
+            'throw' => false,
+        ],
+
+        'localImageDerivatives' => [
+            'driver' => 'local',
+            'root' => storage_path('app/derivativeImages'),
+            'throw' => false,
+        ],
+
+        'localVideoDerivatives' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/derivativeVideos'),
+            'url' => env('APP_URL').'/derivativeVideos',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        's3Originals' => [
             'driver' => 's3',
+            'root' => 'originals',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET_MAIN'),
+            'bucket' => env('AWS_BUCKET_ORIGINALS'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
@@ -58,6 +79,7 @@ return [
 
         's3ImageDerivatives' => [
             'driver' => 's3',
+            'root' => 'derivativeImages',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
@@ -70,6 +92,7 @@ return [
 
         's3VideoDerivatives' => [
             'driver' => 's3',
+            'root' => 'derivativeVideos',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
@@ -94,7 +117,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
-        public_path('derivatives') => storage_path('app/public/derivatives'),
+        public_path('derivativeVideos') => storage_path('app/public/derivativeVideos'),
     ],
 
 ];

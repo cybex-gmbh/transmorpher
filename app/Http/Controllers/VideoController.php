@@ -27,7 +27,7 @@ class VideoController extends Controller
         $versionNumber = $media->Versions()->max('number') + 1;
 
         $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $videoFile->getClientOriginalName());
-        $basePath      = FilePathHelper::getBasePathForOriginals($user, $identifier);
+        $basePath      = FilePathHelper::getBasePath($user, $identifier);
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
         $filePath = $originalsDisk->putFileAs($basePath, $videoFile, $fileName);

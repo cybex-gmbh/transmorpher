@@ -137,7 +137,7 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function setFilePaths(): void
     {
-        $this->destinationBasePath = FilePathHelper::getBasePathForVideoDerivatives($this->media->User, $this->media->identifier);
+        $this->destinationBasePath = FilePathHelper::getBasePath($this->media->User, $this->media->identifier);
         $this->tempPath            = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
     }
 

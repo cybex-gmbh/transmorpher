@@ -9,7 +9,7 @@ class FilePathHelper
 {
     /**
      * Get the path to an (existing) image derivative.
-     * Path structure: derivatives/images/{username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
+     * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
      *
      * @param User       $user
      * @param string     $transformations
@@ -29,9 +29,8 @@ class FilePathHelper
         // Hash of transformation parameters and current version number to identify already generated derivatives.
         $derivativeHash = hash('sha256', $transformations . $currentVersionNumber);
 
-        return sprintf('derivatives/images/%s/%s/%d/%sx_%sy_%sq_%s.%s',
-            $user->name,
-            $identifier,
+        return sprintf('%s/%d/%sx_%sy_%sq_%s.%s',
+            $this->getBasePath($user, $identifier),
             $currentVersionNumber,
             $transformationsArray[Transformation::WIDTH->value] ?? '',
             $transformationsArray[Transformation::HEIGHT->value] ?? '',
@@ -43,7 +42,7 @@ class FilePathHelper
 
     /**
      * Get the path to an original image.
-     * Path structure: originals/{username}/{identifier}/{filename}
+     * Path structure: {username}/{identifier}/{filename}
      *
      * @param User   $user
      * @param string $identifier
@@ -57,12 +56,12 @@ class FilePathHelper
         $currentVersionNumber = $mediaVersions->max('number');
         $currentVersion       = $mediaVersions->whereNumber($currentVersionNumber)->first();
 
-        return sprintf('%s/%s', $this->getBasePathForOriginals($user, $identifier), $currentVersion->filename);
+        return sprintf('%s/%s', $this->getBasePath($user, $identifier), $currentVersion->filename);
     }
 
     /**
      * Get the path to a video derivative.
-     * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+     * Path structure: {username}/{identifier}/{format}/{filename}
      *
      * @param User        $user
      * @param string      $identifier
@@ -73,26 +72,12 @@ class FilePathHelper
      */
     public function getPathToVideoDerivative(User $user, string $identifier, string $format, string $fileName = null): string
     {
-        return sprintf('%s/%s/%s', $this->getBasePathForVideoDerivatives($user, $identifier), $format, $fileName ?? $identifier);
-    }
-
-    /**
-     * Get the base path for video derivatives.
-     * Path structure: derivatives/videos/{username}/{identifier}/
-     *
-     * @param User   $user
-     * @param string $identifier
-     *
-     * @return string
-     */
-    public function getBasePathForVideoDerivatives(User $user, string $identifier): string
-    {
-        return sprintf('derivatives/videos/%s/%s', $user->name, $identifier);
+        return sprintf('%s/%s/%s', $this->getBasePath($user, $identifier), $format, $fileName ?? $identifier);
     }
 
     /**
      * Get the path to a temporary video derivative.
-     * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+     * Path structure: {username}/{identifier}/{format}/{filename}
      *
      * @param User        $user
      * @param string      $identifier
@@ -109,7 +94,7 @@ class FilePathHelper
 
     /**
      * Get the path to a video derivative.
-     * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+     * Path structure: {username}/{identifier}/{format}/{filename}
      *
      * @param User   $user
      * @param string $identifier
@@ -119,21 +104,21 @@ class FilePathHelper
      */
     public function getBasePathForTempVideoDerivatives(User $user, string $identifier, int $versionNumber): string
     {
-        return sprintf('%s-%d-temp', FilePathHelper::getBasePathForVideoDerivatives($user, $identifier), $versionNumber);
+        return sprintf('%s-%d-temp', $this->getBasePath($user, $identifier), $versionNumber);
     }
 
     /**
-     * Get the base path for original media.
-     * Path structure: originals/{username}/{identifier}/
+     * Get the base path for media.
+     * Path structure: {username}/{identifier}/
      *
      * @param User   $user
      * @param string $identifier
      *
      * @return string
      */
-    public function getBasePathForOriginals(User $user, string $identifier): string
+    public function getBasePath(User $user, string $identifier): string
     {
-        return sprintf('originals/%s/%s', $user->name, $identifier);
+        return sprintf('%s/%s', $user->name, $identifier);
     }
 
     /**

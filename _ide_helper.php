@@ -17709,7 +17709,7 @@
          */ 
         public static function getOpenConfiguration($key)
         {
-                        /** @var \App\Helpers\S3Helper $instance */
+                        /** @var \App\Helpers\PhpFfmpegVideoStreaming\S3Helper $instance */
                         return $instance->getOpenConfiguration($key);
         }
                     /**
@@ -17722,7 +17722,7 @@
          */ 
         public static function getSaveConfiguration($destinationPath, $fileName)
         {
-                        /** @var \App\Helpers\S3Helper $instance */
+                        /** @var \App\Helpers\PhpFfmpegVideoStreaming\S3Helper $instance */
                         return $instance->getSaveConfiguration($destinationPath, $fileName);
         }
          
@@ -17735,7 +17735,7 @@
                     /**
          * Get the path to an (existing) image derivative.
          * 
-         * Path structure: derivatives/images/{username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
+         * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
          *
          * @param \App\Models\User $user
          * @param string $transformations
@@ -17752,7 +17752,7 @@
                     /**
          * Get the path to an original image.
          * 
-         * Path structure: originals/{username}/{identifier}/{filename}
+         * Path structure: {username}/{identifier}/{filename}
          *
          * @param \App\Models\User $user
          * @param string $identifier
@@ -17767,7 +17767,7 @@
                     /**
          * Get the path to a video derivative.
          * 
-         * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+         * Path structure: {username}/{identifier}/{format}/{filename}
          *
          * @param \App\Models\User $user
          * @param string $identifier
@@ -17782,24 +17782,9 @@
                         return $instance->getPathToVideoDerivative($user, $identifier, $format, $fileName);
         }
                     /**
-         * Get the base path for video derivatives.
-         * 
-         * Path structure: derivatives/videos/{username}/{identifier}/
-         *
-         * @param \App\Models\User $user
-         * @param string $identifier
-         * @return string 
-         * @static 
-         */ 
-        public static function getBasePathForVideoDerivatives($user, $identifier)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getBasePathForVideoDerivatives($user, $identifier);
-        }
-                    /**
          * Get the path to a temporary video derivative.
          * 
-         * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+         * Path structure: {username}/{identifier}/{format}/{filename}
          *
          * @param \App\Models\User $user
          * @param string $identifier
@@ -17817,7 +17802,7 @@
                     /**
          * Get the path to a video derivative.
          * 
-         * Path structure: derivatives/videos/{username}/{identifier}/{format}/{filename}
+         * Path structure: {username}/{identifier}/{format}/{filename}
          *
          * @param \App\Models\User $user
          * @param string $identifier
@@ -17831,19 +17816,19 @@
                         return $instance->getBasePathForTempVideoDerivatives($user, $identifier, $versionNumber);
         }
                     /**
-         * Get the base path for original media.
+         * Get the base path for media.
          * 
-         * Path structure: originals/{username}/{identifier}/
+         * Path structure: {username}/{identifier}/
          *
          * @param \App\Models\User $user
          * @param string $identifier
          * @return string 
          * @static 
          */ 
-        public static function getBasePathForOriginals($user, $identifier)
+        public static function getBasePath($user, $identifier)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getBasePathForOriginals($user, $identifier);
+                        return $instance->getBasePath($user, $identifier);
         }
                     /**
          * Create the filename for an original.

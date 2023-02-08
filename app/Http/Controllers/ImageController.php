@@ -89,7 +89,7 @@ class ImageController extends Controller
     {
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
-        $basePath      = FilePathHelper::getBasePathForOriginals($user, $identifier);
+        $basePath      = FilePathHelper::getBasePath($user, $identifier);
         $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
 
         $filePath = $disk->putFileAs($basePath, $imageFile, $fileName);
