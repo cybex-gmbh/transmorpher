@@ -112,7 +112,7 @@ class ImageController extends Controller
 
         return [
             'success'    => $success,
-            'response'   => $success ? "Successfully added new image version." : 'Cache invalidation failed.',
+            'response'   => $success ? 'Successfully added new image version.' : 'Cache invalidation failed.',
             'identifier' => $media->identifier,
             'version'    => $versionNumber,
             'client'     => $user->name,

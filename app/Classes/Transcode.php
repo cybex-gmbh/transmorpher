@@ -7,6 +7,7 @@ use App\Interfaces\TranscodeInterface;
 use App\Jobs\TranscodeVideo;
 use App\Models\Media;
 use App\Models\Version;
+use Exception;
 use Http;
 
 class Transcode implements TranscodeInterface
@@ -30,7 +31,11 @@ class Transcode implements TranscodeInterface
         * To ensure parallel processing those message group ids should be unique.
         * See SqsFifoQueue class.
         */
-        TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken);
+        try {
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken);
+        } catch (Exception) {
+            return false;
+        }
 
         return true;
     }
