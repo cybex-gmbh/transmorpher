@@ -58,7 +58,7 @@ return [
 
         'localVideoDerivatives' => [
             'driver' => 'local',
-            'root' => storage_path('app/public/derivativeVideos'),
+            'root' => storage_path('app/derivativeVideos'),
             'url' => env('APP_URL').'/derivativeVideos',
             'visibility' => 'public',
             'throw' => false,
@@ -117,7 +117,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
-        public_path('derivativeVideos') => storage_path('app/public/derivativeVideos'),
+        public_path('derivativeVideos') => storage_path('app/derivativeVideos'),
     ],
 
 ];
