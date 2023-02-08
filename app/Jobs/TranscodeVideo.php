@@ -91,7 +91,7 @@ class TranscodeVideo implements ShouldQueue
     protected function transcodeVideo(): void
     {
         $ffmpeg = FFMpeg::create();
-        $video  = $this->openVideo($ffmpeg);
+        $video  = $this->loadVideo($ffmpeg);
 
         // Set necessary file path information.
         $this->setFilePaths();
@@ -112,7 +112,7 @@ class TranscodeVideo implements ShouldQueue
      *
      * @return StreamingMedia
      */
-    protected function openVideo(FFMpeg $ffmpeg): StreamingMedia
+    protected function loadVideo(FFMpeg $ffmpeg): StreamingMedia
     {
         return $this->isLocalFilesystem($this->originalsDisk) ?
             $ffmpeg->open($this->originalsDisk->path($this->originalFilePath))
