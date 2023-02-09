@@ -26,7 +26,7 @@ enum ImageFormat: string
      *
      * @return array
      */
-    public static function getMimeTypes(): array
+    public static function getFormats(): array
     {
         return array_column(self::cases(), 'value');
     }
