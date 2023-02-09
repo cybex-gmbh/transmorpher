@@ -81,7 +81,7 @@ class TranscodeVideo implements ShouldQueue
     public function failed(Throwable $exception): void
     {
         // Properties are not initialized here.
-        $tempPath = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
+        $tempPath  = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
         $localDisk = Storage::disk('local');
 
         MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPath);
@@ -113,7 +113,6 @@ class TranscodeVideo implements ShouldQueue
         // Generate DASH
         $this->saveVideo(StreamingFormat::DASH->configure($video), StreamingFormat::DASH->value);
         $this->localDisk->delete($this->tempLocalOriginal);
-
 
         // Derivatives are generated at this point of time and located in the temporary folder.
         $this->moveToDestinationPath();
@@ -275,8 +274,8 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function invalidateCdnCache(): void
     {
-        // If this fails, the 'failed()'-method will handle the cleanup.
         if (CdnHelper::isConfigured()) {
+            // If this fails, the 'failed()'-method will handle the cleanup.
             CdnHelper::invalidate(sprintf('/%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
         }
     }
