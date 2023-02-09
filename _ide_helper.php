@@ -17750,7 +17750,7 @@
                         return $instance->getPathToImageDerivative($user, $transformations, $identifier, $transformationsArray);
         }
                     /**
-         * Get the path to an original image.
+         * Get the path to an original.
          * 
          * Path structure: {username}/{identifier}/{filename}
          *
@@ -17759,10 +17759,10 @@
          * @return string 
          * @static 
          */ 
-        public static function getPathToOriginalImage($user, $identifier)
+        public static function getPathToOriginal($user, $identifier)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getPathToOriginalImage($user, $identifier);
+                        return $instance->getPathToOriginal($user, $identifier);
         }
                     /**
          * Get the path to a video derivative.
@@ -17867,6 +17867,23 @@
         {
                         /** @var \App\Classes\Transcode $instance */
                         return $instance->createJob($originalFilePath, $media, $version, $callbackUrl, $idToken);
+        }
+                    /**
+         * Creates a job which handles the transcoding of a video when a version number is updated.
+         *
+         * @param string $originalFilePath
+         * @param \App\Models\Media $media
+         * @param \App\Models\Version $version
+         * @param string $callbackUrl
+         * @param string $idToken
+         * @param int $oldVersionNumber
+         * @return bool 
+         * @static 
+         */ 
+        public static function createJobForVersionUpdate($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber)
+        {
+                        /** @var \App\Classes\Transcode $instance */
+                        return $instance->createJobForVersionUpdate($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber);
         }
                     /**
          * Inform client package about the transcoding result.

@@ -41,7 +41,7 @@ class FilePathHelper
     }
 
     /**
-     * Get the path to an original image.
+     * Get the path to an original.
      * Path structure: {username}/{identifier}/{filename}
      *
      * @param User   $user
@@ -49,7 +49,7 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getPathToOriginalImage(User $user, string $identifier): string
+    public function getPathToOriginal(User $user, string $identifier): string
     {
         $media                = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $mediaVersions        = $media->Versions();

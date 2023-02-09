@@ -44,6 +44,7 @@ class TranscodeVideo implements ShouldQueue
         protected Version $version,
         protected string  $callbackUrl,
         protected string  $idToken,
+        protected ?int    $oldVersionNumber = null
     )
     {
     }
@@ -76,10 +77,17 @@ class TranscodeVideo implements ShouldQueue
         $tempPath = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
 
         MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPath);
-        MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
-        $this->version->delete();
 
-        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number - 1);
+        if (!$this->oldVersionNumber) {
+            MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
+            $this->version->delete();
+            $versionNumber = $this->version->number - 1;
+        } else {
+            $this->version->update(['number' => $this->oldVersionNumber]);
+            $versionNumber = $this->oldVersionNumber;
+        }
+
+        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $versionNumber);
     }
 
     /**

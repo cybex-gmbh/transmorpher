@@ -83,7 +83,7 @@ class ImageController extends Controller
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
             $derivative = $imageDerivativesDisk->get($derivativePath);
         } else {
-            $originalFilePath = FilePathHelper::getPathToOriginalImage($user, $identifier);
+            $originalFilePath = FilePathHelper::getPathToOriginal($user, $identifier);
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);

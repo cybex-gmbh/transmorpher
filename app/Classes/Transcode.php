@@ -41,6 +41,29 @@ class Transcode implements TranscodeInterface
     }
 
     /**
+     * Creates a job which handles the transcoding of a video when a version number is updated.
+     *
+     * @param string  $originalFilePath
+     * @param Media   $media
+     * @param Version $version
+     * @param string  $callbackUrl
+     * @param string  $idToken
+     * @param int     $oldVersionNumber
+     *
+     * @return bool
+     */
+    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, int $oldVersionNumber): bool
+    {
+        try {
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber);
+        } catch (Exception) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Inform client package about the transcoding result.
      *
      * @param bool   $success
