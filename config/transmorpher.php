@@ -94,7 +94,7 @@ return [
     | The codec used when transcoding videos.
     |
     | You can choose from:
-    | x264, hevc, vp9
+    | x264, hevc
     |
     */
 
