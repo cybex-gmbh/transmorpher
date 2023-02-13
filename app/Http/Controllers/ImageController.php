@@ -38,7 +38,7 @@ class ImageController extends Controller
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
         $filePath = $originalsDisk->putFileAs($basePath, $imageFile, $fileName);
-        $version  = $media->Versions()->create(['number'   => $versionNumber, 'filename' => $fileName]);
+        $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
         $success = true;
 
