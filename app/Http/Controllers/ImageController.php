@@ -7,13 +7,13 @@ use App\Enums\MediaType;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\User;
 use CdnHelper;
-use Exception;
 use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
+use Throwable;
 use Transform;
 
 class ImageController extends Controller
@@ -46,7 +46,7 @@ class ImageController extends Controller
         if (CdnHelper::isConfigured()) {
             try {
                 CdnHelper::invalidate(sprintf('/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
-            } catch (Exception) {
+            } catch (Throwable) {
                 $originalsDisk->delete($filePath);
                 $version->delete();
 
