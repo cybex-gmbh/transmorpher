@@ -77,13 +77,13 @@ class ImageController extends Controller
     {
         $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
         $transformationsArray = $this->getTransformations($transformations);
-        $derivativePath       = FilePathHelper::getPathToImageDerivative($user, $transformations, $identifier, $transformationsArray);
+        $derivativePath       = FilePathHelper::toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
             $derivative = $imageDerivativesDisk->get($derivativePath);
         } else {
-            $originalFilePath = FilePathHelper::getPathToOriginalImage($user, $identifier);
+            $originalFilePath = FilePathHelper::toOriginalImageFile($user, $identifier);
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);
