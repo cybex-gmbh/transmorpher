@@ -15,10 +15,12 @@ return new class extends Migration
     {
         Schema::create('media', function (Blueprint $table) {
             $table->id();
-            $table->string('identifier')->unique();
+            $table->string('identifier');
             $table->enum('type', ['image', 'video']);
             $table->foreignId('user_id')->constrained();
             $table->timestamps();
+
+            $table->unique(['identifier', 'user_id']);
         });
     }
 };
