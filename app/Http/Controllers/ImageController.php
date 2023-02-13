@@ -92,27 +92,31 @@ class ImageController extends Controller
         $basePath      = FilePathHelper::toBaseDirectory($user, $identifier);
         $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
 
-        $filePath = $disk->putFileAs($basePath, $imageFile, $fileName);
-        $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
+        if ($filePath = $disk->putFileAs($basePath, $imageFile, $fileName)) {
+            $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
-        $success = true;
+            // Invalidate cache and delete entry if failed.
+            if (CdnHelper::isConfigured()) {
+                try {
+                    CdnHelper::invalidate(sprintf('/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
+                } catch (Exception) {
+                    $disk->delete($filePath);
+                    $version->delete();
 
-        // Invalidate cache and delete entry if failed.
-        if (CdnHelper::isConfigured()) {
-            try {
-                CdnHelper::invalidate(sprintf('/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
-            } catch (Exception) {
-                $disk->delete($filePath);
-                $version->delete();
-
-                $success = false;
-                $versionNumber -= 1;
+                    $success       = false;
+                    $response      = 'Cache invalidation failed.';
+                    $versionNumber -= 1;
+                }
             }
+        } else {
+            $success       = false;
+            $response      = 'Could not write image to disk.';
+            $versionNumber -= 1;
         }
 
         return [
-            'success'    => $success,
-            'response'   => $success ? 'Successfully added new image version.' : 'Cache invalidation failed.',
+            'success'    => $success ?? true,
+            'response'   => $response ?? 'Successfully added new image version.',
             'identifier' => $media->identifier,
             'version'    => $versionNumber,
             'client'     => $user->name,
