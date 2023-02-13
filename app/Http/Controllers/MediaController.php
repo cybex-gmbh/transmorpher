@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Http\Requests\SetVersionRequest;
+use App\Models\Media;
+use App\Models\User;
+use App\Models\Version;
 use CdnHelper;
 use Exception;
 use FilePathHelper;
@@ -24,20 +27,21 @@ class MediaController extends Controller
      */
     public function getVersions(Request $request, string $identifier): JsonResponse
     {
-        $user                 = $request->user();
-        $media                = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $versions             = $media->Versions;
-        $currentVersionNumber = $versions->max('number');
-        $allVersionNumbers    = $versions->pluck('number');
+        $user                   = $request->user();
+        $media                  = $user->Media()->whereIdentifier($identifier)->firstOrFail();
+        $versions               = $media->Versions;
+        $currentVersionNumber   = $versions->max('number');
+        $processedVersionNumber = $media->type === MediaType::VIDEO ? $media->Versions()->whereProcessed(true)->max('number') : null;
+        $allVersionNumbers      = $versions->pluck('number');
 
         return response()->json([
-            'success'        => true,
-            'response'       => 'Successfully retrieved version numbers.',
-            'identifier'     => $identifier,
-            'currentVersion' => $currentVersionNumber ?? null,
-            'versions'       => $allVersionNumbers,
-            'client'         => $user->name,
-
+            'success'                   => true,
+            'response'                  => 'Successfully retrieved version numbers.',
+            'identifier'                => $identifier,
+            'currentVersion'            => $currentVersionNumber ?? null,
+            'currentlyProcessedVersion' => $processedVersionNumber,
+            'versions'                  => $allVersionNumbers,
+            'client'                    => $user->name,
         ]);
     }
 
@@ -46,39 +50,34 @@ class MediaController extends Controller
      *
      * @param SetVersionRequest $request
      * @param string            $identifier
-     * @param string            $newVersionNumber
+     * @param string            $versionNumber
      *
      * @return JsonResponse
      */
-    public function setVersion(SetVersionRequest $request, string $identifier, string $newVersionNumber): JsonResponse
+    public function setVersion(SetVersionRequest $request, string $identifier, string $versionNumber): JsonResponse
     {
         $user             = $request->user();
         $media            = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $version          = $media->Versions()->whereNumber($newVersionNumber)->firstOrFail();
+        $version          = $media->Versions()->whereNumber($versionNumber)->firstOrFail();
+        $wasProcessed     = $version->processed;
         $oldVersionNumber = $version->number;
         $newVersionNumber = $media->Versions()->max('number') + 1;
 
         $version->update(['number' => $newVersionNumber, 'processed' => 0]);
 
         if ($media->type === MediaType::VIDEO) {
-            if ($callbackUrl = $request->input('callback_url') && $idToken = $request->get('id_token')) {
-                $filePath = FilePathHelper::getPathToOriginal($user, $identifier);
-                $success  = Transcode::createJobForVersionUpdate($filePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber);
-
-                if ($success) {
-                    $response = 'Successfully set video version, transcoding job has been dispatched.';
-                } else {
-                    $response         = 'Could not create transcoding job';
-                    $newVersionNumber = $oldVersionNumber;
-                }
-            } else {
-                $version->update(['number' => $oldVersionNumber]);
-
-                $success          = false;
-                $response         = 'A callback URL and an identification token is needed for this identifier.';
-                $newVersionNumber = $oldVersionNumber;
-            }
+            [$success, $response] = $this->setVideoVersion(
+                $request->get('callback_url'),
+                $request->get('id_token'),
+                $user,
+                $identifier,
+                $media,
+                $version,
+                $oldVersionNumber,
+                $wasProcessed
+            );
         } else {
+            // Media type is image.
             $success = true;
 
             if (CdnHelper::isConfigured()) {
@@ -88,9 +87,8 @@ class MediaController extends Controller
                 } catch (Exception) {
                     $version->update(['number' => $oldVersionNumber]);
 
-                    $success          = false;
-                    $response         = 'Cache invalidation failed.';
-                    $newVersionNumber = $oldVersionNumber;
+                    $success  = false;
+                    $response = 'Cache invalidation failed.';
                 }
             }
         }
@@ -99,7 +97,7 @@ class MediaController extends Controller
             'success'    => $success,
             'response'   => $response ?? 'Successfully set image version.',
             'identifier' => $identifier,
-            'version'    => $newVersionNumber,
+            'version'    => $success ? $newVersionNumber : $oldVersionNumber,
             'client'     => $user->name,
         ]);
     }
@@ -118,9 +116,7 @@ class MediaController extends Controller
         $media    = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $basePath = FilePathHelper::getBasePath($user, $identifier);
 
-        $success  = true;
-        $response = 'Successfully deleted media.';
-
+        // This will make sure we can invalidate the cache and prevent deleting the media before we are sure it will work.
         if (CdnHelper::isConfigured()) {
             try {
                 CdnHelper::invalidate(sprintf('/%s/*',
@@ -141,10 +137,44 @@ class MediaController extends Controller
         }
 
         return response()->json([
-            'success'    => $success,
-            'response'   => $response,
+            'success'    => $success ?? true,
+            'response'   => $response ?? 'Successfully deleted media.',
             'identifier' => $identifier,
             'client'     => $user->name,
         ]);
+    }
+
+    /**
+     * @param string  $callbackUrl
+     * @param string  $idToken
+     * @param mixed   $user
+     * @param string  $identifier
+     * @param Media   $media
+     * @param Version $version
+     * @param int     $oldVersionNumber
+     * @param bool    $wasProcessed
+     *
+     * @return array
+     */
+    protected function setVideoVersion(string $callbackUrl, string $idToken, User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed): array
+    {
+        if ($callbackUrl && $idToken) {
+            $filePath = FilePathHelper::getPathToOriginal($user, $identifier);
+            $success  = Transcode::createJobForVersionUpdate($filePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed);
+            $response = $success ? 'Successfully set video version, transcoding job has been dispatched.' : 'Could not create transcoding job';
+        } else {
+            $version->update([
+                'number'    => $oldVersionNumber,
+                'processed' => $wasProcessed,
+            ]);
+
+            $success  = false;
+            $response = 'A callback URL and an identification token is needed for this identifier.';
+        }
+
+        return [
+            $success,
+            $response,
+        ];
     }
 }

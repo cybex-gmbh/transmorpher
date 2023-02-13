@@ -12,6 +12,7 @@ use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 use Transform;
@@ -95,6 +96,23 @@ class ImageController extends Controller
         }
 
         return response($derivative, 200, ['Content-Type' => $imageDerivativesDisk->mimeType($derivativePath)]);
+    }
+
+    /**
+     * Retrieve an original image for a version.
+     *
+     * @param Request $request
+     * @param string  $identifier
+     * @param int     $versionNumber
+     *
+     * @return Application|Response|ResponseFactory
+     */
+    public function getVersion(Request $request, string $identifier, int $versionNumber): Response|Application|ResponseFactory
+    {
+        $originalsDisk = MediaStorage::ORIGINALS->getDisk();
+        $pathToOriginal = FilePathHelper::getPathToOriginal($request->user(), $identifier, $versionNumber);
+
+        return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => $originalsDisk->mimeType($pathToOriginal)]);
     }
 
     /**

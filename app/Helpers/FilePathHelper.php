@@ -44,19 +44,21 @@ class FilePathHelper
      * Get the path to an original.
      * Path structure: {username}/{identifier}/{filename}
      *
-     * @param User   $user
-     * @param string $identifier
+     * @param User     $user
+     * @param string   $identifier
+     * @param int|null $versionNumber
      *
      * @return string
      */
-    public function getPathToOriginal(User $user, string $identifier): string
+    public function getPathToOriginal(User $user, string $identifier, int $versionNumber = null): string
     {
-        $media                = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $mediaVersions        = $media->Versions();
-        $currentVersionNumber = $mediaVersions->max('number');
-        $currentVersion       = $mediaVersions->whereNumber($currentVersionNumber)->first();
+        $media         = $user->Media()->whereIdentifier($identifier)->firstOrFail();
+        $mediaVersions = $media->Versions();
 
-        return sprintf('%s/%s', $this->getBasePath($user, $identifier), $currentVersion->filename);
+        // Get the version for either the specified number or for the current version number.
+        $version = $versionNumber ? $mediaVersions->whereNumber($versionNumber)->first() : $mediaVersions->whereNumber($mediaVersions->max('number'))->first();
+
+        return sprintf('%s/%s', $this->getBasePath($user, $identifier), $version->filename);
     }
 
     /**

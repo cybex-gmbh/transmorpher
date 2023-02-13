@@ -29,10 +29,11 @@ interface TranscodeInterface
      * @param string  $callbackUrl
      * @param string  $idToken
      * @param int     $oldVersionNumber
+     * @param bool    $wasProcessed
      *
      * @return bool
      */
-    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, int $oldVersionNumber): bool;
+    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, int $oldVersionNumber, bool $wasProcessed): bool;
 
     /**
      * Inform client package about the transcoding result.

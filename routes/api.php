@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(
 
         // Image
         Route::post('/image/upload', [ImageController::class, 'put']);
+        Route::get('/image/{identifier}/version/{versionNumber}', [ImageController::class, 'getVersion']);
 
         // Video
         Route::post('/video/upload', [VideoController::class, 'put']);

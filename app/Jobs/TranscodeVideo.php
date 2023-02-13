@@ -49,7 +49,8 @@ class TranscodeVideo implements ShouldQueue
         protected Version $version,
         protected string  $callbackUrl,
         protected string  $idToken,
-        protected ?int    $oldVersionNumber = null
+        protected ?int    $oldVersionNumber = null,
+        protected ?bool   $wasProcessed     = null
     )
     {
     }
@@ -94,7 +95,7 @@ class TranscodeVideo implements ShouldQueue
             $this->version->delete();
             $versionNumber = $this->version->number - 1;
         } else {
-            $this->version->update(['number' => $this->oldVersionNumber]);
+            $this->version->update(['number' => $this->oldVersionNumber, 'processed' => $this->wasProcessed]);
             $versionNumber = $this->oldVersionNumber;
         }
 
