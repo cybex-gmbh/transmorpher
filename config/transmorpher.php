@@ -91,10 +91,11 @@ return [
     | Video Codec
     |--------------------------------------------------------------------------
     |
-    | The codec used when transcoding videos.
+    | The codec used when transcoding videos to HLS and DASH.
+    | This does not affect the codec used for MP4, which is x264 since it's the only one supported by the PHP-FFmpeg package for MP4.
     |
     | You can choose from:
-    | x264, hevc, vp9
+    | x264, hevc
     |
     */
 

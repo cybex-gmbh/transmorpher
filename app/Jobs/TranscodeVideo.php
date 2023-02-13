@@ -8,6 +8,7 @@ use App\Models\Media;
 use App\Models\Version;
 use CdnHelper;
 use CloudStorage;
+use FFMpeg\Format\Video\X264;
 use FilePathHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -16,6 +17,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use Storage;
 use Streaming\FFMpeg;
 use Streaming\Media as StreamingMedia;
 use Streaming\Streaming;
@@ -28,8 +30,11 @@ class TranscodeVideo implements ShouldQueue
 
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
+    protected Filesystem $localDisk;
 
     protected string $tempPath;
+    protected string $tempMp4FileName;
+    protected string $tempLocalOriginal;
     protected string $destinationBasePath;
     protected string $fileName;
 
@@ -55,8 +60,11 @@ class TranscodeVideo implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->originalsDisk   = MediaStorage::ORIGINALS->getDisk();
-        $this->derivativesDisk = MediaStorage::VIDEO_DERIVATIVES->getDisk();
+        $this->originalsDisk     = MediaStorage::ORIGINALS->getDisk();
+        $this->derivativesDisk   = MediaStorage::VIDEO_DERIVATIVES->getDisk();
+        $this->localDisk         = Storage::disk('local');
+        $this->tempMp4FileName   = sprintf('temp-derivative-%s-%d.mp4', $this->media->identifier, $this->version->number);
+        $this->tempLocalOriginal = sprintf('temp-original-%s-%d', $this->media->identifier, $this->version->number);
 
         $this->transcodeVideo();
 
@@ -73,10 +81,13 @@ class TranscodeVideo implements ShouldQueue
     public function failed(Throwable $exception): void
     {
         // Properties are not initialized here.
-        $tempPath = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
+        $tempPath  = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
+        $localDisk = Storage::disk('local');
 
         MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPath);
         MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
+        $localDisk->delete($this->tempMp4FileName);
+        $localDisk->delete($this->tempLocalOriginal);
         $this->version->delete();
 
         Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number - 1);
@@ -95,10 +106,13 @@ class TranscodeVideo implements ShouldQueue
         // Set necessary file path information.
         $this->setFilePaths();
 
+        // Generate MP4. Has to be saved locally first since the php-ffmpeg-video-streaming library only offers cloud support for DASH and HLS.
+        $this->generateMp4($video);
         // Generate HLS
         $this->saveVideo(StreamingFormat::HLS->configure($video), StreamingFormat::HLS->value);
         // Generate DASH
         $this->saveVideo(StreamingFormat::DASH->configure($video), StreamingFormat::DASH->value);
+        $this->localDisk->delete($this->tempLocalOriginal);
 
         // Derivatives are generated at this point of time and located in the temporary folder.
         $this->moveToDestinationPath();
@@ -115,7 +129,10 @@ class TranscodeVideo implements ShouldQueue
     {
         return $this->isLocalFilesystem($this->originalsDisk) ?
             $ffmpeg->open($this->originalsDisk->path($this->originalFilePath))
-            : $ffmpeg->openFromCloud(CloudStorage::getOpenConfiguration($this->originalsDisk->path($this->originalFilePath)));
+            : $ffmpeg->openFromCloud(
+                CloudStorage::getOpenConfiguration($this->originalsDisk->path($this->originalFilePath)),
+                $this->localDisk->path($this->tempLocalOriginal)
+            );
     }
 
     /**
@@ -159,6 +176,28 @@ class TranscodeVideo implements ShouldQueue
                     sprintf('%s/%s', $this->derivativesDisk->path($this->tempPath), $format), $this->media->identifier
                 )
             );
+    }
+
+    /**
+     * Generates MP4 video.
+     * The php-ffmpeg-video-streaming package only offers support for DASH and HLS.
+     * Therefore, the basic PHP FFmpeg package has to be used which means the mp4 file has to be saved locally first, since saving directly to cloud is not supported.
+     *
+     * @param StreamingMedia $video
+     *
+     * @return void
+     */
+    protected function generateMp4(StreamingMedia $video): void
+    {
+        $video->save(new X264(), $this->localDisk->path($this->tempMp4FileName));
+
+        $this->derivativesDisk->writeStream(
+            sprintf('%s.%s',
+                FilePathHelper::getPathToTempVideoDerivative($this->media->User, $this->media->identifier, $this->version->number, 'mp4'), 'mp4'),
+            $this->localDisk->readStream($this->tempMp4FileName)
+        );
+
+        $this->localDisk->delete($this->tempMp4FileName);
     }
 
     /**
@@ -219,6 +258,13 @@ class TranscodeVideo implements ShouldQueue
         foreach ($dashFiles as $file) {
             $this->derivativesDisk->move($file, FilePathHelper::getPathToVideoDerivative($user, $identifier, StreamingFormat::DASH->value, basename($file)));
         }
+
+        // Move MP4 file.
+        $this->derivativesDisk->move(
+            sprintf('%s.%s',
+                FilePathHelper::getPathToTempVideoDerivative($this->media->User, $this->media->identifier, $this->version->number, 'mp4'), 'mp4'),
+            sprintf('%s.%s', FilePathHelper::getPathToVideoDerivative($user, $identifier, 'mp4'), 'mp4')
+        );
     }
 
     /**
@@ -228,8 +274,8 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function invalidateCdnCache(): void
     {
-        // If this fails, the 'failed()'-method will handle the cleanup.
         if (CdnHelper::isConfigured()) {
+            // If this fails, the 'failed()'-method will handle the cleanup.
             CdnHelper::invalidate(sprintf('/%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
         }
     }
