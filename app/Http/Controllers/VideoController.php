@@ -30,21 +30,28 @@ class VideoController extends Controller
         $basePath      = FilePathHelper::toBaseDirectory($user, $identifier);
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
-        $filePath = $originalsDisk->putFileAs($basePath, $videoFile, $fileName);
-        $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
-        $success = Transcode::createJob($filePath, $media, $version, $request->get('callback_url'), $request->get('id_token'));
 
-        if (!$success) {
-            $originalsDisk->delete($filePath);
-            $version->delete();
-
+        if (!$filePath = $originalsDisk->putFileAs($basePath, $videoFile, $fileName)) {
+            $success       = false;
+            $response      = 'Could not write video to disk.';
             $versionNumber -= 1;
+        } else {
+            $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
+            $success  = Transcode::createJob($filePath, $media, $version, $request->get('callback_url'), $request->get('id_token'));
+
+            if (!$success) {
+                $originalsDisk->delete($filePath);
+                $version->delete();
+
+                $response      ??= 'There was an error when trying to dispatch the transcoding job.';
+                $versionNumber -= 1;
+            }
         }
 
         return response()->json([
-            'success'    => $success,
-            'response'   => $success ? "Successfully uploaded video, transcoding job has been dispatched." : 'There was an error when uploading the video.',
+            'success'    => $success ?? true,
+            'response'   => $response ?? "Successfully uploaded video, transcoding job has been dispatched.",
             'identifier' => $media->identifier,
             'version'    => $versionNumber,
             'client'     => $user->name,

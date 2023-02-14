@@ -63,8 +63,8 @@ class TranscodeVideo implements ShouldQueue
         $this->originalsDisk     = MediaStorage::ORIGINALS->getDisk();
         $this->derivativesDisk   = MediaStorage::VIDEO_DERIVATIVES->getDisk();
         $this->localDisk         = Storage::disk('local');
-        $this->tempMp4FileName   = sprintf('temp-derivative-%s-%d.mp4', $this->media->identifier, $this->version->number);
-        $this->tempLocalOriginal = sprintf('temp-original-%s-%d', $this->media->identifier, $this->version->number);
+        $this->tempMp4FileName   = $this->getTempMp4FileName();
+        $this->tempLocalOriginal = $this->getTempLocalOriginal();
 
         $this->transcodeVideo();
 
@@ -86,8 +86,8 @@ class TranscodeVideo implements ShouldQueue
 
         MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPath);
         MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
-        $localDisk->delete($this->tempMp4FileName);
-        $localDisk->delete($this->tempLocalOriginal);
+        $localDisk->delete($this->getTempMp4FileName());
+        $localDisk->delete($this->getTempLocalOriginal());
         $this->version->delete();
 
         Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number - 1);
@@ -278,5 +278,21 @@ class TranscodeVideo implements ShouldQueue
             // If this fails, the 'failed()'-method will handle the cleanup.
             CdnHelper::invalidate(sprintf('/%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTempMp4FileName(): string
+    {
+        return sprintf('temp-derivative-%s-%d.mp4', $this->media->identifier, $this->version->number);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTempLocalOriginal(): string
+    {
+        return sprintf('temp-original-%s-%d', $this->media->identifier, $this->version->number);
     }
 }

@@ -72,7 +72,7 @@ class FilePathHelper
      */
     public function toVideoDerivativeFile(User $user, string $identifier, string $format, string $fileName = null): string
     {
-        return sprintf('%s/%s/%s', $this->toBaseDirectory($user, $identifier), $format, $fileName ?? $identifier);
+        return sprintf('%s/%s/%s', $this->toBaseDirectory($user, $identifier), $format, $fileName ?? 'video');
     }
 
     /**
@@ -89,7 +89,7 @@ class FilePathHelper
      */
     public function toTempVideoDerivativeFile(User $user, string $identifier, int $versionNumber, string $format, string $fileName = null): string
     {
-        return sprintf('%s/%s/%s', $this->toTempVideoDerivativesDirectory($user, $identifier, $versionNumber), $format, $fileName ?? $identifier);
+        return sprintf('%s/%s/%s', $this->toTempVideoDerivativesDirectory($user, $identifier, $versionNumber), $format, $fileName ?? 'video');
     }
 
     /**
