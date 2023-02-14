@@ -15,7 +15,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Transcode;
 
-class MediaController extends Controller
+class VersionController extends Controller
 {
     /**
      * Retrieve all version numbers for the given identifier.
