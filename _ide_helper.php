@@ -17750,14 +17750,14 @@
                     /**
          * Create a CDN invalidation.
          *
-         * @param string $invalidationPath
+         * @param array $invalidationPaths
          * @return void 
          * @static 
          */ 
-        public static function invalidate($invalidationPath)
+        public static function invalidate($invalidationPaths)
         {
                         /** @var \App\Helpers\CloudFrontHelper $instance */
-                        $instance->invalidate($invalidationPath);
+                        $instance->invalidate($invalidationPaths);
         }
                     /**
          * Return whether the CDN is configured.
@@ -17951,16 +17951,16 @@
          * @param bool $success
          * @param string $callbackUrl
          * @param string $idToken
-         * @param string $userName
+         * @param \App\Models\User $user
          * @param string $identifier
          * @param int $versionNumber
          * @return void 
          * @static 
          */ 
-        public static function callback($success, $callbackUrl, $idToken, $userName, $identifier, $versionNumber)
+        public static function callback($success, $callbackUrl, $idToken, $user, $identifier, $versionNumber)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        $instance->callback($success, $callbackUrl, $idToken, $userName, $identifier, $versionNumber);
+                        $instance->callback($success, $callbackUrl, $idToken, $user, $identifier, $versionNumber);
         }
          
     }
