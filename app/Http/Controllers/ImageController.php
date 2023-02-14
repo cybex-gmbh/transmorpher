@@ -66,11 +66,12 @@ class ImageController extends Controller
         }
 
         return response()->json([
-            'success'    => $success ?? true,
-            'response'   => $response ?? 'Successfully added new image version.',
-            'identifier' => $media->identifier,
-            'version'    => $versionNumber,
-            'client'     => $user->name,
+            'success'     => $success ?? true,
+            'response'    => $response ?? 'Successfully added new image version.',
+            'identifier'  => $media->identifier,
+            'version'     => $versionNumber,
+            'client'      => $user->name,
+            'public_path' => $basePath,
         ], 201);
     }
 
