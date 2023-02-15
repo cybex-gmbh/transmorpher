@@ -65,6 +65,7 @@ class TranscodeVideo implements ShouldQueue
         protected string  $idToken,
     )
     {
+        $this->onQueue('video-transcoding');
     }
 
     /**
