@@ -95,7 +95,7 @@ class ImageController extends Controller
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
             $derivative = $imageDerivativesDisk->get($derivativePath);
         } else {
-            $originalFilePath = FilePathHelper::toOriginalImageFile($user, $identifier);
+            $originalFilePath = FilePathHelper::toOriginalFile($user, $identifier);
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);
@@ -121,7 +121,7 @@ class ImageController extends Controller
     public function getVersion(Request $request, string $identifier, int $versionNumber): Response|Application|ResponseFactory
     {
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
-        $pathToOriginal = FilePathHelper::toOriginalImageFile($request->user(), $identifier, $versionNumber);
+        $pathToOriginal = FilePathHelper::toOriginalFile($request->user(), $identifier, $versionNumber);
 
         return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => $originalsDisk->mimeType($pathToOriginal)]);
     }

@@ -50,7 +50,7 @@ class FilePathHelper
      *
      * @return string
      */
-    public function toOriginalImageFile(User $user, string $identifier, int $versionNumber = null): string
+    public function toOriginalFile(User $user, string $identifier, int $versionNumber = null): string
     {
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $mediaVersions = $media->Versions();

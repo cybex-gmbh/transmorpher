@@ -78,12 +78,17 @@ class VersionController extends Controller
             );
         } else {
             // Media type is image.
-            $success = true;
+            $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
 
             if (CdnHelper::isConfigured()) {
                 try {
-                    CdnHelper::invalidate(sprintf('/%s/*',
-                        MediaStorage::IMAGE_DERIVATIVES->getDisk()->path(FilePathHelper::getBasePath($user, $identifier))));
+                    $invalidationPaths = [
+                        sprintf('/%s', $basePath),
+                        sprintf('/%s/', $basePath),
+                        sprintf('/%s/*', $basePath),
+                    ];
+
+                    CdnHelper::invalidate($invalidationPaths);
                 } catch (Exception) {
                     $version->update(['number' => $oldVersionNumber]);
 
@@ -94,11 +99,12 @@ class VersionController extends Controller
         }
 
         return response()->json([
-            'success'    => $success,
-            'response'   => $response ?? 'Successfully set image version.',
-            'identifier' => $identifier,
-            'version'    => $success ? $newVersionNumber : $oldVersionNumber,
-            'client'     => $user->name,
+            'success'     => $success ??= true,
+            'response'    => $response ?? 'Successfully set image version.',
+            'identifier'  => $identifier,
+            'version'     => $success ? $newVersionNumber : $oldVersionNumber,
+            'client'      => $user->name,
+            'public_path' => $basePath ?? null,
         ]);
     }
 
@@ -114,26 +120,34 @@ class VersionController extends Controller
     {
         $user     = $request->user();
         $media    = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $basePath = FilePathHelper::getBasePath($user, $identifier);
+        $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
+        $success = null;
 
         // This will make sure we can invalidate the cache and prevent deleting the media before we are sure it will work.
         if (CdnHelper::isConfigured()) {
             try {
-                CdnHelper::invalidate(sprintf('/%s/*',
-                    MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
+                $invalidationPaths = [
+                    sprintf('/%s', $basePath),
+                    sprintf('/%s/', $basePath),
+                    sprintf('/%s/*', $basePath),
+                ];
+
+                CdnHelper::invalidate($invalidationPaths);
             } catch (Exception) {
                 $success  = false;
                 $response = 'Cache invalidation failed.';
             }
         }
 
-        $media->Versions()->delete();
-        ($media->type === MediaType::IMAGE ? MediaStorage::IMAGE_DERIVATIVES : MediaStorage::VIDEO_DERIVATIVES)->getDisk()->deleteDirectory($basePath);
-        MediaStorage::ORIGINALS->getDisk()->deleteDirectory($basePath);
-        $media->delete();
+        if (is_null($success)) {
+            $media->Versions()->delete();
+            ($media->type === MediaType::IMAGE ? MediaStorage::IMAGE_DERIVATIVES : MediaStorage::VIDEO_DERIVATIVES)->getDisk()->deleteDirectory($basePath);
+            MediaStorage::ORIGINALS->getDisk()->deleteDirectory($basePath);
+            $media->delete();
 
-        if (CdnHelper::isConfigured()) {
-            CdnHelper::invalidate(sprintf('/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
+            if (CdnHelper::isConfigured()) {
+                CdnHelper::invalidate($invalidationPaths);
+            }
         }
 
         return response()->json([
@@ -159,7 +173,7 @@ class VersionController extends Controller
     protected function setVideoVersion(string $callbackUrl, string $idToken, User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed): array
     {
         if ($callbackUrl && $idToken) {
-            $filePath = FilePathHelper::getPathToOriginal($user, $identifier);
+            $filePath = FilePathHelper::toOriginalFile($user, $identifier, $version->number);
             $success  = Transcode::createJobForVersionUpdate($filePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed);
             $response = $success ? 'Successfully set video version, transcoding job has been dispatched.' : 'Could not create transcoding job';
         } else {
