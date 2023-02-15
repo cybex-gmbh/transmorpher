@@ -34,9 +34,9 @@ return [
     */
 
     'disks' => [
-        'originals' => env('TRANSMORPHER_DISK_ORIGINALS'),
-        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES'),
-        'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES'),
+        'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
+        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImagesDerivatives'),
+        'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 
     /*

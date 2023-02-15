@@ -18,7 +18,7 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getPathToImageDerivative(User $user, string $transformations, string $identifier, array $transformationsArray = null): string
+    public function toImageDerivativeFile(User $user, string $transformations, string $identifier, array $transformationsArray = null): string
     {
         $media                 = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $mediaVersions         = $media->Versions();
@@ -30,7 +30,7 @@ class FilePathHelper
         $derivativeHash = hash('sha256', $transformations . $currentVersionNumber);
 
         return sprintf('%s/%d/%sx_%sy_%sq_%s.%s',
-            $this->getBasePath($user, $identifier),
+            $this->toBaseDirectory($user, $identifier),
             $currentVersionNumber,
             $transformationsArray[Transformation::WIDTH->value] ?? '',
             $transformationsArray[Transformation::HEIGHT->value] ?? '',
@@ -50,7 +50,7 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getPathToOriginal(User $user, string $identifier, int $versionNumber = null): string
+    public function toOriginalImageFile(User $user, string $identifier, int $versionNumber = null): string
     {
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $mediaVersions = $media->Versions();
@@ -58,7 +58,7 @@ class FilePathHelper
         // Get the version for either the specified number or for the current version number.
         $version = $versionNumber ? $mediaVersions->whereNumber($versionNumber)->first() : $mediaVersions->whereNumber($mediaVersions->max('number'))->first();
 
-        return sprintf('%s/%s', $this->getBasePath($user, $identifier), $version->filename);
+        return sprintf('%s/%s', $this->toBaseDirectory($user, $identifier), $version->filename);
     }
 
     /**
@@ -72,9 +72,9 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getPathToVideoDerivative(User $user, string $identifier, string $format, string $fileName = null): string
+    public function toVideoDerivativeFile(User $user, string $identifier, string $format, string $fileName = null): string
     {
-        return sprintf('%s/%s/%s', $this->getBasePath($user, $identifier), $format, $fileName ?? $identifier);
+        return sprintf('%s/%s/%s', $this->toBaseDirectory($user, $identifier), $format, $fileName ?? 'video');
     }
 
     /**
@@ -89,24 +89,24 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getPathToTempVideoDerivative(User $user, string $identifier, int $versionNumber, string $format, string $fileName = null): string
+    public function toTempVideoDerivativeFile(User $user, string $identifier, int $versionNumber, string $format, string $fileName = null): string
     {
-        return sprintf('%s/%s/%s', $this->getBasePathForTempVideoDerivatives($user, $identifier, $versionNumber), $format, $fileName ?? $identifier);
+        return sprintf('%s/%s/%s', $this->toTempVideoDerivativesDirectory($user, $identifier, $versionNumber), $format, $fileName ?? 'video');
     }
 
     /**
-     * Get the path to a video derivative.
-     * Path structure: {username}/{identifier}/{format}/{filename}
-     *
-     * @param User   $user
-     * @param string $identifier
-     * @param int    $versionNumber
-     *
-     * @return string
-     */
-    public function getBasePathForTempVideoDerivatives(User $user, string $identifier, int $versionNumber): string
+    * Get the path to a video derivative.
+    * Path structure: {username}/{identifier}/{format}/{filename}
+    *
+    * @param User   $user
+    * @param string $identifier
+    * @param int    $versionNumber
+    *
+    * @return string
+    */
+    public function toTempVideoDerivativesDirectory(User $user, string $identifier, int $versionNumber): string
     {
-        return sprintf('%s-%d-temp', $this->getBasePath($user, $identifier), $versionNumber);
+        return sprintf('%s-%d-temp', $this->toBaseDirectory($user, $identifier), $versionNumber);
     }
 
     /**
@@ -118,7 +118,7 @@ class FilePathHelper
      *
      * @return string
      */
-    public function getBasePath(User $user, string $identifier): string
+    public function toBaseDirectory(User $user, string $identifier): string
     {
         return sprintf('%s/%s', $user->name, $identifier);
     }

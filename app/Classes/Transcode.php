@@ -2,6 +2,8 @@
 
 namespace App\Classes;
 
+use App\Models\User;
+use FilePathHelper;
 use App\Helpers\SigningHelper;
 use App\Interfaces\TranscodeInterface;
 use App\Jobs\TranscodeVideo;
@@ -70,21 +72,22 @@ class Transcode implements TranscodeInterface
      * @param bool   $success
      * @param string $callbackUrl
      * @param string $idToken
-     * @param string $userName
+     * @param User   $user
      * @param string $identifier
      * @param int    $versionNumber
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $idToken, string $userName, string $identifier, int $versionNumber): void
+    public function callback(bool $success, string $callbackUrl, string $idToken, User $user, string $identifier, int $versionNumber): void
     {
         $response = [
-            'success'    => $success,
-            'response'   => $success ? 'Successfully transcoded video.' : 'Video transcoding failed.',
-            'identifier' => $identifier,
-            'version'    => $versionNumber,
-            'client'     => $userName,
-            'id_token'   => $idToken,
+            'success'     => $success,
+            'response'    => $success ? 'Successfully transcoded video.' : 'Video transcoding failed.',
+            'identifier'  => $identifier,
+            'version'     => $versionNumber,
+            'client'      => $user->name,
+            'id_token'    => $idToken,
+            'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($user, $identifier)),
         ];
 
         $signedResponse = SigningHelper::sign(json_encode($response));
