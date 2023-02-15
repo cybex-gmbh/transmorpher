@@ -28,6 +28,20 @@ class TranscodeVideo implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+    * The number of times the job may be re-attempted.
+    *
+    * @var int
+    */
+    public int $tries = 0;
+
+    /**
+    * The number of seconds the job can run before timing out.
+    *
+    * @var int
+    */
+    public int $timeout = 600;
+
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
