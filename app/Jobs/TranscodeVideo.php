@@ -274,10 +274,10 @@ class TranscodeVideo implements ShouldQueue
             $this->derivativesDisk->move($file, FilePathHelper::toVideoDerivativeFile($user, $identifier, StreamingFormat::DASH->value, basename($file)));
         }
 
+        $tempDerivativePath = FilePathHelper::toTempVideoDerivativeFile($this->media->User, $this->media->identifier, $this->version->number, 'mp4');
         // Move MP4 file.
         $this->derivativesDisk->move(
-            sprintf('%s.%s',
-                FilePathHelper::toTempVideoDerivativeFile($this->media->User, $this->media->identifier, $this->version->number, 'mp4'), 'mp4'),
+            sprintf('%s.%s', $tempDerivativePath, 'mp4'),
             sprintf('%s.%s', FilePathHelper::toVideoDerivativeFile($user, $identifier, 'mp4'), 'mp4')
         );
     }
