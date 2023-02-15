@@ -206,9 +206,9 @@ class TranscodeVideo implements ShouldQueue
     {
         $video->save(new X264(), $this->localDisk->path($this->tempMp4FileName));
 
+        $derivativePath = FilePathHelper::toTempVideoDerivativeFile($this->media->User, $this->media->identifier, $this->version->number, 'mp4');
         $this->derivativesDisk->writeStream(
-            sprintf('%s.%s',
-                FilePathHelper::toTempVideoDerivativeFile($this->media->User, $this->media->identifier, $this->version->number, 'mp4'), 'mp4'),
+            sprintf('%s.%s', $derivativePath, 'mp4'),
             $this->localDisk->readStream($this->tempMp4FileName)
         );
 
@@ -223,7 +223,7 @@ class TranscodeVideo implements ShouldQueue
     protected function moveToDestinationPath(): void
     {
         if ($this->version->number === $this->media->Versions()->max('number')) {
-            // This will make sure we can invalidate the cache and prevent deleting the current derivative before we are certain the transcoding can finish.
+            // This will make sure we can invalidate the cache before the current derivative gets deleted.
             // If this fails, the job will stop and cleanup will be done in the failed() method.
             $this->invalidateCdnCache();
 
