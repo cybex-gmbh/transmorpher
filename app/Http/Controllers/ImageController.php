@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use CdnHelper;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\User;
-use Aws\CloudFront\CloudFrontClient;
 use Exception;
 use FilePathHelper;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Filesystem\FilesystemAdapter;
@@ -53,13 +54,13 @@ class ImageController extends Controller
     {
         $diskImageDerivatives = MediaStorage::IMAGE_DERIVATIVES->getDisk();
         $transformationsArray = $this->getTransformations($transformations);
-        $derivativePath       = FilePathHelper::getImageDerivativePath($user, $transformations, $identifier, $transformationsArray);
+        $derivativePath       = FilePathHelper::toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $diskImageDerivatives->exists($derivativePath)) {
             $derivative = $diskImageDerivatives->get($derivativePath);
         } else {
-            $originalFilePath = FilePathHelper::getImageOriginalPath($user, $identifier);
+            $originalFilePath = FilePathHelper::toOriginalImageFile($user, $identifier);
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);
@@ -84,34 +85,38 @@ class ImageController extends Controller
      *
      * @return array
      */
-    protected function saveImage(UploadedFile $imageFile, User $user, string $identifier, FilesystemAdapter $disk): array
+    protected function saveImage(UploadedFile $imageFile, User $user, string $identifier, Filesystem $disk): array
     {
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
-        $basePath      = FilePathHelper::getOriginalsBasePath($user, $identifier);
+        $basePath      = FilePathHelper::toBaseDirectory($user, $identifier);
         $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
 
-        $filePath = $disk->putFileAs($basePath, $imageFile, $fileName);
-        $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
+        if ($filePath = $disk->putFileAs($basePath, $imageFile, $fileName)) {
+            $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
-        $success = true;
+            // Invalidate cache and delete entry if failed.
+            if (CdnHelper::isConfigured()) {
+                try {
+                    CdnHelper::invalidate(sprintf('/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
+                } catch (Exception) {
+                    $disk->delete($filePath);
+                    $version->delete();
 
-        // Invalidate cache and delete entry if failed.
-        if (config('transmorpher.aws.cloudfront_distribution_id')) {
-            try {
-                $this->invalidateCdnCache($basePath);
-            } catch (Exception) {
-                $disk->delete($filePath);
-                $version->delete();
-
-                $success = false;
-                $versionNumber -= 1;
+                    $success       = false;
+                    $response      = 'Cache invalidation failed.';
+                    $versionNumber -= 1;
+                }
             }
+        } else {
+            $success       = false;
+            $response      = 'Could not write image to disk.';
+            $versionNumber -= 1;
         }
 
         return [
-            'success'    => $success,
-            'response'   => $success ? "Successfully added new image version." : 'Cache invalidation failed.',
+            'success'    => $success ?? true,
+            'response'   => $response ?? 'Successfully added new image version.',
             'identifier' => $media->identifier,
             'version'    => $versionNumber,
             'client'     => $user->name,
@@ -163,47 +168,5 @@ class ImageController extends Controller
         unlink($tempFile);
 
         return $derivative;
-    }
-
-    /**
-     * Invalidates the CloudFront CDN cache.
-     *
-     * @param string $path
-     *
-     * @return void
-     */
-    protected function invalidateCdnCache(string $path): void
-    {
-        $invalidationPath = sprintf('%s/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path(''), $path);
-
-        $cloudFrontClient = new CloudFrontClient([
-            'version'     => 'latest',
-            'region'      => config('transmorpher.aws.region'),
-            'credentials' => [
-                'key'    => config('transmorpher.aws.key'),
-                'secret' => config('transmorpher.aws.secret'),
-            ],
-        ]);
-
-        $cloudFrontClient->createInvalidation([
-            'DistributionId'    => config('transmorpher.aws.cloudfront_distribution_id'),
-            'InvalidationBatch' => [
-                'CallerReference' => $this->getCallerReference(),
-                'Paths'           => [
-                    'Items'    => [$invalidationPath],
-                    'Quantity' => 1,
-                ],
-            ],
-        ]);
-    }
-
-    /**
-     * Returns a unique caller reference used in the invalidation request for CloudFront.
-     *
-     * @return string
-     */
-    protected function getCallerReference(): string
-    {
-        return uniqid();
     }
 }

@@ -196,9 +196,12 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
-        App\Providers\TransformServiceProvider::class,
+        App\Providers\CdnHelperServiceProvider::class,
+        App\Providers\CloudStorageServiceProvider::class,
         App\Providers\FilePathHelperServiceProvider::class,
-
+        App\Providers\SqsFifoServiceProvider::class,
+        App\Providers\TranscodeServiceProvider::class,
+        App\Providers\TransformServiceProvider::class,
     ],
 
     /*
@@ -213,9 +216,12 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'InterventionImage' => Intervention\Image\Facades\Image::class,
-        'Transform' => App\Facades\TransformFacade::class,
+        'CdnHelper' => App\Facades\CdnHelperFacade::class,
+        'CloudStorage' => App\Facades\CloudStorageFacade::class,
         'FilePathHelper' => App\Facades\FilePathHelperFacade::class,
+        'InterventionImage' => Intervention\Image\Facades\Image::class,
+        'Transcode' => App\Facades\TranscodeFacade::class,
+        'Transform' => App\Facades\TransformFacade::class,
     ])->toArray(),
 
 ];

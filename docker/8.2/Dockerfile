@@ -46,6 +46,7 @@ RUN apt-get update \
     && apt-get install -y pngquant \
     && apt-get install -y gifsicle \
     && apt-get install -y webp \
+    && apt-get install -y ffmpeg \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

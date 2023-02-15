@@ -44,12 +44,33 @@ return [
             'throw' => false,
         ],
 
-        's3Main' => [
+        'localOriginals' => [
+            'driver' => 'local',
+            'root' => storage_path('app/originals'),
+            'throw' => false,
+        ],
+
+        'localImageDerivatives' => [
+            'driver' => 'local',
+            'root' => storage_path('app/derivative-images'),
+            'throw' => false,
+        ],
+
+        'localVideoDerivatives' => [
+            'driver' => 'local',
+            'root' => storage_path('app/derivative-videos'),
+            'url' => env('APP_URL').'/derivative-videos',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        's3Originals' => [
             'driver' => 's3',
+            'root' => 'originals',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET_MAIN'),
+            'bucket' => env('AWS_BUCKET_ORIGINALS'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
@@ -58,10 +79,24 @@ return [
 
         's3ImageDerivatives' => [
             'driver' => 's3',
+            'root' => 'derivative-images',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET_IMAGE_DERIVATIVES'),
+            'url' => env('AWS_URL'),
+            'endpoint' => env('AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
+        ],
+
+        's3VideoDerivatives' => [
+            'driver' => 's3',
+            'root' => 'derivative-videos',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET_VIDEO_DERIVATIVES'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
@@ -82,6 +117,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        public_path('derivative-videos') => storage_path('app/derivative-videos'),
     ],
 
 ];
