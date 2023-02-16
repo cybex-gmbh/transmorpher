@@ -56,12 +56,13 @@ class VersionController extends Controller
      */
     public function setVersion(SetVersionRequest $request, string $identifier, string $versionNumber): JsonResponse
     {
-        $user             = $request->user();
-        $media            = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $version          = $media->Versions()->whereNumber($versionNumber)->firstOrFail();
-        $wasProcessed     = $version->processed;
-        $oldVersionNumber = $version->number;
-        $newVersionNumber = $media->Versions()->max('number') + 1;
+        $user                 = $request->user();
+        $media                = $user->Media()->whereIdentifier($identifier)->firstOrFail();
+        $version              = $media->Versions()->whereNumber($versionNumber)->firstOrFail();
+        $wasProcessed         = $version->processed;
+        $oldVersionNumber     = $version->number;
+        $currentVersionNumber = $media->Versions()->max('number');
+        $newVersionNumber     = $currentVersionNumber + 1;
 
         $version->update(['number' => $newVersionNumber, 'processed' => 0]);
 
@@ -96,6 +97,9 @@ class VersionController extends Controller
                     $response = 'Cache invalidation failed.';
                 }
             }
+
+            // Might instead move the directory to keep derivatives, but S3 can't move directories and each file would have to be moved individually.
+            MediaStorage::IMAGE_DERIVATIVES->getDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($user, $identifier, $currentVersionNumber));
         }
 
         return response()->json([
@@ -123,7 +127,7 @@ class VersionController extends Controller
         $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
         $success = null;
 
-        // This will make sure we can invalidate the cache and prevent deleting the media before we are sure it will work.
+        // This will make sure we can invalidate the cache before the media gets deleted.
         if (CdnHelper::isConfigured()) {
             try {
                 $invalidationPaths = [
@@ -183,7 +187,7 @@ class VersionController extends Controller
             ]);
 
             $success  = false;
-            $response = 'A callback URL and an identification token is needed for this identifier.';
+            $response = 'A callback URL and an identification token are needed for this identifier.';
         }
 
         return [

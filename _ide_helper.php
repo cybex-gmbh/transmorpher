@@ -17827,6 +17827,16 @@
                         return $instance->toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
         }
                     /**
+         * 
+         *
+         * @static 
+         */ 
+        public static function toImageDerivativeVersionDirectory($user, $identifier, $versionNumber)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->toImageDerivativeVersionDirectory($user, $identifier, $versionNumber);
+        }
+                    /**
          * Get the path to an original.
          * 
          * Path structure: {username}/{identifier}/{filename}

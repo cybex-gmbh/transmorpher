@@ -29,15 +29,29 @@ class FilePathHelper
         // Hash of transformation parameters and current version number to identify already generated derivatives.
         $derivativeHash = hash('sha256', $transformations . $currentVersionNumber);
 
-        return sprintf('%s/%d/%sx_%sy_%sq_%s.%s',
-            $this->toBaseDirectory($user, $identifier),
-            $currentVersionNumber,
+        return sprintf('%s/%sx_%sy_%sq_%s.%s',
+            $this->toImageDerivativeVersionDirectory($user, $identifier, $currentVersionNumber),
             $transformationsArray[Transformation::WIDTH->value] ?? '',
             $transformationsArray[Transformation::HEIGHT->value] ?? '',
             $transformationsArray[Transformation::QUALITY->value] ?? '',
             $derivativeHash,
             $transformationsArray[Transformation::FORMAT->value] ?? $originalFileExtension,
         );
+    }
+
+    /**
+     * Get the path to the directory of an image derivative version.
+     * Path structure: {username}/{identifier}/{versionNumber}
+     *
+     * @param User   $user
+     * @param string $identifier
+     * @param int    $versionNumber
+     *
+     * @return string
+     */
+    public function toImageDerivativeVersionDirectory(User $user, string $identifier, int $versionNumber): string
+    {
+        return sprintf('%s/%d', $this->toBaseDirectory($user, $identifier), $versionNumber);
     }
 
     /**
