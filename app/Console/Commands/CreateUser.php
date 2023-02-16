@@ -15,8 +15,7 @@ class CreateUser extends Command
      */
     protected $signature = 'create:user
                 {name : The name of the user.}
-                {email : The E-Mail of the user.}
-                {--t|token : Creates a Laravel Sanctum token for the user.}';
+                {email : The E-Mail of the user.}';
 
     /**
      * The console command description.
@@ -61,10 +60,8 @@ class CreateUser extends Command
         }
 
         $this->info(sprintf('Successfully created new user %s: %s (%s)', $user->getKey(),  $user->name, $user->email));
+        $this->newLine();
 
-        if ($this->option('token')) {
-            $this->newLine();
-            $this->call('create:token', ['userId' => $user->getKey()]);
-        }
+        $this->call('create:token', ['userId' => $user->getKey()]);
     }
 }
