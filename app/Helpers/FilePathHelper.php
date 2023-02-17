@@ -23,7 +23,7 @@ class FilePathHelper
         $media                 = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $mediaVersions         = $media->Versions();
         $currentVersionNumber  = $mediaVersions->max('number');
-        $currentVersion        = $mediaVersions->whereNumber($currentVersionNumber)->first();
+        $currentVersion        = $mediaVersions->whereNumber($currentVersionNumber)->firstOrFail();
         $originalFileExtension = pathinfo($currentVersion->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and current version number to identify already generated derivatives.
@@ -70,7 +70,7 @@ class FilePathHelper
         $mediaVersions = $media->Versions();
 
         // Get the version for either the specified number or for the current version number.
-        $version = $versionNumber ? $mediaVersions->whereNumber($versionNumber)->first() : $mediaVersions->whereNumber($mediaVersions->max('number'))->first();
+        $version = $versionNumber ? $mediaVersions->whereNumber($versionNumber)->firstOrFail() : $mediaVersions->whereNumber($mediaVersions->max('number'))->firstOrFail();
 
         return sprintf('%s/%s', $this->toBaseDirectory($user, $identifier), $version->filename);
     }
