@@ -10,11 +10,11 @@ class CloudFrontHelper implements CdnHelperInterface
     /**
      * Create a CDN invalidation.
      *
-     * @param string $invalidationPath
+     * @param array $invalidationPaths
      *
      * @return void
      */
-    public function invalidate(string $invalidationPath): void
+    public function invalidate(array $invalidationPaths): void
     {
         $cloudFrontClient = new CloudFrontClient([
             'version'     => 'latest',
@@ -30,8 +30,8 @@ class CloudFrontHelper implements CdnHelperInterface
             'InvalidationBatch' => [
                 'CallerReference' => $this->getCallerReference(),
                 'Paths'           => [
-                    'Items'    => [$invalidationPath],
-                    'Quantity' => 1,
+                    'Items'    => $invalidationPaths,
+                    'Quantity' => count($invalidationPaths),
                 ],
             ],
         ]);

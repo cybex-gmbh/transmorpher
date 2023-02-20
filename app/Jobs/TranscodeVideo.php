@@ -83,7 +83,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->transcodeVideo();
 
-        Transcode::callback(true, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number);
+        Transcode::callback(true, $this->callbackUrl, $this->idToken, $this->media->User, $this->media->identifier, $this->version->number);
     }
 
     /**
@@ -105,7 +105,7 @@ class TranscodeVideo implements ShouldQueue
         $localDisk->delete($this->getTempLocalOriginal());
         $this->version->delete();
 
-        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number - 1);
+        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User, $this->media->identifier, $this->version->number - 1);
     }
 
     /**
@@ -291,7 +291,7 @@ class TranscodeVideo implements ShouldQueue
     {
         if (CdnHelper::isConfigured()) {
             // If this fails, the 'failed()'-method will handle the cleanup.
-            CdnHelper::invalidate(sprintf('/%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
+            CdnHelper::invalidate([sprintf('/derivative-videos/%s/*', $this->destinationBasePath)]);
         }
     }
 

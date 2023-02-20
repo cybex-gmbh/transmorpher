@@ -58,6 +58,7 @@ return [
 
         'localVideoDerivatives' => [
             'driver' => 'local',
+            // Don't change this path, required for video publication.
             'root' => storage_path('app/derivative-videos'),
             'url' => env('APP_URL').'/derivative-videos',
             'visibility' => 'public',
@@ -92,6 +93,7 @@ return [
 
         's3VideoDerivatives' => [
             'driver' => 's3',
+            // Don't change this path, required for video publication.
             'root' => 'derivative-videos',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
@@ -117,6 +119,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
+        // Don't change this path, required for video publication.
         public_path('derivative-videos') => storage_path('app/derivative-videos'),
     ],
 

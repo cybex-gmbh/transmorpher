@@ -28,7 +28,7 @@ class ImageUploadRequest extends FormRequest
             'identifier' => ['required', 'string'],
             'image' => [
                 'required',
-                sprintf('mimes:%s', implode(',', ImageFormat::getMimeTypes())),
+                sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),
             ],
         ];
     }

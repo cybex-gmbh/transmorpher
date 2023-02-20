@@ -4,19 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
-use CdnHelper;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\User;
-use Exception;
+use CdnHelper;
 use FilePathHelper;
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
-use Illuminate\Http\UploadedFile;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
+use Throwable;
 use Transform;
 
 class ImageController extends Controller
@@ -30,77 +27,31 @@ class ImageController extends Controller
      */
     public function put(ImageUploadRequest $request): JsonResponse
     {
-        $user       = $request->user();
-        $imageFile  = $request->file('image');
-        $identifier = $request->get('identifier');
-        $disk       = MediaStorage::ORIGINALS->getDisk();
-
-        // Save image to disk and create database entry.
-        $response = $this->saveImage($imageFile, $user, $identifier, $disk);
-
-        return response()->json($response, 201);
-    }
-
-    /**
-     * Handles incoming image derivative requests.
-     *
-     * @param User   $user
-     * @param string $identifier
-     * @param string $transformations
-     *
-     * @return Application|ResponseFactory|Response
-     */
-    public function get(User $user, string $identifier, string $transformations = ''): Response|Application|ResponseFactory
-    {
-        $diskImageDerivatives = MediaStorage::IMAGE_DERIVATIVES->getDisk();
-        $transformationsArray = $this->getTransformations($transformations);
-        $derivativePath       = FilePathHelper::toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
-
-        // Check if derivative already exists and return if so.
-        if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $diskImageDerivatives->exists($derivativePath)) {
-            $derivative = $diskImageDerivatives->get($derivativePath);
-        } else {
-            $originalFilePath = FilePathHelper::toOriginalImageFile($user, $identifier);
-
-            // Apply transformations to image.
-            $derivative = Transform::transform($originalFilePath, $transformationsArray);
-            $derivative = $this->optimizeDerivative($derivative);
-
-            if (config('transmorpher.store_derivatives')) {
-                $diskImageDerivatives->put($derivativePath, $derivative);
-            }
-        }
-
-        return response($derivative, 200, ['Content-Type' => $diskImageDerivatives->mimeType($derivativePath)]);
-    }
-
-    /**
-     * Saves an uploaded image to the specified disk.
-     * Creates a new version for the identifier in the database.
-     *
-     * @param UploadedFile      $imageFile
-     * @param User              $user
-     * @param string            $identifier
-     * @param FilesystemAdapter $disk
-     *
-     * @return array
-     */
-    protected function saveImage(UploadedFile $imageFile, User $user, string $identifier, Filesystem $disk): array
-    {
+        $user          = $request->user();
+        $imageFile     = $request->file('image');
+        $identifier    = $request->get('identifier');
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
+
         $basePath      = FilePathHelper::toBaseDirectory($user, $identifier);
         $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
+        $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
-        if ($filePath = $disk->putFileAs($basePath, $imageFile, $fileName)) {
+        if ($filePath = $originalsDisk->putFileAs($basePath, $imageFile, $fileName)) {
             $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
             // Invalidate cache and delete entry if failed.
             if (CdnHelper::isConfigured()) {
                 try {
-                    CdnHelper::invalidate(sprintf('/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
-                } catch (Exception) {
-                    $disk->delete($filePath);
+                    $invalidationPaths = [
+                        sprintf('/%s', $basePath),
+                        sprintf('/%s/', $basePath),
+                        sprintf('/%s/*', $basePath),
+                    ];
+
+                    CdnHelper::invalidate($invalidationPaths);
+                } catch (Throwable) {
+                    $originalsDisk->delete($filePath);
                     $version->delete();
 
                     $success       = false;
@@ -114,13 +65,47 @@ class ImageController extends Controller
             $versionNumber -= 1;
         }
 
-        return [
-            'success'    => $success ?? true,
-            'response'   => $response ?? 'Successfully added new image version.',
-            'identifier' => $media->identifier,
-            'version'    => $versionNumber,
-            'client'     => $user->name,
-        ];
+        return response()->json([
+            'success'     => $success ?? true,
+            'response'    => $response ?? 'Successfully added new image version.',
+            'identifier'  => $media->identifier,
+            'version'     => $versionNumber,
+            'client'      => $user->name,
+            'public_path' => $basePath,
+        ], 201);
+    }
+
+    /**
+     * Handles incoming image derivative requests.
+     *
+     * @param User   $user
+     * @param string $identifier
+     * @param string $transformations
+     *
+     * @return Application|ResponseFactory|Response
+     */
+    public function get(User $user, string $identifier, string $transformations = ''): Response|Application|ResponseFactory
+    {
+        $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
+        $transformationsArray = $this->getTransformations($transformations);
+        $derivativePath       = FilePathHelper::toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
+
+        // Check if derivative already exists and return if so.
+        if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
+            $derivative = $imageDerivativesDisk->get($derivativePath);
+        } else {
+            $originalFilePath = FilePathHelper::toOriginalImageFile($user, $identifier);
+
+            // Apply transformations to image.
+            $derivative = Transform::transform($originalFilePath, $transformationsArray);
+            $derivative = $this->optimizeDerivative($derivative);
+
+            if (config('transmorpher.store_derivatives')) {
+                $imageDerivativesDisk->put($derivativePath, $derivative);
+            }
+        }
+
+        return response($derivative, 200, ['Content-Type' => $imageDerivativesDisk->mimeType($derivativePath)]);
     }
 
     /**

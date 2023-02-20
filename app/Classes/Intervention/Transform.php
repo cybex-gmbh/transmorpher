@@ -85,6 +85,6 @@ class Transform implements TransformInterface
      */
     public function getSupportedFormats(): array
     {
-        return ImageFormat::getMimeTypes();
+        return ImageFormat::getFormats();
     }
 }
