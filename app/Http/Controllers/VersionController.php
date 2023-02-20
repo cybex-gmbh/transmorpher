@@ -63,6 +63,7 @@ class VersionController extends Controller
         $oldVersionNumber     = $version->number;
         $currentVersionNumber = $media->Versions()->max('number');
         $newVersionNumber     = $currentVersionNumber + 1;
+        $success              = null;
 
         $version->update(['number' => $newVersionNumber, 'processed' => 0]);
 
@@ -98,15 +99,17 @@ class VersionController extends Controller
                 }
             }
 
-            // Might instead move the directory to keep derivatives, but S3 can't move directories and each file would have to be moved individually.
-            MediaStorage::IMAGE_DERIVATIVES->getDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($user, $identifier, $currentVersionNumber));
+            if (is_null($success)) {
+                // Might instead move the directory to keep derivatives, but S3 can't move directories and each file would have to be moved individually.
+                MediaStorage::IMAGE_DERIVATIVES->getDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($user, $identifier, $oldVersionNumber));
+            }
         }
 
         return response()->json([
             'success'     => $success ??= true,
             'response'    => $response ?? 'Successfully set image version.',
             'identifier'  => $identifier,
-            'version'     => $success ? $newVersionNumber : $oldVersionNumber,
+            'version'     => $success ? $newVersionNumber : $currentVersionNumber,
             'client'      => $user->name,
             'public_path' => $basePath ?? null,
         ]);
