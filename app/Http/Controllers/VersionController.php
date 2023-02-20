@@ -9,10 +9,10 @@ use App\Models\Media;
 use App\Models\User;
 use App\Models\Version;
 use CdnHelper;
-use Exception;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 use Transcode;
 
 class VersionController extends Controller
@@ -90,7 +90,7 @@ class VersionController extends Controller
                     ];
 
                     CdnHelper::invalidate($invalidationPaths);
-                } catch (Exception) {
+                } catch (Throwable) {
                     $version->update(['number' => $oldVersionNumber]);
 
                     $success  = false;
@@ -137,7 +137,7 @@ class VersionController extends Controller
                 ];
 
                 CdnHelper::invalidate($invalidationPaths);
-            } catch (Exception) {
+            } catch (Throwable) {
                 $success  = false;
                 $response = 'Cache invalidation failed.';
             }
