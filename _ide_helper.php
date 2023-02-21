@@ -17748,16 +17748,28 @@
      */ 
         class CdnHelperFacade {
                     /**
-         * Create a CDN invalidation.
+         * Create a CDN invalidation for an image.
          *
-         * @param array $invalidationPaths
+         * @param string $invalidationPath
          * @return void 
          * @static 
          */ 
-        public static function invalidate($invalidationPaths)
+        public static function invalidateImage($invalidationPath)
         {
                         /** @var \App\Helpers\CloudFrontHelper $instance */
-                        $instance->invalidate($invalidationPaths);
+                        $instance->invalidateImage($invalidationPath);
+        }
+                    /**
+         * Create a CDN invalidation for a video.
+         *
+         * @param string $invalidationPath
+         * @return void 
+         * @static 
+         */ 
+        public static function invalidateVideo($invalidationPath)
+        {
+                        /** @var \App\Helpers\CloudFrontHelper $instance */
+                        $instance->invalidateVideo($invalidationPath);
         }
                     /**
          * Return whether the CDN is configured.
@@ -17827,8 +17839,14 @@
                         return $instance->toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
         }
                     /**
+         * Get the path to the directory of an image derivative version.
          * 
+         * Path structure: {username}/{identifier}/{versionNumber}
          *
+         * @param \App\Models\User $user
+         * @param string $identifier
+         * @param int $versionNumber
+         * @return string 
          * @static 
          */ 
         public static function toImageDerivativeVersionDirectory($user, $identifier, $versionNumber)

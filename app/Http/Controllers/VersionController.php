@@ -84,13 +84,7 @@ class VersionController extends Controller
 
             if (CdnHelper::isConfigured()) {
                 try {
-                    $invalidationPaths = [
-                        sprintf('/%s', $basePath),
-                        sprintf('/%s/', $basePath),
-                        sprintf('/%s/*', $basePath),
-                    ];
-
-                    CdnHelper::invalidate($invalidationPaths);
+                    CdnHelper::invalidateImage($basePath);
                 } catch (Throwable) {
                     $version->update(['number' => $oldVersionNumber]);
 
@@ -133,13 +127,7 @@ class VersionController extends Controller
         // This will make sure we can invalidate the cache before the media gets deleted.
         if (CdnHelper::isConfigured()) {
             try {
-                $invalidationPaths = [
-                    sprintf('/%s', $basePath),
-                    sprintf('/%s/', $basePath),
-                    sprintf('/%s/*', $basePath),
-                ];
-
-                CdnHelper::invalidate($invalidationPaths);
+                $media->type === MediaType::IMAGE ? CdnHelper::invalidateImage($basePath) : CdnHelper::invalidateVideo($basePath);
             } catch (Throwable) {
                 $success  = false;
                 $response = 'Cache invalidation failed.';
@@ -153,7 +141,7 @@ class VersionController extends Controller
             $media->delete();
 
             if (CdnHelper::isConfigured()) {
-                CdnHelper::invalidate($invalidationPaths);
+                $media->type === MediaType::IMAGE ? CdnHelper::invalidateImage($basePath) : CdnHelper::invalidateVideo($basePath);
             }
         }
 

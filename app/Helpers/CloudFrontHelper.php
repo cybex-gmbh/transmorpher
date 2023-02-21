@@ -8,13 +8,42 @@ use Aws\CloudFront\CloudFrontClient;
 class CloudFrontHelper implements CdnHelperInterface
 {
     /**
+     * Create a CDN invalidation for an image.
+     *
+     * @param string $invalidationPath
+     *
+     * @return void
+     */
+    public function invalidateImage(string $invalidationPath): void
+    {
+        $this->invalidate([
+            sprintf('/%s', $invalidationPath),
+            sprintf('/%s/', $invalidationPath),
+            sprintf('/%s/*', $invalidationPath),
+        ]);
+
+    }
+
+    /**
+     * Create a CDN invalidation for a video.
+     *
+     * @param string $invalidationPath
+     *
+     * @return void
+     */
+    public function invalidateVideo(string $invalidationPath): void
+    {
+        $this->invalidate([sprintf('/derivative-videos/%s/*', $invalidationPath)]);
+    }
+
+    /**
      * Create a CDN invalidation.
      *
      * @param array $invalidationPaths
      *
      * @return void
      */
-    public function invalidate(array $invalidationPaths): void
+    protected function invalidate(array $invalidationPaths): void
     {
         $cloudFrontClient = new CloudFrontClient([
             'version'     => 'latest',
@@ -56,5 +85,4 @@ class CloudFrontHelper implements CdnHelperInterface
     {
         return uniqid();
     }
-
 }
