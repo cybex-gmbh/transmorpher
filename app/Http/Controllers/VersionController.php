@@ -154,6 +154,8 @@ class VersionController extends Controller
     }
 
     /**
+     * Handles the dispatching of a new transcoding job when setting a video version.
+     *
      * @param string  $callbackUrl
      * @param string  $idToken
      * @param mixed   $user
