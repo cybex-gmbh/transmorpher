@@ -12,6 +12,7 @@ use CdnHelper;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\ItemNotFoundException;
 use Throwable;
 use Transcode;
 
@@ -29,10 +30,9 @@ class VersionController extends Controller
     {
         $user                   = $request->user();
         $media                  = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $versions               = $media->Versions;
-        $currentVersionNumber   = $versions->max('number');
-        $processedVersionNumber = $media->type === MediaType::VIDEO ? $media->Versions()->whereProcessed(true)->max('number') : null;
-        $allVersionNumbers      = $versions->pluck('number');
+        $currentVersionNumber   = $media->Versions->max('number');
+        $processedVersionNumber = $media->type === MediaType::VIDEO ? $media->Versions->where('processed', true)->max('number') : null;
+        $allVersionNumbers      = $media->Versions->pluck('number');
 
         return response()->json([
             'success'                   => true,
@@ -56,12 +56,18 @@ class VersionController extends Controller
      */
     public function setVersion(SetVersionRequest $request, string $identifier, string $versionNumber): JsonResponse
     {
-        $user                 = $request->user();
-        $media                = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $version              = $media->Versions()->whereNumber($versionNumber)->firstOrFail();
+        $user  = $request->user();
+        $media = $user->Media()->whereIdentifier($identifier)->firstOrFail();
+
+        try {
+            $version = $media->Versions->where('number', $versionNumber)->firstOrFail();
+        } catch (ItemNotFoundException $exception) {
+            abort(404);
+        }
+
         $wasProcessed         = $version->processed;
         $oldVersionNumber     = $version->number;
-        $currentVersionNumber = $media->Versions()->max('number');
+        $currentVersionNumber = $media->Versions->max('number');
         $newVersionNumber     = $currentVersionNumber + 1;
         $success              = null;
 
