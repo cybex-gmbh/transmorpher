@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(
     function () {
-        Route::get('/media/{identifier}/versions',[VersionController::class, 'getVersions']);
+        Route::get('/media/{identifier}/versions', [VersionController::class, 'getVersions']);
         Route::delete('/media/{identifier}', [VersionController::class, 'delete']);
         Route::patch('/media/{identifier}/version/{versionNumber}/set', [VersionController::class, 'setVersion']);
 
