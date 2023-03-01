@@ -92,6 +92,6 @@ class Transcode implements TranscodeInterface
 
         $signedResponse = SigningHelper::sign(json_encode($response));
 
-        Http::post($callbackUrl, [$signedResponse]);
+        Http::post($callbackUrl, ['signed_response' => $signedResponse]);
     }
 }
