@@ -43,6 +43,30 @@ class Transcode implements TranscodeInterface
     }
 
     /**
+     * Creates a job which handles the transcoding of a video when a version number is updated.
+     *
+     * @param string  $originalFilePath
+     * @param Media   $media
+     * @param Version $version
+     * @param string  $callbackUrl
+     * @param string  $idToken
+     * @param int     $oldVersionNumber
+     * @param bool    $wasProcessed
+     *
+     * @return bool
+     */
+    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, int $oldVersionNumber, bool $wasProcessed): bool
+    {
+        try {
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed);
+        } catch (Exception) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Inform client package about the transcoding result.
      *
      * @param bool   $success
@@ -68,6 +92,6 @@ class Transcode implements TranscodeInterface
 
         $signedResponse = SigningHelper::sign(json_encode($response));
 
-        Http::post($callbackUrl, [$signedResponse]);
+        Http::post($callbackUrl, ['signed_response' => $signedResponse]);
     }
 }

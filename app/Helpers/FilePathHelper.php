@@ -23,15 +23,14 @@ class FilePathHelper
         $media                 = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $mediaVersions         = $media->Versions();
         $currentVersionNumber  = $mediaVersions->max('number');
-        $currentVersion        = $mediaVersions->whereNumber($currentVersionNumber)->first();
+        $currentVersion        = $mediaVersions->whereNumber($currentVersionNumber)->firstOrFail();
         $originalFileExtension = pathinfo($currentVersion->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and current version number to identify already generated derivatives.
         $derivativeHash = hash('sha256', $transformations . $currentVersionNumber);
 
-        return sprintf('%s/%d/%sx_%sy_%sq_%s.%s',
-            $this->toBaseDirectory($user, $identifier),
-            $currentVersionNumber,
+        return sprintf('%s/%sx_%sy_%sq_%s.%s',
+            $this->toImageDerivativeVersionDirectory($user, $identifier, $currentVersionNumber),
             $transformationsArray[Transformation::WIDTH->value] ?? '',
             $transformationsArray[Transformation::HEIGHT->value] ?? '',
             $transformationsArray[Transformation::QUALITY->value] ?? '',
@@ -41,22 +40,39 @@ class FilePathHelper
     }
 
     /**
-     * Get the path to an original image.
-     * Path structure: {username}/{identifier}/{filename}
+     * Get the path to the directory of an image derivative version.
+     * Path structure: {username}/{identifier}/{versionNumber}
      *
      * @param User   $user
      * @param string $identifier
+     * @param int    $versionNumber
      *
      * @return string
      */
-    public function toOriginalImageFile(User $user, string $identifier): string
+    public function toImageDerivativeVersionDirectory(User $user, string $identifier, int $versionNumber): string
     {
-        $media                = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $mediaVersions        = $media->Versions();
-        $currentVersionNumber = $mediaVersions->max('number');
-        $currentVersion       = $mediaVersions->whereNumber($currentVersionNumber)->first();
+        return sprintf('%s/%d', $this->toBaseDirectory($user, $identifier), $versionNumber);
+    }
 
-        return sprintf('%s/%s', $this->toBaseDirectory($user, $identifier), $currentVersion->filename);
+    /**
+     * Get the path to an original.
+     * Path structure: {username}/{identifier}/{filename}
+     *
+     * @param User     $user
+     * @param string   $identifier
+     * @param int|null $versionNumber
+     *
+     * @return string
+     */
+    public function toOriginalFile(User $user, string $identifier, int $versionNumber = null): string
+    {
+        $media         = $user->Media()->whereIdentifier($identifier)->firstOrFail();
+        $mediaVersions = $media->Versions();
+
+        // Get the version for either the specified number or for the current version number.
+        $version = $versionNumber ? $mediaVersions->whereNumber($versionNumber)->firstOrFail() : $mediaVersions->whereNumber($mediaVersions->max('number'))->firstOrFail();
+
+        return sprintf('%s/%s', $this->toBaseDirectory($user, $identifier), $version->filename);
     }
 
     /**

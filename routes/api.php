@@ -2,6 +2,7 @@
 
 use App\Helpers\SigningHelper;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\VersionController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,8 +19,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(
     function () {
+        Route::get('/media/{identifier}/versions', [VersionController::class, 'getVersions']);
+        Route::delete('/media/{identifier}', [VersionController::class, 'delete']);
+        Route::patch('/media/{identifier}/version/{versionNumber}/set', [VersionController::class, 'setVersion']);
+
         // Image
         Route::post('/image/upload', [ImageController::class, 'put']);
+        Route::get('/image/{identifier}/version/{versionNumber}', [ImageController::class, 'getVersion']);
 
         // Video
         Route::post('/video/upload', [VideoController::class, 'put']);

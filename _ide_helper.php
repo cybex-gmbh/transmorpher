@@ -17748,16 +17748,28 @@
      */ 
         class CdnHelperFacade {
                     /**
-         * Create a CDN invalidation.
+         * Create a CDN invalidation for an image.
          *
-         * @param array $invalidationPaths
+         * @param string $invalidationPath
          * @return void 
          * @static 
          */ 
-        public static function invalidate($invalidationPaths)
+        public static function invalidateImage($invalidationPath)
         {
                         /** @var \App\Helpers\CloudFrontHelper $instance */
-                        $instance->invalidate($invalidationPaths);
+                        $instance->invalidateImage($invalidationPath);
+        }
+                    /**
+         * Create a CDN invalidation for a video.
+         *
+         * @param string $invalidationPath
+         * @return void 
+         * @static 
+         */ 
+        public static function invalidateVideo($invalidationPath)
+        {
+                        /** @var \App\Helpers\CloudFrontHelper $instance */
+                        $instance->invalidateVideo($invalidationPath);
         }
                     /**
          * Return whether the CDN is configured.
@@ -17827,19 +17839,36 @@
                         return $instance->toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
         }
                     /**
-         * Get the path to an original image.
+         * Get the path to the directory of an image derivative version.
+         * 
+         * Path structure: {username}/{identifier}/{versionNumber}
+         *
+         * @param \App\Models\User $user
+         * @param string $identifier
+         * @param int $versionNumber
+         * @return string 
+         * @static 
+         */ 
+        public static function toImageDerivativeVersionDirectory($user, $identifier, $versionNumber)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->toImageDerivativeVersionDirectory($user, $identifier, $versionNumber);
+        }
+                    /**
+         * Get the path to an original.
          * 
          * Path structure: {username}/{identifier}/{filename}
          *
          * @param \App\Models\User $user
          * @param string $identifier
+         * @param int|null $versionNumber
          * @return string 
          * @static 
          */ 
-        public static function toOriginalImageFile($user, $identifier)
+        public static function toOriginalFile($user, $identifier, $versionNumber = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toOriginalImageFile($user, $identifier);
+                        return $instance->toOriginalFile($user, $identifier, $versionNumber);
         }
                     /**
          * Get the path to a video derivative.
@@ -17944,6 +17973,24 @@
         {
                         /** @var \App\Classes\Transcode $instance */
                         return $instance->createJob($originalFilePath, $media, $version, $callbackUrl, $idToken);
+        }
+                    /**
+         * Creates a job which handles the transcoding of a video when a version number is updated.
+         *
+         * @param string $originalFilePath
+         * @param \App\Models\Media $media
+         * @param \App\Models\Version $version
+         * @param string $callbackUrl
+         * @param string $idToken
+         * @param int $oldVersionNumber
+         * @param bool $wasProcessed
+         * @return bool 
+         * @static 
+         */ 
+        public static function createJobForVersionUpdate($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed)
+        {
+                        /** @var \App\Classes\Transcode $instance */
+                        return $instance->createJobForVersionUpdate($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed);
         }
                     /**
          * Inform client package about the transcoding result.

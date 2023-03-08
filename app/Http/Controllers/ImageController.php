@@ -11,6 +11,7 @@ use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 use Throwable;
@@ -43,13 +44,7 @@ class ImageController extends Controller
             // Invalidate cache and delete entry if failed.
             if (CdnHelper::isConfigured()) {
                 try {
-                    $invalidationPaths = [
-                        sprintf('/%s', $basePath),
-                        sprintf('/%s/', $basePath),
-                        sprintf('/%s/*', $basePath),
-                    ];
-
-                    CdnHelper::invalidate($invalidationPaths);
+                    CdnHelper::invalidateImage($basePath);
                 } catch (Throwable) {
                     $originalsDisk->delete($filePath);
                     $version->delete();
@@ -94,7 +89,7 @@ class ImageController extends Controller
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
             $derivative = $imageDerivativesDisk->get($derivativePath);
         } else {
-            $originalFilePath = FilePathHelper::toOriginalImageFile($user, $identifier);
+            $originalFilePath = FilePathHelper::toOriginalFile($user, $identifier);
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);
@@ -106,6 +101,23 @@ class ImageController extends Controller
         }
 
         return response($derivative, 200, ['Content-Type' => $imageDerivativesDisk->mimeType($derivativePath)]);
+    }
+
+    /**
+     * Retrieve an original image for a version.
+     *
+     * @param Request $request
+     * @param string  $identifier
+     * @param int     $versionNumber
+     *
+     * @return Application|Response|ResponseFactory
+     */
+    public function getVersion(Request $request, string $identifier, int $versionNumber): Response|Application|ResponseFactory
+    {
+        $originalsDisk = MediaStorage::ORIGINALS->getDisk();
+        $pathToOriginal = FilePathHelper::toOriginalFile($request->user(), $identifier, $versionNumber);
+
+        return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => $originalsDisk->mimeType($pathToOriginal)]);
     }
 
     /**

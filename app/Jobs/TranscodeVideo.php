@@ -63,6 +63,8 @@ class TranscodeVideo implements ShouldQueue
         protected Version $version,
         protected string  $callbackUrl,
         protected string  $idToken,
+        protected ?int    $oldVersionNumber = null,
+        protected ?bool   $wasProcessed     = null
     )
     {
         $this->onQueue('video-transcoding');
@@ -100,12 +102,19 @@ class TranscodeVideo implements ShouldQueue
         $localDisk = Storage::disk('local');
 
         MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPath);
-        MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
         $localDisk->delete($this->getTempMp4FileName());
         $localDisk->delete($this->getTempLocalOriginal());
-        $this->version->delete();
 
-        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User, $this->media->identifier, $this->version->number - 1);
+        if (!$this->oldVersionNumber) {
+            MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
+            $this->version->delete();
+            $versionNumber = $this->version->number - 1;
+        } else {
+            $this->version->update(['number' => $this->oldVersionNumber, 'processed' => $this->wasProcessed]);
+            $versionNumber = $this->oldVersionNumber;
+        }
+
+        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User, $this->media->identifier, $versionNumber);
     }
 
     /**
@@ -291,7 +300,7 @@ class TranscodeVideo implements ShouldQueue
     {
         if (CdnHelper::isConfigured()) {
             // If this fails, the 'failed()'-method will handle the cleanup.
-            CdnHelper::invalidate([sprintf('/derivative-videos/%s/*', $this->destinationBasePath)]);
+            CdnHelper::invalidateVideo($this->destinationBasePath);
         }
     }
 
