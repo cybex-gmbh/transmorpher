@@ -32,7 +32,7 @@ class VersionController extends Controller
         $media                  = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $currentVersionNumber   = $media->Versions->max('number');
         $processedVersionNumber = $media->type === MediaType::VIDEO ? $media->Versions->where('processed', true)->max('number') : null;
-        $allVersionNumbers      = $media->Versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date));;
+        $allVersionNumbers      = $media->Versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date));
 
         return response()->json([
             'success'                   => true,
