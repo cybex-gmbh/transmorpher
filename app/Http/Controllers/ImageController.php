@@ -56,6 +56,8 @@ class ImageController extends Controller
             }
         }
 
+        // Todo: to ensure that failed uploads don't pollute the image derivative cache, we would need a ready flag that is set to true when CDN is invalidated.
+
         return response()->json([
             'success'    => $success,
             'response'   => $success ? 'Successfully added new image version.' : 'Cache invalidation failed.',
