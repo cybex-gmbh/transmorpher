@@ -17748,16 +17748,28 @@
      */ 
         class CdnHelperFacade {
                     /**
-         * Create a CDN invalidation.
+         * Create a CDN invalidation for an image.
          *
          * @param string $invalidationPath
          * @return void 
          * @static 
          */ 
-        public static function invalidate($invalidationPath)
+        public static function invalidateImage($invalidationPath)
         {
                         /** @var \App\Helpers\CloudFrontHelper $instance */
-                        $instance->invalidate($invalidationPath);
+                        $instance->invalidateImage($invalidationPath);
+        }
+                    /**
+         * Create a CDN invalidation for a video.
+         *
+         * @param string $invalidationPath
+         * @return void 
+         * @static 
+         */ 
+        public static function invalidateVideo($invalidationPath)
+        {
+                        /** @var \App\Helpers\CloudFrontHelper $instance */
+                        $instance->invalidateVideo($invalidationPath);
         }
                     /**
          * Return whether the CDN is configured.
@@ -17821,10 +17833,26 @@
          * @return string 
          * @static 
          */ 
-        public static function getPathToImageDerivative($user, $transformations, $identifier, $transformationsArray = null)
+        public static function toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getPathToImageDerivative($user, $transformations, $identifier, $transformationsArray);
+                        return $instance->toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
+        }
+                    /**
+         * Get the path to the directory of an image derivative version.
+         * 
+         * Path structure: {username}/{identifier}/{versionNumber}
+         *
+         * @param \App\Models\User $user
+         * @param string $identifier
+         * @param int $versionNumber
+         * @return string 
+         * @static 
+         */ 
+        public static function toImageDerivativeVersionDirectory($user, $identifier, $versionNumber)
+        {
+                        /** @var \App\Helpers\FilePathHelper $instance */
+                        return $instance->toImageDerivativeVersionDirectory($user, $identifier, $versionNumber);
         }
                     /**
          * Get the path to an original.
@@ -17837,10 +17865,10 @@
          * @return string 
          * @static 
          */ 
-        public static function getPathToOriginal($user, $identifier, $versionNumber = null)
+        public static function toOriginalFile($user, $identifier, $versionNumber = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getPathToOriginal($user, $identifier, $versionNumber);
+                        return $instance->toOriginalFile($user, $identifier, $versionNumber);
         }
                     /**
          * Get the path to a video derivative.
@@ -17854,10 +17882,10 @@
          * @return string 
          * @static 
          */ 
-        public static function getPathToVideoDerivative($user, $identifier, $format, $fileName = null)
+        public static function toVideoDerivativeFile($user, $identifier, $format, $fileName = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getPathToVideoDerivative($user, $identifier, $format, $fileName);
+                        return $instance->toVideoDerivativeFile($user, $identifier, $format, $fileName);
         }
                     /**
          * Get the path to a temporary video derivative.
@@ -17872,10 +17900,10 @@
          * @return string 
          * @static 
          */ 
-        public static function getPathToTempVideoDerivative($user, $identifier, $versionNumber, $format, $fileName = null)
+        public static function toTempVideoDerivativeFile($user, $identifier, $versionNumber, $format, $fileName = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getPathToTempVideoDerivative($user, $identifier, $versionNumber, $format, $fileName);
+                        return $instance->toTempVideoDerivativeFile($user, $identifier, $versionNumber, $format, $fileName);
         }
                     /**
          * Get the path to a video derivative.
@@ -17888,10 +17916,10 @@
          * @return string 
          * @static 
          */ 
-        public static function getBasePathForTempVideoDerivatives($user, $identifier, $versionNumber)
+        public static function toTempVideoDerivativesDirectory($user, $identifier, $versionNumber)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getBasePathForTempVideoDerivatives($user, $identifier, $versionNumber);
+                        return $instance->toTempVideoDerivativesDirectory($user, $identifier, $versionNumber);
         }
                     /**
          * Get the base path for media.
@@ -17903,10 +17931,10 @@
          * @return string 
          * @static 
          */ 
-        public static function getBasePath($user, $identifier)
+        public static function toBaseDirectory($user, $identifier)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->getBasePath($user, $identifier);
+                        return $instance->toBaseDirectory($user, $identifier);
         }
                     /**
          * Create the filename for an original.
@@ -17970,16 +17998,16 @@
          * @param bool $success
          * @param string $callbackUrl
          * @param string $idToken
-         * @param string $userName
+         * @param \App\Models\User $user
          * @param string $identifier
          * @param int $versionNumber
          * @return void 
          * @static 
          */ 
-        public static function callback($success, $callbackUrl, $idToken, $userName, $identifier, $versionNumber)
+        public static function callback($success, $callbackUrl, $idToken, $user, $identifier, $versionNumber)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        $instance->callback($success, $callbackUrl, $idToken, $userName, $identifier, $versionNumber);
+                        $instance->callback($success, $callbackUrl, $idToken, $user, $identifier, $versionNumber);
         }
          
     }

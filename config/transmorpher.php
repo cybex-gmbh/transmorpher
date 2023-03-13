@@ -10,7 +10,7 @@ return [
     | Only needs to be considered when the option to store derivatives is also true.
     |
     */
-    'dev_mode' => env('TRANSMORPHER_DEV_MODE'),
+    'dev_mode' => env('TRANSMORPHER_DEV_MODE', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -21,7 +21,7 @@ return [
     | Only applies to image derivatives, since video derivatives have to be saved.
     |
     */
-    'store_derivatives' => env('TRANSMORPHER_STORE_DERIVATIVES'),
+    'store_derivatives' => env('TRANSMORPHER_STORE_DERIVATIVES', true),
 
 
     /*
@@ -34,9 +34,9 @@ return [
     */
 
     'disks' => [
-        'originals' => env('TRANSMORPHER_DISK_ORIGINALS'),
-        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES'),
-        'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES'),
+        'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
+        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImagesDerivatives'),
+        'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 
     /*

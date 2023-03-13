@@ -28,6 +28,20 @@ class TranscodeVideo implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    /**
+    * The number of times the job may be attempted.
+    *
+    * @var int
+    */
+    public int $tries = 1;
+
+    /**
+    * The number of seconds the job can run before timing out.
+    *
+    * @var int
+    */
+    public int $timeout = 600;
+
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
@@ -53,6 +67,7 @@ class TranscodeVideo implements ShouldQueue
         protected ?bool   $wasProcessed     = null
     )
     {
+        $this->onQueue('video-transcoding');
     }
 
     /**
@@ -65,12 +80,12 @@ class TranscodeVideo implements ShouldQueue
         $this->originalsDisk     = MediaStorage::ORIGINALS->getDisk();
         $this->derivativesDisk   = MediaStorage::VIDEO_DERIVATIVES->getDisk();
         $this->localDisk         = Storage::disk('local');
-        $this->tempMp4FileName   = sprintf('temp-derivative-%s-%d.mp4', $this->media->identifier, $this->version->number);
-        $this->tempLocalOriginal = sprintf('temp-original-%s-%d', $this->media->identifier, $this->version->number);
+        $this->tempMp4FileName   = $this->getTempMp4FileName();
+        $this->tempLocalOriginal = $this->getTempLocalOriginal();
 
         $this->transcodeVideo();
 
-        Transcode::callback(true, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $this->version->number);
+        Transcode::callback(true, $this->callbackUrl, $this->idToken, $this->media->User, $this->media->identifier, $this->version->number);
     }
 
     /**
@@ -83,12 +98,12 @@ class TranscodeVideo implements ShouldQueue
     public function failed(Throwable $exception): void
     {
         // Properties are not initialized here.
-        $tempPath  = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
+        $tempPath  = FilePathHelper::toTempVideoDerivativesDirectory($this->media->User, $this->media->identifier, $this->version->number);
         $localDisk = Storage::disk('local');
 
         MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempPath);
-        $localDisk->delete($this->tempMp4FileName);
-        $localDisk->delete($this->tempLocalOriginal);
+        $localDisk->delete($this->getTempMp4FileName());
+        $localDisk->delete($this->getTempLocalOriginal());
 
         if (!$this->oldVersionNumber) {
             MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
@@ -99,7 +114,7 @@ class TranscodeVideo implements ShouldQueue
             $versionNumber = $this->oldVersionNumber;
         }
 
-        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User->name, $this->media->identifier, $versionNumber);
+        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User, $this->media->identifier, $versionNumber);
     }
 
     /**
@@ -163,8 +178,8 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function setFilePaths(): void
     {
-        $this->destinationBasePath = FilePathHelper::getBasePath($this->media->User, $this->media->identifier);
-        $this->tempPath            = FilePathHelper::getBasePathForTempVideoDerivatives($this->media->User, $this->media->identifier, $this->version->number);
+        $this->destinationBasePath = FilePathHelper::toBaseDirectory($this->media->User, $this->media->identifier);
+        $this->tempPath            = FilePathHelper::toTempVideoDerivativesDirectory($this->media->User, $this->media->identifier, $this->version->number);
     }
 
     /**
@@ -179,7 +194,7 @@ class TranscodeVideo implements ShouldQueue
     {
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         $this->isLocalFilesystem($this->derivativesDisk) ?
-            $video->save($this->derivativesDisk->path(FilePathHelper::getPathToTempVideoDerivative($this->media->User, $this->media->identifier, $this->version->number, $format)))
+            $video->save($this->derivativesDisk->path(FilePathHelper::toTempVideoDerivativeFile($this->media->User, $this->media->identifier, $this->version->number, $format)))
             : $video->save(null,
                 CloudStorage::getSaveConfiguration(
                     sprintf('%s/%s', $this->derivativesDisk->path($this->tempPath), $format), $this->media->identifier
@@ -200,9 +215,9 @@ class TranscodeVideo implements ShouldQueue
     {
         $video->save(new X264(), $this->localDisk->path($this->tempMp4FileName));
 
+        $derivativePath = FilePathHelper::toTempVideoDerivativeFile($this->media->User, $this->media->identifier, $this->version->number, 'mp4');
         $this->derivativesDisk->writeStream(
-            sprintf('%s.%s',
-                FilePathHelper::getPathToTempVideoDerivative($this->media->User, $this->media->identifier, $this->version->number, 'mp4'), 'mp4'),
+            sprintf('%s.%s', $derivativePath, 'mp4'),
             $this->localDisk->readStream($this->tempMp4FileName)
         );
 
@@ -217,7 +232,7 @@ class TranscodeVideo implements ShouldQueue
     protected function moveToDestinationPath(): void
     {
         if ($this->version->number === $this->media->Versions()->max('number')) {
-            // This will make sure we can invalidate the cache and prevent deleting the current derivative before we are certain the transcoding can finish.
+            // This will make sure we can invalidate the cache before the current derivative gets deleted.
             // If this fails, the job will stop and cleanup will be done in the failed() method.
             $this->invalidateCdnCache();
 
@@ -261,18 +276,18 @@ class TranscodeVideo implements ShouldQueue
         $identifier = $this->media->identifier;
 
         foreach ($hlsFiles as $file) {
-            $this->derivativesDisk->move($file, FilePathHelper::getPathToVideoDerivative($user, $identifier, StreamingFormat::HLS->value, basename($file)));
+            $this->derivativesDisk->move($file, FilePathHelper::toVideoDerivativeFile($user, $identifier, StreamingFormat::HLS->value, basename($file)));
         }
 
         foreach ($dashFiles as $file) {
-            $this->derivativesDisk->move($file, FilePathHelper::getPathToVideoDerivative($user, $identifier, StreamingFormat::DASH->value, basename($file)));
+            $this->derivativesDisk->move($file, FilePathHelper::toVideoDerivativeFile($user, $identifier, StreamingFormat::DASH->value, basename($file)));
         }
 
+        $tempDerivativePath = FilePathHelper::toTempVideoDerivativeFile($this->media->User, $this->media->identifier, $this->version->number, 'mp4');
         // Move MP4 file.
         $this->derivativesDisk->move(
-            sprintf('%s.%s',
-                FilePathHelper::getPathToTempVideoDerivative($this->media->User, $this->media->identifier, $this->version->number, 'mp4'), 'mp4'),
-            sprintf('%s.%s', FilePathHelper::getPathToVideoDerivative($user, $identifier, 'mp4'), 'mp4')
+            sprintf('%s.%s', $tempDerivativePath, 'mp4'),
+            sprintf('%s.%s', FilePathHelper::toVideoDerivativeFile($user, $identifier, 'mp4'), 'mp4')
         );
     }
 
@@ -285,7 +300,23 @@ class TranscodeVideo implements ShouldQueue
     {
         if (CdnHelper::isConfigured()) {
             // If this fails, the 'failed()'-method will handle the cleanup.
-            CdnHelper::invalidate(sprintf('/%s/*', $this->derivativesDisk->path($this->destinationBasePath)));
+            CdnHelper::invalidateVideo($this->destinationBasePath);
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTempMp4FileName(): string
+    {
+        return sprintf('temp-derivative-%s-%d.mp4', $this->media->identifier, $this->version->number);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTempLocalOriginal(): string
+    {
+        return sprintf('temp-original-%s-%d', $this->media->identifier, $this->version->number);
     }
 }

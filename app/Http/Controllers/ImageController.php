@@ -7,7 +7,6 @@ use App\Enums\MediaType;
 use App\Http\Requests\ImageUploadRequest;
 use App\Models\User;
 use CdnHelper;
-use Exception;
 use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -15,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
+use Throwable;
 use Transform;
 
 class ImageController extends Controller
@@ -34,36 +34,41 @@ class ImageController extends Controller
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
 
-        $basePath      = FilePathHelper::getBasePath($user, $identifier);
+        $basePath      = FilePathHelper::toBaseDirectory($user, $identifier);
         $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
-        $filePath = $originalsDisk->putFileAs($basePath, $imageFile, $fileName);
-        $version  = $media->Versions()->create(['number'   => $versionNumber, 'filename' => $fileName]);
+        if ($filePath = $originalsDisk->putFileAs($basePath, $imageFile, $fileName)) {
+            $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
-        $success = true;
+            // Invalidate cache and delete entry if failed.
+            if (CdnHelper::isConfigured()) {
+                try {
+                    CdnHelper::invalidateImage($basePath);
+                } catch (Throwable) {
+                    $originalsDisk->delete($filePath);
+                    $version->delete();
 
-        // Invalidate cache and delete entry if failed.
-        if (CdnHelper::isConfigured()) {
-            try {
-                CdnHelper::invalidate(sprintf('/%s/*', MediaStorage::IMAGE_DERIVATIVES->getDisk()->path($basePath)));
-            } catch (Exception) {
-                $originalsDisk->delete($filePath);
-                $version->delete();
-
-                $success       = false;
-                $versionNumber -= 1;
+                    $success       = false;
+                    $response      = 'Cache invalidation failed.';
+                    $versionNumber -= 1;
+                }
             }
+        } else {
+            $success       = false;
+            $response      = 'Could not write image to disk.';
+            $versionNumber -= 1;
         }
 
         // Todo: to ensure that failed uploads don't pollute the image derivative cache, we would need a ready flag that is set to true when CDN is invalidated.
 
         return response()->json([
-            'success'    => $success,
-            'response'   => $success ? 'Successfully added new image version.' : 'Cache invalidation failed.',
-            'identifier' => $media->identifier,
-            'version'    => $versionNumber,
-            'client'     => $user->name,
+            'success'     => $success ?? true,
+            'response'    => $response ?? 'Successfully added new image version.',
+            'identifier'  => $media->identifier,
+            'version'     => $versionNumber,
+            'client'      => $user->name,
+            'public_path' => $basePath,
         ], 201);
     }
 
@@ -80,13 +85,13 @@ class ImageController extends Controller
     {
         $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
         $transformationsArray = $this->getTransformations($transformations);
-        $derivativePath       = FilePathHelper::getPathToImageDerivative($user, $transformations, $identifier, $transformationsArray);
+        $derivativePath       = FilePathHelper::toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
             $derivative = $imageDerivativesDisk->get($derivativePath);
         } else {
-            $originalFilePath = FilePathHelper::getPathToOriginal($user, $identifier);
+            $originalFilePath = FilePathHelper::toOriginalFile($user, $identifier);
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);
@@ -112,7 +117,7 @@ class ImageController extends Controller
     public function getVersion(Request $request, string $identifier, int $versionNumber): Response|Application|ResponseFactory
     {
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
-        $pathToOriginal = FilePathHelper::getPathToOriginal($request->user(), $identifier, $versionNumber);
+        $pathToOriginal = FilePathHelper::toOriginalFile($request->user(), $identifier, $versionNumber);
 
         return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => $originalsDisk->mimeType($pathToOriginal)]);
     }

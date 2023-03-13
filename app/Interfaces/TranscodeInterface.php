@@ -3,6 +3,7 @@
 namespace App\Interfaces;
 
 use App\Models\Media;
+use App\Models\User;
 use App\Models\Version;
 
 interface TranscodeInterface
@@ -41,11 +42,11 @@ interface TranscodeInterface
      * @param bool   $success
      * @param string $callbackUrl
      * @param string $idToken
-     * @param string $userName
+     * @param User   $user
      * @param string $identifier
      * @param int    $versionNumber
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $idToken, string $userName, string $identifier, int $versionNumber): void;
+    public function callback(bool $success, string $callbackUrl, string $idToken, User $user, string $identifier, int $versionNumber): void;
 }
