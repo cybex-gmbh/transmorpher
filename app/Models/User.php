@@ -82,6 +82,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Returns upload tokens for the user.
+     */
+    public function UploadTokens(): HasMany
+    {
+        return $this->hasMany(UploadToken::class);
+    }
+
+    /**
      * Get the route key for the model.
      *
      * @return string
