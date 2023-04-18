@@ -30,7 +30,7 @@ class ImageController extends Controller
     {
         $user          = $request->user();
         $imageFile     = $request->file('image');
-        $identifier    = $request->get('identifier');
+        $identifier    = $user->UploadTokens()->whereToken($request->input('upload_token'))->firstOrFail()->identifier;
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
 

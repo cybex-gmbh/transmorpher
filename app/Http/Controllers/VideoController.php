@@ -21,8 +21,9 @@ class VideoController extends Controller
     public function put(VideoUploadRequest $request): JsonResponse
     {
         $user          = $request->user();
+        $uploadToken   = $user->UploadTokens()->whereToken($request->input('upload_token'))->firstOrFail();
         $videoFile     = $request->file('video');
-        $identifier    = $request->get('identifier');
+        $identifier    = $uploadToken->identifier;
         $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::VIDEO]);
         $versionNumber = $media->Versions()->max('number') + 1;
 
@@ -30,15 +31,13 @@ class VideoController extends Controller
         $basePath      = FilePathHelper::toBaseDirectory($user, $identifier);
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
-
-
         if (!$filePath = $originalsDisk->putFileAs($basePath, $videoFile, $fileName)) {
             $success       = false;
             $response      = 'Could not write video to disk.';
             $versionNumber -= 1;
         } else {
             $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
-            $success  = Transcode::createJob($filePath, $media, $version, $request->get('callback_url'), $request->get('id_token'));
+            $success  = Transcode::createJob($filePath, $media, $version, $uploadToken->callback_url, $uploadToken->id_token);
 
             if (!$success) {
                 $originalsDisk->delete($filePath);

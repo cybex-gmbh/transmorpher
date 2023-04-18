@@ -25,7 +25,7 @@ class ImageUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'identifier' => ['required', 'string'],
+            'upload_token' => ['required', 'string'],
             'image' => [
                 'required',
                 sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),

@@ -31,13 +31,11 @@ class VideoUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'identifier' => ['required', 'string'],
+            'upload_token' => ['required', 'string'],
             'video' => [
                 'required',
                 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4',
             ],
-            'id_token' => ['required', 'string'],
-            'callback_url' => ['required', 'string', 'url']
         ];
     }
 }
