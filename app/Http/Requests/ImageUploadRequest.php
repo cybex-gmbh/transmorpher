@@ -14,7 +14,7 @@ class ImageUploadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:upload-image');
+        return true;
     }
 
     /**
@@ -24,12 +24,9 @@ class ImageUploadRequest extends FormRequest
      */
     public function rules(): array
     {
+        // TODO: Consolidate with ImageUploadRequest?
         return [
             'upload_token' => ['required', 'string'],
-            'image' => [
-                'required',
-                sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),
-            ],
         ];
     }
 }

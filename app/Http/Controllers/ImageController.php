@@ -2,20 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Http\Requests\ImageUploadRequest;
+use App\Models\UploadToken;
 use App\Models\User;
 use CdnHelper;
+use File;
 use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
+use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
+use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
+use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
+use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 use Throwable;
 use Transform;
+use Validator;
 
 class ImageController extends Controller
 {
@@ -25,21 +35,63 @@ class ImageController extends Controller
      * @param ImageUploadRequest $request
      *
      * @return JsonResponse
+     * @throws UploadFailedException
+     * @throws UploadMissingFileException
+     * @throws ValidationException
      */
     public function put(ImageUploadRequest $request): JsonResponse
     {
-        $user          = $request->user();
-        $imageFile     = $request->file('image');
-        $identifier    = $user->UploadTokens()->whereToken($request->input('upload_token'))->firstOrFail()->identifier;
-        $media         = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
+        // create the file receiver
+        $receiver = new FileReceiver($request->file('image'), $request, HandlerFactory::classFromRequest($request));
+
+        // check if the upload is success, throw exception or return response you need
+        if ($receiver->isUploaded() === false) {
+            throw new UploadMissingFileException();
+        }
+
+        // receive the file
+        $save = $receiver->receive();
+
+        // check if the upload has finished (in chunk mode it will send smaller files)
+        if ($save->isFinished()) {
+            // save the file and return any response you need, current example uses `move` function. If you are
+            // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
+            return $this->saveFile($save->getFile(), $request);
+        }
+
+        // we are in chunk mode, lets send the current progress
+        $handler = $save->handler();
+
+        return response()->json([
+            "done" => $handler->getPercentageDone(),
+        ]);
+    }
+
+    /**
+     * @param UploadedFile $imageFile
+     * @param ImageUploadRequest $request
+     * @return JsonResponse
+     * @throws ValidationException
+     */
+    public function saveFile(UploadedFile $imageFile, ImageUploadRequest $request): JsonResponse
+    {
+        Validator::make(['image' => $imageFile], ['image' => [
+            'required',
+            sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),
+        ]])->validate();
+
+        $uploadToken = UploadToken::whereToken($request->input('upload_token'))->firstOrFail();
+        $user = $uploadToken->User;
+        $identifier = $uploadToken->identifier;
+        $media = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $versionNumber = $media->Versions()->max('number') + 1;
 
-        $basePath      = FilePathHelper::toBaseDirectory($user, $identifier);
-        $fileName      = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
+        $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
+        $fileName = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
         if ($filePath = $originalsDisk->putFileAs($basePath, $imageFile, $fileName)) {
-            $version  = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
+            $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
             // Invalidate cache and delete entry if failed.
             if (CdnHelper::isConfigured()) {
@@ -49,25 +101,28 @@ class ImageController extends Controller
                     $originalsDisk->delete($filePath);
                     $version->delete();
 
-                    $success       = false;
-                    $response      = 'Cache invalidation failed.';
+                    $success = false;
+                    $response = 'Cache invalidation failed.';
                     $versionNumber -= 1;
                 }
             }
         } else {
-            $success       = false;
-            $response      = 'Could not write image to disk.';
+            $success = false;
+            $response = 'Could not write image to disk.';
             $versionNumber -= 1;
         }
+
+        // Delete chunk file.
+        File::delete($imageFile);
 
         // Todo: to ensure that failed uploads don't pollute the image derivative cache, we would need a ready flag that is set to true when CDN is invalidated.
 
         return response()->json([
-            'success'     => $success ?? true,
-            'response'    => $response ?? 'Successfully added new image version.',
-            'identifier'  => $media->identifier,
-            'version'     => $versionNumber,
-            'client'      => $user->name,
+            'success' => $success ?? true,
+            'response' => $response ?? 'Successfully added new image version.',
+            'identifier' => $media->identifier,
+            'version' => $versionNumber,
+            'client' => $user->name,
             'public_path' => $basePath,
         ], 201);
     }
@@ -75,7 +130,7 @@ class ImageController extends Controller
     /**
      * Handles incoming image derivative requests.
      *
-     * @param User   $user
+     * @param User $user
      * @param string $identifier
      * @param string $transformations
      *
@@ -85,7 +140,7 @@ class ImageController extends Controller
     {
         $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
         $transformationsArray = $this->getTransformations($transformations);
-        $derivativePath       = FilePathHelper::toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
+        $derivativePath = FilePathHelper::toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
@@ -109,8 +164,8 @@ class ImageController extends Controller
      * Retrieve an original image for a version.
      *
      * @param Request $request
-     * @param string  $identifier
-     * @param int     $versionNumber
+     * @param string $identifier
+     * @param int $versionNumber
      *
      * @return Application|Response|ResponseFactory
      */
@@ -136,7 +191,7 @@ class ImageController extends Controller
         }
 
         $transformationsArray = null;
-        $parameters           = explode('+', $transformations);
+        $parameters = explode('+', $transformations);
 
         foreach ($parameters as $parameter) {
             [$key, $value] = explode('-', $parameter);

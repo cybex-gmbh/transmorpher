@@ -25,13 +25,18 @@ Route::middleware('auth:sanctum')->group(
         Route::patch('/media/{identifier}/version/{versionNumber}/set', [VersionController::class, 'setVersion']);
 
         // Image
-        Route::post('/image/upload', [ImageController::class, 'put']);
         Route::get('/image/{identifier}/version/{versionNumber}', [ImageController::class, 'getVersion']);
         Route::post('/image/token', [UploadTokenController::class, 'getImageToken']);
 
         // Video
-        Route::post('/video/upload', [VideoController::class, 'put']);
         Route::post('/video/token', [UploadTokenController::class, 'getVideoToken']);
+    }
+);
+
+Route::middleware(['throttle:none'])->group(
+    function() {
+        Route::post('/image/upload', [ImageController::class, 'put']);
+        Route::post('/video/upload', [VideoController::class, 'put']);
     }
 );
 
