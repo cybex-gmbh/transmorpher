@@ -73,10 +73,16 @@ class VideoController extends Controller
          *      video/webm        => webm
          *      video/mp4        => mp4 mp4v mpg4
          */
-        Validator::make(['video' => $videoFile], ['video' => [
+        $validator = Validator::make(['video' => $videoFile], ['video' => [
             'required',
             'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4',
-        ]])->validate();
+        ]]);
+
+        if ($validator->fails()) {
+            UploadToken::whereToken($request->input('upload_token'))->firstOrFail()->delete();
+        }
+
+        $validator->validate();
 
         $uploadToken = UploadToken::whereToken($request->input('upload_token'))->firstOrFail();
         $user = $uploadToken->User;

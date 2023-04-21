@@ -75,10 +75,16 @@ class ImageController extends Controller
      */
     public function saveFile(UploadedFile $imageFile, ImageUploadRequest $request): JsonResponse
     {
-        Validator::make(['image' => $imageFile], ['image' => [
+        $validator = Validator::make(['image' => $imageFile], ['image' => [
             'required',
             sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),
         ]])->validate();
+
+        if ($validator->fails()) {
+            UploadToken::whereToken($request->input('upload_token'))->firstOrFail()->delete();
+        }
+
+        $validator->validate();
 
         $uploadToken = UploadToken::whereToken($request->input('upload_token'))->firstOrFail();
         $user = $uploadToken->User;
