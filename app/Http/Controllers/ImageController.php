@@ -78,7 +78,7 @@ class ImageController extends Controller
         $validator = Validator::make(['image' => $imageFile], ['image' => [
             'required',
             sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),
-        ]])->validate();
+        ]]);
 
         if ($validator->fails()) {
             UploadToken::whereToken($request->input('upload_token'))->firstOrFail()->delete();
