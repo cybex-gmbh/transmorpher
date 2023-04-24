@@ -82,6 +82,7 @@ class ImageController extends Controller
 
         if ($validator->fails()) {
             UploadToken::whereToken($request->input('upload_token'))->firstOrFail()->delete();
+            File::delete($imageFile);
         }
 
         $validator->validate();

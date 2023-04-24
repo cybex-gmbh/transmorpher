@@ -80,6 +80,7 @@ class VideoController extends Controller
 
         if ($validator->fails()) {
             UploadToken::whereToken($request->input('upload_token'))->firstOrFail()->delete();
+            File::delete($videoFile);
         }
 
         $validator->validate();
