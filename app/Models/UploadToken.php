@@ -21,6 +21,7 @@ class UploadToken extends Model
         'id_token',
         'callback_url',
         'validation_rules',
+        'valid_until',
         'user_id',
     ];
 

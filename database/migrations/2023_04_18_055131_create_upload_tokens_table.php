@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('id_token')->nullable();
             $table->string('callback_url')->nullable();
             $table->string('validation_rules')->nullable();
+            $table->dateTime('valid_until');
             $table->foreignId('user_id')->constrained();
             $table->timestamps();
         });
