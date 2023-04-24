@@ -43,7 +43,14 @@ class ImageController extends Controller
     public function receiveFile(UploadRequest $request): JsonResponse
     {
         // Confirm upload token exists and is still valid.
-        $uploadToken = UploadToken::whereToken($request->input('upload_token'))->firstOrFail();
+        $uploadToken = UploadToken::whereToken($request->input('upload_token'))->first();
+        if (!$uploadToken) {
+            return response()->json([
+                'success' => false,
+                'response' => 'The upload token is not valid.',
+            ], 401);
+        }
+
         if (Carbon::now()->isAfter($uploadToken->valid_until)) {
             $uploadToken->delete();
 
@@ -93,9 +100,14 @@ class ImageController extends Controller
             sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),
         ]]);
 
-        if ($validator->fails()) {
-            File::delete($imageFile);
-        }
+        $failed = $validator->fails();
+
+        $validator->after(function () use ($imageFile, $failed, $uploadToken) {
+            if ($failed) {
+                File::delete($imageFile);
+                $uploadToken->delete();
+            }
+        });
 
         $validator->validate();
 

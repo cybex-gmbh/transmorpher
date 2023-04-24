@@ -34,7 +34,14 @@ class VideoController extends Controller
     public function receiveFile(UploadRequest $request): JsonResponse
     {
         // Confirm upload token exists and is still valid.
-        $uploadToken = UploadToken::whereToken($request->input('upload_token'))->firstOrFail();
+        $uploadToken = UploadToken::whereToken($request->input('upload_token'))->first();
+        if (!$uploadToken) {
+            return response()->json([
+                'success' => false,
+                'response' => 'The upload token is not valid.',
+            ], 401);
+        }
+
         if (Carbon::now()->isAfter($uploadToken->valid_until)) {
             $uploadToken->delete();
 
@@ -91,10 +98,14 @@ class VideoController extends Controller
             'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4',
         ]]);
 
-        if ($validator->fails()) {
-            $uploadToken->delete();
-            File::delete($videoFile);
-        }
+        $failed = $validator->fails();
+
+        $validator->after(function () use ($videoFile, $failed, $uploadToken) {
+            if ($failed) {
+                File::delete($videoFile);
+                $uploadToken->delete();
+            }
+        });
 
         $validator->validate();
 
