@@ -124,8 +124,9 @@ class VideoController extends Controller
             }
         }
 
-        // Delete chunk file.
+        // Delete chunk file and token.
         File::delete($videoFile);
+        $uploadToken->delete();
 
         return response()->json([
             'success' => $success ?? true,

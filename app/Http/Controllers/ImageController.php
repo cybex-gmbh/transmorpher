@@ -130,8 +130,9 @@ class ImageController extends Controller
             $versionNumber -= 1;
         }
 
-        // Delete chunk file.
+        // Delete chunk file and token.
         File::delete($imageFile);
+        $uploadToken->delete();
 
         // Todo: to ensure that failed uploads don't pollute the image derivative cache, we would need a ready flag that is set to true when CDN is invalidated.
 
