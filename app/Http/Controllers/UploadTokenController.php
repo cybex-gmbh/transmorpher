@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadTokenRequest;
 use App\Http\Requests\VideoUploadTokenRequest;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class UploadTokenController extends Controller
 {
@@ -41,7 +41,8 @@ class UploadTokenController extends Controller
             'identifier' => $request->input('identifier'),
             'id_token' => $request->input('id_token') ?? null,
             'callback_url' => $request->input('callback_url') ?? null,
-            'validation_rules' => $request->input('validation_rules') ?? null
+            'validation_rules' => $request->input('validation_rules') ?? null,
+            'valid_until' => Carbon::now()->subSeconds(1)
         ]);
 
         return response()->json([

@@ -35,8 +35,8 @@ Route::middleware('auth:sanctum')->group(
 
 Route::middleware(['throttle:none'])->group(
     function() {
-        Route::post('/image/upload', [ImageController::class, 'put']);
-        Route::post('/video/upload', [VideoController::class, 'put']);
+        Route::post('/image/upload', [ImageController::class, 'receiveFile']);
+        Route::post('/video/upload', [VideoController::class, 'receiveFile']);
     }
 );
 

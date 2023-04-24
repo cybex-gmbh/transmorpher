@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
-use App\Http\Requests\VideoUploadRequest;
+use App\Http\Requests\UploadRequest;
 use App\Models\UploadToken;
+use Carbon\Carbon;
 use File;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
@@ -23,15 +24,26 @@ class VideoController extends Controller
     /**
      * Handles incoming image upload requests.
      *
-     * @param VideoUploadRequest $request
+     * @param UploadRequest $request
      *
      * @return JsonResponse
      * @throws UploadMissingFileException
      * @throws ValidationException
      * @throws UploadFailedException
      */
-    public function put(VideoUploadRequest $request): JsonResponse
+    public function receiveFile(UploadRequest $request): JsonResponse
     {
+        // Confirm upload token exists and is still valid.
+        $uploadToken = UploadToken::whereToken($request->input('upload_token'))->firstOrFail();
+        if (Carbon::now()->isAfter($uploadToken->valid_until)) {
+            $uploadToken->delete();
+
+            return response()->json([
+                'success' => false,
+                'response' => 'The upload token is no longer valid.',
+            ], 410);
+        }
+
         // create the file receiver
         $receiver = new FileReceiver($request->file('video'), $request, HandlerFactory::classFromRequest($request));
 
@@ -47,7 +59,7 @@ class VideoController extends Controller
         if ($save->isFinished()) {
             // save the file and return any response you need, current example uses `move` function. If you are
             // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
-            return $this->saveFile($save->getFile(), $request);
+            return $this->saveFile($save->getFile(), $uploadToken);
         }
 
         // we are in chunk mode, lets send the current progress
@@ -60,11 +72,12 @@ class VideoController extends Controller
 
     /**
      * @param UploadedFile $videoFile
-     * @param VideoUploadRequest $request
+     * @param UploadToken  $uploadToken
+     *
      * @return JsonResponse
      * @throws ValidationException
      */
-    public function saveFile(UploadedFile $videoFile, VideoUploadRequest $request): JsonResponse
+    public function saveFile(UploadedFile $videoFile, UploadToken $uploadToken): JsonResponse
     {
         /** Mimetypes to mimes:
          *      video/x-msvideo    => avi
@@ -79,13 +92,12 @@ class VideoController extends Controller
         ]]);
 
         if ($validator->fails()) {
-            UploadToken::whereToken($request->input('upload_token'))->firstOrFail()->delete();
+            $uploadToken->delete();
             File::delete($videoFile);
         }
 
         $validator->validate();
 
-        $uploadToken = UploadToken::whereToken($request->input('upload_token'))->firstOrFail();
         $user = $uploadToken->User;
         $identifier = $uploadToken->identifier;
         $media = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::VIDEO]);
