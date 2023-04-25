@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use App\Helpers\ChunkedUpload;
 use App\Http\Requests\UploadRequest;
 use App\Models\UploadToken;
-use Carbon\Carbon;
 use File;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
@@ -14,8 +14,6 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
-use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
-use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 use Transcode;
 use Validator;
 
@@ -35,46 +33,15 @@ class VideoController extends Controller
     {
         // Confirm upload token exists and is still valid.
         $uploadToken = UploadToken::whereToken($request->input('upload_token'))->first();
-        if (!$uploadToken) {
-            return response()->json([
-                'success' => false,
-                'response' => 'The upload token is not valid.',
-            ], 401);
+        if (($response = ChunkedUpload::checkToken($uploadToken)) !== true) {
+            return $response;
         }
 
-        if (Carbon::now()->isAfter($uploadToken->valid_until)) {
-            $uploadToken->delete();
-
-            return response()->json([
-                'success' => false,
-                'response' => 'The upload token is no longer valid.',
-            ], 410);
+        if (($response = ChunkedUpload::receive($request, MediaType::VIDEO)) instanceof JsonResponse) {
+            return $response;
         }
 
-        // create the file receiver
-        $receiver = new FileReceiver($request->file('video'), $request, HandlerFactory::classFromRequest($request));
-
-        // check if the upload is success, throw exception or return response you need
-        if ($receiver->isUploaded() === false) {
-            throw new UploadMissingFileException();
-        }
-
-        // receive the file
-        $save = $receiver->receive();
-
-        // check if the upload has finished (in chunk mode it will send smaller files)
-        if ($save->isFinished()) {
-            // save the file and return any response you need, current example uses `move` function. If you are
-            // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
-            return $this->saveFile($save->getFile(), $uploadToken);
-        }
-
-        // we are in chunk mode, lets send the current progress
-        $handler = $save->handler();
-
-        return response()->json([
-            "done" => $handler->getPercentageDone(),
-        ]);
+        return $this->saveFile($response, $uploadToken);
     }
 
     /**
