@@ -34,6 +34,9 @@ return [
         Gifsicle::class => [
             '-b', // required parameter for this package
             '-O3', // this produces the slowest but best results
+            '--no-comments', // remove metadata
+            '--no-names',
+            '--no-extensions'
         ],
 
         Cwebp::class => [
