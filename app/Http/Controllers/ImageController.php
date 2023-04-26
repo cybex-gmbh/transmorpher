@@ -208,7 +208,7 @@ class ImageController extends Controller
      * Creates a temporary file since image optimizers only work locally.
      *
      * @param $derivative
-     *
+     * @param int|null $quality
      * @return false|string
      */
     protected function optimizeDerivative($derivative, int $quality = null): string|false
