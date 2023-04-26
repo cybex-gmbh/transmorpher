@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use App\Enums\Transformation;
 use App\Helpers\ChunkedUpload;
 use App\Http\Requests\UploadRequest;
 use App\Models\UploadToken;
@@ -21,6 +22,9 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
+use Spatie\ImageOptimizer\OptimizerChain;
+use Spatie\ImageOptimizer\Optimizers\Optipng;
+use Spatie\ImageOptimizer\Optimizers\Pngquant;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 use Throwable;
 use Transform;
@@ -55,7 +59,7 @@ class ImageController extends Controller
 
     /**
      * @param UploadedFile $imageFile
-     * @param UploadToken  $uploadToken
+     * @param UploadToken $uploadToken
      *
      * @return JsonResponse
      * @throws ValidationException
@@ -148,7 +152,7 @@ class ImageController extends Controller
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);
-            $derivative = $this->optimizeDerivative($derivative);
+            $derivative = $this->optimizeDerivative($derivative, $transformationsArray[Transformation::QUALITY->value] ?? null);
 
             if (config('transmorpher.store_derivatives')) {
                 $imageDerivativesDisk->put($derivativePath, $derivative);
@@ -207,14 +211,23 @@ class ImageController extends Controller
      *
      * @return false|string
      */
-    protected function optimizeDerivative($derivative): string|false
+    protected function optimizeDerivative($derivative, int $quality = null): string|false
     {
         // Temporary file is needed since optimizers only work locally.
         $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
         file_put_contents($tempFile, $derivative);
 
-        // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
-        ImageOptimizer::optimize($tempFile);
+        if ($quality && mime_content_type($tempFile) === 'image/png') {
+            // Add pngquant quality option for pngs
+            $pngquant = config(sprintf('image-optimizer.optimizers.%s', Pngquant::class));
+            $pngquant[] = sprintf(' --quality %1$s-%1$s', $quality);
+            $optipng = config(sprintf('image-optimizer.optimizers.%s', Optipng::class));
+
+            (new OptimizerChain())->addOptimizer(new Pngquant($pngquant))->addOptimizer(new Optipng($optipng))->optimize($tempFile);
+        } else {
+            // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
+            ImageOptimizer::optimize($tempFile);
+        };
 
         $derivative = file_get_contents($tempFile);
         unlink($tempFile);
