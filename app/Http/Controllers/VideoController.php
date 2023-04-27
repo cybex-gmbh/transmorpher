@@ -23,20 +23,14 @@ class VideoController extends Controller
      * Handles incoming image upload requests.
      *
      * @param UploadRequest $request
-     *
+     * @param UploadToken $uploadToken
      * @return JsonResponse
+     * @throws UploadFailedException
      * @throws UploadMissingFileException
      * @throws ValidationException
-     * @throws UploadFailedException
      */
-    public function receiveFile(UploadRequest $request): JsonResponse
+    public function receiveFile(UploadRequest $request, UploadToken $uploadToken): JsonResponse
     {
-        // Confirm upload token exists and is still valid.
-        $uploadToken = UploadToken::whereToken($request->input('upload_token'))->first();
-        if (($response = ChunkedUpload::checkToken($uploadToken)) !== true) {
-            return $response;
-        }
-
         if (($response = ChunkedUpload::receive($request, MediaType::VIDEO)) instanceof JsonResponse) {
             return $response;
         }
