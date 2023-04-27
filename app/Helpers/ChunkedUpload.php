@@ -4,8 +4,6 @@ namespace App\Helpers;
 
 use App\Enums\MediaType;
 use App\Http\Requests\UploadRequest;
-use App\Models\UploadToken;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
@@ -45,26 +43,5 @@ class ChunkedUpload
             "done" => $handler->getPercentageDone(),
         ]);
 
-    }
-
-    public static function checkToken(?UploadToken $uploadToken): bool|JsonResponse
-    {
-        if (!$uploadToken) {
-            return response()->json([
-                'success' => false,
-                'response' => 'The upload token is not valid.',
-            ], 401);
-        }
-
-        if (Carbon::now()->isAfter($uploadToken->valid_until)) {
-            $uploadToken->delete();
-
-            return response()->json([
-                'success' => false,
-                'response' => 'The upload token is no longer valid.',
-            ], 410);
-        }
-
-        return true;
     }
 }
