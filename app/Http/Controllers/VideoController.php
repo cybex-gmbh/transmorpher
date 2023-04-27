@@ -15,7 +15,6 @@ use Illuminate\Validation\ValidationException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Transcode;
-use Validator;
 
 class VideoController extends Controller
 {
@@ -40,41 +39,21 @@ class VideoController extends Controller
 
     /**
      * @param UploadedFile $videoFile
-     * @param UploadToken  $uploadToken
+     * @param UploadToken $uploadToken
      *
      * @return JsonResponse
      * @throws ValidationException
      */
     public function saveFile(UploadedFile $videoFile, UploadToken $uploadToken): JsonResponse
     {
-        /** Mimetypes to mimes:
-         *      video/x-msvideo    => avi
-         *      video/mpeg      => mpeg mpg mpe m1v m2v
-         *      video/ogg        => ogv
-         *      video/webm        => webm
-         *      video/mp4        => mp4 mp4v mpg4
-         */
-        $validator = Validator::make(['video' => $videoFile], ['video' => [
-            'required',
-            'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4',
-        ]]);
-
-        $failed = $validator->fails();
-
-        $validator->after(function () use ($videoFile, $failed, $uploadToken) {
-            if ($failed) {
-                File::delete($videoFile);
-                $uploadToken->delete();
-            }
-        });
-
-        $validator->validate();
-
         $user = $uploadToken->User;
         $identifier = $uploadToken->identifier;
-        $media = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::VIDEO]);
-        $versionNumber = $media->Versions()->max('number') + 1;
 
+        $media = $user->Media()->whereIdentifier($identifier)->firstOrNew(['identifier' => $identifier, 'type' => MediaType::VIDEO]);
+        $media->validateUploadFile($videoFile, 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4', $uploadToken);
+        $media->save();
+
+        $versionNumber = $media->Versions()->max('number') + 1;
         $fileName = FilePathHelper::createOriginalFileName($versionNumber, $videoFile->getClientOriginalName());
         $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();

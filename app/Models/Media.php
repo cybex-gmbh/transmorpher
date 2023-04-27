@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use App\Enums\MediaType;
+use File;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Validation\ValidationException;
+use Validator;
 
 /**
  * App\Models\Media
@@ -69,5 +73,42 @@ class Media extends Model
     public function Versions(): HasMany
     {
         return $this->hasMany(Version::class);
+    }
+
+    /**
+     * Validates an uploaded file after the chunks have been combined successfully.
+     * This has to be done after all chunks have been received, because the mime type of the received chunks is 'application/octet-stream'.
+     *
+     * For videos:
+     *  Mimetypes to mimes:
+     *      video/x-msvideo    => avi
+     *      video/mpeg      => mpeg mpg mpe m1v m2v
+     *      video/ogg        => ogv
+     *      video/webm        => webm
+     *      video/mp4        => mp4 mp4v mpg4
+     *
+     * @param UploadedFile $file
+     * @param string $mimeTypes
+     * @param UploadToken $uploadToken
+     * @return void
+     * @throws ValidationException
+     */
+    public function validateUploadFile(UploadedFile $file, string $mimeTypes, UploadToken $uploadToken): void
+    {
+        $validator = Validator::make(['file' => $file], ['file' => [
+            'required',
+            $mimeTypes,
+        ]]);
+
+        $validator->validate();
+
+        $failed = $validator->fails();
+
+        $validator->after(function () use ($file, $failed, $uploadToken) {
+            if ($failed) {
+                File::delete($file);
+                $uploadToken->delete();
+            }
+        });
     }
 }

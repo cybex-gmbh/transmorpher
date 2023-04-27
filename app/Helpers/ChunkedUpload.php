@@ -2,7 +2,6 @@
 
 namespace App\Helpers;
 
-use App\Enums\MediaType;
 use App\Http\Requests\UploadRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
@@ -17,10 +16,10 @@ class ChunkedUpload
      * @throws UploadMissingFileException
      * @throws UploadFailedException
      */
-    public static function receive(UploadRequest $request, MediaType $mediaType): JsonResponse|UploadedFile
+    public static function receive(UploadRequest $request): JsonResponse|UploadedFile
     {
         // create the file receiver
-        $receiver = new FileReceiver($request->file($mediaType->value), $request, HandlerFactory::classFromRequest($request));
+        $receiver = new FileReceiver($request->file('file'), $request, HandlerFactory::classFromRequest($request));
 
         // check if the upload is success, throw exception or return response you need
         if ($receiver->isUploaded() === false) {

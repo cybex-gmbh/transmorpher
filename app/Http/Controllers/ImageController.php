@@ -24,7 +24,6 @@ use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 use Throwable;
 use Transform;
-use Validator;
 
 class ImageController extends Controller
 {
@@ -40,7 +39,7 @@ class ImageController extends Controller
      */
     public function receiveFile(UploadRequest $request, UploadToken $uploadToken): JsonResponse
     {
-        if (($response = ChunkedUpload::receive($request, MediaType::IMAGE)) instanceof JsonResponse) {
+        if (($response = ChunkedUpload::receive($request)) instanceof JsonResponse) {
             return $response;
         }
 
@@ -49,34 +48,21 @@ class ImageController extends Controller
 
     /**
      * @param UploadedFile $imageFile
-     * @param UploadToken  $uploadToken
+     * @param UploadToken $uploadToken
      *
      * @return JsonResponse
      * @throws ValidationException
      */
     public function saveFile(UploadedFile $imageFile, UploadToken $uploadToken): JsonResponse
     {
-        $validator = Validator::make(['image' => $imageFile], ['image' => [
-            'required',
-            sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),
-        ]]);
-
-        $failed = $validator->fails();
-
-        $validator->after(function () use ($imageFile, $failed, $uploadToken) {
-            if ($failed) {
-                File::delete($imageFile);
-                $uploadToken->delete();
-            }
-        });
-
-        $validator->validate();
-
         $user = $uploadToken->User;
         $identifier = $uploadToken->identifier;
-        $media = $user->Media()->whereIdentifier($identifier)->firstOrCreate(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
-        $versionNumber = $media->Versions()->max('number') + 1;
 
+        $media = $user->Media()->whereIdentifier($identifier)->firstOrNew(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
+        $media->validateUploadFile($imageFile, sprintf('mimes:%s', implode(',', ImageFormat::getFormats())), $uploadToken);
+        $media->save();
+
+        $versionNumber = $media->Versions()->max('number') + 1;
         $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
         $fileName = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
