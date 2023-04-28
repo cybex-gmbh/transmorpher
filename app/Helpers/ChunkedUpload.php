@@ -41,6 +41,5 @@ class ChunkedUpload
         return response()->json([
             "done" => $handler->getPercentageDone(),
         ]);
-
     }
 }
