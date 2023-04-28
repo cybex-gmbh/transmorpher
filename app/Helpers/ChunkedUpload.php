@@ -18,28 +18,23 @@ class ChunkedUpload
      */
     public static function receive(UploadRequest $request): JsonResponse|UploadedFile
     {
-        // create the file receiver
         $receiver = new FileReceiver($request->file('file'), $request, HandlerFactory::classFromRequest($request));
 
-        // check if the upload is success, throw exception or return response you need
+        // Check if the chunk is successfully uploaded.
         if ($receiver->isUploaded() === false) {
             throw new UploadMissingFileException();
         }
 
         $save = $receiver->receive();
 
-        // check if the upload has finished (in chunk mode it will send smaller files)
+        // Check if the full upload has finished and if so, return the file.
         if ($save->isFinished()) {
-            // save the file and return any response you need, current example uses `move` function. If you are
-            // not using move, you need to manually delete the file by unlink($save->getFile()->getPathname())
             return $save->getFile();
         }
 
-        // we are in chunk mode, lets send the current progress
-        $handler = $save->handler();
-
+        // Full file is not yet uploaded, send the current progress.
         return response()->json([
-            "done" => $handler->getPercentageDone(),
+            "done" => $save->handler()->getPercentageDone(),
         ]);
     }
 }
