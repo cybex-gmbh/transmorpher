@@ -6,7 +6,7 @@ use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Helpers\ChunkedUpload;
 use App\Http\Requests\UploadRequest;
-use App\Models\UploadToken;
+use App\Models\UploadSlot;
 use File;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
@@ -22,35 +22,36 @@ class VideoController extends Controller
      * Handles incoming image upload requests.
      *
      * @param UploadRequest $request
-     * @param UploadToken $uploadToken
+     * @param UploadSlot    $uploadSlot
+     *
      * @return JsonResponse
      * @throws UploadFailedException
      * @throws UploadMissingFileException
      * @throws ValidationException
      */
-    public function receiveFile(UploadRequest $request, UploadToken $uploadToken): JsonResponse
+    public function receiveFile(UploadRequest $request, UploadSlot $uploadSlot): JsonResponse
     {
-        if (($response = ChunkedUpload::receive($request, MediaType::VIDEO)) instanceof JsonResponse) {
+        if (($response = ChunkedUpload::receive($request)) instanceof JsonResponse) {
             return $response;
         }
 
-        return $this->saveFile($response, $uploadToken);
+        return $this->saveFile($response, $uploadSlot);
     }
 
     /**
      * @param UploadedFile $videoFile
-     * @param UploadToken $uploadToken
+     * @param UploadSlot   $uploadSlot
      *
      * @return JsonResponse
      * @throws ValidationException
      */
-    public function saveFile(UploadedFile $videoFile, UploadToken $uploadToken): JsonResponse
+    public function saveFile(UploadedFile $videoFile, UploadSlot $uploadSlot): JsonResponse
     {
-        $user = $uploadToken->User;
-        $identifier = $uploadToken->identifier;
+        $user = $uploadSlot->User;
+        $identifier = $uploadSlot->identifier;
 
         $media = $user->Media()->whereIdentifier($identifier)->firstOrNew(['identifier' => $identifier, 'type' => MediaType::VIDEO]);
-        $media->validateUploadFile($videoFile, 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4', $uploadToken);
+        $media->validateUploadFile($videoFile, 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4', $uploadSlot);
         $media->save();
 
         $versionNumber = $media->Versions()->max('number') + 1;
@@ -64,7 +65,7 @@ class VideoController extends Controller
             $versionNumber -= 1;
         } else {
             $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
-            $success = Transcode::createJob($filePath, $media, $version, $uploadToken->callback_url, $uploadToken->callback_token);
+            $success = Transcode::createJob($filePath, $media, $version, $uploadSlot->callback_url, $uploadSlot->callback_token);
 
             if (!$success) {
                 $originalsDisk->delete($filePath);
@@ -77,7 +78,7 @@ class VideoController extends Controller
 
         // Delete chunk file and token.
         File::delete($videoFile);
-        $uploadToken->delete();
+        $uploadSlot->delete();
 
         return response()->json([
             'success' => $success ?? true,

@@ -37,8 +37,8 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UploadToken> $UploadTokens
- * @property-read int|null $upload_tokens_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UploadSlot> $UploadSlots
+ * @property-read int|null $upload_slots_count
  * @mixin \Eloquent
  */
 class User extends Authenticatable
@@ -86,9 +86,9 @@ class User extends Authenticatable
     /**
      * Returns upload tokens for the user.
      */
-    public function UploadTokens(): HasMany
+    public function UploadSlots(): HasMany
     {
-        return $this->hasMany(UploadToken::class);
+        return $this->hasMany(UploadSlot::class);
     }
 
     /**

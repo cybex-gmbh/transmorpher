@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\UploadToken
+ * App\Models\UploadSlot
  *
  * @property int $id
  * @property string $token
@@ -22,23 +22,24 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $User
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken query()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereCallbackUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereIdToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereIdentifier($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereValidUntil($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereValidationRules($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot query()
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereCallbackUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereIdToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereIdentifier($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereValidUntil($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereValidationRules($value)
  * @property string|null $id_token
+ * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereCallbackToken($value)
  * @mixin \Eloquent
  */
-class UploadToken extends Model
+class UploadSlot extends Model
 {
     use HasFactory;
 

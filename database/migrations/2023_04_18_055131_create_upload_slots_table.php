@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('upload_tokens', function (Blueprint $table) {
+        Schema::create('upload_slots', function (Blueprint $table) {
             $table->id();
             $table->string('token')->unique();
             $table->string('identifier');

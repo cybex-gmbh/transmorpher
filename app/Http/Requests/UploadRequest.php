@@ -24,12 +24,12 @@ class UploadRequest extends FormRequest
      */
     public function rules(): array
     {
-        return ['upload_token' => [
+        return ['upload_slot' => [
             function (string $attribute, mixed $value, Closure $fail) {
-                $uploadToken = $this->route('upload_token');
+                $uploadSlot = $this->route('upload_slot');
 
-                if (!$uploadToken->isValid) {
-                    $uploadToken->delete();
+                if (!$uploadSlot->isValid) {
+                    $uploadSlot->delete();
                     $fail("The upload token is no longer valid");
                 }
             },
@@ -41,6 +41,6 @@ class UploadRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $this->merge(['upload_token' => $this->upload_token]);
+        $this->merge(['upload_slot' => $this->upload_slot]);
     }
 }

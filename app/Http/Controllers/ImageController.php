@@ -7,7 +7,7 @@ use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Helpers\ChunkedUpload;
 use App\Http\Requests\UploadRequest;
-use App\Models\UploadToken;
+use App\Models\UploadSlot;
 use App\Models\User;
 use CdnHelper;
 use File;
@@ -31,35 +31,36 @@ class ImageController extends Controller
      * Handles incoming image upload requests.
      *
      * @param UploadRequest $request
-     * @param UploadToken $uploadToken
+     * @param UploadSlot    $uploadSlot
+     *
      * @return JsonResponse
      * @throws UploadFailedException
      * @throws UploadMissingFileException
      * @throws ValidationException
      */
-    public function receiveFile(UploadRequest $request, UploadToken $uploadToken): JsonResponse
+    public function receiveFile(UploadRequest $request, UploadSlot $uploadSlot): JsonResponse
     {
         if (($response = ChunkedUpload::receive($request)) instanceof JsonResponse) {
             return $response;
         }
 
-        return $this->saveFile($response, $uploadToken);
+        return $this->saveFile($response, $uploadSlot);
     }
 
     /**
      * @param UploadedFile $imageFile
-     * @param UploadToken $uploadToken
+     * @param UploadSlot   $uploadSlot
      *
      * @return JsonResponse
      * @throws ValidationException
      */
-    public function saveFile(UploadedFile $imageFile, UploadToken $uploadToken): JsonResponse
+    public function saveFile(UploadedFile $imageFile, UploadSlot $uploadSlot): JsonResponse
     {
-        $user = $uploadToken->User;
-        $identifier = $uploadToken->identifier;
+        $user = $uploadSlot->User;
+        $identifier = $uploadSlot->identifier;
 
         $media = $user->Media()->whereIdentifier($identifier)->firstOrNew(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
-        $media->validateUploadFile($imageFile, sprintf('mimes:%s', implode(',', ImageFormat::getFormats())), $uploadToken);
+        $media->validateUploadFile($imageFile, sprintf('mimes:%s', implode(',', ImageFormat::getFormats())), $uploadSlot);
         $media->save();
 
         $versionNumber = $media->Versions()->max('number') + 1;
@@ -91,7 +92,7 @@ class ImageController extends Controller
 
         // Delete chunk file and token.
         File::delete($imageFile);
-        $uploadToken->delete();
+        $uploadSlot->delete();
 
         // Todo: to ensure that failed uploads don't pollute the image derivative cache, we would need a ready flag that is set to true when CDN is invalidated.
 

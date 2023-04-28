@@ -88,13 +88,13 @@ class Media extends Model
      *      video/mp4 => mp4 mp4v mpg4
      *
      * @param UploadedFile $file
-     * @param string $mimeTypes
-     * @param UploadToken $uploadToken
+     * @param string       $mimeTypes
+     * @param UploadSlot   $uploadSlot
      *
      * @return void
      * @throws ValidationException
      */
-    public function validateUploadFile(UploadedFile $file, string $mimeTypes, UploadToken $uploadToken): void
+    public function validateUploadFile(UploadedFile $file, string $mimeTypes, UploadSlot $uploadSlot): void
     {
         $validator = Validator::make(['file' => $file], ['file' => [
             'required',
@@ -105,10 +105,10 @@ class Media extends Model
 
         $failed = $validator->fails();
 
-        $validator->after(function () use ($file, $failed, $uploadToken) {
+        $validator->after(function () use ($file, $failed, $uploadSlot) {
             if ($failed) {
                 File::delete($file);
-                $uploadToken->delete();
+                $uploadSlot->delete();
             }
         });
     }
