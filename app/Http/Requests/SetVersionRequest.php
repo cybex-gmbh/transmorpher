@@ -24,7 +24,7 @@ class SetVersionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_token' => ['nullable', 'string'],
+            'callback_token' => ['nullable', 'string'],
             'callback_url' => ['nullable', 'string', 'url']
         ];
     }

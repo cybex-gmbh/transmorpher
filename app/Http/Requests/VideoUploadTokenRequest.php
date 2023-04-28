@@ -25,7 +25,7 @@ class VideoUploadTokenRequest extends FormRequest
     {
         return [
             'identifier' => ['required', 'string'],
-            'id_token' => ['required', 'string'],
+            'callback_token' => ['required', 'string'],
             'callback_url' => ['required', 'string', 'url']
         ];
     }

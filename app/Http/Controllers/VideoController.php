@@ -64,7 +64,7 @@ class VideoController extends Controller
             $versionNumber -= 1;
         } else {
             $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
-            $success = Transcode::createJob($filePath, $media, $version, $uploadToken->callback_url, $uploadToken->id_token);
+            $success = Transcode::createJob($filePath, $media, $version, $uploadToken->callback_url, $uploadToken->callback_token);
 
             if (!$success) {
                 $originalsDisk->delete($filePath);

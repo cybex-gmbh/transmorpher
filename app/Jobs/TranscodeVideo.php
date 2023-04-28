@@ -62,7 +62,7 @@ class TranscodeVideo implements ShouldQueue
         protected Media   $media,
         protected Version $version,
         protected string  $callbackUrl,
-        protected string  $idToken,
+        protected string  $callbackToken,
         protected ?int    $oldVersionNumber = null,
         protected ?bool   $wasProcessed     = null
     )
@@ -85,7 +85,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->transcodeVideo();
 
-        Transcode::callback(true, $this->callbackUrl, $this->idToken, $this->media->User, $this->media->identifier, $this->version->number);
+        Transcode::callback(true, $this->callbackUrl, $this->callbackToken, $this->media->User, $this->media->identifier, $this->version->number);
     }
 
     /**
@@ -114,7 +114,7 @@ class TranscodeVideo implements ShouldQueue
             $versionNumber = $this->oldVersionNumber;
         }
 
-        Transcode::callback(false, $this->callbackUrl, $this->idToken, $this->media->User, $this->media->identifier, $versionNumber);
+        Transcode::callback(false, $this->callbackUrl, $this->callbackToken, $this->media->User, $this->media->identifier, $versionNumber);
     }
 
     /**

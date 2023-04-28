@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property string $token
  * @property string $identifier
- * @property string|null $id_token
+ * @property string|null $callback_token
  * @property string|null $callback_url
  * @property string|null $validation_rules
  * @property string $valid_until
@@ -35,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereValidUntil($value)
  * @method static \Illuminate\Database\Eloquent\Builder|UploadToken whereValidationRules($value)
+ * @property string|null $id_token
  * @mixin \Eloquent
  */
 class UploadToken extends Model
@@ -49,7 +50,7 @@ class UploadToken extends Model
     protected $fillable = [
         'token',
         'identifier',
-        'id_token',
+        'callback_token',
         'callback_url',
         'validation_rules',
         'valid_until',

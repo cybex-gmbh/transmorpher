@@ -39,7 +39,7 @@ class UploadTokenController extends Controller
         $request->user()->UploadTokens()->create([
             'token' => $token,
             'identifier' => $request->input('identifier'),
-            'id_token' => $request->input('id_token') ?? null,
+            'callback_token' => $request->input('callback_token') ?? null,
             'callback_url' => $request->input('callback_url') ?? null,
             'validation_rules' => $request->input('validation_rules') ?? null,
             'valid_until' => Carbon::now()->addHours(24)

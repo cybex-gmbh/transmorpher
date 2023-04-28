@@ -76,7 +76,7 @@ class VersionController extends Controller
         if ($media->type === MediaType::VIDEO) {
             [$success, $response] = $this->setVideoVersion(
                 $request->get('callback_url'),
-                $request->get('id_token'),
+                $request->get('callback_token'),
                 $user,
                 $identifier,
                 $media,
@@ -163,7 +163,7 @@ class VersionController extends Controller
      * Handles the dispatching of a new transcoding job when setting a video version.
      *
      * @param string  $callbackUrl
-     * @param string  $idToken
+     * @param string  $callbackToken
      * @param mixed   $user
      * @param string  $identifier
      * @param Media   $media
@@ -173,11 +173,11 @@ class VersionController extends Controller
      *
      * @return array
      */
-    protected function setVideoVersion(string $callbackUrl, string $idToken, User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed): array
+    protected function setVideoVersion(string $callbackUrl, string $callbackToken, User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed): array
     {
-        if ($callbackUrl && $idToken) {
+        if ($callbackUrl && $callbackToken) {
             $filePath = FilePathHelper::toOriginalFile($user, $identifier, $version->number);
-            $success  = Transcode::createJobForVersionUpdate($filePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed);
+            $success  = Transcode::createJobForVersionUpdate($filePath, $media, $version, $callbackUrl, $callbackToken, $oldVersionNumber, $wasProcessed);
             $response = $success ? 'Successfully set video version, transcoding job has been dispatched.' : 'Could not create transcoding job';
         } else {
             $version->update([

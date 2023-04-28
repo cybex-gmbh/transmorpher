@@ -21,11 +21,11 @@ class Transcode implements TranscodeInterface
      * @param Media   $media
      * @param Version $version
      * @param string  $callbackUrl
-     * @param string  $idToken
+     * @param string  $callbackToken
      *
      * @return bool
      */
-    public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken): bool
+    public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $callbackToken): bool
     {
         /*
         * When using SQS FIFO:
@@ -34,7 +34,7 @@ class Transcode implements TranscodeInterface
         * See SqsFifoQueue class.
         */
         try {
-            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken);
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $callbackToken);
         } catch (Exception) {
             return false;
         }
@@ -49,16 +49,16 @@ class Transcode implements TranscodeInterface
      * @param Media   $media
      * @param Version $version
      * @param string  $callbackUrl
-     * @param string  $idToken
+     * @param string  $callbackToken
      * @param int     $oldVersionNumber
      * @param bool    $wasProcessed
      *
      * @return bool
      */
-    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, int $oldVersionNumber, bool $wasProcessed): bool
+    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $callbackToken, int $oldVersionNumber, bool $wasProcessed): bool
     {
         try {
-            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed);
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $callbackToken, $oldVersionNumber, $wasProcessed);
         } catch (Exception) {
             return false;
         }
@@ -69,24 +69,24 @@ class Transcode implements TranscodeInterface
     /**
      * Inform client package about the transcoding result.
      *
-     * @param bool   $success
+     * @param bool $success
      * @param string $callbackUrl
-     * @param string $idToken
-     * @param User   $user
+     * @param string $callbackToken
+     * @param User $user
      * @param string $identifier
-     * @param int    $versionNumber
+     * @param int $versionNumber
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $idToken, User $user, string $identifier, int $versionNumber): void
+    public function callback(bool $success, string $callbackUrl, string $callbackToken, User $user, string $identifier, int $versionNumber): void
     {
         $response = [
-            'success'     => $success,
-            'response'    => $success ? 'Successfully transcoded video.' : 'Video transcoding failed.',
-            'identifier'  => $identifier,
-            'version'     => $versionNumber,
-            'client'      => $user->name,
-            'id_token'    => $idToken,
+            'success' => $success,
+            'response' => $success ? 'Successfully transcoded video.' : 'Video transcoding failed.',
+            'identifier' => $identifier,
+            'version' => $versionNumber,
+            'client' => $user->name,
+            'callback_token' => $callbackToken,
             'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($user, $identifier)),
         ];
 
