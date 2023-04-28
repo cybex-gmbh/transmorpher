@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -57,6 +58,16 @@ class UploadSlot extends Model
         'valid_until',
         'user_id',
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope('valid', function (Builder $builder) {
+            $builder->where('valid_until', '>', Carbon::now());
+        });
+    }
 
     /**
      * Returns the user that owns the upload token.

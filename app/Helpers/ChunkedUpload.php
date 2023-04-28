@@ -2,8 +2,8 @@
 
 namespace App\Helpers;
 
-use App\Http\Requests\UploadRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
@@ -13,10 +13,13 @@ use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 class ChunkedUpload
 {
     /**
-     * @throws UploadMissingFileException
+     * @param Request $request
+     *
+     * @return JsonResponse|UploadedFile
      * @throws UploadFailedException
+     * @throws UploadMissingFileException
      */
-    public static function receive(UploadRequest $request): JsonResponse|UploadedFile
+    public static function receive(Request $request): JsonResponse|UploadedFile
     {
         $receiver = new FileReceiver($request->file('file'), $request, HandlerFactory::classFromRequest($request));
 

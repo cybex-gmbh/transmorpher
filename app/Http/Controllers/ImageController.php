@@ -6,7 +6,6 @@ use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Helpers\ChunkedUpload;
-use App\Http\Requests\UploadRequest;
 use App\Models\UploadSlot;
 use App\Models\User;
 use CdnHelper;
@@ -30,15 +29,15 @@ class ImageController extends Controller
     /**
      * Handles incoming image upload requests.
      *
-     * @param UploadRequest $request
-     * @param UploadSlot    $uploadSlot
+     * @param Request    $request
+     * @param UploadSlot $uploadSlot
      *
      * @return JsonResponse
      * @throws UploadFailedException
      * @throws UploadMissingFileException
      * @throws ValidationException
      */
-    public function receiveFile(UploadRequest $request, UploadSlot $uploadSlot): JsonResponse
+    public function receiveFile(Request $request, UploadSlot $uploadSlot): JsonResponse
     {
         if (($response = ChunkedUpload::receive($request)) instanceof JsonResponse) {
             return $response;

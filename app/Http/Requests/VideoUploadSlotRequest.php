@@ -13,7 +13,7 @@ class VideoUploadSlotRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->tokenCan('transmorpher:get-video-upload-token');
+        return $this->user()->tokenCan('transmorpher:reserve-video-upload-slot');
     }
 
     /**
