@@ -54,7 +54,7 @@ class Handler extends ExceptionHandler
     public function render($request, Throwable $e): \Illuminate\Http\Response|JsonResponse|Response
     {
         if ($e instanceof ModelNotFoundException && $request->wantsJson()) {
-            return response()->json(['message' => 'Requested entity couldn\'t be found.'], 404);
+            return response()->json(['message' => sprintf('Requested %s couldn\'t be found.', class_basename($e->getModel()))], 404);
         }
 
         return parent::render($request, $e);
