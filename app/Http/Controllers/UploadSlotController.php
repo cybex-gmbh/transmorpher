@@ -17,7 +17,7 @@ class UploadSlotController extends Controller
      *
      * @return JsonResponse
      */
-    public function getImageToken(ImageUploadSlotRequest $request): JsonResponse
+    public function reserveImageUploadSlot(ImageUploadSlotRequest $request): JsonResponse
     {
         return $this->createUploadSlot($request);
     }
@@ -29,7 +29,7 @@ class UploadSlotController extends Controller
      *
      * @return JsonResponse
      */
-    public function getVideoToken(VideoUploadSlotRequest $request): JsonResponse
+    public function reserveVideoUploadSlot(VideoUploadSlotRequest $request): JsonResponse
     {
         return $this->createUploadSlot($request);
     }

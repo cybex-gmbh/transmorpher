@@ -26,10 +26,10 @@ Route::middleware('auth:sanctum')->group(
 
         // Image
         Route::get('/image/{identifier}/version/{versionNumber}', [ImageController::class, 'getVersion']);
-        Route::post('/image/token', [UploadSlotController::class, 'getImageToken']);
+        Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
 
         // Video
-        Route::post('/video/token', [UploadSlotController::class, 'getVideoToken']);
+        Route::post('/video/reserveUploadSlot', [UploadSlotController::class, 'reserveVideoUploadSlot']);
     }
 );
 
