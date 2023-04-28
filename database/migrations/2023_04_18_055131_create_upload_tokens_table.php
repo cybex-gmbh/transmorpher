@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('token')->unique();
             $table->string('identifier');
-            $table->string('id_token')->nullable();
+            $table->string('callback_token')->nullable();
             $table->string('callback_url')->nullable();
             $table->string('validation_rules')->nullable();
             $table->dateTime('valid_until');
