@@ -38,7 +38,9 @@ class UploadSlotController extends Controller
     {
         $token = uniqid();
 
-        $request->user()->UploadSlots()->create([
+        $request->user()->UploadSlots()->updateOrCreate([
+            'identifier' => $request->input('identifier'),
+        ], [
             'token' => $token,
             'identifier' => $request->input('identifier'),
             'callback_token' => $request->input('callback_token') ?? null,
@@ -49,7 +51,7 @@ class UploadSlotController extends Controller
 
         return response()->json([
             'success' => true,
-            'response' => 'Successfully created upload token.',
+            'response' => 'Successfully created upload slot.',
             'identifier' => $request->input('identifier'),
             'upload_token' => $token
         ]);
