@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Models\UploadSlot;
 use App\Models\User;
 use FilePathHelper;
 use App\Helpers\SigningHelper;
@@ -17,15 +18,13 @@ class Transcode implements TranscodeInterface
     /**
      * Creates a job which handles the transcoding of a video.
      *
-     * @param string  $originalFilePath
-     * @param Media   $media
+     * @param string $originalFilePath
+     * @param Media $media
      * @param Version $version
-     * @param string  $callbackUrl
-     * @param string  $callbackToken
-     *
+     * @param UploadSlot $uploadSlot
      * @return bool
      */
-    public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $callbackToken): bool
+    public function createJob(string $originalFilePath, Media $media, Version $version, UploadSlot $uploadSlot): bool
     {
         /*
         * When using SQS FIFO:
@@ -34,7 +33,7 @@ class Transcode implements TranscodeInterface
         * See SqsFifoQueue class.
         */
         try {
-            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $callbackToken);
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $uploadSlot);
         } catch (Exception) {
             return false;
         }
@@ -45,20 +44,19 @@ class Transcode implements TranscodeInterface
     /**
      * Creates a job which handles the transcoding of a video when a version number is updated.
      *
-     * @param string  $originalFilePath
-     * @param Media   $media
+     * @param string $originalFilePath
+     * @param Media $media
      * @param Version $version
-     * @param string  $callbackUrl
-     * @param string  $callbackToken
-     * @param int     $oldVersionNumber
-     * @param bool    $wasProcessed
+     * @param UploadSlot $uploadSlot
+     * @param int $oldVersionNumber
+     * @param bool $wasProcessed
      *
      * @return bool
      */
-    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $callbackToken, int $oldVersionNumber, bool $wasProcessed): bool
+    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, UploadSlot $uploadSlot, int $oldVersionNumber, bool $wasProcessed): bool
     {
         try {
-            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $callbackToken, $oldVersionNumber, $wasProcessed);
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
         } catch (Exception) {
             return false;
         }

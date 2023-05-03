@@ -65,7 +65,7 @@ class VideoController extends Controller
             $versionNumber -= 1;
         } else {
             $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
-            $success = Transcode::createJob($filePath, $media, $version, $uploadSlot->callback_url, $uploadSlot->callback_token);
+            $success = Transcode::createJob($filePath, $media, $version, $uploadSlot);
 
             if (!$success) {
                 $originalsDisk->delete($filePath);
@@ -76,9 +76,8 @@ class VideoController extends Controller
             }
         }
 
-        // Delete chunk file and token.
+        // Delete chunk file.
         File::delete($videoFile);
-        $uploadSlot->delete();
 
         return response()->json([
             'success' => $success ?? true,

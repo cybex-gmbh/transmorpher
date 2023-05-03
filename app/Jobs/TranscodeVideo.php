@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\MediaStorage;
 use App\Enums\StreamingFormat;
 use App\Models\Media;
+use App\Models\UploadSlot;
 use App\Models\Version;
 use CdnHelper;
 use CloudStorage;
@@ -46,6 +47,9 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
 
+    protected string $callbackUrl;
+    protected string $callbackToken;
+
     protected string $tempPath;
     protected string $tempMp4FileName;
     protected string $tempLocalOriginal;
@@ -61,13 +65,14 @@ class TranscodeVideo implements ShouldQueue
         protected string  $originalFilePath,
         protected Media   $media,
         protected Version $version,
-        protected string  $callbackUrl,
-        protected string  $callbackToken,
+        protected UploadSlot $uploadSlot,
         protected ?int    $oldVersionNumber = null,
         protected ?bool   $wasProcessed     = null
     )
     {
         $this->onQueue('video-transcoding');
+        $this->callbackUrl = $this->uploadSlot->callback_url;
+        $this->callbackToken = $this->uploadSlot->callback_token;
     }
 
     /**
@@ -231,7 +236,9 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function moveToDestinationPath(): void
     {
-        if ($this->version->number === $this->media->Versions()->max('number')) {
+        // Check if this version is still the current version, also check if the upload slot is still valid.
+        if ($this->version->number === $this->media->Versions()->max('number')
+            && $this->media->User->UploadSlots()->whereToken($this->uploadSlot->token)->first()) {
             // This will make sure we can invalidate the cache before the current derivative gets deleted.
             // If this fails, the job will stop and cleanup will be done in the failed() method.
             $this->invalidateCdnCache();

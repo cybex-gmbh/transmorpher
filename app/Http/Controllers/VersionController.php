@@ -8,6 +8,7 @@ use App\Http\Requests\SetVersionRequest;
 use App\Models\Media;
 use App\Models\User;
 use App\Models\Version;
+use Carbon\Carbon;
 use CdnHelper;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
@@ -177,7 +178,20 @@ class VersionController extends Controller
     {
         if ($callbackUrl && $callbackToken) {
             $filePath = FilePathHelper::toOriginalFile($user, $identifier, $version->number);
-            $success  = Transcode::createJobForVersionUpdate($filePath, $media, $version, $callbackUrl, $callbackToken, $oldVersionNumber, $wasProcessed);
+
+            $uploadSlot = $user->UploadSlots()->updateOrCreate([
+                'identifier' => $identifier,
+            ], [
+                'token' => uniqid(),
+                'identifier' => $identifier,
+                'callback_token' => $callbackToken,
+                'callback_url' => $callbackUrl,
+                // Null for now, since this is not implemented yet.
+                'validation_rules' => null,
+                'valid_until' => Carbon::now()->addHours(24)
+            ]);
+
+            $success  = Transcode::createJobForVersionUpdate($filePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
             $response = $success ? 'Successfully set video version, transcoding job has been dispatched.' : 'Could not create transcoding job';
         } else {
             $version->update([
