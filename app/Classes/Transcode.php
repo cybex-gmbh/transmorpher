@@ -67,20 +67,21 @@ class Transcode implements TranscodeInterface
     /**
      * Inform client package about the transcoding result.
      *
-     * @param bool $success
-     * @param string $callbackUrl
-     * @param string $callbackToken
-     * @param User $user
-     * @param string $identifier
-     * @param int $versionNumber
+     * @param bool        $success
+     * @param string      $callbackUrl
+     * @param string      $callbackToken
+     * @param User        $user
+     * @param string      $identifier
+     * @param int         $versionNumber
+     * @param string|null $message
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $callbackToken, User $user, string $identifier, int $versionNumber): void
+    public function callback(bool $success, string $callbackUrl, string $callbackToken, User $user, string $identifier, int $versionNumber, string $message = null): void
     {
         $response = [
             'success' => $success,
-            'response' => $success ? 'Successfully transcoded video.' : 'Video transcoding failed.',
+            'response' => $success ? 'Successfully transcoded video.' : $message ?? 'Video transcoding failed: ',
             'identifier' => $identifier,
             'version' => $versionNumber,
             'client' => $user->name,

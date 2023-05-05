@@ -37,14 +37,15 @@ interface TranscodeInterface
     /**
      * Inform client package about the transcoding result.
      *
-     * @param bool   $success
+     * @param bool $success
      * @param string $callbackUrl
      * @param string $callbackToken
-     * @param User   $user
+     * @param User $user
      * @param string $identifier
-     * @param int    $versionNumber
+     * @param int $versionNumber
+     * @param string|null $message
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $callbackToken, User $user, string $identifier, int $versionNumber): void;
+    public function callback(bool $success, string $callbackUrl, string $callbackToken, User $user, string $identifier, int $versionNumber, string $message = null): void;
 }

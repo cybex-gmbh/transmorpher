@@ -56,6 +56,9 @@ class TranscodeVideo implements ShouldQueue
     protected string $destinationBasePath;
     protected string $fileName;
 
+    protected ?string $success;
+    protected ?string $message;
+
     /**
      * Create a new job instance.
      *
@@ -90,7 +93,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->transcodeVideo();
 
-        Transcode::callback(true, $this->callbackUrl, $this->callbackToken, $this->media->User, $this->media->identifier, $this->version->number);
+        Transcode::callback($this->success ?? true, $this->callbackUrl, $this->callbackToken, $this->media->User, $this->media->identifier, $this->version->number, $this->message);
     }
 
     /**
@@ -252,6 +255,8 @@ class TranscodeVideo implements ShouldQueue
             $this->version->update(['processed' => true]);
         } else {
             $this->derivativesDisk->deleteDirectory($this->tempPath);
+            $this->success = false;
+            $this->message = 'Transcoding process aborted due to a new version or upload.';
         }
     }
 
