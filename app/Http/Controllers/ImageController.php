@@ -58,6 +58,7 @@ class ImageController extends Controller
     {
         $user = $uploadSlot->User;
         $identifier = $uploadSlot->identifier;
+        $token = $uploadSlot->token;
 
         $media = $user->Media()->whereIdentifier($identifier)->firstOrNew(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
         $media->validateUploadFile($imageFile, sprintf('mimes:%s', implode(',', ImageFormat::getFormats())), $uploadSlot);
@@ -103,6 +104,7 @@ class ImageController extends Controller
             'version' => $versionNumber,
             'client' => $user->name,
             'public_path' => $basePath,
+            'upload_token' => $token
         ], 201);
     }
 

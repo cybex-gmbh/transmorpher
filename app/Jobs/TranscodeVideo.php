@@ -48,7 +48,7 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $localDisk;
 
     protected string $callbackUrl;
-    protected string $callbackToken;
+    protected string $uploadToken;
 
     protected string $tempPath;
     protected string $tempMp4FileName;
@@ -56,8 +56,8 @@ class TranscodeVideo implements ShouldQueue
     protected string $destinationBasePath;
     protected string $fileName;
 
-    protected ?string $success;
-    protected ?string $message;
+    protected ?string $success = null;
+    protected ?string $message = null;
 
     /**
      * Create a new job instance.
@@ -75,7 +75,7 @@ class TranscodeVideo implements ShouldQueue
     {
         $this->onQueue('video-transcoding');
         $this->callbackUrl = $this->uploadSlot->callback_url;
-        $this->callbackToken = $this->uploadSlot->callback_token;
+        $this->uploadToken = $this->uploadSlot->token;
     }
 
     /**
@@ -93,7 +93,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->transcodeVideo();
 
-        Transcode::callback($this->success ?? true, $this->callbackUrl, $this->callbackToken, $this->media->User, $this->media->identifier, $this->version->number, $this->message);
+        Transcode::callback($this->success ?? true, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $this->version->number, $this->message);
     }
 
     /**
@@ -122,7 +122,7 @@ class TranscodeVideo implements ShouldQueue
             $versionNumber = $this->oldVersionNumber;
         }
 
-        Transcode::callback(false, $this->callbackUrl, $this->callbackToken, $this->media->User, $this->media->identifier, $versionNumber);
+        Transcode::callback(false, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $versionNumber);
     }
 
     /**

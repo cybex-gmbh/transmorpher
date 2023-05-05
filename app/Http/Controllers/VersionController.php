@@ -75,9 +75,8 @@ class VersionController extends Controller
         $version->update(['number' => $newVersionNumber, 'processed' => 0]);
 
         if ($media->type === MediaType::VIDEO) {
-            [$success, $response] = $this->setVideoVersion(
+            [$success, $response, $uploadToken] = $this->setVideoVersion(
                 $request->get('callback_url'),
-                $request->get('callback_token'),
                 $user,
                 $identifier,
                 $media,
@@ -107,12 +106,13 @@ class VersionController extends Controller
         }
 
         return response()->json([
-            'success'     => $success ??= true,
-            'response'    => $response ?? 'Successfully set image version.',
-            'identifier'  => $identifier,
-            'version'     => $success ? $newVersionNumber : $currentVersionNumber,
-            'client'      => $user->name,
+            'success' => $success ??= true,
+            'response' => $response ?? 'Successfully set image version.',
+            'identifier' => $identifier,
+            'version' => $success ? $newVersionNumber : $currentVersionNumber,
+            'client' => $user->name,
             'public_path' => $basePath ?? null,
+            'upload_token' => $uploadToken ?? null
         ]);
     }
 
@@ -164,7 +164,6 @@ class VersionController extends Controller
      * Handles the dispatching of a new transcoding job when setting a video version.
      *
      * @param string  $callbackUrl
-     * @param string  $callbackToken
      * @param mixed   $user
      * @param string  $identifier
      * @param Media   $media
@@ -174,17 +173,18 @@ class VersionController extends Controller
      *
      * @return array
      */
-    protected function setVideoVersion(string $callbackUrl, string $callbackToken, User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed): array
+    protected function setVideoVersion(string $callbackUrl, User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed): array
     {
-        if ($callbackUrl && $callbackToken) {
+        $uploadToken = uniqid();
+
+        if ($callbackUrl) {
             $filePath = FilePathHelper::toOriginalFile($user, $identifier, $version->number);
 
             $uploadSlot = $user->UploadSlots()->updateOrCreate([
                 'identifier' => $identifier,
             ], [
-                'token' => uniqid(),
+                'token' => $uploadToken(),
                 'identifier' => $identifier,
-                'callback_token' => $callbackToken,
                 'callback_url' => $callbackUrl,
                 // Null for now, since this is not implemented yet.
                 'validation_rules' => null,
@@ -200,12 +200,13 @@ class VersionController extends Controller
             ]);
 
             $success  = false;
-            $response = 'A callback URL and an identification token are needed for this identifier.';
+            $response = 'A callback URL is needed for this identifier.';
         }
 
         return [
             $success,
             $response,
+            $uploadToken
         ];
     }
 }

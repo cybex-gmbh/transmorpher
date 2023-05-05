@@ -25,7 +25,6 @@ class VideoUploadSlotRequest extends FormRequest
     {
         return [
             'identifier' => ['required', 'string'],
-            'callback_token' => ['required', 'string'],
             'callback_url' => ['required', 'string', 'url']
         ];
     }

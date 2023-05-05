@@ -52,7 +52,6 @@ class UploadSlot extends Model
     protected $fillable = [
         'token',
         'identifier',
-        'callback_token',
         'callback_url',
         'validation_rules',
         'valid_until',

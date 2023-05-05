@@ -17995,17 +17995,18 @@
          *
          * @param bool $success
          * @param string $callbackUrl
-         * @param string $callbackToken
+         * @param string $uploadToken
          * @param \App\Models\User $user
          * @param string $identifier
          * @param int $versionNumber
+         * @param string|null $message
          * @return void 
          * @static 
          */ 
-        public static function callback($success, $callbackUrl, $callbackToken, $user, $identifier, $versionNumber)
+        public static function callback($success, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber, $message = null)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        $instance->callback($success, $callbackUrl, $callbackToken, $user, $identifier, $versionNumber);
+                        $instance->callback($success, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber, $message);
         }
          
     }

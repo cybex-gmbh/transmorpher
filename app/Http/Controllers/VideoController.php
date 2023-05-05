@@ -85,6 +85,7 @@ class VideoController extends Controller
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'client' => $user->name,
+            'upload_token' => $uploadSlot->token,
         ], 201);
     }
 }

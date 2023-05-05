@@ -69,7 +69,7 @@ class Transcode implements TranscodeInterface
      *
      * @param bool        $success
      * @param string      $callbackUrl
-     * @param string      $callbackToken
+     * @param string      $uploadToken
      * @param User        $user
      * @param string      $identifier
      * @param int         $versionNumber
@@ -77,7 +77,7 @@ class Transcode implements TranscodeInterface
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $callbackToken, User $user, string $identifier, int $versionNumber, string $message = null): void
+    public function callback(bool $success, string $callbackUrl, string $uploadToken, User $user, string $identifier, int $versionNumber, string $message = null): void
     {
         $response = [
             'success' => $success,
@@ -85,7 +85,7 @@ class Transcode implements TranscodeInterface
             'identifier' => $identifier,
             'version' => $versionNumber,
             'client' => $user->name,
-            'callback_token' => $callbackToken,
+            'upload_token' => $uploadToken,
             'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($user, $identifier)),
         ];
 
