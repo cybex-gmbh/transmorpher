@@ -171,7 +171,6 @@ class VersionController extends Controller
      * @param int     $oldVersionNumber
      * @param bool    $wasProcessed
      *
-     * @return array
      */
     protected function setVideoVersion(string $callbackUrl, User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed): array
     {
@@ -183,7 +182,7 @@ class VersionController extends Controller
             $uploadSlot = $user->UploadSlots()->updateOrCreate([
                 'identifier' => $identifier,
             ], [
-                'token' => $uploadToken(),
+                'token' => $uploadToken,
                 'identifier' => $identifier,
                 'callback_url' => $callbackUrl,
                 // Null for now, since this is not implemented yet.
