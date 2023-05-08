@@ -70,7 +70,6 @@ class Upload
 
         if ($filePath = $originalsDisk->putFileAs($basePath, $uploadedFile, $fileName)) {
             $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
-
             $responseState = $type->handleSavedFile($basePath, $uploadSlot, $filePath, $media, $version);
         } else {
             $responseState = ResponseState::WRITE_FAILED;
