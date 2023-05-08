@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Enums\ResponseState;
 use App\Models\UploadSlot;
 use App\Models\User;
 use FilePathHelper;
@@ -67,21 +68,20 @@ class Transcode implements TranscodeInterface
     /**
      * Inform client package about the transcoding result.
      *
-     * @param bool        $success
-     * @param string      $callbackUrl
-     * @param string      $uploadToken
-     * @param User        $user
-     * @param string      $identifier
-     * @param int         $versionNumber
-     * @param string|null $message
+     * @param ResponseState $responseState
+     * @param string        $callbackUrl
+     * @param string        $uploadToken
+     * @param User          $user
+     * @param string        $identifier
+     * @param int           $versionNumber
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $uploadToken, User $user, string $identifier, int $versionNumber, string $message = null): void
+    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, User $user, string $identifier, int $versionNumber): void
     {
         $response = [
-            'success' => $success,
-            'response' => $success ? 'Successfully transcoded video.' : $message ?? 'Video transcoding failed: ',
+            'success' => $responseState->success(),
+            'response' => $responseState->value,
             'identifier' => $identifier,
             'version' => $versionNumber,
             'client' => $user->name,

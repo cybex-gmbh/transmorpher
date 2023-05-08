@@ -30,7 +30,7 @@ enum MediaType: string
         };
     }
 
-    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Media $media, Version $version): array
+    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Media $media, Version $version): ResponseState
     {
         return match ($this) {
             MediaType::IMAGE => $this->handleSavedImage($basePath, $uploadSlot),
@@ -38,33 +38,26 @@ enum MediaType: string
         };
     }
 
-    protected function handleSavedImage(string $basePath, UploadSlot $uploadSlot): array
+    protected function handleSavedImage(string $basePath, UploadSlot $uploadSlot): ResponseState
     {
         if (CdnHelper::isConfigured()) {
             try {
                 CdnHelper::invalidateImage($basePath);
             } catch (Throwable) {
-                $success = false;
-                $response = 'Cache invalidation failed.';
+                $responseState = ResponseState::CACHE_INVALIDATION_FAILED;
             }
         }
 
         // Only delete for image, since the UploadSlot will be needed inside the transcoding job.
         $uploadSlot->delete();
 
-        return [
-            'success' => $success ?? true,
-            'response' => $response ?? $this->getUploadResponseMessage()
-        ];
+        return $responseState ?? ResponseState::IMAGE_UPLOAD_SUCCESSFUL;
     }
 
-    protected function handleSavedVideo(string $filePath, Media $media, Version $version, UploadSlot $uploadSlot): array
+    protected function handleSavedVideo(string $filePath, Media $media, Version $version, UploadSlot $uploadSlot): ResponseState
     {
         $success = Transcode::createJob($filePath, $media, $version, $uploadSlot);
 
-        return [
-            'success' => $success,
-            'response' => $success ? $this->getUploadResponseMessage() : 'There was an error when trying to dispatch the transcoding job.'
-        ];
+        return $success ? ResponseState::VIDEO_UPLOAD_SUCCESSFUL : ResponseState::DISPATCHING_TRANSCODING_JOB_FAILED;
     }
 }

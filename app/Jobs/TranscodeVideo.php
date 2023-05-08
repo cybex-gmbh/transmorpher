@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\MediaStorage;
+use App\Enums\ResponseState;
 use App\Enums\StreamingFormat;
 use App\Models\Media;
 use App\Models\UploadSlot;
@@ -56,8 +57,7 @@ class TranscodeVideo implements ShouldQueue
     protected string $destinationBasePath;
     protected string $fileName;
 
-    protected ?string $success = null;
-    protected ?string $message = null;
+    protected ResponseState $responseState;
 
     /**
      * Create a new job instance.
@@ -93,7 +93,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->transcodeVideo();
 
-        Transcode::callback($this->success ?? true, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $this->version->number, $this->message);
+        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_SUCCESSFUL, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $this->version->number);
     }
 
     /**
@@ -122,7 +122,7 @@ class TranscodeVideo implements ShouldQueue
             $versionNumber = $this->oldVersionNumber;
         }
 
-        Transcode::callback(false, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $versionNumber);
+        Transcode::callback(ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $versionNumber);
     }
 
     /**
@@ -255,8 +255,7 @@ class TranscodeVideo implements ShouldQueue
             $this->version->update(['processed' => true]);
         } else {
             $this->derivativesDisk->deleteDirectory($this->tempPath);
-            $this->success = false;
-            $this->message = 'Transcoding process aborted due to a new version or upload.';
+            $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
     }
 

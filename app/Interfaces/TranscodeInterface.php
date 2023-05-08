@@ -2,6 +2,7 @@
 
 namespace App\Interfaces;
 
+use App\Enums\ResponseState;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
@@ -37,15 +38,14 @@ interface TranscodeInterface
     /**
      * Inform client package about the transcoding result.
      *
-     * @param bool        $success
-     * @param string      $callbackUrl
-     * @param string      $uploadToken
-     * @param User        $user
-     * @param string      $identifier
-     * @param int         $versionNumber
-     * @param string|null $message
+     * @param ResponseState $responseState
+     * @param string        $callbackUrl
+     * @param string        $uploadToken
+     * @param User          $user
+     * @param string        $identifier
+     * @param int           $versionNumber
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $uploadToken, User $user, string $identifier, int $versionNumber, string $message = null): void;
+    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, User $user, string $identifier, int $versionNumber): void;
 }

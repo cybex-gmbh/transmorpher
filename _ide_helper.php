@@ -17993,20 +17993,19 @@
                     /**
          * Inform client package about the transcoding result.
          *
-         * @param bool $success
+         * @param \App\Enums\ResponseState $responseState
          * @param string $callbackUrl
          * @param string $uploadToken
          * @param \App\Models\User $user
          * @param string $identifier
          * @param int $versionNumber
-         * @param string|null $message
          * @return void 
          * @static 
          */ 
-        public static function callback($success, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber, $message = null)
+        public static function callback($responseState, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        $instance->callback($success, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber, $message);
+                        $instance->callback($responseState, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber);
         }
          
     }
