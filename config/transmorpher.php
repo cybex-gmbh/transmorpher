@@ -164,5 +164,27 @@ return [
     |
     */
 
-    'signing_keypair' => env('TRANSMORPHER_SIGNING_KEYPAIR')
+    'signing_keypair' => env('TRANSMORPHER_SIGNING_KEYPAIR'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Image Handler
+    |--------------------------------------------------------------------------
+    |
+    | The class which is responsible for handling image specific actions, such as validation rules or handling the newly saved file.
+    |
+    */
+
+    'image_handler' => App\Classes\MediaHandler\ImageHandler::class,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Video Handler
+    |--------------------------------------------------------------------------
+    |
+    | The class which is responsible for handling video specific actions, such as validation rules or handling the newly saved file.
+    |
+    */
+
+    'video_handler' => App\Classes\MediaHandler\VideoHandler::class,
 ];

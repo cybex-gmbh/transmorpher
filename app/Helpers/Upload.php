@@ -60,7 +60,7 @@ class Upload
         $identifier = $uploadSlot->identifier;
 
         $media = $user->Media()->firstOrNew(['identifier' => $identifier, 'type' => $type]);
-        $media->validateUploadFile($uploadedFile, $type->getValidationRules(), $uploadSlot);
+        $media->validateUploadFile($uploadedFile, $type->handler()->getValidationRules(), $uploadSlot);
         $media->save();
 
         $versionNumber = $media->Versions()->max('number') + 1;
@@ -70,7 +70,7 @@ class Upload
 
         if ($filePath = $originalsDisk->putFileAs($basePath, $uploadedFile, $fileName)) {
             $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
-            $responseState = $type->handleSavedFile($basePath, $uploadSlot, $filePath, $media, $version);
+            $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $filePath, $media, $version);
         } else {
             $responseState = ResponseState::WRITE_FAILED;
         }
