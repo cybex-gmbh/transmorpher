@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use App\Enums\ResponseState;
 use App\Http\Requests\UploadRequest;
 use App\Models\UploadSlot;
 use File;
@@ -70,26 +71,25 @@ class Upload
         if ($filePath = $originalsDisk->putFileAs($basePath, $uploadedFile, $fileName)) {
             $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
 
-            ['success' => $success, 'response' => $response] = $type->handleSavedFile($basePath, $uploadSlot, $filePath, $media, $version);
+            $responseState = $type->handleSavedFile($basePath, $uploadSlot, $filePath, $media, $version);
         } else {
-            $success = false;
-            $response = 'Could not write media to disk.';
+            $responseState = ResponseState::WRITE_FAILED;
         }
 
-        if (!$success) {
+        if (!$responseState->success()) {
             $versionNumber -= 1;
             $originalsDisk->delete($filePath);
             $version?->delete();
         }
 
-        // Delete chunk file.
+        // Delete local file.
         File::delete($uploadedFile);
 
         // Todo: to ensure that failed uploads don't pollute the image derivative cache, we would need a ready flag that is set to true when CDN is invalidated.
 
         return response()->json([
-            'success' => $success,
-            'response' => $response,
+            'success' => $responseState->success(),
+            'response' => $responseState->value,
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'client' => $user->name,
