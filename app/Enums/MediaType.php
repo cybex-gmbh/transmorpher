@@ -14,9 +14,6 @@ enum MediaType: string
      */
     public function handler(): MediaHandlerInterface
     {
-        return match ($this) {
-            MediaType::IMAGE => app(config('transmorpher.image_handler')),
-            MediaType::VIDEO => app(config('transmorpher.video_handler'))
-        };
+        return app(config(sprintf('transmorpher.media_handlers.%s', $this->value)));
     }
 }

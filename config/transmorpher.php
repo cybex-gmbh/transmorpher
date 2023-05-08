@@ -168,23 +168,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Image Handler
+    | Media Handlers
     |--------------------------------------------------------------------------
     |
-    | The class which is responsible for handling image specific actions, such as validation rules or handling the newly saved file.
+    | The classes which are responsible for handling media specific actions, such as validation rules or handling the newly saved file.
     |
     */
 
-    'image_handler' => App\Classes\MediaHandler\ImageHandler::class,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Video Handler
-    |--------------------------------------------------------------------------
-    |
-    | The class which is responsible for handling video specific actions, such as validation rules or handling the newly saved file.
-    |
-    */
-
-    'video_handler' => App\Classes\MediaHandler\VideoHandler::class,
+    'media_handlers' => [
+        'image' => App\Classes\MediaHandler\ImageHandler::class,
+        'video' => App\Classes\MediaHandler\VideoHandler::class
+    ],
 ];
