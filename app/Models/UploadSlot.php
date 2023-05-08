@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property string $token
  * @property string $identifier
- * @property string|null $callback_token
  * @property string|null $callback_url
  * @property string|null $validation_rules
  * @property string $valid_until
@@ -23,21 +22,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $User
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot query()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereCallbackUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereIdToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereIdentifier($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereValidUntil($value)
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereValidationRules($value)
- * @property string|null $id_token
- * @method static \Illuminate\Database\Eloquent\Builder|UploadSlot whereCallbackToken($value)
+ * @method static Builder|UploadSlot newModelQuery()
+ * @method static Builder|UploadSlot newQuery()
+ * @method static Builder|UploadSlot query()
+ * @method static Builder|UploadSlot whereCallbackUrl($value)
+ * @method static Builder|UploadSlot whereCreatedAt($value)
+ * @method static Builder|UploadSlot whereId($value)
+ * @method static Builder|UploadSlot whereIdentifier($value)
+ * @method static Builder|UploadSlot whereToken($value)
+ * @method static Builder|UploadSlot whereUpdatedAt($value)
+ * @method static Builder|UploadSlot whereUserId($value)
+ * @method static Builder|UploadSlot whereValidUntil($value)
+ * @method static Builder|UploadSlot whereValidationRules($value)
  * @mixin \Eloquent
  */
 class UploadSlot extends Model

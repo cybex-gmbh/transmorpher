@@ -22,7 +22,7 @@ use Validator;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $User
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Version[] $Versions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Version> $Versions
  * @property-read int|null $versions_count
  * @method static \Illuminate\Database\Eloquent\Builder|Media newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Media newQuery()

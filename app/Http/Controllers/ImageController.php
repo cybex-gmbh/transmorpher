@@ -2,27 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
-use App\Helpers\ChunkedUpload;
+use App\Helpers\Upload;
 use App\Http\Requests\UploadRequest;
 use App\Models\UploadSlot;
 use App\Models\User;
-use CdnHelper;
-use File;
 use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Validation\ValidationException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
-use Throwable;
 use Transform;
 
 class ImageController extends Controller
@@ -36,76 +30,14 @@ class ImageController extends Controller
      * @return JsonResponse
      * @throws UploadFailedException
      * @throws UploadMissingFileException
-     * @throws ValidationException
      */
     public function receiveFile(UploadRequest $request, UploadSlot $uploadSlot): JsonResponse
     {
-        if (($response = ChunkedUpload::receive($request)) instanceof JsonResponse) {
+        if (($response = Upload::receive($request)) instanceof JsonResponse) {
             return $response;
         }
 
-        return $this->saveFile($response, $uploadSlot);
-    }
-
-    /**
-     * @param UploadedFile $imageFile
-     * @param UploadSlot   $uploadSlot
-     *
-     * @return JsonResponse
-     * @throws ValidationException
-     */
-    public function saveFile(UploadedFile $imageFile, UploadSlot $uploadSlot): JsonResponse
-    {
-        $user = $uploadSlot->User;
-        $identifier = $uploadSlot->identifier;
-        $token = $uploadSlot->token;
-
-        $media = $user->Media()->whereIdentifier($identifier)->firstOrNew(['identifier' => $identifier, 'type' => MediaType::IMAGE]);
-        $media->validateUploadFile($imageFile, sprintf('mimes:%s', implode(',', ImageFormat::getFormats())), $uploadSlot);
-        $media->save();
-
-        $versionNumber = $media->Versions()->max('number') + 1;
-        $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
-        $fileName = FilePathHelper::createOriginalFileName($versionNumber, $imageFile->getClientOriginalName());
-        $originalsDisk = MediaStorage::ORIGINALS->getDisk();
-
-        if ($filePath = $originalsDisk->putFileAs($basePath, $imageFile, $fileName)) {
-            $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
-
-            // Invalidate cache and delete entry if failed.
-            if (CdnHelper::isConfigured()) {
-                try {
-                    CdnHelper::invalidateImage($basePath);
-                } catch (Throwable) {
-                    $originalsDisk->delete($filePath);
-                    $version->delete();
-
-                    $success = false;
-                    $response = 'Cache invalidation failed.';
-                    $versionNumber -= 1;
-                }
-            }
-        } else {
-            $success = false;
-            $response = 'Could not write image to disk.';
-            $versionNumber -= 1;
-        }
-
-        // Delete chunk file and token.
-        File::delete($imageFile);
-        $uploadSlot->delete();
-
-        // Todo: to ensure that failed uploads don't pollute the image derivative cache, we would need a ready flag that is set to true when CDN is invalidated.
-
-        return response()->json([
-            'success' => $success ?? true,
-            'response' => $response ?? 'Successfully added new image version.',
-            'identifier' => $media->identifier,
-            'version' => $versionNumber,
-            'client' => $user->name,
-            'public_path' => $basePath,
-            'upload_token' => $token
-        ], 201);
+        return Upload::saveFile($response, $uploadSlot, MediaType::IMAGE);
     }
 
     /**

@@ -185,8 +185,6 @@ class VersionController extends Controller
                 'token' => $uploadToken,
                 'identifier' => $identifier,
                 'callback_url' => $callbackUrl,
-                // Null for now, since this is not implemented yet.
-                'validation_rules' => null,
                 'valid_until' => Carbon::now()->addHours(24)
             ]);
 
