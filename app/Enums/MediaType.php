@@ -14,6 +14,9 @@ enum MediaType: string
     case IMAGE = 'image';
     case VIDEO = 'video';
 
+    /**
+     * @return string
+     */
     public function getValidationRules(): string
     {
         return match ($this) {
@@ -22,14 +25,15 @@ enum MediaType: string
         };
     }
 
-    public function getUploadResponseMessage(): string
-    {
-        return match ($this) {
-            MediaType::IMAGE => 'Successfully added new image version.',
-            MediaType::VIDEO => 'Successfully uploaded video, transcoding job has been dispatched.'
-        };
-    }
-
+    /**
+     * @param string     $basePath
+     * @param UploadSlot $uploadSlot
+     * @param string     $filePath
+     * @param Media      $media
+     * @param Version    $version
+     *
+     * @return ResponseState
+     */
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Media $media, Version $version): ResponseState
     {
         return match ($this) {
@@ -38,13 +42,19 @@ enum MediaType: string
         };
     }
 
+    /**
+     * @param string     $basePath
+     * @param UploadSlot $uploadSlot
+     *
+     * @return ResponseState
+     */
     protected function handleSavedImage(string $basePath, UploadSlot $uploadSlot): ResponseState
     {
         if (CdnHelper::isConfigured()) {
             try {
                 CdnHelper::invalidateImage($basePath);
             } catch (Throwable) {
-                $responseState = ResponseState::CACHE_INVALIDATION_FAILED;
+                $responseState = ResponseState::CDN_INVALIDATION_FAILED;
             }
         }
 
@@ -54,6 +64,14 @@ enum MediaType: string
         return $responseState ?? ResponseState::IMAGE_UPLOAD_SUCCESSFUL;
     }
 
+    /**
+     * @param string     $filePath
+     * @param Media      $media
+     * @param Version    $version
+     * @param UploadSlot $uploadSlot
+     *
+     * @return ResponseState
+     */
     protected function handleSavedVideo(string $filePath, Media $media, Version $version, UploadSlot $uploadSlot): ResponseState
     {
         $success = Transcode::createJob($filePath, $media, $version, $uploadSlot);
