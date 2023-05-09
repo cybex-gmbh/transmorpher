@@ -3,6 +3,7 @@
 namespace App\Classes\MediaHandler;
 
 use App\Enums\ImageFormat;
+use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Helpers\Upload;
 use App\Interfaces\MediaHandlerInterface;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Models\Version;
 use CdnHelper;
 use FilePathHelper;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Throwable;
 
 class ImageHandler implements MediaHandlerInterface
@@ -27,12 +29,10 @@ class ImageHandler implements MediaHandlerInterface
      */
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Media $media, Version $version): ResponseState
     {
-        $responseState = $this->invalidateCdnCache($basePath);
-
         // Only delete for image, since the UploadSlot will be needed inside the transcoding job.
         $uploadSlot->delete();
 
-        return $responseState ?? ResponseState::IMAGE_UPLOAD_SUCCESSFUL;
+        return $this->invalidateCdnCache($basePath) ? ResponseState::IMAGE_UPLOAD_SUCCESSFUL : ResponseState::CDN_INVALIDATION_FAILED;
     }
 
     /**
@@ -45,19 +45,19 @@ class ImageHandler implements MediaHandlerInterface
 
     /**
      * @param string $basePath
-     * @return ResponseState|null
+     * @return bool
      */
-    public function invalidateCdnCache(string $basePath): ResponseState|null
+    public function invalidateCdnCache(string $basePath): bool
     {
         if (CdnHelper::isConfigured()) {
             try {
                 CdnHelper::invalidateImage($basePath);
             } catch (Throwable) {
-                $responseState = ResponseState::CDN_INVALIDATION_FAILED;
+                return false;
             }
         }
 
-        return $responseState ?? null;
+        return true;
     }
 
     /**
@@ -73,18 +73,27 @@ class ImageHandler implements MediaHandlerInterface
     public function setVersion(User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
     {
         $uploadSlot = Upload::createUploadSlot($user, $identifier);
-        $responseState = $this->invalidateCdnCache(FilePathHelper::toBaseDirectory($user, $identifier));
 
-        if (is_null($responseState)) {
+        if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($user, $identifier))) {
             // Might instead move the directory to keep derivatives, but S3 can't move directories and each file would have to be moved individually.
-            $media->type->getDerivativesDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($user, $identifier, $oldVersionNumber));
+            $media->type->handler()->getDerivativesDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($user, $identifier, $oldVersionNumber));
+            $responseState = ResponseState::VERSION_SET;
         } else {
             $version->update(['number' => $oldVersionNumber]);
+            $responseState = ResponseState::CDN_INVALIDATION_FAILED;
         }
 
         return [
-            $responseState ?? ResponseState::VERSION_SET,
+            $responseState,
             $uploadSlot->token
         ];
+    }
+
+    /**
+     * @return Filesystem
+     */
+    public function getDerivativesDisk(): Filesystem
+    {
+        return MediaStorage::IMAGE_DERIVATIVES->getDisk();
     }
 }

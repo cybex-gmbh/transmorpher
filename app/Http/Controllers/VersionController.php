@@ -95,18 +95,16 @@ class VersionController extends Controller
         $media = $user->Media()->whereIdentifier($identifier)->firstOrFail();
         $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
 
-        $responseState = $media->type->handler()->invalidateCdnCache($basePath);
-
-        if (is_null($responseState)) {
+        if ($media->type->handler()->invalidateCdnCache($basePath)) {
             $media->Versions()->delete();
-            $media->type->getDerivativesDisk()->deleteDirectory($basePath);
+            $media->type->handler()->getDerivativesDisk()->deleteDirectory($basePath);
             MediaStorage::ORIGINALS->getDisk()->deleteDirectory($basePath);
             $media->delete();
 
-            $responseState = $media->type->handler()->invalidateCdnCache($basePath);
+            $responseState = $media->type->handler()->invalidateCdnCache($basePath) ? ResponseState::DELETION_SUCCESSFUL : ResponseState::CDN_INVALIDATION_FAILED;
+        } else {
+            $responseState = ResponseState::CDN_INVALIDATION_FAILED;
         }
-
-        $responseState ??= ResponseState::DELETION_SUCCESSFUL;
 
         return response()->json([
             'success' => $responseState->success(),

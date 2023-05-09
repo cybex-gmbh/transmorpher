@@ -2,6 +2,7 @@
 
 namespace App\Classes\MediaHandler;
 
+use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Helpers\Upload;
 use App\Interfaces\MediaHandlerInterface;
@@ -11,6 +12,7 @@ use App\Models\User;
 use App\Models\Version;
 use CdnHelper;
 use FilePathHelper;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Throwable;
 use Transcode;
 
@@ -43,19 +45,19 @@ class VideoHandler implements MediaHandlerInterface
 
     /**
      * @param string $basePath
-     * @return ResponseState|null
+     * @return bool
      */
-    public function invalidateCdnCache(string $basePath): ResponseState|null
+    public function invalidateCdnCache(string $basePath): bool
     {
         if (CdnHelper::isConfigured()) {
             try {
                 CdnHelper::invalidateVideo($basePath);
             } catch (Throwable) {
-                $responseState = ResponseState::CDN_INVALIDATION_FAILED;
+                return false;
             }
         }
 
-        return $responseState ?? null;
+        return true;
     }
 
     /**
@@ -85,5 +87,13 @@ class VideoHandler implements MediaHandlerInterface
             $responseState,
             $uploadSlot?->token
         ];
+    }
+
+    /**
+     * @return Filesystem
+     */
+    public function getDerivativesDisk(): Filesystem
+    {
+        return MediaStorage::VIDEO_DERIVATIVES->getDisk();
     }
 }

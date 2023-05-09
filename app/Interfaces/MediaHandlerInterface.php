@@ -2,11 +2,13 @@
 
 namespace App\Interfaces;
 
+use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
+use Illuminate\Contracts\Filesystem\Filesystem;
 
 interface MediaHandlerInterface
 {
@@ -27,9 +29,9 @@ interface MediaHandlerInterface
 
     /**
      * @param string $basePath
-     * @return ResponseState|null
+     * @return bool
      */
-    public function invalidateCdnCache(string $basePath): ResponseState|null;
+    public function invalidateCdnCache(string $basePath): bool;
 
     /**
      * @param User $user
@@ -42,4 +44,9 @@ interface MediaHandlerInterface
      * @return array
      */
     public function setVersion(User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array;
+
+    /**
+     * @return Filesystem
+     */
+    public function getDerivativesDisk(): Filesystem;
 }
