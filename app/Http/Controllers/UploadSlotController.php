@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ResponseState;
+use App\Helpers\Upload;
 use App\Http\Requests\ImageUploadSlotRequest;
 use App\Http\Requests\VideoUploadSlotRequest;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -36,23 +37,13 @@ class UploadSlotController extends Controller
 
     protected function createUploadSlot(Request $request): JsonResponse
     {
-        $token = uniqid();
-
-        $request->user()->UploadSlots()->updateOrCreate([
-            'identifier' => $request->input('identifier'),
-        ], [
-            'token' => $token,
-            'identifier' => $request->input('identifier'),
-            'callback_url' => $request->input('callback_url') ?? null,
-            'validation_rules' => $request->input('validation_rules') ?? null,
-            'valid_until' => Carbon::now()->addHours(24)
-        ]);
+        $uploadSlot = Upload::createUploadSlot($request->user(), $request->input('identifier'), $request->input('callback_url'), $request->input('validation_rules'));
 
         return response()->json([
-            'success' => true,
-            'response' => 'Successfully created upload slot.',
+            'success' => ResponseState::UPLOAD_SLOT_CREATED->success(),
+            'response' => ResponseState::UPLOAD_SLOT_CREATED->value,
             'identifier' => $request->input('identifier'),
-            'upload_token' => $token
+            'upload_token' => $uploadSlot->token
         ]);
     }
 }

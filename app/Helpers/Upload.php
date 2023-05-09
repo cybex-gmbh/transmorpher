@@ -7,6 +7,8 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Http\Requests\UploadRequest;
 use App\Models\UploadSlot;
+use App\Models\User;
+use Carbon\Carbon;
 use File;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
@@ -49,8 +51,8 @@ class Upload
 
     /**
      * @param UploadedFile $uploadedFile
-     * @param UploadSlot   $uploadSlot
-     * @param MediaType    $type
+     * @param UploadSlot $uploadSlot
+     * @param MediaType $type
      *
      * @return JsonResponse
      */
@@ -94,5 +96,25 @@ class Upload
             'public_path' => $type === MediaType::IMAGE ? $basePath : null,
             'upload_token' => $uploadSlot->token
         ], 201);
+    }
+
+    /**
+     * @param User $user
+     * @param string $identifier
+     * @param string|null $callbackUrl
+     * @param string|null $validationRules
+     * @return UploadSlot
+     */
+    public static function createUploadSlot(User $user, string $identifier, string $callbackUrl = null, string $validationRules = null): UploadSlot
+    {
+        return $user->UploadSlots()->updateOrCreate([
+            'identifier' => $identifier,
+        ], [
+            'token' => uniqid(),
+            'identifier' => $identifier,
+            'callback_url' => $callbackUrl,
+            'validation_rules' => $validationRules,
+            'valid_until' => Carbon::now()->addHours(24)
+        ]);
     }
 }
