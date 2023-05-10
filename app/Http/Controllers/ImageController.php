@@ -3,18 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Enums\MediaStorage;
-use App\Helpers\Upload;
 use App\Enums\Transformation;
-use App\Http\Requests\UploadRequest;
-use App\Models\UploadSlot;
+use App\Helpers\Upload;
 use App\Models\User;
 use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
-use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Spatie\ImageOptimizer\OptimizerChain;
 use Spatie\ImageOptimizer\Optimizers\Optipng;
 use Spatie\ImageOptimizer\Optimizers\Pngquant;
