@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MediaType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -34,6 +35,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|UploadSlot whereUserId($value)
  * @method static Builder|UploadSlot whereValidUntil($value)
  * @method static Builder|UploadSlot whereValidationRules($value)
+ * @property MediaType $media_type
+ * @method static Builder|UploadSlot whereMediaType($value)
  * @mixin \Eloquent
  */
 class UploadSlot extends Model
@@ -46,12 +49,19 @@ class UploadSlot extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'token',
         'identifier',
         'callback_url',
         'validation_rules',
-        'valid_until',
-        'user_id',
+        'media_type',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'media_type' => MediaType::class,
     ];
 
     /**
@@ -61,6 +71,11 @@ class UploadSlot extends Model
     {
         static::addGlobalScope('valid', function (Builder $builder) {
             $builder->where('valid_until', '>', Carbon::now());
+        });
+
+        static::saving(function (UploadSlot $uploadSlot) {
+            $uploadSlot->token = uniqid();
+            $uploadSlot->valid_until = Carbon::now()->addHours(24);
         });
     }
 

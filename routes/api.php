@@ -33,6 +33,5 @@ Route::middleware('auth:sanctum')->group(
     }
 );
 
-Route::post('/image/upload/{uploadSlot}', [ImageController::class, 'receiveFile']);
-Route::post('/video/upload/{uploadSlot}', [VideoController::class, 'receiveFile']);
+Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile']);
 Route::get('publickey', fn(): string => SigningHelper::getPublicKey());

@@ -47,7 +47,6 @@ class Media extends Model
     protected $fillable = [
         'identifier',
         'type',
-        'user_id',
     ];
 
     /**
