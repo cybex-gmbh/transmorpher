@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('upload_tokens', function (Blueprint $table) {
+        Schema::create('upload_slots', function (Blueprint $table) {
             $table->id();
             $table->string('token')->unique();
-            $table->string('identifier');
-            $table->string('id_token')->nullable();
+            $table->string('identifier')->unique();
             $table->string('callback_url')->nullable();
             $table->string('validation_rules')->nullable();
             $table->dateTime('valid_until');

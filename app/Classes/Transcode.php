@@ -2,6 +2,8 @@
 
 namespace App\Classes;
 
+use App\Enums\ResponseState;
+use App\Models\UploadSlot;
 use App\Models\User;
 use FilePathHelper;
 use App\Helpers\SigningHelper;
@@ -17,15 +19,13 @@ class Transcode implements TranscodeInterface
     /**
      * Creates a job which handles the transcoding of a video.
      *
-     * @param string  $originalFilePath
-     * @param Media   $media
+     * @param string $originalFilePath
+     * @param Media $media
      * @param Version $version
-     * @param string  $callbackUrl
-     * @param string  $idToken
-     *
+     * @param UploadSlot $uploadSlot
      * @return bool
      */
-    public function createJob(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken): bool
+    public function createJob(string $originalFilePath, Media $media, Version $version, UploadSlot $uploadSlot): bool
     {
         /*
         * When using SQS FIFO:
@@ -34,7 +34,7 @@ class Transcode implements TranscodeInterface
         * See SqsFifoQueue class.
         */
         try {
-            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken);
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $uploadSlot);
         } catch (Exception) {
             return false;
         }
@@ -45,20 +45,19 @@ class Transcode implements TranscodeInterface
     /**
      * Creates a job which handles the transcoding of a video when a version number is updated.
      *
-     * @param string  $originalFilePath
-     * @param Media   $media
+     * @param string $originalFilePath
+     * @param Media $media
      * @param Version $version
-     * @param string  $callbackUrl
-     * @param string  $idToken
-     * @param int     $oldVersionNumber
-     * @param bool    $wasProcessed
+     * @param UploadSlot $uploadSlot
+     * @param int $oldVersionNumber
+     * @param bool $wasProcessed
      *
      * @return bool
      */
-    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, string $callbackUrl, string $idToken, int $oldVersionNumber, bool $wasProcessed): bool
+    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, UploadSlot $uploadSlot, int $oldVersionNumber, bool $wasProcessed): bool
     {
         try {
-            TranscodeVideo::dispatch($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed);
+            TranscodeVideo::dispatch($originalFilePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
         } catch (Exception) {
             return false;
         }
@@ -69,24 +68,24 @@ class Transcode implements TranscodeInterface
     /**
      * Inform client package about the transcoding result.
      *
-     * @param bool   $success
-     * @param string $callbackUrl
-     * @param string $idToken
-     * @param User   $user
-     * @param string $identifier
-     * @param int    $versionNumber
+     * @param ResponseState $responseState
+     * @param string        $callbackUrl
+     * @param string        $uploadToken
+     * @param User          $user
+     * @param string        $identifier
+     * @param int           $versionNumber
      *
      * @return void
      */
-    public function callback(bool $success, string $callbackUrl, string $idToken, User $user, string $identifier, int $versionNumber): void
+    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, User $user, string $identifier, int $versionNumber): void
     {
         $response = [
-            'success'     => $success,
-            'response'    => $success ? 'Successfully transcoded video.' : 'Video transcoding failed.',
-            'identifier'  => $identifier,
-            'version'     => $versionNumber,
-            'client'      => $user->name,
-            'id_token'    => $idToken,
+            'success' => $responseState->success(),
+            'response' => $responseState->value,
+            'identifier' => $identifier,
+            'version' => $versionNumber,
+            'client' => $user->name,
+            'upload_token' => $uploadToken,
             'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($user, $identifier)),
         ];
 

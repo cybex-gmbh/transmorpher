@@ -2,7 +2,7 @@
 
 use App\Helpers\SigningHelper;
 use App\Http\Controllers\ImageController;
-use App\Http\Controllers\UploadTokenController;
+use App\Http\Controllers\UploadSlotController;
 use App\Http\Controllers\VersionController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
@@ -26,18 +26,13 @@ Route::middleware('auth:sanctum')->group(
 
         // Image
         Route::get('/image/{identifier}/version/{versionNumber}', [ImageController::class, 'getVersion']);
-        Route::post('/image/token', [UploadTokenController::class, 'getImageToken']);
+        Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
 
         // Video
-        Route::post('/video/token', [UploadTokenController::class, 'getVideoToken']);
+        Route::post('/video/reserveUploadSlot', [UploadSlotController::class, 'reserveVideoUploadSlot']);
     }
 );
 
-Route::middleware(['throttle:none'])->group(
-    function() {
-        Route::post('/image/upload', [ImageController::class, 'receiveFile']);
-        Route::post('/video/upload', [VideoController::class, 'receiveFile']);
-    }
-);
-
+Route::post('/image/upload/{uploadSlot}', [ImageController::class, 'receiveFile']);
+Route::post('/video/upload/{uploadSlot}', [VideoController::class, 'receiveFile']);
 Route::get('publickey', fn(): string => SigningHelper::getPublicKey());

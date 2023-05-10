@@ -11,7 +11,7 @@ class UploadRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize(): bool
+    public function authorize()
     {
         return true;
     }
@@ -24,7 +24,9 @@ class UploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'upload_token' => ['required', 'string'],
+            'file' => [
+                'required',
+            ]
         ];
     }
 }

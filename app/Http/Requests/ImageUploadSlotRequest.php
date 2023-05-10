@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class VideoUploadTokenRequest extends FormRequest
+class ImageUploadSlotRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class VideoUploadTokenRequest extends FormRequest
      */
     public function authorize()
     {
-        return $this->user()->tokenCan('transmorpher:get-video-upload-token');
+        return $this->user()->tokenCan('transmorpher:reserve-image-upload-slot');
     }
 
     /**
@@ -25,8 +25,6 @@ class VideoUploadTokenRequest extends FormRequest
     {
         return [
             'identifier' => ['required', 'string'],
-            'id_token' => ['required', 'string'],
-            'callback_url' => ['required', 'string', 'url']
         ];
     }
 }
