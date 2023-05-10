@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Enums\MediaStorage;
-use App\Enums\MediaType;
 use App\Helpers\Upload;
 use App\Enums\Transformation;
 use App\Http\Requests\UploadRequest;
@@ -12,7 +11,6 @@ use App\Models\User;
 use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
@@ -25,25 +23,6 @@ use Transform;
 
 class ImageController extends Controller
 {
-    /**
-     * Handles incoming image upload requests.
-     *
-     * @param UploadRequest $request
-     * @param UploadSlot    $uploadSlot
-     *
-     * @return JsonResponse
-     * @throws UploadFailedException
-     * @throws UploadMissingFileException
-     */
-    public function receiveFile(UploadRequest $request, UploadSlot $uploadSlot): JsonResponse
-    {
-        if (($response = Upload::receive($request)) instanceof JsonResponse) {
-            return $response;
-        }
-
-        return Upload::saveFile($response, $uploadSlot, MediaType::IMAGE);
-    }
-
     /**
      * Handles incoming image derivative requests.
      *

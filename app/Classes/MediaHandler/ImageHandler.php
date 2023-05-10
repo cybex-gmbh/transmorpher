@@ -4,8 +4,8 @@ namespace App\Classes\MediaHandler;
 
 use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
+use App\Enums\MediaType;
 use App\Enums\ResponseState;
-use App\Helpers\Upload;
 use App\Interfaces\MediaHandlerInterface;
 use App\Models\Media;
 use App\Models\UploadSlot;
@@ -72,7 +72,8 @@ class ImageHandler implements MediaHandlerInterface
      */
     public function setVersion(User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
     {
-        $uploadSlot = Upload::createUploadSlot($user, $identifier);
+        // Token and valid_until will be set in the 'saving' event.
+        $uploadSlot = $user->UploadSlots()->updateOrCreate(['identifier' => $identifier], ['media_type' => MediaType::IMAGE]);
 
         if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($user, $identifier))) {
             // Might instead move the directory to keep derivatives, but S3 can't move directories and each file would have to be moved individually.
