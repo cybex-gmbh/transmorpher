@@ -24,7 +24,9 @@ class VideoUploadSlotRequest extends FormRequest
     public function rules()
     {
         return [
-            'identifier' => ['required', 'string'],
+            // Only allow lower/uppercase characters, numbers, underscores and dashes.
+            // The first character can't be a dash.
+            'identifier' => ['required', 'string', 'regex:/^[\w][\w\-]*$/'],
             'callback_url' => ['required', 'string', 'url']
         ];
     }
