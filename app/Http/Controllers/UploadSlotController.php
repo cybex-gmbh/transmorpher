@@ -59,7 +59,7 @@ class UploadSlotController extends Controller
      */
     public function reserveImageUploadSlot(ImageUploadSlotRequest $request): JsonResponse
     {
-        return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => MediaType::IMAGE])->all());
+        return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => MediaType::IMAGE->value])->all());
     }
 
     /**
@@ -71,7 +71,7 @@ class UploadSlotController extends Controller
      */
     public function reserveVideoUploadSlot(VideoUploadSlotRequest $request): JsonResponse
     {
-        return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => MediaType::VIDEO])->all());
+        return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => MediaType::VIDEO->value])->all());
     }
 
     /**
