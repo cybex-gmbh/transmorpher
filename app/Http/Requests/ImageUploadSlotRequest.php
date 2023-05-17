@@ -24,8 +24,7 @@ class ImageUploadSlotRequest extends FormRequest
     public function rules()
     {
         return [
-            // Only allow lower/uppercase characters, numbers, underscores and dashes.
-            // The first character can't be a dash.
+            // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and dashes are allowed.
             'identifier' => ['required', 'string', 'regex:/^[\w][\w\-]*$/'],
         ];
     }
