@@ -16,13 +16,15 @@ return new class extends Migration
         Schema::create('upload_slots', function (Blueprint $table) {
             $table->id();
             $table->string('token')->unique()->nullable();
-            $table->string('identifier')->unique();
+            $table->string('identifier');
             $table->string('callback_url')->nullable();
             $table->string('validation_rules')->nullable();
             $table->dateTime('valid_until')->nullable();
             $table->enum('media_type', ['image', 'video']);
             $table->foreignId('user_id')->constrained();
             $table->timestamps();
+
+            $table->unique(['identifier', 'user_id']);
         });
     }
 };
