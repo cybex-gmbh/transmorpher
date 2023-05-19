@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "63470ef2-823e-4246-8a2f-e35f1207ed90",
+		"_postman_id": "1463df56-32b8-41ea-b945-58ca6decc85f",
 		"name": "transmorpher server",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24082093"
 	},
 	"item": [
 		{
@@ -59,6 +60,79 @@
 								{
 									"key": "identifier",
 									"value": "postmanUnusedImage",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/image/reserveUploadSlot",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"image",
+								"reserveUploadSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve slot: Invalid identifier",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to obtain image upload slot: Invalid identifier\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The identifier format is invalid.\",\r",
+									"    \"errors\": {\r",
+									"        \"identifier\": [\r",
+									"            \"The identifier format is invalid.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "!allowed",
 									"type": "text"
 								}
 							]
@@ -1517,6 +1591,84 @@
 								{
 									"key": "callback_url",
 									"value": "not_an_URL",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"video",
+								"reserveUploadSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve slot: Invalid identifier",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to obtain video upload slot: Invalid identifier\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The identifier format is invalid.\",\r",
+									"    \"errors\": {\r",
+									"        \"identifier\": [\r",
+									"            \"The identifier format is invalid.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "--not-allowed",
+									"type": "text"
+								},
+								{
+									"key": "callback_url",
+									"value": "{{videoCallbackUrl}}",
 									"type": "text"
 								}
 							]
