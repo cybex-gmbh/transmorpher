@@ -1,0 +1,2292 @@
+{
+	"info": {
+		"_postman_id": "4a190e04-2927-431d-b494-4dbf4cc13043",
+		"name": "transmorpher server",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25831362"
+	},
+	"item": [
+		{
+			"name": "Image",
+			"item": [
+				{
+					"name": "Reserve slot: No auth",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to obtain image upload token: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "postmanUnusedImage",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/image/reserveUploadSlot",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"image",
+								"reserveUploadSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve slot: OK",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Obtained image upload token\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"});\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully created upload slot.\",\r",
+									"    \"identifier\": \"postmanUnusedImage\",\r",
+									"    \"upload_token\": \"6464b7e2f0928\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "postmanUnusedImage",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/image/reserveUploadSlot",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"image",
+								"reserveUploadSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: No auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to upload image: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(404);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Requested UploadSlot couldn't be found.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/foo",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"foo"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: No file",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image upload rejected: File field is required\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The file field is required.\",\r",
+									"    \"errors\": {\r",
+									"        \"file\": [\r",
+									"            \"The file field is required.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{imageUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: Wrong mime type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The file must be a file of type: jpg, png, gif, webp.\",\r",
+									"    \"errors\": {\r",
+									"        \"file\": [\r",
+									"            \"The file must be a file of type: jpg, png, gif, webp.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{imageUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: Slot expired",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image upload rejected: Upload slot expired\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(404);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Requested UploadSlot couldn't be found.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: \"http://transmorpher.test/api/image/reserveUploadSlot\",\r",
+									"        method: \"POST\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        },\r",
+									"        body: {\r",
+									"            \"mode\": \"application/json\",\r",
+									"            \"raw\": JSON.stringify(\r",
+									"                {\r",
+									"                    'identifier': pm.collectionVariables.get(\"imageIdentifier\")\r",
+									"                }\r",
+									"            )\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        console.log(jsonData);\r",
+									"    }\r",
+									");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{imageUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"});\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully uploaded new image version.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"version\": 1,\r",
+									"    \"client\": \"nameandemail\",\r",
+									"    \"public_path\": \"nameandemail/postmanTestImage\",\r",
+									"    \"upload_token\": \"6464a87163b5a\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{imageUploadToken}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "JPG",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received JPG image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/jpeg\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/q-1+f-jpg",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"q-1+f-jpg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PNG",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received PNG image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/png\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/q-1+f-png",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"q-1+f-png"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "WEBP",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received WEBP image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/webp\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/q-1+f-webp",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"q-1+f-webp"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Default",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received default image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"{{user}}",
+								"{{imageIdentifier}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Original Version: No auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not allowed to read original Image without auth token\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/1",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"image",
+								"{{imageIdentifier}}",
+								"version",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Original Version: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received original image\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/1",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"image",
+								"{{imageIdentifier}}",
+								"version",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Version get: No auth",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to retreive image versions: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}/versions",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"media",
+								"{{imageIdentifier}}",
+								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Version get: OK",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image versions retrieved\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"});\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully retrieved version numbers.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"currentVersion\": 3,\r",
+									"    \"currentlyProcessedVersion\": null,\r",
+									"    \"versions\": {\r",
+									"        \"3\": 1684330530\r",
+									"    },\r",
+									"    \"client\": \"postman\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}/versions",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"media",
+								"{{imageIdentifier}}",
+								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Version set: No auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to set image version: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        method: \"GET\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        var currentVersion = jsonData.currentVersion;\r",
+									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
+									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
+									"    }\r",
+									");\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully retrieved version numbers.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"currentVersion\": 2,\r",
+									"    \"currentlyProcessedVersion\": null,\r",
+									"    \"versions\": {\r",
+									"        \"2\": 1684330530\r",
+									"    },\r",
+									"    \"client\": \"postman\"\r",
+									"} */"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id_token",
+									"value": "abc123",
+									"type": "text"
+								},
+								{
+									"key": "callback_url",
+									"value": "http://transmorpher.test/api/test",
+									"type": "text"
+								},
+								{
+									"key": "_method",
+									"value": "patch",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}/version/{{currentImageVersion}}/set",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"media",
+								"{{imageIdentifier}}",
+								"version",
+								"{{currentImageVersion}}",
+								"set"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Version set: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image version set\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"});\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully set media version.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"version\": 2,\r",
+									"    \"client\": \"postman\",\r",
+									"    \"public_path\": \"postman/postmanTestImage\",\r",
+									"    \"upload_token\": \"6464e2634f4aa\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        method: \"GET\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        var currentVersion = jsonData.currentVersion;\r",
+									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
+									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
+									"    }\r",
+									");\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully retrieved version numbers.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"currentVersion\": 2,\r",
+									"    \"currentlyProcessedVersion\": null,\r",
+									"    \"versions\": {\r",
+									"        \"2\": 1684330530\r",
+									"    },\r",
+									"    \"client\": \"postman\"\r",
+									"} */"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id_token",
+									"value": "abc123",
+									"type": "text"
+								},
+								{
+									"key": "callback_url",
+									"value": "http://transmorpher.test/api/test",
+									"type": "text"
+								},
+								{
+									"key": "_method",
+									"value": "patch",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}/version/{{currentImageVersion}}/set",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"media",
+								"{{imageIdentifier}}",
+								"version",
+								"{{currentImageVersion}}",
+								"set"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete: No auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to delete image: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"media",
+								"{{imageIdentifier}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image deleted\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"});\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully deleted media.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"client\": \"nameandemail\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"media",
+								"{{imageIdentifier}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.sendRequest(",
+							"    {",
+							"        url: \"http://transmorpher.test/api/image/reserveUploadSlot\",",
+							"        method: \"POST\",",
+							"        header: {",
+							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),",
+							"            \"Accept\": \"application/json\",",
+							"            \"Content-Type\": \"application/json\"",
+							"        },",
+							"        body: {",
+							"            \"mode\": \"application/json\",",
+							"            \"raw\": JSON.stringify(",
+							"                {",
+							"                    'identifier': pm.collectionVariables.get(\"imageIdentifier\")",
+							"                }",
+							"            )",
+							"        }",
+							"    }, function (err, response) {",
+							"        var jsonData = response.json();",
+							"        console.log(jsonData);",
+							"        pm.collectionVariables.set('imageUploadToken', jsonData.upload_token);",
+							"        console.log('set imageUploadToken to: ' + pm.collectionVariables.get('imageUploadToken'));",
+							"        console.log('-------------------------------------------')",
+							"    }",
+							");",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Video",
+			"item": [
+				{
+					"name": "Reserve slot: No auth",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to obtain video upload token: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "postmanUnusedVideo",
+									"type": "text"
+								},
+								{
+									"key": "callback_url",
+									"value": "{{videoCallbackUrl}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"video",
+								"reserveUploadSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve slot: No callback URL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to obtain video upload slot: Missing callback URL\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"callback_url\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The callback url field is required.\",\r",
+									"    \"errors\": {\r",
+									"        \"callback_url\": [\r",
+									"            \"The callback url field is required.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "postmanUnusedVideo",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"video",
+								"reserveUploadSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve slot: Invalid callback URL",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to obtain video upload slot: Invalid callback URL\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"callback_url\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The callback url must be a valid URL.\",\r",
+									"    \"errors\": {\r",
+									"        \"callback_url\": [\r",
+									"            \"The callback url must be a valid URL.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "postmanUnusedVideo",
+									"type": "text"
+								},
+								{
+									"key": "callback_url",
+									"value": "not_an_URL",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"video",
+								"reserveUploadSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve slot: OK",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Obtained video upload token\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"});\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully created upload slot.\",\r",
+									"    \"identifier\": \"postmanUnusedVideo\",\r",
+									"    \"upload_token\": \"6464c1a67c372\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "postmanUnusedVideo",
+									"type": "text"
+								},
+								{
+									"key": "callback_url",
+									"value": "{{videoCallbackUrl}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"video",
+								"reserveUploadSlot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: No auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to upload video: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(404);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Requested UploadSlot couldn't be found.\"\r",
+									"} */"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/foo",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"foo"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: No file",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video upload rejected: File field is required\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The file field is required.\",\r",
+									"    \"errors\": {\r",
+									"        \"file\": [\r",
+									"            \"The file field is required.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{videoUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{videoUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: Wrong mime type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The file must be a file of type: video/x-msvideo, video/mpeg, video/ogg, video/webm, video/mp4.\",\r",
+									"    \"errors\": {\r",
+									"        \"file\": [\r",
+									"            \"The file must be a file of type: video/x-msvideo, video/mpeg, video/ogg, video/webm, video/mp4.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{videoUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{videoUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: Slot expired",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video upload rejected: Upload slot expired\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(404);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Requested UploadSlot couldn't be found.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: \"http://transmorpher.test/api/image/reserveUploadSlot\",\r",
+									"        method: \"POST\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        },\r",
+									"        body: {\r",
+									"            \"mode\": \"application/json\",\r",
+									"            \"raw\": JSON.stringify(\r",
+									"                {\r",
+									"                    'identifier': pm.collectionVariables.get(\"videoIdentifier\"),\r",
+									"                    'callback_url': pm.collectionVariables.get(\"videoCallbackUrl\")\r",
+									"                }\r",
+									"            )\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        console.log(jsonData);\r",
+									"    }\r",
+									");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{videoUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{videoUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"});\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully uploaded new video version, transcoding job has been dispatched.\",\r",
+									"    \"identifier\": \"postmanTestVideo\",\r",
+									"    \"version\": 2,\r",
+									"    \"client\": \"nameandemail\",\r",
+									"    \"public_path\": null,\r",
+									"    \"upload_token\": \"6464c4c93e217\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{videoUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{videoUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete: No auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to delete video: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/media/{{videoIdentifier}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"media",
+								"{{videoIdentifier}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video deleted\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"});\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully deleted media.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"client\": \"nameandemail\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/media/{{videoIdentifier}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"media",
+								"{{videoIdentifier}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.sendRequest(",
+							"    {",
+							"        url: \"http://transmorpher.test/api/video/reserveUploadSlot\",",
+							"        method: \"POST\",",
+							"        header: {",
+							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),",
+							"            \"Accept\": \"application/json\",",
+							"            \"Content-Type\": \"application/json\"",
+							"        },",
+							"        body: {",
+							"            \"mode\": \"application/json\",",
+							"            \"raw\": JSON.stringify(",
+							"                {",
+							"                    'identifier': pm.collectionVariables.get(\"videoIdentifier\"),",
+							"                    'callback_url': pm.collectionVariables.get(\"videoCallbackUrl\")",
+							"                }",
+							"            )",
+							"        }",
+							"    }, function (err, response) {",
+							"        var jsonData = response.json();",
+							"        console.log(jsonData);",
+							"        pm.collectionVariables.set('videoUploadToken', jsonData.upload_token);",
+							"        console.log('set videoUploadToken to: ' + pm.collectionVariables.get('videoUploadToken'));",
+							"        console.log('-------------------------------------------')",
+							"    }",
+							");",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"console.clear();"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "user",
+			"value": "postman",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "2|SSkfqSkNq3zmogcCeSipLxcjIpviqO7vawD3FsxH",
+			"type": "string"
+		},
+		{
+			"key": "serverDomain",
+			"value": "transmorpher.test",
+			"type": "string"
+		},
+		{
+			"key": "---",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "imageUploadToken",
+			"value": "foo",
+			"type": "string"
+		},
+		{
+			"key": "imageIdentifier",
+			"value": "postmanTestImage",
+			"type": "string"
+		},
+		{
+			"key": "videoUploadToken",
+			"value": "foo",
+			"type": "string"
+		},
+		{
+			"key": "videoIdentifier",
+			"value": "postmanTestVideo",
+			"type": "string"
+		},
+		{
+			"key": "videoCallbackUrl",
+			"value": "http://maminator.test/transmorpher/callback",
+			"type": "string"
+		},
+		{
+			"key": "currentImageVersion",
+			"value": "0",
+			"type": "string"
+		},
+		{
+			"key": "currentVideoVersion",
+			"value": "0",
+			"type": "string"
+		}
+	]
+}
