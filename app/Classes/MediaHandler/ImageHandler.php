@@ -73,6 +73,7 @@ class ImageHandler implements MediaHandlerInterface
     public function setVersion(User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
     {
         // Token and valid_until will be set in the 'saving' event.
+        // By creating an upload slot, a currently active upload will be canceled.
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $identifier], ['media_type' => MediaType::IMAGE]);
 
         if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($user, $identifier))) {
