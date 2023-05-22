@@ -126,7 +126,7 @@ class UploadSlotController extends Controller
     protected function updateOrCreateUploadSlot(User $user, array $requestData): JsonResponse
     {
         // Token and valid_until will be set in the 'saving' event.
-        $uploadSlot = $user->UploadSlots()->updateOrCreate(['identifier' => $requestData['identifier']], $requestData);
+        $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $requestData['identifier']], $requestData);
 
         return response()->json([
             'success' => ResponseState::UPLOAD_SLOT_CREATED->success(),

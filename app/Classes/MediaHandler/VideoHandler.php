@@ -77,7 +77,7 @@ class VideoHandler implements MediaHandlerInterface
             $filePath = FilePathHelper::toOriginalFile($user, $identifier, $version->number);
 
             // Token and valid_until will be set in the 'saving' event.
-            $uploadSlot = $user->UploadSlots()->updateOrCreate(['identifier' => $identifier], ['callback_url' => $callbackUrl, 'media_type' => MediaType::VIDEO]);
+            $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $identifier], ['callback_url' => $callbackUrl, 'media_type' => MediaType::VIDEO]);
 
             $success = Transcode::createJobForVersionUpdate($filePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
             $responseState = $success ? ResponseState::VERSION_SET : ResponseState::DISPATCHING_TRANSCODING_JOB_FAILED;
