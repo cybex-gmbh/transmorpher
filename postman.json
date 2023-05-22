@@ -1,9 +1,8 @@
 {
 	"info": {
-		"_postman_id": "1463df56-32b8-41ea-b945-58ca6decc85f",
+		"_postman_id": "b62be274-4e8b-4320-8984-994ec1e604d3",
 		"name": "transmorpher server",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "24082093"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
@@ -835,6 +834,41 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        method: \"GET\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        var currentVersion = jsonData.currentVersion;\r",
+									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
+									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
+									"    }\r",
+									");\r",
+									"/* {\r",
+									"    \"success\": true,\r",
+									"    \"response\": \"Successfully retrieved version numbers.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"currentVersion\": 2,\r",
+									"    \"currentlyProcessedVersion\": null,\r",
+									"    \"versions\": {\r",
+									"        \"2\": 1684330530\r",
+									"    },\r",
+									"    \"client\": \"postman\"\r",
+									"} */"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"request": {
@@ -847,7 +881,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/1",
+							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/{{currentImageVersion}}",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
@@ -858,7 +892,7 @@
 								"image",
 								"{{imageIdentifier}}",
 								"version",
-								"1"
+								"{{currentImageVersion}}"
 							]
 						}
 					},
