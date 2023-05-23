@@ -9,28 +9,28 @@ class FilePathHelper
 {
     /**
      * Get the path to an (existing) image derivative.
+     * If no version number is given, the path to the current version will be returned.
      * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
      *
-     * @param User       $user
-     * @param string     $transformations
-     * @param string     $identifier
+     * @param User $user
+     * @param string $transformations
+     * @param string $identifier
      * @param array|null $transformationsArray
-     *
+     * @param int|null $versionNumber
      * @return string
      */
-    public function toImageDerivativeFile(User $user, string $transformations, string $identifier, array $transformationsArray = null): string
+    public function toImageDerivativeFile(User $user, string $transformations, string $identifier, array $transformationsArray = null, int $versionNumber = null): string
     {
-        $media                 = $user->Media()->whereIdentifier($identifier)->firstOrFail();
-        $mediaVersions         = $media->Versions();
-        $currentVersionNumber  = $mediaVersions->max('number');
-        $currentVersion        = $mediaVersions->whereNumber($currentVersionNumber)->firstOrFail();
-        $originalFileExtension = pathinfo($currentVersion->filename, PATHINFO_EXTENSION);
+        $media = $user->Media()->whereIdentifier($identifier)->firstOrFail();
+        $mediaVersions = $media->Versions();
+        $versionNumber ??= $mediaVersions->max('number');
+        $originalFileExtension = pathinfo($mediaVersions->whereNumber($versionNumber)->firstOrFail()->filename, PATHINFO_EXTENSION);
 
-        // Hash of transformation parameters and current version number to identify already generated derivatives.
-        $derivativeHash = hash('sha256', $transformations . $currentVersionNumber);
+        // Hash of transformation parameters and version number to identify already generated derivatives.
+        $derivativeHash = hash('sha256', $transformations . $versionNumber);
 
         return sprintf('%s/%sx_%sy_%sq_%s.%s',
-            $this->toImageDerivativeVersionDirectory($user, $identifier, $currentVersionNumber),
+            $this->toImageDerivativeVersionDirectory($user, $identifier, $versionNumber),
             $transformationsArray[Transformation::WIDTH->value] ?? '',
             $transformationsArray[Transformation::HEIGHT->value] ?? '',
             $transformationsArray[Transformation::QUALITY->value] ?? '',

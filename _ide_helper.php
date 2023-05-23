@@ -17824,19 +17824,21 @@
                     /**
          * Get the path to an (existing) image derivative.
          * 
+         * If no version number is given, the path to the current version will be returned.
          * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
          *
          * @param \App\Models\User $user
          * @param string $transformations
          * @param string $identifier
          * @param array|null $transformationsArray
+         * @param int|null $versionNumber
          * @return string 
          * @static 
          */ 
-        public static function toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray = null)
+        public static function toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray = null, $versionNumber = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
+                        return $instance->toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray, $versionNumber);
         }
                     /**
          * Get the path to the directory of an image derivative version.

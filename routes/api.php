@@ -4,7 +4,6 @@ use App\Helpers\SigningHelper;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\UploadSlotController;
 use App\Http\Controllers\VersionController;
-use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,6 +25,7 @@ Route::middleware('auth:sanctum')->group(
 
         // Image
         Route::get('/image/{identifier}/version/{versionNumber}', [ImageController::class, 'getVersion']);
+        Route::get('/image/derivative/{media}/version/{version}/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
         Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
 
         // Video
