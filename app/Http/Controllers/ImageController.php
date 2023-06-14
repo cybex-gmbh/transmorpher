@@ -110,7 +110,7 @@ class ImageController extends Controller
         if ($quality && mime_content_type($tempFile) === 'image/png') {
             // Add pngquant quality option for pngs
             $pngquant = config(sprintf('image-optimizer.optimizers.%s', Pngquant::class));
-            $pngquant[] = sprintf(' --quality %1$s-%1$s', $quality);
+            $pngquant[] = sprintf('--quality %1$s-%1$s', $quality);
             $optipng = config(sprintf('image-optimizer.optimizers.%s', Optipng::class));
 
             (new OptimizerChain())->addOptimizer(new Pngquant($pngquant))->addOptimizer(new Optipng($optipng))->optimize($tempFile);
