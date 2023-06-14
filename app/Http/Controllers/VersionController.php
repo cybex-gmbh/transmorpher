@@ -31,7 +31,7 @@ class VersionController extends Controller
 
         return response()->json([
             'success' => ResponseState::VERSIONS_RETRIEVED->success(),
-            'response' => ResponseState::VERSIONS_RETRIEVED->value,
+            'response' => ResponseState::VERSIONS_RETRIEVED->getResponse(),
             'identifier' => $identifier,
             'currentVersion' => $currentVersionNumber ?? null,
             'currentlyProcessedVersion' => $processedVersionNumber,
@@ -71,7 +71,7 @@ class VersionController extends Controller
 
         return response()->json([
             'success' => $responseState->success(),
-            'response' => $responseState->value,
+            'response' => $responseState->getResponse(),
             'identifier' => $identifier,
             'version' => $responseState->success() ? $newVersionNumber : $currentVersionNumber,
             'client' => $user->name,
@@ -108,7 +108,7 @@ class VersionController extends Controller
 
         return response()->json([
             'success' => $responseState->success(),
-            'response' => $responseState->value,
+            'response' => $responseState->getResponse(),
             'identifier' => $identifier,
             'client' => $user->name,
         ]);

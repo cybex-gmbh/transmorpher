@@ -113,7 +113,7 @@ class UploadSlotController extends Controller
 
         return response()->json([
             'success' => $responseState->success(),
-            'response' => $responseState->value,
+            'response' => $responseState->getResponse(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'client' => $user->name,
@@ -130,7 +130,7 @@ class UploadSlotController extends Controller
 
         return response()->json([
             'success' => ResponseState::UPLOAD_SLOT_CREATED->success(),
-            'response' => ResponseState::UPLOAD_SLOT_CREATED->value,
+            'response' => ResponseState::UPLOAD_SLOT_CREATED->getResponse(),
             'identifier' => $requestData['identifier'],
             'upload_token' => $uploadSlot->token
         ]);
