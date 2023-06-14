@@ -81,7 +81,7 @@ class Transcode implements TranscodeInterface
     {
         $response = [
             'success' => $responseState->success(),
-            'response' => $responseState->value,
+            'response' => $responseState->getResponse(),
             'identifier' => $identifier,
             'version' => $versionNumber,
             'client' => $user->name,
