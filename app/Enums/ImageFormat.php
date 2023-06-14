@@ -23,7 +23,7 @@ enum ImageFormat: string
     {
         return app(config(sprintf('transmorpher.convert_classes.%s', $this->value)));
     }
-
+test
     /**
      * Retrieve the mime types which are defined in the enum cases.
      *
