@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Helpers\Upload;
@@ -13,10 +14,6 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Spatie\ImageOptimizer\OptimizerChain;
-use Spatie\ImageOptimizer\Optimizers\Optipng;
-use Spatie\ImageOptimizer\Optimizers\Pngquant;
-use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 use Transform;
 
 class ImageController extends Controller
@@ -104,17 +101,8 @@ class ImageController extends Controller
         $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
         file_put_contents($tempFile, $derivative);
 
-        if ($quality && mime_content_type($tempFile) === 'image/png') {
-            // Add pngquant quality option for pngs
-            $pngquant = config(sprintf('image-optimizer.optimizers.%s', Pngquant::class));
-            $pngquant[] = sprintf(' --quality %1$s-%1$s', $quality);
-            $optipng = config(sprintf('image-optimizer.optimizers.%s', Optipng::class));
-
-            (new OptimizerChain())->addOptimizer(new Pngquant($pngquant))->addOptimizer(new Optipng($optipng))->optimize($tempFile);
-        } else {
-            // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
-            ImageOptimizer::optimize($tempFile);
-        };
+        // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
+        ImageFormat::fromMimeType(mime_content_type($tempFile))->getOptimizer()->optimize($tempFile, $quality);
 
         $derivative = file_get_contents($tempFile);
         unlink($tempFile);

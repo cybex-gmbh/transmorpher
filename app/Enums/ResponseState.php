@@ -4,19 +4,19 @@ namespace App\Enums;
 
 enum ResponseState: string
 {
-    case CDN_INVALIDATION_FAILED = 'CDN invalidation failed.';
-    case DELETION_SUCCESSFUL = 'Successfully deleted media.';
-    case DISPATCHING_TRANSCODING_JOB_FAILED = 'There was an error when trying to dispatch the transcoding job.';
-    case IMAGE_UPLOAD_SUCCESSFUL = 'Successfully uploaded new image version.';
-    case NO_CALLBACK_URL_PROVIDED = 'A callback URL is needed for this identifier.';
-    case TRANSCODING_ABORTED = 'Transcoding process aborted due to a new version or upload.';
-    case TRANSCODING_FAILED = 'Video transcoding failed, version has been removed.';
-    case TRANSCODING_SUCCESSFUL = 'Successfully transcoded video.';
-    case UPLOAD_SLOT_CREATED = 'Successfully created upload slot.';
-    case VERSIONS_RETRIEVED = 'Successfully retrieved version numbers.';
-    case VERSION_SET = 'Successfully set media version.';
-    case VIDEO_UPLOAD_SUCCESSFUL = 'Successfully uploaded new video version, transcoding job has been dispatched.';
-    case WRITE_FAILED = 'Could not write media to disk.';
+    case CDN_INVALIDATION_FAILED = 'cdn_invalidation_failed';
+    case DELETION_SUCCESSFUL = 'deletion_successful';
+    case DISPATCHING_TRANSCODING_JOB_FAILED = 'dispatching_transcoding_job_failed';
+    case IMAGE_UPLOAD_SUCCESSFUL = 'image_upload_successful';
+    case NO_CALLBACK_URL_PROVIDED = 'no_callback_url_provided';
+    case TRANSCODING_ABORTED = 'transcoding_aborted';
+    case TRANSCODING_FAILED = 'transcoding_failed';
+    case TRANSCODING_SUCCESSFUL = 'transcoding_successful';
+    case UPLOAD_SLOT_CREATED = 'upload_slot_created';
+    case VERSIONS_RETRIEVED = 'versions_retrieved';
+    case VERSION_SET = 'version_set';
+    case VIDEO_UPLOAD_SUCCESSFUL = 'video_upload_successful';
+    case WRITE_FAILED = 'write_failed';
 
 
     /**
@@ -34,5 +34,13 @@ enum ResponseState: string
             ResponseState::VIDEO_UPLOAD_SUCCESSFUL => true,
             default => false
         };
+    }
+
+    /**
+     * @return string
+     */
+    public function getResponse(): string
+    {
+        return trans(sprintf('responses.%s', $this->value));
     }
 }
