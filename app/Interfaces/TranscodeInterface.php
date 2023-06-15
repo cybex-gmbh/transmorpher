@@ -39,11 +39,11 @@ interface TranscodeInterface
      * Inform client package about the transcoding result.
      *
      * @param ResponseState $responseState
-     * @param string        $callbackUrl
-     * @param string        $uploadToken
-     * @param User          $user
-     * @param string        $identifier
-     * @param int           $versionNumber
+     * @param string $callbackUrl
+     * @param string $uploadToken
+     * @param User $user
+     * @param string $identifier
+     * @param int $versionNumber
      *
      * @return void
      */

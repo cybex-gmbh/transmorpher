@@ -83,7 +83,7 @@ class ImageController extends Controller
         $parameters = explode('+', $transformations);
 
         foreach ($parameters as $parameter) {
-            [$key, $value] = explode('-', $parameter);
+            [$key, $value] = explode('-', $parameter, 2);
             $transformationsArray[$key] = $value;
         }
 

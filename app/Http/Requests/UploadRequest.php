@@ -11,8 +11,9 @@ class UploadRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
+        // The request is authorized by an upload token, which is previously retrieved from a Sanctum protected route.
         return true;
     }
 
