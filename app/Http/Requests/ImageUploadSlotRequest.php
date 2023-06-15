@@ -11,7 +11,7 @@ class ImageUploadSlotRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return $this->user()->tokenCan('transmorpher:reserve-image-upload-slot');
     }
@@ -21,7 +21,7 @@ class ImageUploadSlotRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'identifier' => ['required', 'string'],
