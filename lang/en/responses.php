@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Response Language Lines
@@ -11,7 +10,6 @@ return [
     | client.
     |
     */
-
     'cdn_invalidation_failed' => 'CDN invalidation failed.',
     'deletion_successful' => 'Successfully deleted media.',
     'dispatching_transcoding_job_failed' => 'There was an error when trying to dispatch the transcoding job.',
@@ -25,5 +23,4 @@ return [
     'version_set' => 'Successfully set media version.',
     'video_upload_successful' => 'Successfully uploaded new video version, transcoding job has been dispatched.',
     'write_failed' => 'Could not write media to disk.',
-
 ];

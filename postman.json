@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1463df56-32b8-41ea-b945-58ca6decc85f",
+		"_postman_id": "83ad6c81-9316-43ad-9ddf-83004977f161",
 		"name": "transmorpher server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "24082093"
@@ -594,7 +594,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "///wsl.localhost/Ubuntu/home/sail/code/transmorpher/tests/data/test.png"
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
 								}
 							]
 						},
@@ -2259,7 +2259,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "///wsl.localhost/Ubuntu/home/sail/code/transmorpher/tests/data/test.mp4"
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
 								}
 							]
 						},
