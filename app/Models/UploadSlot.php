@@ -97,6 +97,11 @@ class UploadSlot extends Model
         return 'token';
     }
 
+    /**
+     * Retrieve whether the upload token for this upload slot is still valid.
+     *
+     * @return Attribute
+     */
     protected function isValid(): Attribute
     {
         return Attribute::make(
