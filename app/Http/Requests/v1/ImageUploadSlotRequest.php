@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class VideoUploadSlotRequest extends FormRequest
+class ImageUploadSlotRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class VideoUploadSlotRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:reserve-video-upload-slot');
+        return $this->user()->tokenCan('transmorpher:reserve-image-upload-slot');
     }
 
     /**
@@ -26,7 +26,6 @@ class VideoUploadSlotRequest extends FormRequest
         return [
             // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and dashes are allowed.
             'identifier' => ['required', 'string', 'regex:/^[\w][\w\-]*$/'],
-            'callback_url' => ['required', 'string', 'url']
         ];
     }
 }

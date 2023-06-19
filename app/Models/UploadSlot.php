@@ -14,11 +14,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\UploadSlot
  *
  * @property int $id
- * @property string $token
+ * @property string|null $token
  * @property string $identifier
  * @property string|null $callback_url
  * @property string|null $validation_rules
- * @property string $valid_until
+ * @property string|null $valid_until
+ * @property MediaType $media_type
  * @property int $user_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -30,13 +31,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder|UploadSlot whereCreatedAt($value)
  * @method static Builder|UploadSlot whereId($value)
  * @method static Builder|UploadSlot whereIdentifier($value)
+ * @method static Builder|UploadSlot whereMediaType($value)
  * @method static Builder|UploadSlot whereToken($value)
  * @method static Builder|UploadSlot whereUpdatedAt($value)
  * @method static Builder|UploadSlot whereUserId($value)
  * @method static Builder|UploadSlot whereValidUntil($value)
  * @method static Builder|UploadSlot whereValidationRules($value)
- * @property MediaType $media_type
- * @method static Builder|UploadSlot whereMediaType($value)
  * @mixin \Eloquent
  */
 class UploadSlot extends Model
