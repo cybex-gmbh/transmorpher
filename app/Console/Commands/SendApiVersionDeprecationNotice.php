@@ -33,7 +33,7 @@ class SendApiVersionDeprecationNotice extends Command
     {
         Mail::to(config('mail.from.address'))
             ->bcc(User::get())
-            ->queue(app(ApiVersionDeprecationNotice::class, ['apiVersion' => 1]));
+            ->queue(app(ApiVersionDeprecationNotice::class, ['apiVersion' => $this->argument('apiVersion')]));
 
         return Command::SUCCESS;
     }
