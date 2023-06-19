@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\v1;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
-use App\Http\Requests\ImageUploadSlotRequest;
-use App\Http\Requests\UploadRequest;
-use App\Http\Requests\VideoUploadSlotRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\ImageUploadSlotRequest;
+use App\Http\Requests\v1\UploadRequest;
+use App\Http\Requests\v1\VideoUploadSlotRequest;
 use App\Models\UploadSlot;
 use App\Models\User;
 use File;

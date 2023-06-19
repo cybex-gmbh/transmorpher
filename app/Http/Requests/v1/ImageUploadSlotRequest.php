@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\v1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SetVersionRequest extends FormRequest
+class ImageUploadSlotRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,7 @@ class SetVersionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:set-version');
+        return $this->user()->tokenCan('transmorpher:reserve-image-upload-slot');
     }
 
     /**
@@ -23,9 +23,9 @@ class SetVersionRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Nullable because this information is only used for videos. Validation is happening inside the VersionController.
         return [
-            'callback_url' => ['nullable', 'string', 'url']
+            // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and dashes are allowed.
+            'identifier' => ['required', 'string', 'regex:/^[\w][\w\-]*$/'],
         ];
     }
 }

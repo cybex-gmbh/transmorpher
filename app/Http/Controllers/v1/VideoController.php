@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\v1;
 
-use App\Helpers\Upload;
+use App\Http\Controllers\Controller;
 
 class VideoController extends Controller
 {
