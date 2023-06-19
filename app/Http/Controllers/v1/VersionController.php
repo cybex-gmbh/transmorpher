@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\v1;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
-use App\Http\Requests\SetVersionRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\v1\SetVersionRequest;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
