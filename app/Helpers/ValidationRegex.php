@@ -17,6 +17,18 @@ class ValidationRegex
     }
 
     /**
+     * Get the regex pattern for filenames.
+     * This regex allows lower/uppercase characters, numbers, underscores and hyphens.
+     * Leading or trailing hyphens are disallowed.
+     *
+     * @return string
+     */
+    public static function forFilename(): string
+    {
+        return static::forIdentifier();
+    }
+
+    /**
      * Get the regex pattern for usernames.
      * This regex allows lower/uppercase characters, numbers, underscores and hyphens.
      * Leading or trailing hyphens are disallowed.

@@ -30,8 +30,18 @@ class UploadRequest extends FormRequest
                 'required',
                 'file',
                 function ($attribute, $value, $fail) {
-                    if (!preg_match(ValidationRegex::forIdentifier(), pathinfo($this->file->getClientOriginalName(), PATHINFO_FILENAME))) {
+                    if (!preg_match(ValidationRegex::forFilename(), pathinfo($this->file->getClientOriginalName(), PATHINFO_FILENAME))) {
                         $fail(trans('responses.file_name_invalid'));
+                    }
+                }
+            ],
+            'identifier' => [
+                'required',
+                'string',
+                sprintf('regex:%s', ValidationRegex::forIdentifier()),
+                function ($attribute, $value, $fail) {
+                    if ($this->uploadSlot->identifier !== $value) {
+                        $fail(trans('responses.non_matching_identifier'));
                     }
                 }
             ]

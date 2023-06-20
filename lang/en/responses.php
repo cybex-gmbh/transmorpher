@@ -24,4 +24,5 @@ return [
     'video_upload_successful' => 'Successfully uploaded new video version, transcoding job has been dispatched.',
     'write_failed' => 'Could not write media to disk.',
     'file_name_invalid' => 'File name may only contain numbers, letters, underscores and can\'t contain trailing or leading hyphens.',
+    'non_matching_identifier' => 'The provided identifier does not match the identifier of the reserved upload slot.',
 ];
