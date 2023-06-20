@@ -40,7 +40,7 @@ class ImageController extends Controller
      * @param Version $version
      * @return Application|Response|ResponseFactory
      */
-    public function getVersion(Request $request, Media $media, Version $version): Response|Application|ResponseFactory
+    public function getOriginal(Request $request, Media $media, Version $version): Response|Application|ResponseFactory
     {
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
         $pathToOriginal = FilePathHelper::toOriginalFile($request->user(), $media->identifier, $version->number);

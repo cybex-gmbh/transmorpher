@@ -21,11 +21,11 @@ Route::middleware('auth:sanctum')->group(
     function () {
         Route::get('/media/{media}/versions', [VersionController::class, 'getVersions']);
         Route::delete('/media/{media}', [VersionController::class, 'delete']);
-        Route::patch('/media/{media}/version/{version}/set', [VersionController::class, 'setVersion']);
+        Route::patch('/media/{media}/version/{version}', [VersionController::class, 'setVersion']);
 
         // Image
-        Route::get('/image/{media}/version/{version}', [ImageController::class, 'getVersion']);
-        Route::get('/image/derivative/{media}/version/{version}/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
+        Route::get('/image/{media}/version/{version}/getOriginal', [ImageController::class, 'getOriginal']);
+        Route::get('/image/{media}/version/{version}/getDerivative/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
         Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
 
         // Video
