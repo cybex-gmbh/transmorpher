@@ -14,6 +14,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use InvalidArgumentException;
 use Transform;
 
 class ImageController extends Controller
@@ -64,30 +65,6 @@ class ImageController extends Controller
     }
 
     /**
-     * Convert transformations request parameter to array.
-     *
-     * @param string $transformations
-     *
-     * @return array|null
-     */
-    protected function getTransformations(string $transformations): array|null
-    {
-        if (!$transformations) {
-            return null;
-        }
-
-        $transformationsArray = null;
-        $parameters = explode('+', $transformations);
-
-        foreach ($parameters as $parameter) {
-            [$key, $value] = explode('-', $parameter, 2);
-            $transformationsArray[$key] = $value;
-        }
-
-        return $transformationsArray;
-    }
-
-    /**
      * Optimize an image derivative.
      * Creates a temporary file since image optimizers only work locally.
      *
@@ -120,7 +97,13 @@ class ImageController extends Controller
     protected function getDerivative(string $transformations, User $user, Media $media, Version $version = null): ResponseFactory|Application|Response
     {
         $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
-        $transformationsArray = $this->getTransformations($transformations);
+
+        try {
+            $transformationsArray = Transformation::arrayFromString($transformations);
+        } catch (InvalidArgumentException $exception) {
+            return response($exception->getMessage(), 400);
+        }
+
         $derivativePath = FilePathHelper::toImageDerivativeFile($user, $transformations, $media->identifier, $transformationsArray, $version?->number);
 
         // Check if derivative already exists and return if so.
