@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\ValidationRegex;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UploadRequest extends FormRequest
@@ -27,6 +28,12 @@ class UploadRequest extends FormRequest
         return [
             'file' => [
                 'required',
+                'file',
+                function ($attribute, $value, $fail) {
+                    if (!preg_match(ValidationRegex::forIdentifier(), pathinfo($this->file->getClientOriginalName(), PATHINFO_FILENAME))) {
+                        $fail(trans('responses.file_name_invalid'));
+                    }
+                }
             ]
         ];
     }
