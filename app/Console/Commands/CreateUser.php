@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\ValidationRegex;
 use App\Models\User;
 use Hash;
 use Illuminate\Console\Command;
@@ -27,26 +28,32 @@ class CreateUser extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
-        $name  = $this->argument('name');
+        $name = $this->argument('name');
         $email = $this->argument('email');
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->error('The provided email is not valid!');
-            return;
-        }
-
-        if (User::whereName($name)->count()) {
-            $this->error('A user with the provided name already exists!');
-            return;
+            return Command::INVALID;
         }
 
         if (User::whereEmail($email)->count()) {
             $this->error('A user with the provided email already exists!');
-            return;
+            return Command::INVALID;
+        }
+
+        if (User::whereName($name)->count()) {
+            $this->error('A user with the provided name already exists!');
+            return Command::INVALID;
+        }
+
+        // Username is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and hyphens are allowed.
+        if (!preg_match(ValidationRegex::forUsername(), $name)) {
+            $this->error(sprintf('The username must match the pattern %s!', ValidationRegex::forUsername()));
+            return Command::INVALID;
         }
 
         /*
@@ -54,14 +61,16 @@ class CreateUser extends Command
         * Since we do not want to create a Password for the user, but need to store something secure,
         * we will just generate a string of random bytes.
         */
-        if(!$user = User::create(['name' => $name, 'email' => $email, 'password' => Hash::make(random_bytes(300))])) {
+        if (!$user = User::create(['name' => $name, 'email' => $email, 'password' => Hash::make(random_bytes(300))])) {
             $this->error('There was an error when creating the user!');
-            return;
+            return Command::FAILURE;
         }
 
-        $this->info(sprintf('Successfully created new user %s: %s (%s)', $user->getKey(),  $user->name, $user->email));
+        $this->info(sprintf('Successfully created new user %s: %s (%s)', $user->getKey(), $user->name, $user->email));
         $this->newLine();
 
         $this->call('create:token', ['userId' => $user->getKey()]);
+
+        return Command::SUCCESS;
     }
 }
