@@ -13,9 +13,9 @@ enum Transformation: string
 
     /**
      * @param string|int $value
-     * @return string|int
+     * @return string|int|false
      */
-    public function validate(string|int $value): string|int
+    public function validate(string|int $value): string|int|false
     {
         $valid = match ($this) {
             self::WIDTH,
