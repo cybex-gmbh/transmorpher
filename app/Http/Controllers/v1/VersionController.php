@@ -68,7 +68,7 @@ class VersionController extends Controller
 
         $version->update(['number' => $newVersionNumber, 'processed' => 0]);
 
-        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $identifier, $media, $version, $oldVersionNumber, $wasProcessed, $request->get('callback_url'));
+        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $media, $version, $oldVersionNumber, $wasProcessed, $request->get('callback_url'));
 
         return response()->json([
             'success' => $responseState->success(),
@@ -77,7 +77,7 @@ class VersionController extends Controller
             'version' => $responseState->success() ? $newVersionNumber : $currentVersionNumber,
             'client' => $user->name,
             // Base path is only passed for images since the video is not available at this path yet.
-            'public_path' => $media->type === MediaType::IMAGE ? FilePathHelper::toBaseDirectory($user, $identifier) : null,
+            'public_path' => $media->type === MediaType::IMAGE ? FilePathHelper::toBaseDirectory($user, $media->identifier) : null,
             'upload_token' => $uploadToken
         ]);
     }

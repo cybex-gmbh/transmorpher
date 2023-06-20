@@ -62,7 +62,6 @@ class VideoHandler implements MediaHandlerInterface
 
     /**
      * @param User $user
-     * @param string $identifier
      * @param Media $media
      * @param Version $version
      * @param int $oldVersionNumber
@@ -70,14 +69,14 @@ class VideoHandler implements MediaHandlerInterface
      * @param string $callbackUrl
      * @return array
      */
-    public function setVersion(User $user, string $identifier, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
+    public function setVersion(User $user, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
     {
         if ($callbackUrl) {
-            $filePath = FilePathHelper::toOriginalFile($user, $identifier, $version->number);
+            $filePath = FilePathHelper::toOriginalFile($user, $media->identifier, $version->number);
 
             // Token and valid_until will be set in the 'saving' event.
             // By creating an upload slot, currently active uploading or transcoding will be canceled.
-            $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $identifier], ['callback_url' => $callbackUrl, 'media_type' => MediaType::VIDEO]);
+            $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $media->identifier], ['callback_url' => $callbackUrl, 'media_type' => MediaType::VIDEO]);
 
             $success = Transcode::createJobForVersionUpdate($filePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
             $responseState = $success ? ResponseState::VERSION_SET : ResponseState::DISPATCHING_TRANSCODING_JOB_FAILED;
