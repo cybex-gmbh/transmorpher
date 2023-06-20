@@ -36,15 +36,14 @@ class ImageController extends Controller
      * Retrieve an original image for a version.
      *
      * @param Request $request
-     * @param string $identifier
-     * @param int $versionNumber
-     *
+     * @param Media $media
+     * @param Version $version
      * @return Application|Response|ResponseFactory
      */
-    public function getVersion(Request $request, string $identifier, int $versionNumber): Response|Application|ResponseFactory
+    public function getVersion(Request $request, Media $media, Version $version): Response|Application|ResponseFactory
     {
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
-        $pathToOriginal = FilePathHelper::toOriginalFile($request->user(), $identifier, $versionNumber);
+        $pathToOriginal = FilePathHelper::toOriginalFile($request->user(), $media->identifier, $version->number);
 
         return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => $originalsDisk->mimeType($pathToOriginal)]);
     }
