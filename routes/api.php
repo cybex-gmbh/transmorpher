@@ -19,12 +19,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->group(
     function () {
-        Route::get('/media/{identifier}/versions', [VersionController::class, 'getVersions']);
-        Route::delete('/media/{identifier}', [VersionController::class, 'delete']);
-        Route::patch('/media/{identifier}/version/{versionNumber}/set', [VersionController::class, 'setVersion']);
+        Route::get('/media/{media}/versions', [VersionController::class, 'getVersions']);
+        Route::delete('/media/{media}', [VersionController::class, 'delete']);
+        Route::patch('/media/{media}/version/{version}/set', [VersionController::class, 'setVersion']);
 
         // Image
-        Route::get('/image/{identifier}/version/{versionNumber}', [ImageController::class, 'getVersion']);
+        Route::get('/image/{media}/version/{version}', [ImageController::class, 'getVersion']);
         Route::get('/image/derivative/{media}/version/{version}/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
         Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
 
