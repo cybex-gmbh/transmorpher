@@ -57,7 +57,7 @@ class VersionController extends Controller
 
         $version->update(['number' => $newVersionNumber, 'processed' => 0]);
 
-        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $media->identifier, $media, $version, $oldVersionNumber, $wasProcessed, $request->get('callback_url'));
+        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $media, $version, $oldVersionNumber, $wasProcessed, $request->get('callback_url'));
 
         return response()->json([
             'success' => $responseState->success(),
