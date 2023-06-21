@@ -96,14 +96,13 @@ class ImageController extends Controller
      */
     protected function getDerivative(string $transformations, User $user, Media $media, Version $version = null): ResponseFactory|Application|Response
     {
-        $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
-
         try {
             $transformationsArray = Transformation::arrayFromString($transformations);
         } catch (InvalidArgumentException $exception) {
-            return response($exception->getMessage(), 400);
+            abort(400, $exception->getMessage());
         }
 
+        $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
         $derivativePath = FilePathHelper::toImageDerivativeFile($user, $transformations, $media->identifier, $transformationsArray, $version?->number);
 
         // Check if derivative already exists and return if so.
