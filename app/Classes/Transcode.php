@@ -84,7 +84,6 @@ class Transcode implements TranscodeInterface
             'message' => $responseState->getResponse(),
             'identifier' => $identifier,
             'version' => $versionNumber,
-            'client' => $user->name,
             'upload_token' => $uploadToken,
             'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($user, $identifier)),
         ];

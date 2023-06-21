@@ -117,7 +117,6 @@ class UploadSlotController extends Controller
             'message' => $responseState->getResponse(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
-            'client' => $user->name,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $type === MediaType::IMAGE ? $basePath : null,
             'upload_token' => $uploadSlot->token

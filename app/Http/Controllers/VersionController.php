@@ -37,7 +37,6 @@ class VersionController extends Controller
             'currentVersion' => $currentVersionNumber ?? null,
             'currentlyProcessedVersion' => $processedVersionNumber,
             'versions' => $allVersionNumbers,
-            'client' => $user->name,
         ]);
     }
 
@@ -75,7 +74,6 @@ class VersionController extends Controller
             'message' => $responseState->getResponse(),
             'identifier' => $identifier,
             'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentVersionNumber,
-            'client' => $user->name,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $media->type === MediaType::IMAGE ? FilePathHelper::toBaseDirectory($user, $media->identifier) : null,
             'upload_token' => $uploadToken
@@ -111,7 +109,6 @@ class VersionController extends Controller
             'state' => $responseState->getState()->value,
             'message' => $responseState->getResponse(),
             'identifier' => $identifier,
-            'client' => $user->name,
         ]);
     }
 }
