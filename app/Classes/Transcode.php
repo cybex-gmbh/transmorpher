@@ -80,7 +80,7 @@ class Transcode implements TranscodeInterface
     public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, User $user, string $identifier, int $versionNumber): void
     {
         $response = [
-            'success' => $responseState->success(),
+            'state' => $responseState->getState()->value,
             'response' => $responseState->getResponse(),
             'identifier' => $identifier,
             'version' => $versionNumber,

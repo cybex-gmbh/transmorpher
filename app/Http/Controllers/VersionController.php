@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
+use App\Enums\UploadState;
 use App\Http\Requests\SetVersionRequest;
 use FilePathHelper;
 use Illuminate\Http\JsonResponse;
@@ -30,7 +31,7 @@ class VersionController extends Controller
         $allVersionNumbers = $media->Versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date));
 
         return response()->json([
-            'success' => ResponseState::VERSIONS_RETRIEVED->success(),
+            'state' => ResponseState::VERSIONS_RETRIEVED->getState()->value,
             'response' => ResponseState::VERSIONS_RETRIEVED->getResponse(),
             'identifier' => $identifier,
             'currentVersion' => $currentVersionNumber ?? null,
@@ -70,10 +71,10 @@ class VersionController extends Controller
         [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $media, $version, $oldVersionNumber, $wasProcessed, $request->get('callback_url'));
 
         return response()->json([
-            'success' => $responseState->success(),
+            'state' => $responseState->getState()->value,
             'response' => $responseState->getResponse(),
             'identifier' => $identifier,
-            'version' => $responseState->success() ? $newVersionNumber : $currentVersionNumber,
+            'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentVersionNumber,
             'client' => $user->name,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $media->type === MediaType::IMAGE ? FilePathHelper::toBaseDirectory($user, $media->identifier) : null,
@@ -107,7 +108,7 @@ class VersionController extends Controller
         }
 
         return response()->json([
-            'success' => $responseState->success(),
+            'state' => $responseState->getState()->value,
             'response' => $responseState->getResponse(),
             'identifier' => $identifier,
             'client' => $user->name,

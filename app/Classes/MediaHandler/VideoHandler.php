@@ -80,7 +80,7 @@ class VideoHandler implements MediaHandlerInterface
             $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $media->identifier], ['callback_url' => $callbackUrl, 'media_type' => MediaType::VIDEO]);
 
             $success = Transcode::createJobForVersionUpdate($filePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
-            $responseState = $success ? ResponseState::VERSION_SET : ResponseState::DISPATCHING_TRANSCODING_JOB_FAILED;
+            $responseState = $success ? ResponseState::VIDEO_VERSION_SET : ResponseState::DISPATCHING_TRANSCODING_JOB_FAILED;
         } else {
             $responseState = ResponseState::NO_CALLBACK_URL_PROVIDED;
         }

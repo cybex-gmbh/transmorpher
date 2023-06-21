@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
+use App\Enums\UploadState;
 use App\Http\Requests\ImageUploadSlotRequest;
 use App\Http\Requests\UploadRequest;
 use App\Http\Requests\VideoUploadSlotRequest;
@@ -102,7 +103,7 @@ class UploadSlotController extends Controller
             $responseState = ResponseState::WRITE_FAILED;
         }
 
-        if (!$responseState->success()) {
+        if ($responseState->getState() === UploadState::ERROR) {
             $versionNumber -= 1;
             $originalsDisk->delete($filePath);
             $version?->delete();
@@ -112,7 +113,7 @@ class UploadSlotController extends Controller
         File::delete($uploadedFile);
 
         return response()->json([
-            'success' => $responseState->success(),
+            'state' => $responseState->getState()->value,
             'response' => $responseState->getResponse(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
@@ -129,7 +130,7 @@ class UploadSlotController extends Controller
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $requestData['identifier']], $requestData);
 
         return response()->json([
-            'success' => ResponseState::UPLOAD_SLOT_CREATED->success(),
+            'state' => ResponseState::UPLOAD_SLOT_CREATED->getState()->value,
             'response' => ResponseState::UPLOAD_SLOT_CREATED->getResponse(),
             'identifier' => $requestData['identifier'],
             'upload_token' => $uploadSlot->token
