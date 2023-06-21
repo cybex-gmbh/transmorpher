@@ -32,7 +32,7 @@ class VersionController extends Controller
 
         return response()->json([
             'state' => ResponseState::VERSIONS_RETRIEVED->getState()->value,
-            'response' => ResponseState::VERSIONS_RETRIEVED->getResponse(),
+            'message' => ResponseState::VERSIONS_RETRIEVED->getResponse(),
             'identifier' => $identifier,
             'currentVersion' => $currentVersionNumber ?? null,
             'currentlyProcessedVersion' => $processedVersionNumber,
@@ -72,7 +72,7 @@ class VersionController extends Controller
 
         return response()->json([
             'state' => $responseState->getState()->value,
-            'response' => $responseState->getResponse(),
+            'message' => $responseState->getResponse(),
             'identifier' => $identifier,
             'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentVersionNumber,
             'client' => $user->name,
@@ -109,7 +109,7 @@ class VersionController extends Controller
 
         return response()->json([
             'state' => $responseState->getState()->value,
-            'response' => $responseState->getResponse(),
+            'message' => $responseState->getResponse(),
             'identifier' => $identifier,
             'client' => $user->name,
         ]);
