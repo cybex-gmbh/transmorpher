@@ -23,7 +23,6 @@ return [
     */
     'store_derivatives' => env('TRANSMORPHER_STORE_DERIVATIVES', true),
 
-
     /*
     |--------------------------------------------------------------------------
     | Storage Disks
@@ -32,7 +31,6 @@ return [
     | The disks on which the Transmorpher operates.
     |
     */
-
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
         'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImagesDerivatives'),
@@ -50,7 +48,6 @@ return [
     | -  Intervention\Transform (based on Intervention Image)
     |
     */
-
     'transform_class' => App\Classes\Intervention\Transform::class,
 
     /*
@@ -64,7 +61,6 @@ return [
     | - Intervention\Convert (based on Intervention Image)
     |
     */
-
     'convert_classes' => [
         'jpg' => App\Classes\Intervention\Convert::class,
         'png' => App\Classes\Intervention\Convert::class,
@@ -83,7 +79,6 @@ return [
     | -  Transcode (uses FFmpeg and Laravel Queue for transcoding)
     |
     */
-
     'transcode_class' => App\Classes\Transcode::class,
 
     /*
@@ -98,7 +93,6 @@ return [
     | x264, hevc
     |
     */
-
     'video_codec' => 'x264',
 
     /*
@@ -112,7 +106,6 @@ return [
     | 144, 240, 360, 480, 720, 1080, 1440, 2160
     |
     */
-
     'representations' => [
         360, 480, 720, 1080, 1440, 2160
     ],
@@ -125,7 +118,6 @@ return [
     | Helper for managing cloud storage access when transcoding videos.
     |
     */
-
     'cloud_storage_helper' => App\Helpers\PhpFfmpegVideoStreaming\S3Helper::class,
 
     /*
@@ -136,7 +128,6 @@ return [
     | Helper for creating CDN invalidations.
     |
     */
-
     'cdn_helper' => App\Helpers\CloudFrontHelper::class,
 
     /*
@@ -147,7 +138,6 @@ return [
     | Information which is needed for using AWS as CDN provider.
     |
     */
-
     'aws' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
@@ -163,6 +153,18 @@ return [
     | The keypair which is used for signing requests to the client package.
     |
     */
+    'signing_keypair' => env('TRANSMORPHER_SIGNING_KEYPAIR'),
 
-    'signing_keypair' => env('TRANSMORPHER_SIGNING_KEYPAIR')
+    /*
+    |--------------------------------------------------------------------------
+    | Media Handlers
+    |--------------------------------------------------------------------------
+    |
+    | The classes which are responsible for handling media specific actions, such as validation rules or handling the newly saved file.
+    |
+    */
+    'media_handlers' => [
+        'image' => App\Classes\MediaHandler\ImageHandler::class,
+        'video' => App\Classes\MediaHandler\VideoHandler::class
+    ],
 ];

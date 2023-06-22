@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\ImageFormat;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ImageUploadRequest extends FormRequest
+class ImageUploadSlotRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,7 +13,7 @@ class ImageUploadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:upload-image');
+        return $this->user()->tokenCan('transmorpher:reserve-image-upload-slot');
     }
 
     /**
@@ -26,10 +25,6 @@ class ImageUploadRequest extends FormRequest
     {
         return [
             'identifier' => ['required', 'string'],
-            'image' => [
-                'required',
-                sprintf('mimes:%s', implode(',', ImageFormat::getFormats())),
-            ],
         ];
     }
 }

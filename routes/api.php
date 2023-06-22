@@ -2,6 +2,7 @@
 
 use App\Helpers\SigningHelper;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\UploadSlotController;
 use App\Http\Controllers\VersionController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
@@ -24,12 +25,13 @@ Route::middleware('auth:sanctum')->group(
         Route::patch('/media/{identifier}/version/{versionNumber}/set', [VersionController::class, 'setVersion']);
 
         // Image
-        Route::post('/image/upload', [ImageController::class, 'put']);
         Route::get('/image/{identifier}/version/{versionNumber}', [ImageController::class, 'getVersion']);
+        Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
 
         // Video
-        Route::post('/video/upload', [VideoController::class, 'put']);
+        Route::post('/video/reserveUploadSlot', [UploadSlotController::class, 'reserveVideoUploadSlot']);
     }
 );
 
+Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile']);
 Route::get('publickey', fn(): string => SigningHelper::getPublicKey());

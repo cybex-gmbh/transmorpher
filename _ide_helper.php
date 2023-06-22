@@ -17964,15 +17964,14 @@
          * @param string $originalFilePath
          * @param \App\Models\Media $media
          * @param \App\Models\Version $version
-         * @param string $callbackUrl
-         * @param string $idToken
+         * @param \App\Models\UploadSlot $uploadSlot
          * @return bool 
          * @static 
          */ 
-        public static function createJob($originalFilePath, $media, $version, $callbackUrl, $idToken)
+        public static function createJob($originalFilePath, $media, $version, $uploadSlot)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        return $instance->createJob($originalFilePath, $media, $version, $callbackUrl, $idToken);
+                        return $instance->createJob($originalFilePath, $media, $version, $uploadSlot);
         }
                     /**
          * Creates a job which handles the transcoding of a video when a version number is updated.
@@ -17980,34 +17979,33 @@
          * @param string $originalFilePath
          * @param \App\Models\Media $media
          * @param \App\Models\Version $version
-         * @param string $callbackUrl
-         * @param string $idToken
+         * @param \App\Models\UploadSlot $uploadSlot
          * @param int $oldVersionNumber
          * @param bool $wasProcessed
          * @return bool 
          * @static 
          */ 
-        public static function createJobForVersionUpdate($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed)
+        public static function createJobForVersionUpdate($originalFilePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        return $instance->createJobForVersionUpdate($originalFilePath, $media, $version, $callbackUrl, $idToken, $oldVersionNumber, $wasProcessed);
+                        return $instance->createJobForVersionUpdate($originalFilePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
         }
                     /**
          * Inform client package about the transcoding result.
          *
-         * @param bool $success
+         * @param \App\Enums\ResponseState $responseState
          * @param string $callbackUrl
-         * @param string $idToken
+         * @param string $uploadToken
          * @param \App\Models\User $user
          * @param string $identifier
          * @param int $versionNumber
          * @return void 
          * @static 
          */ 
-        public static function callback($success, $callbackUrl, $idToken, $user, $identifier, $versionNumber)
+        public static function callback($responseState, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        $instance->callback($success, $callbackUrl, $idToken, $user, $identifier, $versionNumber);
+                        $instance->callback($responseState, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber);
         }
          
     }
