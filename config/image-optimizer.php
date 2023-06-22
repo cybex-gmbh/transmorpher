@@ -42,7 +42,7 @@ return [
             '-m 4', // default compression method in order to get the best compression in time.
             '-pass 5', // the amount of analysis pass.
             '-mt', // multithreading for some speed improvements.
-            '-q 100', // keep quality at 100% since this can be specified when requesting a derivative (default is 75).
+            '-q 100', // keep quality at 100% since this can be specified when requesting a derivative (optimizer default is 75).
             '-metadata none', // remove metadata (this is also the default).
         ],
     ],
