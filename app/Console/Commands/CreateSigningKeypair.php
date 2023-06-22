@@ -11,7 +11,7 @@ class CreateSigningKeypair extends Command
      *
      * @var string
      */
-    protected $signature = 'transmorpher:keypair';
+    protected $signature = 'create:keypair';
 
     /**
      * The console command description.
