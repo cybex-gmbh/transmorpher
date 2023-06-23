@@ -5,7 +5,6 @@ use Spatie\ImageOptimizer\Optimizers\Gifsicle;
 use Spatie\ImageOptimizer\Optimizers\Jpegoptim;
 use Spatie\ImageOptimizer\Optimizers\Optipng;
 use Spatie\ImageOptimizer\Optimizers\Pngquant;
-use Spatie\ImageOptimizer\Optimizers\Svgo;
 
 return [
     /*
@@ -15,35 +14,36 @@ return [
     'optimizers' => [
 
         Jpegoptim::class => [
-            '-m85', // set maximum quality to 85%
-            '--strip-all',  // this strips out all text information such as comments and EXIF data
-            '--all-progressive',  // this will make sure the resulting image is a progressive one
+            '--strip-all',  // this strips out all text information such as comments and EXIF data.
+            '--all-progressive',  // this will make sure the resulting image is a progressive one.
         ],
 
         Pngquant::class => [
-            '--force', // required parameter for this package
+            '--force', // required parameter for this package.
+            '--strip', // remove metadata.
         ],
 
         Optipng::class => [
-            '-i0', // this will result in a non-interlaced, progressive scanned image
-            '-o2',  // this set the optimization level to two (multiple IDAT compression trials)
-            '-quiet', // required parameter for this package
-        ],
-
-        Svgo::class => [
-            '--disable=cleanupIDs', // disabling because it is know to cause troubles
+            '-i0', // this will result in a non-interlaced, progressive scanned image.
+            '-o2',  // this set the optimization level to two (multiple IDAT compression trials).
+            '-quiet', // required parameter for this package.
+            '-strip all'// remove metadata.
         ],
 
         Gifsicle::class => [
             '-b', // required parameter for this package
             '-O3', // this produces the slowest but best results
+            '--no-comments', // remove metadata
+            '--no-names',
+            '--no-extensions'
         ],
 
         Cwebp::class => [
-            '-m 6', // for the slowest compression method in order to get the best compression.
-            '-pass 10', // for maximizing the amount of analysis pass.
+            '-m 4', // default compression method in order to get the best compression in time.
+            '-pass 5', // the amount of analysis pass.
             '-mt', // multithreading for some speed improvements.
-            '-q 90', // quality factor that brings the least noticeable changes.
+            '-q 100', // keep quality at 100% since this can be specified when requesting a derivative (optimizer default is 75).
+            '-metadata none', // remove metadata (this is also the default).
         ],
     ],
 
@@ -56,7 +56,7 @@ return [
     /*
      * The maximum time in seconds each optimizer is allowed to run separately.
      */
-    'timeout' => env('TRANSMORPHER_OPTIMIZER_TIMEOUT', 3),
+    'timeout' => env('TRANSMORPHER_OPTIMIZER_TIMEOUT', 5),
 
     /*
      * If set to `true` all output of the optimizer binaries will be appended to the default log.

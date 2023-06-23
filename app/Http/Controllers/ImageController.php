@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
+use App\Enums\Transformation;
 use App\Helpers\Upload;
 use App\Models\User;
 use FilePathHelper;
@@ -10,7 +12,6 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Spatie\LaravelImageOptimizer\Facades\ImageOptimizer;
 use Transform;
 
 class ImageController extends Controller
@@ -38,7 +39,7 @@ class ImageController extends Controller
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);
-            $derivative = $this->optimizeDerivative($derivative);
+            $derivative = $this->optimizeDerivative($derivative, $transformationsArray[Transformation::QUALITY->value] ?? null);
 
             if (config('transmorpher.store_derivatives')) {
                 $imageDerivativesDisk->put($derivativePath, $derivative);
@@ -94,17 +95,17 @@ class ImageController extends Controller
      * Creates a temporary file since image optimizers only work locally.
      *
      * @param $derivative
-     *
+     * @param int|null $quality
      * @return false|string
      */
-    protected function optimizeDerivative($derivative): string|false
+    protected function optimizeDerivative($derivative, int $quality = null): string|false
     {
         // Temporary file is needed since optimizers only work locally.
         $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
         file_put_contents($tempFile, $derivative);
 
         // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
-        ImageOptimizer::optimize($tempFile);
+        ImageFormat::fromMimeType(mime_content_type($tempFile))->getOptimizer()->optimize($tempFile, $quality);
 
         $derivative = file_get_contents($tempFile);
         unlink($tempFile);
