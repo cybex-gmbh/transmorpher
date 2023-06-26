@@ -69,24 +69,24 @@ class Transcode implements TranscodeInterface
      * Inform client package about the transcoding result.
      *
      * @param ResponseState $responseState
-     * @param string        $callbackUrl
-     * @param string        $uploadToken
-     * @param User          $user
-     * @param string        $identifier
-     * @param int           $versionNumber
+     * @param string $callbackUrl
+     * @param string $uploadToken
+     * @param User $user
+     * @param Media $media
+     * @param int $versionNumber
      *
      * @return void
      */
-    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, User $user, string $identifier, int $versionNumber): void
+    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, User $user, Media $media, int $versionNumber): void
     {
         $response = [
             'success' => $responseState->success(),
             'response' => $responseState->getResponse(),
-            'identifier' => $identifier,
+            'identifier' => $media->identifier,
             'version' => $versionNumber,
             'client' => $user->name,
             'upload_token' => $uploadToken,
-            'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($user, $identifier)),
+            'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($media)),
         ];
 
         $signedResponse = SigningHelper::sign(json_encode($response));

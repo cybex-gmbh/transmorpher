@@ -17827,116 +17827,109 @@
          * If no version number is given, the path to the current version will be returned.
          * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
          *
-         * @param \App\Models\User $user
          * @param string $transformations
-         * @param string $identifier
+         * @param \App\Models\Media $media
          * @param array|null $transformationsArray
          * @param int|null $versionNumber
          * @return string 
          * @static 
          */ 
-        public static function toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray = null, $versionNumber = null)
+        public static function toImageDerivativeFile($transformations, $media, $transformationsArray = null, $versionNumber = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray, $versionNumber);
+                        return $instance->toImageDerivativeFile($transformations, $media, $transformationsArray, $versionNumber);
         }
                     /**
          * Get the path to the directory of an image derivative version.
          * 
          * Path structure: {username}/{identifier}/{versionNumber}
          *
-         * @param \App\Models\User $user
-         * @param string $identifier
+         * @param \App\Models\Media $media
          * @param int $versionNumber
          * @return string 
          * @static 
          */ 
-        public static function toImageDerivativeVersionDirectory($user, $identifier, $versionNumber)
+        public static function toImageDerivativeVersionDirectory($media, $versionNumber)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeVersionDirectory($user, $identifier, $versionNumber);
+                        return $instance->toImageDerivativeVersionDirectory($media, $versionNumber);
         }
                     /**
          * Get the path to an original.
          * 
          * Path structure: {username}/{identifier}/{filename}
          *
-         * @param \App\Models\User $user
-         * @param string $identifier
+         * @param \App\Models\Media $media
          * @param int|null $versionNumber
          * @return string 
          * @static 
          */ 
-        public static function toOriginalFile($user, $identifier, $versionNumber = null)
+        public static function toOriginalFile($media, $versionNumber = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toOriginalFile($user, $identifier, $versionNumber);
+                        return $instance->toOriginalFile($media, $versionNumber);
         }
                     /**
          * Get the path to a video derivative.
          * 
          * Path structure: {username}/{identifier}/{format}/{filename}
          *
-         * @param \App\Models\User $user
-         * @param string $identifier
+         * @param \App\Models\Media $media
          * @param string $format
          * @param string|null $fileName
          * @return string 
          * @static 
          */ 
-        public static function toVideoDerivativeFile($user, $identifier, $format, $fileName = null)
+        public static function toVideoDerivativeFile($media, $format, $fileName = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toVideoDerivativeFile($user, $identifier, $format, $fileName);
+                        return $instance->toVideoDerivativeFile($media, $format, $fileName);
         }
                     /**
          * Get the path to a temporary video derivative.
          * 
          * Path structure: {username}/{identifier}/{format}/{filename}
          *
-         * @param \App\Models\User $user
-         * @param string $identifier
+         * @param \App\Models\Media $media
          * @param int $versionNumber
          * @param string $format
          * @param string|null $fileName
          * @return string 
          * @static 
          */ 
-        public static function toTempVideoDerivativeFile($user, $identifier, $versionNumber, $format, $fileName = null)
+        public static function toTempVideoDerivativeFile($media, $versionNumber, $format, $fileName = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toTempVideoDerivativeFile($user, $identifier, $versionNumber, $format, $fileName);
+                        return $instance->toTempVideoDerivativeFile($media, $versionNumber, $format, $fileName);
         }
                     /**
          * Get the path to a video derivative.
          * 
          * Path structure: {username}/{identifier}/{format}/{filename}
          *
-         * @param \App\Models\User $user
-         * @param string $identifier
+         * @param \App\Models\Media $media
          * @param int $versionNumber
          * @return string 
          * @static 
          */ 
-        public static function toTempVideoDerivativesDirectory($user, $identifier, $versionNumber)
+        public static function toTempVideoDerivativesDirectory($media, $versionNumber)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toTempVideoDerivativesDirectory($user, $identifier, $versionNumber);
+                        return $instance->toTempVideoDerivativesDirectory($media, $versionNumber);
         }
                     /**
          * Get the base path for media.
          * 
          * Path structure: {username}/{identifier}/
          *
-         * @param \App\Models\User $user
-         * @param string $identifier
+         * @param \App\Models\Media $media
          * @return string 
          * @static 
          */ 
-        public static function toBaseDirectory($user, $identifier)
+        public static function toBaseDirectory($media)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toBaseDirectory($user, $identifier);
+                        return $instance->toBaseDirectory($media);
         }
                     /**
          * Create the filename for an original.
@@ -17999,15 +17992,15 @@
          * @param string $callbackUrl
          * @param string $uploadToken
          * @param \App\Models\User $user
-         * @param string $identifier
+         * @param \App\Models\Media $media
          * @param int $versionNumber
          * @return void 
          * @static 
          */ 
-        public static function callback($responseState, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber)
+        public static function callback($responseState, $callbackUrl, $uploadToken, $user, $media, $versionNumber)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        $instance->callback($responseState, $callbackUrl, $uploadToken, $user, $identifier, $versionNumber);
+                        $instance->callback($responseState, $callbackUrl, $uploadToken, $user, $media, $versionNumber);
         }
          
     }

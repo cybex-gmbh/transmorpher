@@ -91,7 +91,7 @@ class UploadSlotController extends Controller
         $media->save();
 
         $versionNumber = $media->Versions()->max('number') + 1;
-        $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
+        $basePath = FilePathHelper::toBaseDirectory($media);
         $fileName = FilePathHelper::createOriginalFileName($versionNumber, $uploadedFile->getClientOriginalName());
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 

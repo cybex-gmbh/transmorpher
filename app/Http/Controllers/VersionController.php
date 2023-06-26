@@ -66,7 +66,7 @@ class VersionController extends Controller
             'version' => $responseState->success() ? $newVersionNumber : $currentVersionNumber,
             'client' => $user->name,
             // Base path is only passed for images since the video is not available at this path yet.
-            'public_path' => $media->type === MediaType::IMAGE ? FilePathHelper::toBaseDirectory($user, $media->identifier) : null,
+            'public_path' => $media->type === MediaType::IMAGE ? FilePathHelper::toBaseDirectory($media) : null,
             'upload_token' => $uploadToken
         ]);
     }
@@ -80,8 +80,7 @@ class VersionController extends Controller
      */
     public function delete(Request $request, Media $media): JsonResponse
     {
-        $user = $request->user();
-        $basePath = FilePathHelper::toBaseDirectory($user, $media->identifier);
+        $basePath = FilePathHelper::toBaseDirectory($media);
 
         if ($media->type->handler()->invalidateCdnCache($basePath)) {
             $media->Versions()->delete();
@@ -98,7 +97,7 @@ class VersionController extends Controller
             'success' => $responseState->success(),
             'response' => $responseState->getResponse(),
             'identifier' => $media->identifier,
-            'client' => $user->name,
+            'client' => $request->user()->name,
         ]);
     }
 }
