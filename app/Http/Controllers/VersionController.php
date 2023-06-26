@@ -57,7 +57,7 @@ class VersionController extends Controller
         try {
             $version = $media->Versions->where('number', $versionNumber)->firstOrFail();
         } catch (ItemNotFoundException $exception) {
-            abort(404);
+            abort(404, ResponseState::VERSION_NOT_FOUND->getResponse());
         }
 
         $wasProcessed = $version->processed;

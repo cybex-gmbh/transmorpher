@@ -19,6 +19,7 @@ return [
     'transcoding_failed' => 'Video transcoding failed, version has been removed.',
     'transcoding_successful' => 'Successfully transcoded video.',
     'upload_slot_created' => 'Successfully created upload slot.',
+    'version_not_found' => 'Requested version couldn\'t be found.',
     'versions_retrieved' => 'Successfully retrieved version numbers.',
     'version_set' => 'Successfully set media version.',
     'video_upload_successful' => 'Successfully uploaded new video version, transcoding job has been dispatched.',

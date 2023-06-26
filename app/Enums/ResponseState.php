@@ -13,6 +13,7 @@ enum ResponseState: string
     case TRANSCODING_FAILED = 'transcoding_failed';
     case TRANSCODING_SUCCESSFUL = 'transcoding_successful';
     case UPLOAD_SLOT_CREATED = 'upload_slot_created';
+    case VERSION_NOT_FOUND = 'version_not_found';
     case VERSIONS_RETRIEVED = 'versions_retrieved';
     case VERSION_SET = 'version_set';
     case VIDEO_UPLOAD_SUCCESSFUL = 'video_upload_successful';
@@ -29,6 +30,7 @@ enum ResponseState: string
             ResponseState::IMAGE_UPLOAD_SUCCESSFUL,
             ResponseState::TRANSCODING_SUCCESSFUL,
             ResponseState::UPLOAD_SLOT_CREATED,
+            ResponseState::VERSION_NOT_FOUND,
             ResponseState::VERSIONS_RETRIEVED,
             ResponseState::VERSION_SET,
             ResponseState::VIDEO_UPLOAD_SUCCESSFUL => true,
