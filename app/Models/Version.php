@@ -42,6 +42,7 @@ class Version extends Model
         'number',
         'filename',
         'processed',
+        'is_ready',
     ];
 
     /**
