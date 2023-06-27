@@ -85,25 +85,33 @@ class TranscodeVideo implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->originalsDisk     = MediaStorage::ORIGINALS->getDisk();
-        $this->derivativesDisk   = MediaStorage::VIDEO_DERIVATIVES->getDisk();
-        $this->localDisk         = Storage::disk('local');
-        $this->tempMp4FileName   = $this->getTempMp4FileName();
-        $this->tempLocalOriginal = $this->getTempLocalOriginal();
+        // Check if this version is still the current version, also check if the upload slot is still valid.
+        if ($this->version->number === $this->media->Versions()->max('number')
+            && $this->media->User->UploadSlots()->whereToken($this->uploadSlot->token)->first()) {
+            $this->originalsDisk = MediaStorage::ORIGINALS->getDisk();
+            $this->derivativesDisk = MediaStorage::VIDEO_DERIVATIVES->getDisk();
+            $this->localDisk = Storage::disk('local');
+            $this->tempMp4FileName = $this->getTempMp4FileName();
+            $this->tempLocalOriginal = $this->getTempLocalOriginal();
 
-        $this->transcodeVideo();
+            $this->transcodeVideo();
 
-        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_SUCCESSFUL, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $this->version->number);
+            if ($this->responseState === ResponseState::TRANSCODING_SUCCESSFUL) {
+                Transcode::callback($this->responseState, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $this->version->number);
+            }
+        } else {
+            $this->failed(null, $this->responseState);
+        }
     }
 
     /**
      * Handle a job failure.
      *
-     * @param Throwable $exception
-     *
+     * @param Throwable|null $exception
+     * @param ResponseState|null $responseState
      * @return void
      */
-    public function failed(Throwable $exception): void
+    public function failed(?Throwable $exception, ResponseState $responseState = null): void
     {
         // Properties are not initialized here.
         $tempPath  = FilePathHelper::toTempVideoDerivativesDirectory($this->media->User, $this->media->identifier, $this->version->number);
@@ -122,7 +130,7 @@ class TranscodeVideo implements ShouldQueue
             $versionNumber = $this->oldVersionNumber;
         }
 
-        Transcode::callback(ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $versionNumber);
+        Transcode::callback($responseState ?? ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $versionNumber);
     }
 
     /**
@@ -253,9 +261,10 @@ class TranscodeVideo implements ShouldQueue
             $this->invalidateCdnCache();
 
             $this->version->update(['processed' => true]);
+            $this->responseState = ResponseState::TRANSCODING_SUCCESSFUL;
         } else {
-            $this->derivativesDisk->deleteDirectory($this->tempPath);
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
+            $this->failed(null, $this->responseState);
         }
     }
 
