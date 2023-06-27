@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unsignedInteger('number');
             $table->string('filename');
             $table->boolean('processed')->default(0);
-            $table->boolean('is_ready')->default(0);
             $table->foreignId('media_id')->constrained();
             $table->timestamps();
 

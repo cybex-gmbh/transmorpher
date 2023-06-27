@@ -98,4 +98,19 @@ class VideoHandler implements MediaHandlerInterface
     {
         return MediaStorage::VIDEO_DERIVATIVES->getDisk();
     }
+
+    /**
+     * @param Media $media
+     * @return array
+     */
+    public function getVersions(Media $media): array
+    {
+        $versions = $media->Versions;
+
+        return [
+            'currentVersion' => $versions->max('number'),
+            'currentlyProcessedVersion' => $versions->where('processed', true)->max('number'),
+            'versions' => $versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
+        ];
+    }
 }

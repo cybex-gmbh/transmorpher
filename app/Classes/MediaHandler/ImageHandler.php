@@ -32,7 +32,13 @@ class ImageHandler implements MediaHandlerInterface
         // Only delete for image, since the UploadSlot will be needed inside the transcoding job.
         $uploadSlot->delete();
 
-        return $this->invalidateCdnCache($basePath) ? ResponseState::IMAGE_UPLOAD_SUCCESSFUL : ResponseState::CDN_INVALIDATION_FAILED;
+        if ($this->invalidateCdnCache($basePath)) {
+            $version->update(['processed' => true]);
+
+            return ResponseState::IMAGE_UPLOAD_SUCCESSFUL;
+        }
+
+        return ResponseState::CDN_INVALIDATION_FAILED;
     }
 
     /**
@@ -76,6 +82,7 @@ class ImageHandler implements MediaHandlerInterface
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $media->identifier], ['media_type' => MediaType::IMAGE]);
 
         if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($user, $media->identifier))) {
+            $version->update(['processed' => true]);
             // Might instead move the directory to keep derivatives, but S3 can't move directories and each file would have to be moved individually.
             $media->type->handler()->getDerivativesDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($user, $media->identifier, $oldVersionNumber));
             $responseState = ResponseState::VERSION_SET;
@@ -96,5 +103,21 @@ class ImageHandler implements MediaHandlerInterface
     public function getDerivativesDisk(): Filesystem
     {
         return MediaStorage::IMAGE_DERIVATIVES->getDisk();
+    }
+
+    /**
+     * @param Media $media
+     * @return array
+     */
+    public function getVersions(Media $media): array
+    {
+        $processedVersions = $media->Versions->where('processed', true);
+        $currentVersionNumber = $processedVersions->max('number');
+
+        return [
+            'currentVersion' => $currentVersionNumber,
+            'currentlyProcessedVersion' => $currentVersionNumber,
+            'versions' => $processedVersions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
+        ];
     }
 }
