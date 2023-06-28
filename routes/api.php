@@ -24,8 +24,8 @@ Route::middleware('auth:sanctum')->group(
         Route::patch('/media/{media}/version/{version}', [VersionController::class, 'setVersion']);
 
         // Image
-        Route::get('/image/{media}/version/{version}/getOriginal', [ImageController::class, 'getOriginal']);
-        Route::get('/image/{media}/version/{version}/getDerivative/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
+        Route::get('/image/{media}/version/{version}/original', [ImageController::class, 'getOriginal']);
+        Route::get('/image/{media}/version/{version}/derivative/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
         Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
 
         // Video

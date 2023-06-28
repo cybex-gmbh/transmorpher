@@ -819,7 +819,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/{{currentImageVersion}}/getDerivative/q-1",
+							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/q-1",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
@@ -831,7 +831,7 @@
 								"{{imageIdentifier}}",
 								"version",
 								"{{currentImageVersion}}",
-								"getDerivative",
+								"derivative",
 								"q-1"
 							]
 						}
@@ -872,7 +872,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/1/getOriginal",
+							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/1/original",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
@@ -884,7 +884,7 @@
 								"{{imageIdentifier}}",
 								"version",
 								"1",
-								"getOriginal"
+								"original"
 							]
 						}
 					},
@@ -952,7 +952,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/{{currentImageVersion}}/getOriginal",
+							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
@@ -964,7 +964,7 @@
 								"{{imageIdentifier}}",
 								"version",
 								"{{currentImageVersion}}",
-								"getOriginal"
+								"original"
 							]
 						}
 					},
