@@ -24,7 +24,7 @@ class FilePathHelper
         $originalFileExtension = pathinfo($mediaVersions->whereNumber($versionNumber)->firstOrFail()->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and version number to identify already generated derivatives.
-        $derivativeHash = hash('sha256', http_build_query($transformationsArray ?? [], "", '+') . $versionNumber);
+        $derivativeHash = hash('sha256', json_encode($transformationsArray) . $versionNumber);
 
         return sprintf('%s/%sx_%sy_%sq_%s.%s',
             $this->toImageDerivativeVersionDirectory($media, $versionNumber),
