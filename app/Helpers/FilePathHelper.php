@@ -13,26 +13,26 @@ class FilePathHelper
      * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
      *
      * @param Media $media
-     * @param array|null $transformationsArray
+     * @param array|null $transformations
      * @param int|null $versionNumber
      * @return string
      */
-    public function toImageDerivativeFile(Media $media, int $versionNumber = null, array $transformationsArray = null): string
+    public function toImageDerivativeFile(Media $media, int $versionNumber = null, array $transformations = null): string
     {
         $mediaVersions = $media->Versions();
         $versionNumber ??= $mediaVersions->max('number');
         $originalFileExtension = pathinfo($mediaVersions->whereNumber($versionNumber)->firstOrFail()->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and version number to identify already generated derivatives.
-        $derivativeHash = hash('sha256', json_encode($transformationsArray) . $versionNumber);
+        $derivativeHash = hash('sha256', json_encode($transformations) . $versionNumber);
 
         return sprintf('%s/%sx_%sy_%sq_%s.%s',
             $this->toImageDerivativeVersionDirectory($media, $versionNumber),
-            $transformationsArray[Transformation::WIDTH->value] ?? '',
-            $transformationsArray[Transformation::HEIGHT->value] ?? '',
-            $transformationsArray[Transformation::QUALITY->value] ?? '',
+            $transformations[Transformation::WIDTH->value] ?? '',
+            $transformations[Transformation::HEIGHT->value] ?? '',
+            $transformations[Transformation::QUALITY->value] ?? '',
             $derivativeHash,
-            $transformationsArray[Transformation::FORMAT->value] ?? $originalFileExtension,
+            $transformations[Transformation::FORMAT->value] ?? $originalFileExtension,
         );
     }
 
