@@ -12,20 +12,19 @@ class FilePathHelper
      * If no version number is given, the path to the current version will be returned.
      * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
      *
-     * @param string $transformations
      * @param Media $media
      * @param array|null $transformationsArray
      * @param int|null $versionNumber
      * @return string
      */
-    public function toImageDerivativeFile(string $transformations, Media $media, array $transformationsArray = null, int $versionNumber = null): string
+    public function toImageDerivativeFile(Media $media, int $versionNumber = null, array $transformationsArray = null): string
     {
         $mediaVersions = $media->Versions();
         $versionNumber ??= $mediaVersions->max('number');
         $originalFileExtension = pathinfo($mediaVersions->whereNumber($versionNumber)->firstOrFail()->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and version number to identify already generated derivatives.
-        $derivativeHash = hash('sha256', $transformations . $versionNumber);
+        $derivativeHash = hash('sha256', http_build_query($transformationsArray ?? [], "", '+') . $versionNumber);
 
         return sprintf('%s/%sx_%sy_%sq_%s.%s',
             $this->toImageDerivativeVersionDirectory($media, $versionNumber),

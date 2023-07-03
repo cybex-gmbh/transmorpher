@@ -17827,17 +17827,16 @@
          * If no version number is given, the path to the current version will be returned.
          * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
          *
-         * @param string $transformations
          * @param \App\Models\Media $media
          * @param array|null $transformationsArray
          * @param int|null $versionNumber
          * @return string 
          * @static 
          */ 
-        public static function toImageDerivativeFile($transformations, $media, $transformationsArray = null, $versionNumber = null)
+        public static function toImageDerivativeFile($media, $versionNumber = null, $transformationsArray = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeFile($transformations, $media, $transformationsArray, $versionNumber);
+                        return $instance->toImageDerivativeFile($media, $versionNumber, $transformationsArray);
         }
                     /**
          * Get the path to the directory of an image derivative version.
