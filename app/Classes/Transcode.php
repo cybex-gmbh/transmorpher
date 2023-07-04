@@ -71,20 +71,19 @@ class Transcode implements TranscodeInterface
      * @param ResponseState $responseState
      * @param string $callbackUrl
      * @param string $uploadToken
-     * @param User $user
      * @param Media $media
      * @param int $versionNumber
      *
      * @return void
      */
-    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, User $user, Media $media, int $versionNumber): void
+    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, Media $media, int $versionNumber): void
     {
         $response = [
             'success' => $responseState->success(),
             'response' => $responseState->getResponse(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
-            'client' => $user->name,
+            'client' => $media->User->name,
             'upload_token' => $uploadToken,
             'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($media)),
         ];

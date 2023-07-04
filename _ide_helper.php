@@ -17828,15 +17828,15 @@
          * Path structure: {username}/{identifier}/{versionNumber}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
          *
          * @param \App\Models\Media $media
-         * @param array|null $transformationsArray
+         * @param array|null $transformations
          * @param int|null $versionNumber
          * @return string 
          * @static 
          */ 
-        public static function toImageDerivativeFile($media, $versionNumber = null, $transformationsArray = null)
+        public static function toImageDerivativeFile($media, $versionNumber = null, $transformations = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeFile($media, $versionNumber, $transformationsArray);
+                        return $instance->toImageDerivativeFile($media, $versionNumber, $transformations);
         }
                     /**
          * Get the path to the directory of an image derivative version.
@@ -17990,16 +17990,15 @@
          * @param \App\Enums\ResponseState $responseState
          * @param string $callbackUrl
          * @param string $uploadToken
-         * @param \App\Models\User $user
          * @param \App\Models\Media $media
          * @param int $versionNumber
          * @return void 
          * @static 
          */ 
-        public static function callback($responseState, $callbackUrl, $uploadToken, $user, $media, $versionNumber)
+        public static function callback($responseState, $callbackUrl, $uploadToken, $media, $versionNumber)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        $instance->callback($responseState, $callbackUrl, $uploadToken, $user, $media, $versionNumber);
+                        $instance->callback($responseState, $callbackUrl, $uploadToken, $media, $versionNumber);
         }
          
     }

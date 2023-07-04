@@ -41,11 +41,10 @@ interface TranscodeInterface
      * @param ResponseState $responseState
      * @param string $callbackUrl
      * @param string $uploadToken
-     * @param User $user
      * @param Media $media
      * @param int $versionNumber
      *
      * @return void
      */
-    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, User $user, Media $media, int $versionNumber): void;
+    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, Media $media, int $versionNumber): void;
 }

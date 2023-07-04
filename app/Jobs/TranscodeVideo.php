@@ -93,7 +93,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->transcodeVideo();
 
-        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_SUCCESSFUL, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media, $this->version->number);
+        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_SUCCESSFUL, $this->callbackUrl, $this->uploadToken, $this->media, $this->version->number);
     }
 
     /**
@@ -122,7 +122,7 @@ class TranscodeVideo implements ShouldQueue
             $versionNumber = $this->oldVersionNumber;
         }
 
-        Transcode::callback(ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media, $versionNumber);
+        Transcode::callback(ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->media, $versionNumber);
     }
 
     /**
