@@ -148,6 +148,6 @@ class FilePathHelper
      */
     public function createOriginalFileName(int $versionNumber, string $fileName): string
     {
-        return sprintf('%d-%s', $versionNumber, $fileName);
+        return sprintf('%d-%s', $versionNumber, trim($fileName));
     }
 }

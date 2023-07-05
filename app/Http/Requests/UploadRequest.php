@@ -29,11 +29,21 @@ class UploadRequest extends FormRequest
             'file' => [
                 'required',
                 'file',
+                // Check file name for disallowed characters and reject if present.
                 function ($attribute, $value, $fail) {
-                    if (!preg_match(ValidationRegex::forFilename(), pathinfo($this->file->getClientOriginalName(), PATHINFO_FILENAME))) {
-                        $fail(trans('responses.file_name_invalid'));
+                    // Using these characters might cause file system problems.
+                    $disallowedCharacters = ['\'', '/', '\\', ':', '?', '"', '<', '>', '|', '*'];
+                    $fileName = pathinfo($this->file->getClientOriginalName(), PATHINFO_FILENAME);
+
+                    if (preg_match(sprintf('/[%s]/', preg_quote(implode($disallowedCharacters), '/')), $fileName)) {
+                        $fail(trans('responses.file_name_invalid', ['disallowedCharacters' => implode(', ', $disallowedCharacters)]));
                     }
-                }
+
+                    // Check if file name only consists of spaces.
+                    if (!trim($fileName)) {
+                        $fail(trans('responses.file_name_invalid_only_spaces'));
+                    }
+                },
             ],
             'identifier' => [
                 'required',
