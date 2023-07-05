@@ -1,9 +1,9 @@
 <?php
 
 use App\Helpers\SigningHelper;
-use App\Http\Controllers\v1\ImageController;
-use App\Http\Controllers\v1\UploadSlotController;
-use App\Http\Controllers\v1\VersionController;
+use App\Http\Controllers\V1\ImageController;
+use App\Http\Controllers\V1\UploadSlotController;
+use App\Http\Controllers\V1\VersionController;
 use Illuminate\Support\Facades\Route;
 
 /*

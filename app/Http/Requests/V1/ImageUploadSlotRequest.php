@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\v1;
+namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UploadRequest extends FormRequest
+class ImageUploadSlotRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,8 +13,7 @@ class UploadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // The request is authorized by an upload token, which is previously retrieved from a Sanctum protected route.
-        return true;
+        return $this->user()->tokenCan('transmorpher:reserve-image-upload-slot');
     }
 
     /**
@@ -25,9 +24,8 @@ class UploadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => [
-                'required',
-            ]
+            // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and dashes are allowed.
+            'identifier' => ['required', 'string', 'regex:/^[\w][\w\-]*$/'],
         ];
     }
 }
