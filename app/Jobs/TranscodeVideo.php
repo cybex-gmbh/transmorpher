@@ -100,7 +100,7 @@ class TranscodeVideo implements ShouldQueue
                 Transcode::callback($this->responseState, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $this->version->number);
             }
         } else {
-            $this->failed(null, $this->responseState);
+            $this->failed(null);
         }
     }
 
@@ -108,10 +108,9 @@ class TranscodeVideo implements ShouldQueue
      * Handle a job failure.
      *
      * @param Throwable|null $exception
-     * @param ResponseState|null $responseState
      * @return void
      */
-    public function failed(?Throwable $exception, ResponseState $responseState = null): void
+    public function failed(?Throwable $exception): void
     {
         // Properties are not initialized here.
         $tempPath  = FilePathHelper::toTempVideoDerivativesDirectory($this->media->User, $this->media->identifier, $this->version->number);
@@ -130,7 +129,7 @@ class TranscodeVideo implements ShouldQueue
             $versionNumber = $this->oldVersionNumber;
         }
 
-        Transcode::callback($responseState ?? ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $versionNumber);
+        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->media->User, $this->media->identifier, $versionNumber);
     }
 
     /**
@@ -264,7 +263,7 @@ class TranscodeVideo implements ShouldQueue
             $this->responseState = ResponseState::TRANSCODING_SUCCESSFUL;
         } else {
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
-            $this->failed(null, $this->responseState);
+            $this->failed(null);
         }
     }
 
