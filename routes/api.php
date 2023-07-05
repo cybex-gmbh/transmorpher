@@ -11,4 +11,6 @@
 |
 */
 
-require __DIR__.'/api/v1.php';
+foreach (File::glob(base_path('routes/api/*')) as $filePath) {
+    require $filePath;
+}
