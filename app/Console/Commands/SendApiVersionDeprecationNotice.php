@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Mail\ApiVersionDeprecationNotice;
-use App\Models\User;
+use App\Notifications\ApiVersionDeprecationNotice;
 use Illuminate\Console\Command;
-use Mail;
+use Notification;
 
 class SendApiVersionDeprecationNotice extends Command
 {
@@ -31,9 +30,8 @@ class SendApiVersionDeprecationNotice extends Command
      */
     public function handle()
     {
-        Mail::to(config('mail.from.address'))
-            ->bcc(User::get())
-            ->queue(app(ApiVersionDeprecationNotice::class, ['apiVersion' => $this->argument('apiVersion')]));
+        Notification::route('mail', config('mail.from.address'))
+            ->notify(app(ApiVersionDeprecationNotice::class, ['apiVersion' => $this->argument('apiVersion')]));
 
         return Command::SUCCESS;
     }
