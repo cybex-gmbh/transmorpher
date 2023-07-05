@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\v1;
+namespace App\Http\Requests\V1;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SetVersionRequest extends FormRequest
+class UploadRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +13,8 @@ class SetVersionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:set-version');
+        // The request is authorized by an upload token, which is previously retrieved from a Sanctum protected route.
+        return true;
     }
 
     /**
@@ -23,9 +24,10 @@ class SetVersionRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Nullable because this information is only used for videos. Validation is happening inside the VersionController.
         return [
-            'callback_url' => ['nullable', 'string', 'url']
+            'file' => [
+                'required',
+            ]
         ];
     }
 }
