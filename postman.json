@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a0b7e145-0eda-4540-ac16-a3b680ad440a",
+		"_postman_id": "c7903139-83e0-425a-8a2d-3f1a83dc2ac3",
 		"name": "transmorpher server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "24082093"
@@ -418,91 +418,6 @@
 									"key": "file",
 									"type": "file",
 									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
-								},
-								{
-									"key": "identifier",
-									"value": "{{imageIdentifier}}",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
-							"host": [
-								"transmorpher",
-								"test"
-							],
-							"path": [
-								"api",
-								"upload",
-								"{{imageUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Upload: invalid file name",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    console.log(jsonData);\r",
-									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
-									"});\r",
-									"/* {\r",
-									"    \"message\": \"File name may only contain numbers, letters, underscores and can't contain trailing or leading hyphens.\",\r",
-									"    \"errors\": {\r",
-									"        \"file\": [\r",
-									"            \"File name may only contain numbers, letters, underscores and can't contain trailing or leading hyphens.\"\r",
-									"        ]\r",
-									"    }\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/C:/Windows/System32/@WindowsHelloFaceToastIcon.png"
 								},
 								{
 									"key": "identifier",
