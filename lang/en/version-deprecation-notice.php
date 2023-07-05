@@ -14,6 +14,4 @@ return [
     'title' => 'Version Deprecation Notice',
     'version_soon_deprecated' => 'The support for the API version v:apiVersion will soon end.',
     'update_client_implementations' => 'Please update your implementations to use a more recent API version.',
-    'thanks' => 'Thanks',
-    'your_team' => 'your :appName Team',
 ];
