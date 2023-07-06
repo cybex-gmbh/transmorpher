@@ -14,7 +14,7 @@ class SendApiVersionDeprecationNotice extends Command
      * @var string
      */
     protected $signature = 'mail:deprecation-notice
-                {apiVersion : The API version this deprecation notice is send for.}';
+                {apiVersion : The API version this deprecation notice is sent for.}';
 
     /**
      * The console command description.
