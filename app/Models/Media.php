@@ -87,8 +87,8 @@ class Media extends Model
      *      video/mp4 => mp4 mp4v mpg4
      *
      * @param UploadedFile $file
-     * @param string       $mimeTypes
-     * @param UploadSlot   $uploadSlot
+     * @param string $mimeTypes
+     * @param UploadSlot $uploadSlot
      *
      * @return void
      * @throws ValidationException
@@ -110,5 +110,15 @@ class Media extends Model
                 $uploadSlot->delete();
             }
         });
+    }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'identifier';
     }
 }

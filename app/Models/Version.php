@@ -51,4 +51,14 @@ class Version extends Model
     {
         return $this->belongsTo(Media::class);
     }
+
+    /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'number';
+    }
 }

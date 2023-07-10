@@ -6,7 +6,9 @@ use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Helpers\Upload;
+use App\Models\Media;
 use App\Models\User;
+use App\Models\Version;
 use FilePathHelper;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -20,33 +22,14 @@ class ImageController extends Controller
      * Handles incoming image derivative requests.
      *
      * @param User $user
-     * @param string $identifier
+     * @param Media $media
      * @param string $transformations
      *
      * @return Application|ResponseFactory|Response
      */
-    public function get(User $user, string $identifier, string $transformations = ''): Response|Application|ResponseFactory
+    public function get(User $user, Media $media, string $transformations = ''): Response|Application|ResponseFactory
     {
-        $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
-        $transformationsArray = $this->getTransformations($transformations);
-        $derivativePath = FilePathHelper::toImageDerivativeFile($user, $transformations, $identifier, $transformationsArray);
-
-        // Check if derivative already exists and return if so.
-        if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
-            $derivative = $imageDerivativesDisk->get($derivativePath);
-        } else {
-            $originalFilePath = FilePathHelper::toOriginalFile($user, $identifier);
-
-            // Apply transformations to image.
-            $derivative = Transform::transform($originalFilePath, $transformationsArray);
-            $derivative = $this->optimizeDerivative($derivative, $transformationsArray[Transformation::QUALITY->value] ?? null);
-
-            if (config('transmorpher.store_derivatives')) {
-                $imageDerivativesDisk->put($derivativePath, $derivative);
-            }
-        }
-
-        return response($derivative, 200, ['Content-Type' => $imageDerivativesDisk->mimeType($derivativePath)]);
+        return $this->getDerivative($transformations, $user, $media);
     }
 
     /**
@@ -64,6 +47,20 @@ class ImageController extends Controller
         $pathToOriginal = FilePathHelper::toOriginalFile($request->user(), $identifier, $versionNumber);
 
         return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => $originalsDisk->mimeType($pathToOriginal)]);
+    }
+
+    /**
+     * Retrieve a derivative for a version.
+     *
+     * @param Request $request
+     * @param Media $media
+     * @param Version $version
+     * @param string $transformations
+     * @return Response|Application|ResponseFactory
+     */
+    public function getDerivativeForVersion(Request $request, Media $media, Version $version, string $transformations = ''): Response|Application|ResponseFactory
+    {
+        return $this->getDerivative($transformations, $request->user(), $media, $version);
     }
 
     /**
@@ -111,5 +108,36 @@ class ImageController extends Controller
         unlink($tempFile);
 
         return $derivative;
+    }
+
+    /**
+     * @param string $transformations
+     * @param User $user
+     * @param Media $media
+     * @param Version|null $version
+     * @return Application|ResponseFactory|Response
+     */
+    protected function getDerivative(string $transformations, User $user, Media $media, Version $version = null): ResponseFactory|Application|Response
+    {
+        $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
+        $transformationsArray = $this->getTransformations($transformations);
+        $derivativePath = FilePathHelper::toImageDerivativeFile($user, $transformations, $media->identifier, $transformationsArray, $version?->number);
+
+        // Check if derivative already exists and return if so.
+        if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
+            $derivative = $imageDerivativesDisk->get($derivativePath);
+        } else {
+            $originalFilePath = FilePathHelper::toOriginalFile($user, $media->identifier, $version?->number);
+
+            // Apply transformations to image.
+            $derivative = Transform::transform($originalFilePath, $transformationsArray);
+            $derivative = $this->optimizeDerivative($derivative, $transformationsArray[Transformation::QUALITY->value] ?? null);
+
+            if (config('transmorpher.store_derivatives')) {
+                $imageDerivativesDisk->put($derivativePath, $derivative);
+            }
+        }
+
+        return response($derivative, 200, ['Content-Type' => $imageDerivativesDisk->mimeType($derivativePath)]);
     }
 }
