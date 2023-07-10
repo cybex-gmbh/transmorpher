@@ -11,6 +11,7 @@
 |
 */
 
+// The user must not be part of the API routes. Sanctum must handle this.
 foreach (File::glob(base_path('routes/api/*')) as $filePath) {
     require $filePath;
 }
