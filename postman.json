@@ -1,7 +1,8 @@
 {
 	"info": {
-		"_postman_id": "83ad6c81-9316-43ad-9ddf-83004977f161",
+		"_postman_id": "9f15d2e6-780f-4d09-83ec-d227afc79b36",
 		"name": "transmorpher server",
+		"description": "Configuration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to Settings > General > Allow reading files outside working directory, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "24082093"
 	},
@@ -2575,23 +2576,33 @@
 	],
 	"variable": [
 		{
-			"key": "user",
-			"value": "postman",
-			"type": "string"
-		},
-		{
 			"key": "authToken",
 			"value": "2|SSkfqSkNq3zmogcCeSipLxcjIpviqO7vawD3FsxH",
 			"type": "string"
 		},
 		{
-			"key": "baseUrl",
-			"value": "transmorpher.test/api/{{apiVersion}}",
+			"key": "domain",
+			"value": "transmorpher.test",
 			"type": "string"
 		},
 		{
-			"key": "---",
+			"key": "apiVersion",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "----------------------------",
 			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user",
+			"value": "postman",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "{{domain}}/api/v{{apiVersion}}",
 			"type": "string"
 		},
 		{
@@ -2627,11 +2638,6 @@
 		{
 			"key": "currentVideoVersion",
 			"value": "0",
-			"type": "string"
-		},
-		{
-			"key": "apiVersion",
-			"value": "v1",
 			"type": "string"
 		}
 	]
