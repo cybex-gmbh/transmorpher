@@ -47,7 +47,7 @@ class Transform implements TransformInterface
             return $this->format($image->stream(), $format, $quality)->getBinary();
         }
 
-        return $image->stream();
+        return $image->stream(null, $quality);
     }
 
     /**
