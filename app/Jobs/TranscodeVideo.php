@@ -42,7 +42,7 @@ class TranscodeVideo implements ShouldQueue
     *
     * @var int
     */
-    public int $timeout = 600;
+    public int $timeout = 0;
 
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
@@ -132,7 +132,7 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function transcodeVideo(): void
     {
-        $ffmpeg = FFMpeg::create();
+        $ffmpeg = FFMpeg::create(['timeout' => $this->timeout]);
         $video  = $this->loadVideo($ffmpeg);
 
         // Set necessary file path information.
