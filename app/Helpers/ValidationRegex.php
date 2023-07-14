@@ -13,7 +13,7 @@ class ValidationRegex
      */
     public static function forIdentifier(): string
     {
-        return '/^[\w](?:-?[\w]+)*$/';
+        return '/^\w(?:-?\w+)*$/';
     }
 
     /**
