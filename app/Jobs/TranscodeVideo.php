@@ -221,7 +221,10 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function generateMp4(StreamingMedia $video): void
     {
-        $video->save(new X264(), $this->localDisk->path($this->tempMp4FileName));
+        // Omit data streams(-dn) and attachments(-map -0:t?).
+        // Data streams are things such as timecodes, an attachment may be metadata.
+        // Transcoding sometimes failed when data streams where not omitted. Metadata should not be publicly available.
+        $video->save((new X264())->setAdditionalParameters(['-dn', '-map', '-0:t?']), $this->localDisk->path($this->tempMp4FileName));
 
         $derivativePath = FilePathHelper::toTempVideoDerivativeFile($this->media->User, $this->media->identifier, $this->version->number, 'mp4');
         $this->derivativesDisk->writeStream(

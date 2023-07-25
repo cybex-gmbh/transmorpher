@@ -22,6 +22,10 @@ enum StreamingFormat: string
 
         return $video->$format()
             ->$codec()
-            ->autoGenerateRepresentations(config('transmorpher.representations'));
+            ->autoGenerateRepresentations(config('transmorpher.representations'))
+            // Omit data streams(-dn) and attachments(-map -0:t?).
+            // Data streams are things such as timecodes, an attachment may be metadata.
+            // Transcoding sometimes failed when data streams where not omitted. Metadata should not be publicly available.
+            ->setAdditionalParams(['-dn', '-map', '-0:t?']);
     }
 }
