@@ -42,7 +42,7 @@ class TranscodeVideo implements ShouldQueue
     *
     * @var int
     */
-    public int $timeout = 0;
+    public int $timeout = 60 * 60 * 3;
 
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
