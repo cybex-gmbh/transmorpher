@@ -49,6 +49,6 @@ class ApiVersionDeprecationNotice extends Notification implements ShouldQueue
             ->subject(trans('version-deprecation-notice.subject', ['apiVersion' => $this->apiVersion]))
             ->greeting(trans('version-deprecation-notice.title'))
             ->line(trans('version-deprecation-notice.version_soon_deprecated', ['apiVersion' => $this->apiVersion]))
-            ->line(trans('version-deprecation-notice.update_client_implementations', ['apiVersion' => $this->apiVersion]));
+            ->line(trans('version-deprecation-notice.update_client_implementations'));
     }
 }
