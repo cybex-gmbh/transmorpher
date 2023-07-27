@@ -27,7 +27,7 @@ enum Transformation: string
         };
 
         if (!$valid) {
-            throw new InvalidTransformationValueException(sprintf('The provided value %s for the %s parameter is not valid.', $value, $this->name));
+            throw new InvalidTransformationValueException($value, $this->name);
         }
 
         return $value;
@@ -52,7 +52,7 @@ enum Transformation: string
             try {
                 $transformationsArray[$key] = Transformation::from($key)->validate($value);
             } catch (ValueError $error) {
-                throw new TransformationNotFoundException(sprintf('The requested transformation %s is not an available transformation.', $key));
+                throw new TransformationNotFoundException($key);
             }
         }
 
