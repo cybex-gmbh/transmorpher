@@ -114,7 +114,7 @@ class UploadSlotController extends Controller
 
         return response()->json([
             'state' => $responseState->getState()->value,
-            'message' => $responseState->getResponse(),
+            'message' => $responseState->getMessage(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             // Base path is only passed for images since the video is not available at this path yet.
@@ -130,7 +130,7 @@ class UploadSlotController extends Controller
 
         return response()->json([
             'state' => ResponseState::UPLOAD_SLOT_CREATED->getState()->value,
-            'message' => ResponseState::UPLOAD_SLOT_CREATED->getResponse(),
+            'message' => ResponseState::UPLOAD_SLOT_CREATED->getMessage(),
             'identifier' => $requestData['identifier'],
             'upload_token' => $uploadSlot->token
         ]);

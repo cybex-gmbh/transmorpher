@@ -32,7 +32,7 @@ class VersionController extends Controller
 
         return response()->json([
             'state' => ResponseState::VERSIONS_RETRIEVED->getState()->value,
-            'message' => ResponseState::VERSIONS_RETRIEVED->getResponse(),
+            'message' => ResponseState::VERSIONS_RETRIEVED->getMessage(),
             'identifier' => $identifier,
             'currentVersion' => $currentVersionNumber ?? null,
             'currentlyProcessedVersion' => $processedVersionNumber,
@@ -71,7 +71,7 @@ class VersionController extends Controller
 
         return response()->json([
             'state' => $responseState->getState()->value,
-            'message' => $responseState->getResponse(),
+            'message' => $responseState->getMessage(),
             'identifier' => $identifier,
             'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentVersionNumber,
             // Base path is only passed for images since the video is not available at this path yet.
@@ -107,7 +107,7 @@ class VersionController extends Controller
 
         return response()->json([
             'state' => $responseState->getState()->value,
-            'message' => $responseState->getResponse(),
+            'message' => $responseState->getMessage(),
             'identifier' => $identifier,
         ]);
     }

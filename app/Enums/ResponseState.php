@@ -41,7 +41,7 @@ enum ResponseState: string
     /**
      * @return string
      */
-    public function getResponse(): string
+    public function getMessage(): string
     {
         return trans(sprintf('responses.%s', $this->value));
     }
