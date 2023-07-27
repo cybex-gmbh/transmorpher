@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use App\Exceptions\InvalidTransformationValueException;
+use App\Exceptions\TransformationNotFoundException;
 use App\Helpers\Upload;
 use App\Models\Media;
 use App\Models\User;
@@ -14,7 +16,6 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use InvalidArgumentException;
 use Transform;
 
 class ImageController extends Controller
@@ -98,7 +99,7 @@ class ImageController extends Controller
     {
         try {
             $transformationsArray = Transformation::arrayFromString($transformations);
-        } catch (InvalidArgumentException $exception) {
+        } catch (TransformationNotFoundException|InvalidTransformationValueException $exception) {
             abort(400, $exception->getMessage());
         }
 

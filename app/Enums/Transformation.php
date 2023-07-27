@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-use InvalidArgumentException;
+use App\Exceptions\InvalidTransformationValueException;
+use App\Exceptions\TransformationNotFoundException;
+use ValueError;
 
 enum Transformation: string
 {
@@ -25,7 +27,7 @@ enum Transformation: string
         };
 
         if (!$valid) {
-            throw new InvalidArgumentException(sprintf('The provided value %s for the %s parameter is not valid.', $value, $this->name));
+            throw new InvalidTransformationValueException(sprintf('The provided value %s for the %s parameter is not valid.', $value, $this->name));
         }
 
         return $value;
@@ -46,7 +48,12 @@ enum Transformation: string
 
         foreach ($parameters as $parameter) {
             [$key, $value] = explode('-', $parameter, 2);
-            $transformationsArray[$key] = Transformation::tryFrom($key)?->validate($value);
+
+            try {
+                $transformationsArray[$key] = Transformation::from($key)->validate($value);
+            } catch (ValueError $error) {
+                throw new TransformationNotFoundException(sprintf('The requested transformation %s is not an available transformation.', $key));
+            }
         }
 
         return $transformationsArray;
