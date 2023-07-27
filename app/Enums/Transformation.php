@@ -13,14 +13,14 @@ enum Transformation: string
 
     /**
      * @param string|int $value
-     * @return string|int|false
+     * @return string|int
      */
-    public function validate(string|int $value): string|int|false
+    public function validate(string|int $value): string|int
     {
         $valid = match ($this) {
             self::WIDTH,
             self::HEIGHT => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]),
-            self::FORMAT => in_array($value, ImageFormat::getFormats()) ? $value : false,
+            self::FORMAT => in_array($value, ImageFormat::getFormats(), true),
             self::QUALITY => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100]])
         };
 
