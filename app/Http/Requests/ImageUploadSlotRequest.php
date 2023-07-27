@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Helpers\ValidationRegex;
+use App\Enums\ValidationRegex;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ImageUploadSlotRequest extends FormRequest
@@ -26,7 +26,7 @@ class ImageUploadSlotRequest extends FormRequest
     {
         return [
             // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and hyphens are allowed.
-            'identifier' => ['required', 'string', sprintf('regex:%s', ValidationRegex::forIdentifier())],
+            'identifier' => ['required', 'string', sprintf('regex:%s', ValidationRegex::IDENTIFIER->get())],
         ];
     }
 }

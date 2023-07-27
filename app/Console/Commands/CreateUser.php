@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Helpers\ValidationRegex;
+use App\Enums\ValidationRegex;
 use App\Models\User;
 use Hash;
 use Illuminate\Console\Command;
@@ -51,8 +51,8 @@ class CreateUser extends Command
         }
 
         // Username is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and hyphens are allowed.
-        if (!preg_match(ValidationRegex::forUsername(), $name)) {
-            $this->error(sprintf('The username must match the pattern %s!', ValidationRegex::forUsername()));
+        if (!preg_match(ValidationRegex::USERNAME->get(), $name)) {
+            $this->error(sprintf('The username must match the pattern %s!', ValidationRegex::USERNAME->get()));
             return Command::INVALID;
         }
 

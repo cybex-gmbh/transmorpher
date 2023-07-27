@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Helpers\ValidationRegex;
+use App\Enums\ValidationRegex;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UploadRequest extends FormRequest
@@ -53,7 +53,7 @@ class UploadRequest extends FormRequest
             'identifier' => [
                 'required',
                 'string',
-                sprintf('regex:%s', ValidationRegex::forIdentifier()),
+                sprintf('regex:%s', ValidationRegex::IDENTIFIER->get()),
                 function ($attribute, $value, $fail) {
                     if ($this->uploadSlot->identifier !== $value) {
                         $fail(trans('responses.non_matching_identifier'));
