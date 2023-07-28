@@ -6,12 +6,12 @@ enum ResponseState: string
 {
     case CDN_INVALIDATION_FAILED = 'cdn_invalidation_failed';
     case DELETION_SUCCESSFUL = 'deletion_successful';
-    case DISPATCHING_TRANSCODING_JOB_FAILED = 'dispatching_transcoding_job_failed';
     case IMAGE_UPLOAD_SUCCESSFUL = 'image_upload_successful';
     case IMAGE_VERSION_SET = 'image_version_set';
     case NO_CALLBACK_URL_PROVIDED = 'no_callback_url_provided';
     case TRANSCODING_ABORTED = 'transcoding_aborted';
     case TRANSCODING_FAILED = 'transcoding_failed';
+    case TRANSCODING_JOB_DISPATCH_FAILED = 'transcoding_job_dispatch_failed';
     case TRANSCODING_SUCCESSFUL = 'transcoding_successful';
     case UPLOAD_SLOT_CREATED = 'upload_slot_created';
     case VERSIONS_RETRIEVED = 'versions_retrieved';
