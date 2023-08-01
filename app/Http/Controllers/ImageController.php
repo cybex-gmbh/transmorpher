@@ -31,22 +31,21 @@ class ImageController extends Controller
      */
     public function get(User $user, Media $media, string $transformations = ''): Response|Application|ResponseFactory
     {
-        return $this->getDerivative($transformations, $user, $media);
+        return $this->getDerivative($transformations, $media);
     }
 
     /**
      * Retrieve an original image for a version.
      *
      * @param Request $request
-     * @param string $identifier
-     * @param int $versionNumber
-     *
+     * @param Media $media
+     * @param Version $version
      * @return Application|Response|ResponseFactory
      */
-    public function getVersion(Request $request, string $identifier, int $versionNumber): Response|Application|ResponseFactory
+    public function getOriginal(Request $request, Media $media, Version $version): Response|Application|ResponseFactory
     {
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
-        $pathToOriginal = FilePathHelper::toOriginalFile($request->user(), $identifier, $versionNumber);
+        $pathToOriginal = FilePathHelper::toOriginalFile($media, $version->number);
 
         return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => $originalsDisk->mimeType($pathToOriginal)]);
     }
@@ -62,7 +61,7 @@ class ImageController extends Controller
      */
     public function getDerivativeForVersion(Request $request, Media $media, Version $version, string $transformations = ''): Response|Application|ResponseFactory
     {
-        return $this->getDerivative($transformations, $request->user(), $media, $version);
+        return $this->getDerivative($transformations, $media, $version);
     }
 
     /**
@@ -90,12 +89,11 @@ class ImageController extends Controller
 
     /**
      * @param string $transformations
-     * @param User $user
      * @param Media $media
      * @param Version|null $version
      * @return Application|ResponseFactory|Response
      */
-    protected function getDerivative(string $transformations, User $user, Media $media, Version $version = null): ResponseFactory|Application|Response
+    protected function getDerivative(string $transformations, Media $media, Version $version = null): ResponseFactory|Application|Response
     {
         try {
             $transformationsArray = Transformation::arrayFromString($transformations);
@@ -104,13 +102,13 @@ class ImageController extends Controller
         }
 
         $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
-        $derivativePath = FilePathHelper::toImageDerivativeFile($user, $transformations, $media->identifier, $transformationsArray, $version?->number);
+        $derivativePath = FilePathHelper::toImageDerivativeFile($media, $version?->number, $transformationsArray);
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $imageDerivativesDisk->exists($derivativePath)) {
             $derivative = $imageDerivativesDisk->get($derivativePath);
         } else {
-            $originalFilePath = FilePathHelper::toOriginalFile($user, $media->identifier, $version?->number);
+            $originalFilePath = FilePathHelper::toOriginalFile($media, $version?->number);
 
             // Apply transformations to image.
             $derivative = Transform::transform($originalFilePath, $transformationsArray);

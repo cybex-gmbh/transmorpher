@@ -83,15 +83,12 @@ class UploadSlotController extends Controller
      */
     protected function saveFile(UploadedFile $uploadedFile, UploadSlot $uploadSlot, MediaType $type): JsonResponse
     {
-        $user = $uploadSlot->User;
-        $identifier = $uploadSlot->identifier;
-
-        $media = $user->Media()->firstOrNew(['identifier' => $identifier, 'type' => $type]);
+        $media = $uploadSlot->User->Media()->firstOrNew(['identifier' => $uploadSlot->identifier, 'type' => $type]);
         $media->validateUploadFile($uploadedFile, $type->handler()->getValidationRules(), $uploadSlot);
         $media->save();
 
         $versionNumber = $media->Versions()->max('number') + 1;
-        $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
+        $basePath = FilePathHelper::toBaseDirectory($media);
         $fileName = FilePathHelper::createOriginalFileName($versionNumber, $uploadedFile->getClientOriginalName());
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
@@ -116,7 +113,7 @@ class UploadSlotController extends Controller
             'response' => $responseState->getResponse(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
-            'client' => $user->name,
+            'client' => $uploadSlot->User->name,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $type === MediaType::IMAGE ? $basePath : null,
             'upload_token' => $uploadSlot->token
