@@ -75,10 +75,10 @@ class ImageHandler implements MediaHandlerInterface
         // By creating an upload slot, a currently active upload will be canceled.
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $media->identifier], ['media_type' => MediaType::IMAGE]);
 
-        if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($user, $media->identifier))) {
+        if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($media))) {
             // Might instead move the directory to keep derivatives, but S3 can't move directories and each file would have to be moved individually.
-            $media->type->handler()->getDerivativesDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($user, $media->identifier, $oldVersionNumber));
-            $responseState = ResponseState::VERSION_SET;
+            $media->type->handler()->getDerivativesDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($media, $oldVersionNumber));
+            $responseState = ResponseState::IMAGE_VERSION_SET;
         } else {
             $version->update(['number' => $oldVersionNumber]);
             $responseState = ResponseState::CDN_INVALIDATION_FAILED;
