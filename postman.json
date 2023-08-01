@@ -167,11 +167,11 @@
 									"pm.test(\"Obtained image upload token\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('initializing');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully created upload slot.\",\r",
+									"    \"state\": 'initializing',\r",
+									"    \"message\": \"Successfully created upload slot.\",\r",
 									"    \"identifier\": \"postmanUnusedImage\",\r",
 									"    \"upload_token\": \"6464b7e2f0928\"\r",
 									"} */\r",
@@ -404,6 +404,11 @@
 									"key": "file",
 									"type": "file",
 									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								},
+								{
+									"key": "identifier",
+									"value": "{{imageIdentifier}}",
+									"type": "text"
 								}
 							]
 						},
@@ -502,6 +507,263 @@
 							]
 						},
 						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{imageUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: non-matching identifier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The provided identifier does not match the identifier of the reserved upload slot.\",\r",
+									"    \"errors\": {\r",
+									"        \"identifier\": [\r",
+									"            \"The provided identifier does not match the identifier of the reserved upload slot.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								},
+								{
+									"key": "identifier",
+									"value": "thisDoesNotMatch",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{imageUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: missing identifier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The identifier field is required.\",\r",
+									"    \"errors\": {\r",
+									"        \"identifier\": [\r",
+									"            \"The identifier field is required.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								},
+								{
+									"key": "",
+									"value": "",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"api",
+								"upload",
+								"{{imageUploadToken}}"
+							],
+							"query": [
+								{
+									"key": null,
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: invalid identifier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The identifier format is invalid. (and 1 more error)\",\r",
+									"    \"errors\": {\r",
+									"        \"identifier\": [\r",
+									"            \"The identifier format is invalid.\",\r",
+									"            \"The provided identifier does not match the identifier of the reserved upload slot.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								},
+								{
+									"key": "identifier",
+									"value": "--thisIdentifierIsInvalid",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
 							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
 								"{{baseUrl}}"
@@ -530,14 +792,13 @@
 								"exec": [
 									"pm.test(\"Image uploaded\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('success');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully uploaded new image version.\",\r",
+									"    \"state\": 'success',\r",
+									"    \"message\": \"Successfully uploaded new image version.\",\r",
 									"    \"identifier\": \"postmanTestImage\",\r",
 									"    \"version\": 1,\r",
-									"    \"client\": \"nameandemail\",\r",
 									"    \"public_path\": \"nameandemail/postmanTestImage\",\r",
 									"    \"upload_token\": \"6464a87163b5a\"\r",
 									"} */\r",
@@ -575,6 +836,11 @@
 									"key": "file",
 									"type": "file",
 									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								},
+								{
+									"key": "identifier",
+									"value": "{{imageIdentifier}}",
+									"type": "text"
 								}
 							]
 						},
@@ -796,16 +1062,16 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/image/derivative/{{imageIdentifier}}/version/{{currentImageVersion}}/q-1",
+							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/q-1",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"image",
-								"derivative",
 								"{{imageIdentifier}}",
 								"version",
 								"{{currentImageVersion}}",
+								"derivative",
 								"q-1"
 							]
 						}
@@ -846,7 +1112,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/1",
+							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/1/original",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -854,7 +1120,8 @@
 								"image",
 								"{{imageIdentifier}}",
 								"version",
-								"1"
+								"1",
+								"original"
 							]
 						}
 					},
@@ -922,7 +1189,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/{{currentImageVersion}}",
+							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -930,7 +1197,8 @@
 								"image",
 								"{{imageIdentifier}}",
 								"version",
-								"{{currentImageVersion}}"
+								"{{currentImageVersion}}",
+								"original"
 							]
 						}
 					},
@@ -1010,18 +1278,17 @@
 								"exec": [
 									"pm.test(\"Image versions retrieved\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('success');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully retrieved version numbers.\",\r",
+									"    \"state\": 'success',\r",
+									"    \"message\": \"Successfully retrieved version numbers.\",\r",
 									"    \"identifier\": \"postmanTestImage\",\r",
 									"    \"currentVersion\": 3,\r",
 									"    \"currentlyProcessedVersion\": null,\r",
 									"    \"versions\": {\r",
 									"        \"3\": 1684330530\r",
 									"    },\r",
-									"    \"client\": \"postman\"\r",
 									"} */\r",
 									""
 								],
@@ -1047,6 +1314,219 @@
 								"media",
 								"{{imageIdentifier}}",
 								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Derivative: invalid width parameter",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Retrieving derivative failed: invalid width parameter\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(400);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The provided value abc for the WIDTH parameter is not valid.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/w-abc",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"w-abc"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Derivative: invalid height parameter",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Retrieving derivative failed: invalid height parameter\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(400);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The provided value bba for the HEIGHT parameter is not valid.\"\r",
+									"} */"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/h-bba",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"h-bba"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Derivative: invalid quality parameter",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Retrieving derivative failed: invalid quality parameter\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(400);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The provided value 123 for the QUALITY parameter is not valid.\"\r",
+									"} */"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/q-123",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"q-123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Derivative: invalid format parameter",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Retrieving derivative failed: invalid format parameter\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(400);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The provided value pgn for the FORMAT parameter is not valid.\"\r",
+									"} */"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/f-pgn",
+							"protocol": "http",
+							"host": [
+								"transmorpher",
+								"test"
+							],
+							"path": [
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"f-pgn"
 							]
 						}
 					},
@@ -1141,7 +1621,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/version/{{currentImageVersion}}/set",
+							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1149,8 +1629,7 @@
 								"media",
 								"{{imageIdentifier}}",
 								"version",
-								"{{currentImageVersion}}",
-								"set"
+								"{{currentImageVersion}}"
 							]
 						}
 					},
@@ -1165,14 +1644,13 @@
 								"exec": [
 									"pm.test(\"Image version set\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('success');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully set media version.\",\r",
+									"    \"state\": 'success',\r",
+									"    \"message\": \"Successfully set media version.\",\r",
 									"    \"identifier\": \"postmanTestImage\",\r",
 									"    \"version\": 2,\r",
-									"    \"client\": \"postman\",\r",
 									"    \"public_path\": \"postman/postmanTestImage\",\r",
 									"    \"upload_token\": \"6464e2634f4aa\"\r",
 									"} */\r",
@@ -1242,7 +1720,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/version/{{currentImageVersion}}/set",
+							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -1250,8 +1728,7 @@
 								"media",
 								"{{imageIdentifier}}",
 								"version",
-								"{{currentImageVersion}}",
-								"set"
+								"{{currentImageVersion}}"
 							]
 						}
 					},
@@ -1332,13 +1809,12 @@
 								"exec": [
 									"pm.test(\"Image deleted\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('deleted');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
+									"    \"state\": 'deleted',\r",
 									"    \"response\": \"Successfully deleted media.\",\r",
 									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"client\": \"nameandemail\"\r",
 									"} */\r",
 									"pm.test(\"Image not found after deletion\", function () {\r",
 									"    pm.sendRequest(\r",
@@ -1770,11 +2246,11 @@
 									"pm.test(\"Obtained video upload token\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('initializing');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully created upload slot.\",\r",
+									"    \"state\": 'initializing',\r",
+									"    \"message\": \"Successfully created upload slot.\",\r",
 									"    \"identifier\": \"postmanUnusedVideo\",\r",
 									"    \"upload_token\": \"6464c1a67c372\"\r",
 									"} */\r",
@@ -2011,6 +2487,11 @@
 									"key": "file",
 									"type": "file",
 									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								},
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
 								}
 							]
 						},
@@ -2138,14 +2619,13 @@
 								"exec": [
 									"pm.test(\"Video uploaded\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('processing');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully uploaded new video version, transcoding job has been dispatched.\",\r",
+									"    \"state\": 'processing',\r",
+									"    \"message\": \"Successfully uploaded new video version, transcoding job has been dispatched.\",\r",
 									"    \"identifier\": \"postmanTestVideo\",\r",
 									"    \"version\": 2,\r",
-									"    \"client\": \"nameandemail\",\r",
 									"    \"public_path\": null,\r",
 									"    \"upload_token\": \"6464c4c93e217\"\r",
 									"} */\r",
@@ -2183,6 +2663,11 @@
 									"key": "file",
 									"type": "file",
 									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
+								},
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
 								}
 							]
 						},
@@ -2215,14 +2700,13 @@
 								"exec": [
 									"pm.test(\"Video version set\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('processing');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully set media version.\",\r",
+									"    \"state\": 'processing',\r",
+									"    \"message\": \"Successfully set media version.\",\r",
 									"    \"identifier\": \"postmanTestVideo\",\r",
 									"    \"version\": 3,\r",
-									"    \"client\": \"postman\",\r",
 									"    \"public_path\": null,\r",
 									"    \"upload_token\": \"646752a25011c\"\r",
 									"} */\r",
@@ -2292,7 +2776,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{videoIdentifier}}/version/{{currentVideoVersion}}/set",
+							"raw": "{{baseUrl}}/media/{{videoIdentifier}}/version/{{currentVideoVersion}}",
 							"host": [
 								"{{baseUrl}}"
 							],
@@ -2300,8 +2784,7 @@
 								"media",
 								"{{videoIdentifier}}",
 								"version",
-								"{{currentVideoVersion}}",
-								"set"
+								"{{currentVideoVersion}}"
 							]
 						}
 					},
@@ -2382,13 +2865,12 @@
 								"exec": [
 									"pm.test(\"Video deleted\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.success).to.eql(true);\r",
+									"    pm.expect(jsonData.state).to.eql('deleted');\r",
 									"});\r",
 									"/* {\r",
-									"    \"success\": true,\r",
+									"    \"state\": 'deleted',\r",
 									"    \"response\": \"Successfully deleted media.\",\r",
 									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"client\": \"nameandemail\"\r",
 									"} */\r",
 									"pm.test(\"Video not found after deletion\", function () {\r",
 									"    pm.sendRequest(\r",
