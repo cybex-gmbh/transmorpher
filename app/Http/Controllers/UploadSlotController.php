@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
+use App\Enums\UploadState;
 use App\Http\Requests\ImageUploadSlotRequest;
 use App\Http\Requests\UploadRequest;
 use App\Http\Requests\VideoUploadSlotRequest;
@@ -83,15 +84,12 @@ class UploadSlotController extends Controller
      */
     protected function saveFile(UploadedFile $uploadedFile, UploadSlot $uploadSlot, MediaType $type): JsonResponse
     {
-        $user = $uploadSlot->User;
-        $identifier = $uploadSlot->identifier;
-
-        $media = $user->Media()->firstOrNew(['identifier' => $identifier, 'type' => $type]);
+        $media = $uploadSlot->User->Media()->firstOrNew(['identifier' => $uploadSlot->identifier, 'type' => $type]);
         $media->validateUploadFile($uploadedFile, $type->handler()->getValidationRules(), $uploadSlot);
         $media->save();
 
         $versionNumber = $media->Versions()->max('number') + 1;
-        $basePath = FilePathHelper::toBaseDirectory($user, $identifier);
+        $basePath = FilePathHelper::toBaseDirectory($media);
         $fileName = FilePathHelper::createOriginalFileName($versionNumber, $uploadedFile->getClientOriginalName());
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
@@ -102,7 +100,7 @@ class UploadSlotController extends Controller
             $responseState = ResponseState::WRITE_FAILED;
         }
 
-        if (!$responseState->success()) {
+        if ($responseState->getState() === UploadState::ERROR) {
             $versionNumber -= 1;
             $originalsDisk->delete($filePath);
             $version?->delete();
@@ -112,11 +110,10 @@ class UploadSlotController extends Controller
         File::delete($uploadedFile);
 
         return response()->json([
-            'success' => $responseState->success(),
-            'response' => $responseState->getResponse(),
+            'state' => $responseState->getState()->value,
+            'message' => $responseState->getMessage(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
-            'client' => $user->name,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $type === MediaType::IMAGE ? $basePath : null,
             'upload_token' => $uploadSlot->token
@@ -129,8 +126,8 @@ class UploadSlotController extends Controller
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $requestData['identifier']], $requestData);
 
         return response()->json([
-            'success' => ResponseState::UPLOAD_SLOT_CREATED->success(),
-            'response' => ResponseState::UPLOAD_SLOT_CREATED->getResponse(),
+            'state' => ResponseState::UPLOAD_SLOT_CREATED->getState()->value,
+            'message' => ResponseState::UPLOAD_SLOT_CREATED->getMessage(),
             'identifier' => $requestData['identifier'],
             'upload_token' => $uploadSlot->token
         ]);
