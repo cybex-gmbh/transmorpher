@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ValidationRegex;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VideoUploadSlotRequest extends FormRequest
@@ -24,8 +25,8 @@ class VideoUploadSlotRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and dashes are allowed.
-            'identifier' => ['required', 'string', 'regex:/^[\w][\w\-]*$/'],
+            // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and hyphens are allowed.
+            'identifier' => ['required', 'string', sprintf('regex:%s', ValidationRegex::IDENTIFIER->get())],
             'callback_url' => ['required', 'string', 'url']
         ];
     }
