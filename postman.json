@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9f15d2e6-780f-4d09-83ec-d227afc79b36",
+		"_postman_id": "23ebb632-4931-4f81-ad4e-2f6d70a9395a",
 		"name": "transmorpher server",
 		"description": "Configuration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to Settings > General > Allow reading files outside working directory, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -507,14 +507,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
@@ -592,14 +589,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
@@ -678,14 +672,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
