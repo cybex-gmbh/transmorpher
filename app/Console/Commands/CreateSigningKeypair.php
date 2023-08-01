@@ -23,14 +23,16 @@ class CreateSigningKeypair extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $keyPair = sodium_crypto_sign_keypair();
 
         $this->info('Successfully generated Sodium signing key pair.');
         $this->info('Please write the key pair into the .env file!');
         $this->warn(sprintf('TRANSMORPHER_SIGNING_KEYPAIR=%s', sodium_bin2hex($keyPair)));
+
+        return Command::SUCCESS;
     }
 }

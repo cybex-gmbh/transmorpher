@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use App\Exceptions\InvalidTransformationValueException;
+use App\Exceptions\TransformationNotFoundException;
 use App\Helpers\Upload;
 use App\Models\Media;
 use App\Models\User;
@@ -63,30 +65,6 @@ class ImageController extends Controller
     }
 
     /**
-     * Convert transformations request parameter to array.
-     *
-     * @param string $transformations
-     *
-     * @return array|null
-     */
-    protected function getTransformations(string $transformations): array|null
-    {
-        if (!$transformations) {
-            return null;
-        }
-
-        $transformationsArray = null;
-        $parameters = explode('+', $transformations);
-
-        foreach ($parameters as $parameter) {
-            [$key, $value] = explode('-', $parameter, 2);
-            $transformationsArray[$key] = $value;
-        }
-
-        return $transformationsArray;
-    }
-
-    /**
      * Optimize an image derivative.
      * Creates a temporary file since image optimizers only work locally.
      *
@@ -117,8 +95,13 @@ class ImageController extends Controller
      */
     protected function getDerivative(string $transformations, Media $media, Version $version = null): ResponseFactory|Application|Response
     {
+        try {
+            $transformationsArray = Transformation::arrayFromString($transformations);
+        } catch (TransformationNotFoundException|InvalidTransformationValueException $exception) {
+            abort(400, $exception->getMessage());
+        }
+
         $imageDerivativesDisk = MediaStorage::IMAGE_DERIVATIVES->getDisk();
-        $transformationsArray = $this->getTransformations($transformations);
         $derivativePath = FilePathHelper::toImageDerivativeFile($media, $version?->number, $transformationsArray);
 
         // Check if derivative already exists and return if so.

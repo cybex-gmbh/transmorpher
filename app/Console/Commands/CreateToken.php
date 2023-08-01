@@ -35,18 +35,20 @@ class CreateToken extends Command
     /**
      * Execute the console command.
      *
-     * @return void
+     * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         $user = User::findOrFail($this->argument('userId'));
         $user->tokens()->delete();
 
         $userInformation = sprintf('%s: %s (%s)', $user->getKey(), $user->name, $user->email);
-        $token           = $user->createToken('transmorpher');
+        $token = $user->createToken('transmorpher');
 
         $this->warn(sprintf('Token for the user %s', $userInformation));
         $this->info(sprintf('TRANSMORPHER_AUTH_TOKEN="%s"', $token->plainTextToken));
         $this->warn('The quotation marks at the start and end of the token are necessary!');
+
+        return Command::SUCCESS;
     }
 }
