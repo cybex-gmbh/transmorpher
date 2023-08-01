@@ -24,4 +24,7 @@ return [
     'video_version_set' => 'Successfully set video version, transcoding job has been dispatched.',
     'video_upload_successful' => 'Successfully uploaded new video version, transcoding job has been dispatched.',
     'write_failed' => 'Could not write media to disk.',
+    'file_name_invalid' => 'File name may not contain the following characters: :disallowedCharacters.',
+    'file_name_invalid_only_spaces' => 'File name may not only consist of spaces.',
+    'non_matching_identifier' => 'The provided identifier does not match the identifier of the reserved upload slot.',
 ];
