@@ -78,7 +78,7 @@ class ImageHandler implements MediaHandlerInterface
         if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($media))) {
             // Might instead move the directory to keep derivatives, but S3 can't move directories and each file would have to be moved individually.
             $media->type->handler()->getDerivativesDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($media, $oldVersionNumber));
-            $responseState = ResponseState::VERSION_SET;
+            $responseState = ResponseState::IMAGE_VERSION_SET;
         } else {
             $version->update(['number' => $oldVersionNumber]);
             $responseState = ResponseState::CDN_INVALIDATION_FAILED;

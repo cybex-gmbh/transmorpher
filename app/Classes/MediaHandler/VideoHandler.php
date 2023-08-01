@@ -33,7 +33,7 @@ class VideoHandler implements MediaHandlerInterface
     {
         $success = Transcode::createJob($filePath, $media, $version, $uploadSlot);
 
-        return $success ? ResponseState::VIDEO_UPLOAD_SUCCESSFUL : ResponseState::DISPATCHING_TRANSCODING_JOB_FAILED;
+        return $success ? ResponseState::VIDEO_UPLOAD_SUCCESSFUL : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
     }
 
     /**
@@ -80,7 +80,7 @@ class VideoHandler implements MediaHandlerInterface
             $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $media->identifier], ['callback_url' => $callbackUrl, 'media_type' => MediaType::VIDEO]);
 
             $success = Transcode::createJobForVersionUpdate($filePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
-            $responseState = $success ? ResponseState::VERSION_SET : ResponseState::DISPATCHING_TRANSCODING_JOB_FAILED;
+            $responseState = $success ? ResponseState::VIDEO_VERSION_SET : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
         } else {
             $responseState = ResponseState::NO_CALLBACK_URL_PROVIDED;
         }

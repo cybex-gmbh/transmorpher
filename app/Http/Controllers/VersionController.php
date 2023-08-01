@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
+use App\Enums\UploadState;
 use App\Http\Requests\SetVersionRequest;
 use App\Models\Media;
 use App\Models\Version;
@@ -29,13 +30,12 @@ class VersionController extends Controller
         $allVersionNumbers = $media->Versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date));
 
         return response()->json([
-            'success' => ResponseState::VERSIONS_RETRIEVED->success(),
-            'response' => ResponseState::VERSIONS_RETRIEVED->getResponse(),
+            'state' => ResponseState::VERSIONS_RETRIEVED->getState()->value,
+            'message' => ResponseState::VERSIONS_RETRIEVED->getMessage(),
             'identifier' => $media->identifier,
             'currentVersion' => $currentVersionNumber ?? null,
             'currentlyProcessedVersion' => $processedVersionNumber,
             'versions' => $allVersionNumbers,
-            'client' => $user->name,
         ]);
     }
 
@@ -60,11 +60,10 @@ class VersionController extends Controller
         [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $media, $version, $oldVersionNumber, $wasProcessed, $request->get('callback_url'));
 
         return response()->json([
-            'success' => $responseState->success(),
-            'response' => $responseState->getResponse(),
+            'state' => $responseState->getState()->value,
+            'message' => $responseState->getMessage(),
             'identifier' => $media->identifier,
-            'version' => $responseState->success() ? $newVersionNumber : $currentVersionNumber,
-            'client' => $user->name,
+            'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentVersionNumber,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $media->type === MediaType::IMAGE ? FilePathHelper::toBaseDirectory($media) : null,
             'upload_token' => $uploadToken
@@ -94,10 +93,9 @@ class VersionController extends Controller
         }
 
         return response()->json([
-            'success' => $responseState->success(),
-            'response' => $responseState->getResponse(),
+            'state' => $responseState->getState()->value,
+            'message' => $responseState->getMessage(),
             'identifier' => $media->identifier,
-            'client' => $request->user()->name,
         ]);
     }
 }
