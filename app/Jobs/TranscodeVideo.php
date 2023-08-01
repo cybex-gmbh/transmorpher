@@ -86,8 +86,7 @@ class TranscodeVideo implements ShouldQueue
     public function handle(): void
     {
         // Check if this version is still the current version, also check if the upload slot is still valid.
-        if ($this->version->number === $this->media->Versions()->max('number')
-            && $this->media->User->UploadSlots()->whereToken($this->uploadSlot->token)->first()) {
+        if ($this->isMostRecentVersion()) {
             $this->originalsDisk = MediaStorage::ORIGINALS->getDisk();
             $this->derivativesDisk = MediaStorage::VIDEO_DERIVATIVES->getDisk();
             $this->localDisk = Storage::disk('local');
@@ -247,8 +246,7 @@ class TranscodeVideo implements ShouldQueue
     protected function moveToDestinationPath(): void
     {
         // Check if this version is still the current version, also check if the upload slot is still valid.
-        if ($this->version->number === $this->media->Versions()->max('number')
-            && $this->media->User->UploadSlots()->whereToken($this->uploadSlot->token)->first()) {
+        if ($this->isMostRecentVersion()) {
             // This will make sure we can invalidate the cache before the current derivative gets deleted.
             // If this fails, the job will stop and cleanup will be done in the failed() method.
             $this->invalidateCdnCache();
@@ -335,5 +333,14 @@ class TranscodeVideo implements ShouldQueue
     protected function getTempLocalOriginal(): string
     {
         return sprintf('temp-original-%s-%d', $this->media->identifier, $this->version->number);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isMostRecentVersion(): bool
+    {
+        return $this->version->number === $this->media->Versions()->max('number')
+            && $this->media->User->UploadSlots()->withoutGlobalScopes()->whereToken($this->uploadSlot->token)->first();
     }
 }

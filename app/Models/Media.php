@@ -107,7 +107,6 @@ class Media extends Model
         $validator->after(function () use ($file, $failed, $uploadSlot) {
             if ($failed) {
                 File::delete($file);
-                $uploadSlot->delete();
             }
         });
     }
