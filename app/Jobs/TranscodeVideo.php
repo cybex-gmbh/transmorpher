@@ -8,6 +8,7 @@ use App\Enums\StreamingFormat;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\Version;
+use Artisan;
 use CdnHelper;
 use CloudStorage;
 use FFMpeg\Format\Video\X264;
@@ -92,6 +93,7 @@ class TranscodeVideo implements ShouldQueue
         $this->tempLocalOriginal = $this->getTempLocalOriginal();
 
         $this->transcodeVideo();
+        Artisan::call('ffmpeg:delete-temp');
 
         Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_SUCCESSFUL, $this->callbackUrl, $this->uploadToken, $this->media, $this->version->number);
     }
@@ -121,6 +123,8 @@ class TranscodeVideo implements ShouldQueue
             $this->version->update(['number' => $this->oldVersionNumber, 'processed' => $this->wasProcessed]);
             $versionNumber = $this->oldVersionNumber;
         }
+
+        Artisan::call('ffmpeg:delete-temp');
 
         Transcode::callback(ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->media, $versionNumber);
     }
