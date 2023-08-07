@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\ImageController;
+use App\Http\Controllers\V1\ImageController;
 use Illuminate\Support\Facades\Route;
 
 /*
