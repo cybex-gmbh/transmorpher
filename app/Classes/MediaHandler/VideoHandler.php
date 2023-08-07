@@ -41,7 +41,7 @@ class VideoHandler implements MediaHandlerInterface
      */
     public function getValidationRules(): string
     {
-        return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4';
+        return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4,video/x-matroska';
     }
 
     /**
