@@ -111,7 +111,7 @@ class ImageHandler implements MediaHandlerInterface
      */
     public function getVersions(Media $media): array
     {
-        $processedVersions = $media->Versions->where('processed', true);
+        $processedVersions = $media->Versions()->where('processed', true)->get();
         $currentVersionNumber = $processedVersions->max('number');
 
         return [
