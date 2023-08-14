@@ -1,11 +1,5 @@
 <?php
 
-use App\Helpers\SigningHelper;
-use App\Http\Controllers\ImageController;
-use App\Http\Controllers\UploadSlotController;
-use App\Http\Controllers\VersionController;
-use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -17,21 +11,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->group(
-    function () {
-        Route::get('/media/{media}/versions', [VersionController::class, 'getVersions']);
-        Route::delete('/media/{media}', [VersionController::class, 'delete']);
-        Route::patch('/media/{media}/version/{version}', [VersionController::class, 'setVersion']);
-
-        // Image
-        Route::get('/image/{media}/version/{version}/original', [ImageController::class, 'getOriginal']);
-        Route::get('/image/{media}/version/{version}/derivative/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
-        Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
-
-        // Video
-        Route::post('/video/reserveUploadSlot', [UploadSlotController::class, 'reserveVideoUploadSlot']);
-    }
-);
-
-Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile']);
-Route::get('publickey', fn(): string => SigningHelper::getPublicKey());
+// The user must not be a route parameter. Sanctum must handle this in the middleware.
+foreach (File::glob(base_path('routes/api/*')) as $filePath) {
+    require $filePath;
+}

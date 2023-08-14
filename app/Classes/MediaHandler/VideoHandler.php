@@ -5,7 +5,6 @@ namespace App\Classes\MediaHandler;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
-use App\Helpers\Upload;
 use App\Interfaces\MediaHandlerInterface;
 use App\Models\Media;
 use App\Models\UploadSlot;
