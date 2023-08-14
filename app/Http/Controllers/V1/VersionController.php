@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\SetVersionRequest;
 use App\Enums\UploadState;
-use App\Http\Requests\SetVersionRequest;
 use App\Models\Media;
 use App\Models\Version;
 use FilePathHelper;

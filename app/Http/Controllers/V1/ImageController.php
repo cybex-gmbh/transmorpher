@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\V1;
 
 use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use App\Http\Controllers\Controller;
 use App\Exceptions\InvalidTransformationValueException;
 use App\Exceptions\TransformationNotFoundException;
-use App\Helpers\Upload;
 use App\Models\Media;
 use App\Models\User;
 use App\Models\Version;

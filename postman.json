@@ -1,7 +1,8 @@
 {
 	"info": {
-		"_postman_id": "a05cffab-bfde-49eb-a792-1f00e619650e",
+		"_postman_id": "23ebb632-4931-4f81-ad4e-2f6d70a9395a",
 		"name": "transmorpher server",
+		"description": "Configuration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to Settings > General > Allow reading files outside working directory, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "24082093"
 	},
@@ -65,14 +66,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/image/reserveUploadSlot",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/image/reserveUploadSlot",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"image",
 								"reserveUploadSlot"
 							]
@@ -138,14 +136,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/image/reserveUploadSlot",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/image/reserveUploadSlot",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"image",
 								"reserveUploadSlot"
 							]
@@ -209,14 +204,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/image/reserveUploadSlot",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/image/reserveUploadSlot",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"image",
 								"reserveUploadSlot"
 							]
@@ -277,14 +269,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/foo",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/foo",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"foo"
 							],
@@ -342,14 +331,11 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
@@ -427,14 +413,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
@@ -475,7 +458,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: \"http://transmorpher.test/api/image/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/image/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -524,14 +507,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
@@ -609,14 +589,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
@@ -695,14 +672,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
@@ -781,14 +755,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							],
@@ -865,14 +836,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{imageUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{imageUploadToken}}"
 							]
@@ -1044,7 +1012,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
 									"        method: \"GET\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -1085,14 +1053,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/q-1",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/q-1",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"image",
 								"{{imageIdentifier}}",
 								"version",
@@ -1138,14 +1103,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/1/original",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/1/original",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"image",
 								"{{imageIdentifier}}",
 								"version",
@@ -1178,7 +1140,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
 									"        method: \"GET\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -1218,14 +1180,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"image",
 								"{{imageIdentifier}}",
 								"version",
@@ -1279,14 +1238,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}/versions",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/versions",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{imageIdentifier}}",
 								"versions"
@@ -1341,14 +1297,11 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}/versions",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/versions",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{imageIdentifier}}",
 								"versions"
@@ -1596,7 +1549,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
 									"        method: \"GET\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -1659,14 +1612,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{imageIdentifier}}",
 								"version",
@@ -1706,7 +1656,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
 									"        method: \"GET\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -1761,14 +1711,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{imageIdentifier}}",
 								"version",
@@ -1825,14 +1772,11 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{imageIdentifier}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{imageIdentifier}}"
 							],
@@ -1912,14 +1856,11 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{imageIdentifier}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{imageIdentifier}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{imageIdentifier}}"
 							],
@@ -1943,7 +1884,7 @@
 						"exec": [
 							"pm.sendRequest(",
 							"    {",
-							"        url: \"http://transmorpher.test/api/image/reserveUploadSlot\",",
+							"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/image/reserveUploadSlot\",",
 							"        method: \"POST\",",
 							"        header: {",
 							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),",
@@ -2045,14 +1986,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/video/reserveUploadSlot",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"video",
 								"reserveUploadSlot"
 							]
@@ -2118,14 +2056,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/video/reserveUploadSlot",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"video",
 								"reserveUploadSlot"
 							]
@@ -2196,14 +2131,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/video/reserveUploadSlot",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"video",
 								"reserveUploadSlot"
 							]
@@ -2274,14 +2206,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/video/reserveUploadSlot",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"video",
 								"reserveUploadSlot"
 							]
@@ -2350,14 +2279,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/video/reserveUploadSlot",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/video/reserveUploadSlot",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"video",
 								"reserveUploadSlot"
 							]
@@ -2417,14 +2343,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/foo",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/foo",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"foo"
 							],
@@ -2482,14 +2405,11 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{videoUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{videoUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{videoUploadToken}}"
 							],
@@ -2567,14 +2487,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{videoUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{videoUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{videoUploadToken}}"
 							],
@@ -2615,7 +2532,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: \"http://transmorpher.test/api/image/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/video/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -2665,14 +2582,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{videoUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{videoUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{videoUploadToken}}"
 							],
@@ -2749,14 +2663,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/upload/{{videoUploadToken}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/upload/{{videoUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"upload",
 								"{{videoUploadToken}}"
 							],
@@ -2801,7 +2712,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"videoIdentifier\") + \"/versions\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"videoIdentifier\") + \"/versions\",\r",
 									"        method: \"GET\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -2856,14 +2767,11 @@
 							]
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{videoIdentifier}}/version/{{currentVideoVersion}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{videoIdentifier}}/version/{{currentVideoVersion}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{videoIdentifier}}",
 								"version",
@@ -2920,14 +2828,11 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{videoIdentifier}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{videoIdentifier}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{videoIdentifier}}"
 							],
@@ -3007,14 +2912,11 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "http://transmorpher.test/api/media/{{videoIdentifier}}",
-							"protocol": "http",
+							"raw": "{{baseUrl}}/media/{{videoIdentifier}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{baseUrl}}"
 							],
 							"path": [
-								"api",
 								"media",
 								"{{videoIdentifier}}"
 							],
@@ -3038,7 +2940,7 @@
 						"exec": [
 							"pm.sendRequest(",
 							"    {",
-							"        url: \"http://transmorpher.test/api/video/reserveUploadSlot\",",
+							"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/video/reserveUploadSlot\",",
 							"        method: \"POST\",",
 							"        header: {",
 							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),",
@@ -3103,12 +3005,11 @@
 					}
 				],
 				"url": {
-					"raw": "{{serverDomain}}/api/publickey",
+					"raw": "{{baseUrl}}/publickey",
 					"host": [
-						"{{serverDomain}}"
+						"{{baseUrl}}"
 					],
 					"path": [
-						"api",
 						"publickey"
 					]
 				}
@@ -3148,23 +3049,33 @@
 	],
 	"variable": [
 		{
-			"key": "user",
-			"value": "postman",
-			"type": "string"
-		},
-		{
 			"key": "authToken",
 			"value": "2|SSkfqSkNq3zmogcCeSipLxcjIpviqO7vawD3FsxH",
 			"type": "string"
 		},
 		{
-			"key": "serverDomain",
+			"key": "domain",
 			"value": "transmorpher.test",
 			"type": "string"
 		},
 		{
-			"key": "---",
+			"key": "apiVersion",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "----------------------------",
 			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user",
+			"value": "postman",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "{{domain}}/api/v{{apiVersion}}",
 			"type": "string"
 		},
 		{
