@@ -25,19 +25,15 @@ class VersionController extends Controller
      */
     public function getVersions(Request $request, Media $media): JsonResponse
     {
-        $user = $request->user();
-        $currentVersionNumber = $media->Versions->max('number');
-        $processedVersionNumber = $media->type === MediaType::VIDEO ? $media->Versions->where('processed', true)->max('number') : null;
-        $allVersionNumbers = $media->Versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date));
-
-        return response()->json([
-            'state' => ResponseState::VERSIONS_RETRIEVED->getState()->value,
-            'message' => ResponseState::VERSIONS_RETRIEVED->getMessage(),
-            'identifier' => $media->identifier,
-            'currentVersion' => $currentVersionNumber ?? null,
-            'currentlyProcessedVersion' => $processedVersionNumber,
-            'versions' => $allVersionNumbers,
-        ]);
+        return response()->json(
+            array_merge([
+                'state' => ResponseState::VERSIONS_RETRIEVED->getState()->value,
+                'message' => ResponseState::VERSIONS_RETRIEVED->getMessage(),
+                'identifier' => $media->identifier,
+            ],
+                $media->type->handler()->getVersions($media)
+            )
+        );
     }
 
     /**
