@@ -112,6 +112,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Additional Transcoding Parameters
+    |--------------------------------------------------------------------------
+    |
+    | These parameters will be added to the FFmpeg transcoding command.
+    |
+    | -dn: omit data streams (e.g. timecodes). Transcoding sometimes failed when data streams were not omitted.
+    | -map -0:t?: omit attachments (e.g. metadata files). Metadata should not be publicly available.
+    | -sn: omit subtitles. Subtitles would need an encoder configuration for DASH, and possibly HLS.
+    */
+    'additional_transcoding_parameters' => [
+        '-dn', '-map', '-0:t?', '-sn'
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Cloud Storage Helper
     |--------------------------------------------------------------------------
     |

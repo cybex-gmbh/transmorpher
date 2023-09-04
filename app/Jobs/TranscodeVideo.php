@@ -42,7 +42,7 @@ class TranscodeVideo implements ShouldQueue
     *
     * @var int
     */
-    public int $timeout = 600;
+    public int $timeout = 60 * 60 * 3;
 
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
@@ -138,7 +138,7 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function transcodeVideo(): void
     {
-        $ffmpeg = FFMpeg::create();
+        $ffmpeg = FFMpeg::create(['timeout' => $this->timeout]);
         $video  = $this->loadVideo($ffmpeg);
 
         // Set necessary file path information.
@@ -227,7 +227,7 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function generateMp4(StreamingMedia $video): void
     {
-        $video->save(new X264(), $this->localDisk->path($this->tempMp4FileName));
+        $video->save((new X264())->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')), $this->localDisk->path($this->tempMp4FileName));
 
         $derivativePath = FilePathHelper::toTempVideoDerivativeFile($this->media, $this->version->number, 'mp4');
         $this->derivativesDisk->writeStream(
