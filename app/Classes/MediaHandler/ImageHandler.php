@@ -29,9 +29,6 @@ class ImageHandler implements MediaHandlerInterface
      */
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Media $media, Version $version): ResponseState
     {
-        // Only delete for image, since the UploadSlot will be needed inside the transcoding job.
-        $uploadSlot->delete();
-
         if ($this->invalidateCdnCache($basePath)) {
             $version->update(['processed' => true]);
 
