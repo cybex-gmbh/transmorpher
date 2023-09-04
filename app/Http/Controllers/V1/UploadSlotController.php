@@ -85,6 +85,9 @@ class UploadSlotController extends Controller
      */
     protected function saveFile(UploadedFile $uploadedFile, UploadSlot $uploadSlot, MediaType $type): JsonResponse
     {
+        // Invalidate this upload slot so no other uploads can be done with this token.
+        $uploadSlot->invalidate();
+
         $media = $uploadSlot->User->Media()->firstOrNew(['identifier' => $uploadSlot->identifier, 'type' => $type]);
         $media->validateUploadFile($uploadedFile, $type->handler()->getValidationRules(), $uploadSlot);
         $media->save();
