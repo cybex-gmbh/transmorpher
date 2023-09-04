@@ -98,6 +98,17 @@ class UploadSlot extends Model
     }
 
     /**
+     * Invalidates the UploadSlot by setting valid_until to a date in the past.
+     *
+     * @return void
+     */
+    public function invalidate(): void
+    {
+        $this->valid_until = Carbon::parse($this->valid_until)->subDay();
+        $this->saveQuietly();
+    }
+
+    /**
      * Retrieve whether the upload token for this upload slot is still valid.
      *
      * @return Attribute
