@@ -15,4 +15,4 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Image
-Route::get('/{user}/{media}/{transformations?}', [ImageController::class, 'get']);
+Route::get('/{user}/{media}/{transformations?}', [ImageController::class, 'get'])->name('getDerivative');

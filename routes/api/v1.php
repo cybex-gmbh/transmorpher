@@ -26,13 +26,13 @@ Route::prefix('v1')->name('v1.')->group(function () {
             // Image
             Route::get('/image/{media}/version/{version}/original', [ImageController::class, 'getOriginal']);
             Route::get('/image/{media}/version/{version}/derivative/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
-            Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot']);
+            Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot'])->name('reserveImageUploadSlot');
 
             // Video
             Route::post('/video/reserveUploadSlot', [UploadSlotController::class, 'reserveVideoUploadSlot']);
         }
     );
 
-    Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile']);
+    Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile'])->name('upload');
     Route::get('publickey', fn(): string => SigningHelper::getPublicKey());
 });
