@@ -48,7 +48,7 @@ class AbortVideoTranscodingOnNewerVersionTest extends TestCase
 
         TranscodeVideo::dispatch(FilePathHelper::toOriginalFile($media, 1), $media, $outdatedVersion, $uploadSlot);
 
-        [$request, ] = Http::recorded()[0];
+        $request = Http::recorded()[0][0];
         $transcodingResult = json_decode(SigningHelper::decrypt($request->data()['signed_response']), true);
 
         $this->assertEquals(ResponseState::TRANSCODING_ABORTED->getState()->value, $transcodingResult['state']);
