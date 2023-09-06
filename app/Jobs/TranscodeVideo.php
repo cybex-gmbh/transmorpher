@@ -99,6 +99,7 @@ class TranscodeVideo implements ShouldQueue
                 Transcode::callback($this->responseState, $this->callbackUrl, $this->uploadToken, $this->media, $this->version->number);
             }
         } else {
+            $this->responseState = ResponseState::TRANSCODING_ABORTED;
             $this->failed(null);
         }
     }

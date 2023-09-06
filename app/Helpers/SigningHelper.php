@@ -17,6 +17,18 @@ class SigningHelper
     }
 
     /**
+     * Decrypt a signed string with Sodium using the public key.
+     *
+     * @param string $signed
+     *
+     * @return bool|string
+     */
+    public static function decrypt(string $signed): bool|string
+    {
+        return sodium_crypto_sign_open(sodium_hex2bin($signed), self::getPublicKey());
+    }
+
+    /**
      * Get the Sodium private key from the Sodium keypair.
      *
      * @return string Binary string of the private key.

@@ -29,7 +29,7 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot'])->name('reserveImageUploadSlot');
 
             // Video
-            Route::post('/video/reserveUploadSlot', [UploadSlotController::class, 'reserveVideoUploadSlot']);
+            Route::post('/video/reserveUploadSlot', [UploadSlotController::class, 'reserveVideoUploadSlot'])->name('reserveVideoUploadSlot');;
         }
     );
 
