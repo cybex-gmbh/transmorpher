@@ -74,6 +74,10 @@ class CreateUserCommandTest extends TestCase
             'invalid email' => [
                 'name' => self::NAME,
                 'email' => 'invalidEmail'
+            ],
+            'invalid name and email' => [
+                'name' => '--invalidName',
+                'email' => 'invalidEmail'
             ]
         ];
     }
@@ -98,6 +102,10 @@ class CreateUserCommandTest extends TestCase
             ],
             'duplicate email' => [
                 'name' => 'name2',
+                'email' => self::EMAIL
+            ],
+            'duplicate name and email' => [
+                'name' => self::NAME,
                 'email' => self::EMAIL
             ]
         ];
