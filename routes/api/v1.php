@@ -19,13 +19,13 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->name('v1.')->group(function () {
     Route::middleware('auth:sanctum')->group(
         function () {
-            Route::get('/media/{media}/versions', [VersionController::class, 'getVersions']);
-            Route::delete('/media/{media}', [VersionController::class, 'delete']);
-            Route::patch('/media/{media}/version/{version}', [VersionController::class, 'setVersion']);
+            Route::get('/media/{media}/versions', [VersionController::class, 'getVersions'])->name('getVersions');
+            Route::delete('/media/{media}', [VersionController::class, 'delete'])->name('delete');
+            Route::patch('/media/{media}/version/{version}', [VersionController::class, 'setVersion'])->name('setVersion');
 
             // Image
-            Route::get('/image/{media}/version/{version}/original', [ImageController::class, 'getOriginal']);
-            Route::get('/image/{media}/version/{version}/derivative/{transformations?}', [ImageController::class, 'getDerivativeForVersion']);
+            Route::get('/image/{media}/version/{version}/original', [ImageController::class, 'getOriginal'])->name('getOriginal');
+            Route::get('/image/{media}/version/{version}/derivative/{transformations?}', [ImageController::class, 'getDerivativeForVersion'])->name('getDerivativeForVersion');
             Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot'])->name('reserveImageUploadSlot');
 
             // Video
@@ -34,5 +34,5 @@ Route::prefix('v1')->name('v1.')->group(function () {
     );
 
     Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile'])->name('upload');
-    Route::get('publickey', fn(): string => SodiumHelper::getPublicKey());
+    Route::get('publickey', fn(): string => SodiumHelper::getPublicKey())->name('getPublicKey');
 });
