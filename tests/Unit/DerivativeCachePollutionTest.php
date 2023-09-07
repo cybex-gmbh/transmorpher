@@ -58,7 +58,7 @@ class DerivativeCachePollutionTest extends TestCase
         $getDerivativeResponse = $this->get(route('getDerivative', [self::USERNAME, $media]));
         $getDerivativeResponse->assertOk();
 
-        // Simulate a version, which is not yet processed. Versions are only set to processed after a successful CDN invalidation.
+        // Simulate a version which is not yet processed. Versions are only set to "processed" after a successful CDN invalidation.
         $media->Versions()->first()->update(['processed' => 0]);
 
         $getDerivativeResponse = $this->get(route('getDerivative', [self::USERNAME, $media]));
