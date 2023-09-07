@@ -32,6 +32,44 @@ class CreateUserCommandTest extends TestCase
         $this->assertNotEmpty(User::first()->tokens, 'Laravel Sanctum Token was not created.');
     }
 
+    /**
+     * @test
+     * @dataProvider missingArgumentsDataProvider
+     */
+    public function failOnMissingArguments(?string $name, ?string $email)
+    {
+        $arguments = [];
+        $name ? $arguments['name'] = $name : null;
+        $email ? $arguments['email'] = $email : null;
+
+        $this->expectException(RuntimeException::class);
+        Artisan::call(CreateUser::class, $arguments);
+    }
+
+    /**
+     * @test
+     * @dataProvider invalidArgumentsDataProvider
+     */
+    public function failOnInvalidArguments(string $name, string $email)
+    {
+        $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
+
+        $this->assertEquals(2, $exitStatus, 'Command did not fail.');
+    }
+
+    /**
+     * @test
+     * @dataProvider duplicateEntryDataProvider
+     */
+    public function failOnDuplicateEntry(string $name, string $email)
+    {
+        $exitStatus = Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
+        $this->assertEquals(0, $exitStatus, 'Command did not exit successfully.');
+
+        $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
+        $this->assertEquals(2, $exitStatus, 'Command did not fail.');
+    }
+
     protected function missingArgumentsDataProvider(): array
     {
         return [
@@ -48,20 +86,6 @@ class CreateUserCommandTest extends TestCase
                 'email' => null
             ]
         ];
-    }
-
-    /**
-     * @test
-     * @dataProvider missingArgumentsDataProvider
-     */
-    public function failOnMissingArguments(?string $name, ?string $email)
-    {
-        $arguments = [];
-        $name ? $arguments['name'] = $name : null;
-        $email ? $arguments['email'] = $email : null;
-
-        $this->expectException(RuntimeException::class);
-        Artisan::call(CreateUser::class, $arguments);
     }
 
     protected function invalidArgumentsDataProvider(): array
@@ -82,17 +106,6 @@ class CreateUserCommandTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider invalidArgumentsDataProvider
-     */
-    public function failOnInvalidArguments(string $name, string $email)
-    {
-        $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
-
-        $this->assertEquals(2, $exitStatus, 'Command did not fail.');
-    }
-
     protected function duplicateEntryDataProvider(): array
     {
         return [
@@ -109,18 +122,5 @@ class CreateUserCommandTest extends TestCase
                 'email' => self::EMAIL
             ]
         ];
-    }
-
-    /**
-     * @test
-     * @dataProvider duplicateEntryDataProvider
-     */
-    public function failOnDuplicateEntry(string $name, string $email)
-    {
-        $exitStatus = Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
-        $this->assertEquals(0, $exitStatus, 'Command did not exit successfully.');
-
-        $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
-        $this->assertEquals(2, $exitStatus, 'Command did not fail.');
     }
 }
