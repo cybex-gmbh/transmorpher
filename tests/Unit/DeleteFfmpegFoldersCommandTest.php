@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Console\Commands\DeleteFfmpegTempFolders;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,37 +9,41 @@ class DeleteFfmpegFoldersCommandTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected const PATH_TO_TEST_FOLDER = 'tests/ffmpeg-folders';
-
     /**
      * @test
+     * @dataProvider folderDataProvider
      */
-    public function ensureCorrectFoldersAreDeleted()
+    public function ensureCorrectFoldersAreDeleted(string $directory, bool $expectation)
     {
-        $basePath = base_path(self::PATH_TO_TEST_FOLDER);
+        $this->travelTo(Carbon::create(2000, 01, 01));
 
-        $this->createFolders([
-            'ffmpeg-passes_olderThanADay' => Carbon::now()->subDay(),
-            'ffmpeg-passes_youngerThanADay' => Carbon::now()
-        ], $basePath);
-
-        App::shouldReceive('basePath')->andReturn(sprintf('%s/*', $basePath))->once();
-        Artisan::call(DeleteFfmpegTempFolders::class);
-
-        $this->assertEquals([sprintf('%s/ffmpeg-passes_youngerThanADay', $basePath)], File::directories($basePath), 'Folders were not deleted correctly.');
-
-        // Cleanup
-        File::deleteDirectory($basePath);
+        $this->assertEquals(
+            $expectation,
+            app(DeleteFfmpegTempFolders::class)->directoryShouldBeDeleted(
+                base_path(sprintf('tests/data/ffmpeg-folders/%s', $directory))
+            )
+        );
     }
 
-    protected function createFolders(array $folders, string $basePath): void
+    protected function folderDataProvider(): array
     {
-        mkdir($basePath);
-
-        foreach ($folders as $folderName => $creationDate) {
-            $pathToFolder = sprintf('%s/%s', $basePath, $folderName);
-            mkdir($pathToFolder);
-            touch($pathToFolder, $creationDate->timestamp);
-        }
+        return [
+            'directoryOlderThanADay' => [
+                'directory' => 'ffmpeg-passes_directoryOlderThanADay',
+                'expectation' => true
+            ],
+            'directoryYoungerThanADay' => [
+                'directory' => 'ffmpeg-passes_directoryyoungerThanADay',
+                'expectation' => false
+            ],
+            'fileOlderThanADay' => [
+                'directory' => 'ffmpeg-passes_fileOlderThanADay',
+                'expectation' => false
+            ],
+            'fileYoungerThanADay' => [
+                'directory' => 'ffmpeg-passes_fileYoungerThanADay',
+                'expectation' => false
+            ],
+        ];
     }
 }
