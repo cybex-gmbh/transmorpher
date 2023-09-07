@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class AbortVideoTranscodingOnNewerVersionTest extends TestCase
+class TranscodingTest extends TestCase
 {
     use RefreshDatabase;
 

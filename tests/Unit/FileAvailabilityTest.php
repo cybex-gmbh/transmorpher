@@ -7,7 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-class DerivativeCachePollutionTest extends TestCase
+class FileAvailabilityTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -16,15 +16,9 @@ class DerivativeCachePollutionTest extends TestCase
     protected const IMAGE_NAME = 'image.jpg';
 
     /**
-     * Explanation:
-     * 1. new version is uploaded
-     * 2. media is requested and new version is delivered
-     * 3. cache invalidation fails, version gets deleted
-     * 4. now nonexistent version is still in the CDN cache
-     *
      * @test
      */
-    public function ensureDerivativeCacheDoesNotGetPolluted()
+    public function ensureUnprocessedFilesAreNotAvailable()
     {
         Storage::fake(config('transmorpher.disks.originals'));
         Storage::fake(config('transmorpher.disks.imageDerivatives'));
