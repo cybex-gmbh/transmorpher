@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-class SigningHelper
+class SodiumHelper
 {
     /**
      * Sign a string with Sodium using the private key.

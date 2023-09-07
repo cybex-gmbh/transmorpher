@@ -1,6 +1,6 @@
 <?php
 
-use App\Helpers\SigningHelper;
+use App\Helpers\SodiumHelper;
 use App\Http\Controllers\V1\ImageController;
 use App\Http\Controllers\V1\UploadSlotController;
 use App\Http\Controllers\V1\VersionController;
@@ -34,5 +34,5 @@ Route::prefix('v1')->name('v1.')->group(function () {
     );
 
     Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile'])->name('upload');
-    Route::get('publickey', fn(): string => SigningHelper::getPublicKey());
+    Route::get('publickey', fn(): string => SodiumHelper::getPublicKey());
 });

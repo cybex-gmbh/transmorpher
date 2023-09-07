@@ -6,7 +6,7 @@ use App\Enums\ResponseState;
 use App\Models\UploadSlot;
 use App\Models\User;
 use FilePathHelper;
-use App\Helpers\SigningHelper;
+use App\Helpers\SodiumHelper;
 use App\Interfaces\TranscodeInterface;
 use App\Jobs\TranscodeVideo;
 use App\Models\Media;
@@ -87,7 +87,7 @@ class Transcode implements TranscodeInterface
             'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($media)),
         ];
 
-        $signedResponse = SigningHelper::sign(json_encode($response));
+        $signedResponse = SodiumHelper::sign(json_encode($response));
 
         Http::post($callbackUrl, ['signed_response' => $signedResponse]);
     }

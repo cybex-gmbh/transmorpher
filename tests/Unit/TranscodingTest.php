@@ -2,7 +2,7 @@
 
 
 use App\Enums\ResponseState;
-use App\Helpers\SigningHelper;
+use App\Helpers\SodiumHelper;
 use App\Jobs\TranscodeVideo;
 use App\Models\UploadSlot;
 use App\Models\User;
@@ -49,7 +49,7 @@ class TranscodingTest extends TestCase
         TranscodeVideo::dispatch(FilePathHelper::toOriginalFile($media, 1), $media, $outdatedVersion, $uploadSlot);
 
         $request = Http::recorded()[0][0];
-        $transcodingResult = json_decode(SigningHelper::decrypt($request->data()['signed_response']), true);
+        $transcodingResult = json_decode(SodiumHelper::decrypt($request->data()['signed_response']), true);
 
         $this->assertEquals(ResponseState::TRANSCODING_ABORTED->getState()->value, $transcodingResult['state']);
         $this->assertEquals(ResponseState::TRANSCODING_ABORTED->getMessage(), $transcodingResult['message']);
