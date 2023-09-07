@@ -23,6 +23,7 @@ services:
             - internal
         depends_on:
             - mysql
+            - mysql_testing
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
