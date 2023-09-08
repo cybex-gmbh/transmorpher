@@ -26,6 +26,17 @@ class DeleteFfmpegFoldersCommandTest extends TestCase
         );
     }
 
+    /**
+     * @test
+     */
+    public function ensureNonExistentPathDoesNotCauseProblems()
+    {
+        $this->assertEquals(
+            false,
+            app(DeleteFfmpegTempFolders::class)->directoryShouldBeDeleted(base_path('tests/data/ffmpeg-folders/ffmpeg-passes_nonExistent'))
+        );
+    }
+
     protected function folderDataProvider(): array
     {
         return [
