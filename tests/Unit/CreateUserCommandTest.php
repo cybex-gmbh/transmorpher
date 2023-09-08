@@ -39,8 +39,8 @@ class CreateUserCommandTest extends TestCase
     public function failOnMissingArguments(?string $name, ?string $email)
     {
         $arguments = [];
-        $name ? $arguments['name'] = $name : null;
-        $email ? $arguments['email'] = $email : null;
+        $name && $arguments['name'] = $name;
+        $email && $arguments['email'] = $email;
 
         $this->expectException(RuntimeException::class);
         Artisan::call(CreateUser::class, $arguments);
