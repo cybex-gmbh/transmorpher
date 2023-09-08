@@ -5,31 +5,69 @@ namespace Tests\Unit;
 use App\Console\Commands\CreateUser;
 use App\Models\User;
 use Artisan;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use RuntimeException;
 use Tests\TestCase;
 
 class CreateUserCommandTest extends TestCase
 {
-    use RefreshDatabase;
-
     protected const NAME = 'Oswald';
     protected const EMAIL = 'oswald@example.com';
+    protected static bool $initialized = false;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (!self::$initialized) {
+            self::$initialized = true;
+
+            User::first()?->delete();
+        }
+    }
 
     /**
      * @test
      */
-    public function ensureUserGetsCreatedIncludingSanctumToken()
+    public function ensureUserCanBeCreated()
     {
         $this->assertEmpty(User::get());
 
         $exitStatus = Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
 
-        $this->assertEquals(0, $exitStatus, 'Command did not exit successfully.');
-        $this->assertNotNull(User::first(), 'User was not created.');
-        $this->assertEquals(self::NAME, User::first()->name, 'Name does not match.');
-        $this->assertEquals(self::EMAIL, User::first()->email, 'Email does not match.');
-        $this->assertNotEmpty(User::first()->tokens, 'Laravel Sanctum Token was not created.');
+        $this->assertEquals(0, $exitStatus);
+        $this->assertNotNull(User::first());
+    }
+
+    /**
+     * @test
+     * @depends ensureUserCanBeCreated
+     */
+    public function ensureUserGetsCreatedWithCorrectArguments()
+    {
+        $this->assertEquals(
+            [self::NAME, self::EMAIL],
+            [User::first()->name, User::first()->email]
+        );
+    }
+
+    /**
+     * @test
+     * @depends ensureUserCanBeCreated
+     */
+    public function ensureUserHasSanctumToken()
+    {
+        $this->assertNotEmpty(User::first()->tokens);
+    }
+
+    /**
+     * @test
+     * @dataProvider duplicateEntryDataProvider
+     * @depends ensureUserCanBeCreated
+     */
+    public function failOnDuplicateEntry(string $name, string $email)
+    {
+        $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
+        $this->assertEquals(2, $exitStatus, 'Command did not fail.');
     }
 
     /**
@@ -57,17 +95,22 @@ class CreateUserCommandTest extends TestCase
         $this->assertEquals(2, $exitStatus, 'Command did not fail.');
     }
 
-    /**
-     * @test
-     * @dataProvider duplicateEntryDataProvider
-     */
-    public function failOnDuplicateEntry(string $name, string $email)
+    protected function duplicateEntryDataProvider(): array
     {
-        $exitStatus = Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
-        $this->assertEquals(0, $exitStatus, 'Command did not exit successfully.');
-
-        $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
-        $this->assertEquals(2, $exitStatus, 'Command did not fail.');
+        return [
+            'duplicate name' => [
+                'name' => self::NAME,
+                'email' => 'email2@example.com'
+            ],
+            'duplicate email' => [
+                'name' => 'name2',
+                'email' => self::EMAIL
+            ],
+            'duplicate name and email' => [
+                'name' => self::NAME,
+                'email' => self::EMAIL
+            ]
+        ];
     }
 
     protected function missingArgumentsDataProvider(): array
@@ -102,24 +145,6 @@ class CreateUserCommandTest extends TestCase
             'invalid name and email' => [
                 'name' => '--invalidName',
                 'email' => 'invalidEmail'
-            ]
-        ];
-    }
-
-    protected function duplicateEntryDataProvider(): array
-    {
-        return [
-            'duplicate name' => [
-                'name' => self::NAME,
-                'email' => 'email2@example.com'
-            ],
-            'duplicate email' => [
-                'name' => 'name2',
-                'email' => self::EMAIL
-            ],
-            'duplicate name and email' => [
-                'name' => self::NAME,
-                'email' => self::EMAIL
             ]
         ];
     }
