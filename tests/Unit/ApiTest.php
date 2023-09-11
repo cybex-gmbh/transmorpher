@@ -5,33 +5,49 @@ namespace Tests\Unit;
 use App\Models\Media;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 use Storage;
 use Tests\TestCase;
 
-class FileAvailabilityTest extends TestCase
+class ApiTest extends TestCase
 {
     protected const IDENTIFIER = 'test';
     protected const IMAGE_NAME = 'image.jpg';
+    protected static User $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Storage::persistentFake(config('transmorpher.disks.originals'));
+        Storage::persistentFake(config('transmorpher.disks.imageDerivatives'));
+
+        Sanctum::actingAs(
+            self::$user ??= User::factory()->create(),
+            ['*']
+        );
+    }
 
     /**
      * @test
      */
-    public function ensureProcessedFilesAreAvailable()
+    public function ensureImageUploadSlotCanBeReserved()
     {
-        Storage::fake(config('transmorpher.disks.originals'));
-        Storage::fake(config('transmorpher.disks.imageDerivatives'));
-
-        Sanctum::actingAs(
-            $user = User::factory()->create(),
-            ['*']
-        );
-
         $reserveUploadSlotResponse = $this->json('POST', route('v1.reserveImageUploadSlot'), [
             'identifier' => self::IDENTIFIER
         ]);
         $reserveUploadSlotResponse->assertOk();
 
+        return $reserveUploadSlotResponse;
+    }
+
+    /**
+     * @test
+     * @depends ensureImageUploadSlotCanBeReserved
+     */
+    public function ensureImageCanBeUploaded(TestResponse $reserveUploadSlotResponse)
+    {
         $uploadResponse = $this->json('POST', route('v1.upload', [$reserveUploadSlotResponse->json()['upload_token']]), [
             'file' => UploadedFile::fake()->image(self::IMAGE_NAME),
             'identifier' => self::IDENTIFIER
@@ -45,10 +61,17 @@ class FileAvailabilityTest extends TestCase
                 self::IMAGE_NAME
             )
         );
+    }
 
-        $media = $user->Media()->whereIdentifier(self::IDENTIFIER)->first();
+    /**
+     * @test
+     * @depends ensureImageCanBeUploaded
+     */
+    public function ensureProcessedFilesAreAvailable()
+    {
+        $media = self::$user->Media()->whereIdentifier(self::IDENTIFIER)->first();
 
-        $getDerivativeResponse = $this->get(route('getDerivative', [$media->User->name, $media]));
+        $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $media]));
         $getDerivativeResponse->assertOk();
 
         return $media;
@@ -62,7 +85,7 @@ class FileAvailabilityTest extends TestCase
     {
         $media->Versions()->first()->update(['processed' => 0]);
 
-        $getDerivativeResponse = $this->get(route('getDerivative', [$media->User->name, $media]));
+        $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $media]));
         $getDerivativeResponse->assertNotFound();
     }
 }
