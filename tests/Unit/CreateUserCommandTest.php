@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Console\Commands\CreateUser;
 use App\Models\User;
 use Artisan;
+use Illuminate\Console\Command;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -34,7 +35,7 @@ class CreateUserCommandTest extends TestCase
 
         $exitStatus = Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
 
-        $this->assertEquals(0, $exitStatus);
+        $this->assertEquals(Command::SUCCESS, $exitStatus);
         $this->assertDatabaseHas(User::getModel()->getTable(), ['name' => self::NAME, 'email' => self::EMAIL]);
     }
 
@@ -55,7 +56,7 @@ class CreateUserCommandTest extends TestCase
     public function failOnDuplicateEntry(string $name, string $email)
     {
         $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
-        $this->assertEquals(2, $exitStatus);
+        $this->assertEquals(Command::INVALID, $exitStatus);
     }
 
     /**
@@ -80,7 +81,7 @@ class CreateUserCommandTest extends TestCase
     {
         $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
 
-        $this->assertEquals(2, $exitStatus);
+        $this->assertEquals(Command::INVALID, $exitStatus);
     }
 
     protected function duplicateEntryDataProvider(): array
