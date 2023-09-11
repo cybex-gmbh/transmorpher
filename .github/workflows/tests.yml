@@ -57,7 +57,7 @@ jobs:
             composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update --dev --no-progress
             composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-progress
       -   name: Migrate test database
-          run: php artisan migrate:fresh --env=testing
+          run: php artisan migrate:fresh --env=ci
       -   name: Execute tests
           run: php artisan test --env=ci
           env:
