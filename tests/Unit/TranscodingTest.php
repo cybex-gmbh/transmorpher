@@ -1,20 +1,23 @@
 <?php
 
+namespace Tests\Unit;
 
 use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
 use App\Jobs\TranscodeVideo;
 use App\Models\UploadSlot;
 use App\Models\User;
+use FilePathHelper;
+use Http;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Storage;
 use Tests\TestCase;
 
 class TranscodingTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected const USERNAME = 'TestUser';
     protected const IDENTIFIER = 'test';
     protected const VIDEO_NAME = 'video.mp4';
     protected const CALLBACK_URL = 'http://example.com/callback';
@@ -25,7 +28,7 @@ class TranscodingTest extends TestCase
     public function ensureTranscodingIsAbortedWhenNewerVersionExists()
     {
         Sanctum::actingAs(
-            $user = User::factory()->create(['name' => self::USERNAME]),
+            $user = User::factory()->create(),
             ['*']
         );
 

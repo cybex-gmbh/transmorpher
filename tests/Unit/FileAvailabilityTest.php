@@ -1,30 +1,29 @@
 <?php
 
+namespace Tests\Unit;
 
+use App\Models\Media;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Laravel\Sanctum\Sanctum;
+use Storage;
 use Tests\TestCase;
 
 class FileAvailabilityTest extends TestCase
 {
-    use RefreshDatabase;
-
-    protected const USERNAME = 'TestUser';
     protected const IDENTIFIER = 'test';
     protected const IMAGE_NAME = 'image.jpg';
 
     /**
      * @test
      */
-    public function ensureUnprocessedFilesAreNotAvailable()
+    public function ensureProcessedFilesAreAvailable()
     {
         Storage::fake(config('transmorpher.disks.originals'));
         Storage::fake(config('transmorpher.disks.imageDerivatives'));
 
         Sanctum::actingAs(
-            $user = User::factory()->create(['name' => self::USERNAME]),
+            $user = User::factory()->create(),
             ['*']
         );
 
@@ -49,13 +48,21 @@ class FileAvailabilityTest extends TestCase
 
         $media = $user->Media()->whereIdentifier(self::IDENTIFIER)->first();
 
-        $getDerivativeResponse = $this->get(route('getDerivative', [self::USERNAME, $media]));
+        $getDerivativeResponse = $this->get(route('getDerivative', [$media->User->name, $media]));
         $getDerivativeResponse->assertOk();
 
-        // Simulate a version which is not yet processed. Versions are only set to "processed" after a successful CDN invalidation.
+        return $media;
+    }
+
+    /**
+     * @test
+     * @depends ensureProcessedFilesAreAvailable
+     */
+    public function ensureUnprocessedFilesAreNotAvailable(Media $media)
+    {
         $media->Versions()->first()->update(['processed' => 0]);
 
-        $getDerivativeResponse = $this->get(route('getDerivative', [self::USERNAME, $media]));
+        $getDerivativeResponse = $this->get(route('getDerivative', [$media->User->name, $media]));
         $getDerivativeResponse->assertNotFound();
     }
 }

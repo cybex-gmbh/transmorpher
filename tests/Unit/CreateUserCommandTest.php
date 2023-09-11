@@ -21,7 +21,7 @@ class CreateUserCommandTest extends TestCase
         if (!self::$initialized) {
             self::$initialized = true;
 
-            User::first()?->delete();
+            User::whereName(self::NAME)?->delete();
         }
     }
 
@@ -30,24 +30,12 @@ class CreateUserCommandTest extends TestCase
      */
     public function ensureUserCanBeCreated()
     {
-        $this->assertEmpty(User::get());
+        $this->assertDatabaseMissing(User::getModel()->getTable(), ['name' => self::NAME, 'email' => self::EMAIL]);
 
         $exitStatus = Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
 
         $this->assertEquals(0, $exitStatus);
-        $this->assertNotNull(User::first());
-    }
-
-    /**
-     * @test
-     * @depends ensureUserCanBeCreated
-     */
-    public function ensureUserGetsCreatedWithCorrectArguments()
-    {
-        $this->assertEquals(
-            [self::NAME, self::EMAIL],
-            [User::first()->name, User::first()->email]
-        );
+        $this->assertDatabaseHas(User::getModel()->getTable(), ['name' => self::NAME, 'email' => self::EMAIL]);
     }
 
     /**
@@ -56,7 +44,7 @@ class CreateUserCommandTest extends TestCase
      */
     public function ensureUserHasSanctumToken()
     {
-        $this->assertNotEmpty(User::first()->tokens);
+        $this->assertNotEmpty(User::whereName(self::NAME)->first()->tokens);
     }
 
     /**
@@ -67,7 +55,7 @@ class CreateUserCommandTest extends TestCase
     public function failOnDuplicateEntry(string $name, string $email)
     {
         $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
-        $this->assertEquals(2, $exitStatus, 'Command did not fail.');
+        $this->assertEquals(2, $exitStatus);
     }
 
     /**
@@ -92,7 +80,7 @@ class CreateUserCommandTest extends TestCase
     {
         $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
 
-        $this->assertEquals(2, $exitStatus, 'Command did not fail.');
+        $this->assertEquals(2, $exitStatus);
     }
 
     protected function duplicateEntryDataProvider(): array

@@ -1,14 +1,13 @@
 <?php
 
+namespace Tests\Unit;
+
 use App\Console\Commands\DeleteFfmpegTempFolders;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class DeleteFfmpegFoldersCommandTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @test
      * @dataProvider folderDataProvider
