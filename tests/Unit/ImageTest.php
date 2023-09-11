@@ -3,30 +3,20 @@
 namespace Tests\Unit;
 
 use App\Models\Media;
-use App\Models\User;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Testing\TestResponse;
-use Laravel\Sanctum\Sanctum;
 use Storage;
-use Tests\TestCase;
 
-class ApiTest extends TestCase
+class ImageTest extends MediaTest
 {
-    protected const IDENTIFIER = 'test';
+    protected const IDENTIFIER = 'testImage';
     protected const IMAGE_NAME = 'image.jpg';
-    protected static User $user;
+
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        Storage::persistentFake(config('transmorpher.disks.originals'));
         Storage::persistentFake(config('transmorpher.disks.imageDerivatives'));
-
-        Sanctum::actingAs(
-            self::$user ??= User::factory()->create(),
-            ['*']
-        );
     }
 
     /**
@@ -39,16 +29,16 @@ class ApiTest extends TestCase
         ]);
         $reserveUploadSlotResponse->assertOk();
 
-        return $reserveUploadSlotResponse;
+        return $reserveUploadSlotResponse->json()['upload_token'];
     }
 
     /**
      * @test
      * @depends ensureImageUploadSlotCanBeReserved
      */
-    public function ensureImageCanBeUploaded(TestResponse $reserveUploadSlotResponse)
+    public function ensureImageCanBeUploaded(string $uploadToken)
     {
-        $uploadResponse = $this->json('POST', route('v1.upload', [$reserveUploadSlotResponse->json()['upload_token']]), [
+        $uploadResponse = $this->json('POST', route('v1.upload', [$uploadToken]), [
             'file' => UploadedFile::fake()->image(self::IMAGE_NAME),
             'identifier' => self::IDENTIFIER
         ]);

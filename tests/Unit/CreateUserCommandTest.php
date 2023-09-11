@@ -6,25 +6,16 @@ use App\Console\Commands\CreateUser;
 use App\Models\User;
 use Artisan;
 use Illuminate\Console\Command;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use RuntimeException;
 use Tests\TestCase;
 
 class CreateUserCommandTest extends TestCase
 {
+    use RefreshDatabase;
+
     protected const NAME = 'Oswald';
     protected const EMAIL = 'oswald@example.com';
-    protected static bool $initialized = false;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        if (!self::$initialized) {
-            self::$initialized = true;
-
-            User::whereName(self::NAME)?->delete();
-        }
-    }
 
     /**
      * @test
@@ -41,20 +32,20 @@ class CreateUserCommandTest extends TestCase
 
     /**
      * @test
-     * @depends ensureUserCanBeCreated
      */
     public function ensureUserHasSanctumToken()
     {
+        Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
         $this->assertNotEmpty(User::whereName(self::NAME)->first()->tokens);
     }
 
     /**
      * @test
      * @dataProvider duplicateEntryDataProvider
-     * @depends ensureUserCanBeCreated
      */
     public function failOnDuplicateEntry(string $name, string $email)
     {
+        Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
         $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
         $this->assertEquals(Command::INVALID, $exitStatus);
     }
@@ -123,8 +114,36 @@ class CreateUserCommandTest extends TestCase
     protected function invalidArgumentsDataProvider(): array
     {
         return [
-            'invalid name' => [
-                'name' => '--invalidName',
+            'invalid name with slash' => [
+                'name' => 'invalid/name',
+                'email' => self::EMAIL
+            ],
+            'invalid name with backslash' => [
+                'name' => 'invalid\name',
+                'email' => self::EMAIL
+            ],
+            'invalid name with dot' => [
+                'name' => 'invalid.name',
+                'email' => self::EMAIL
+            ],
+            'invalid name with hyphen' => [
+                'name' => 'invalid--name',
+                'email' => self::EMAIL
+            ],
+            'invalid name with trailing hyphen' => [
+                'name' => 'invalidName-',
+                'email' => self::EMAIL
+            ],
+            'invalid name with special character' => [
+                'name' => 'invalidName!',
+                'email' => self::EMAIL
+            ],
+            'invalid name with umlaut' => [
+                'name' => 'invalidNäme',
+                'email' => self::EMAIL
+            ],
+            'invalid name with space' => [
+                'name' => 'invalid name',
                 'email' => self::EMAIL
             ],
             'invalid email' => [
@@ -132,7 +151,7 @@ class CreateUserCommandTest extends TestCase
                 'email' => 'invalidEmail'
             ],
             'invalid name and email' => [
-                'name' => '--invalidName',
+                'name' => 'invalid/name',
                 'email' => 'invalidEmail'
             ]
         ];
