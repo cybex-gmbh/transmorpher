@@ -42,6 +42,7 @@ class ImageTest extends MediaTest
             'file' => UploadedFile::fake()->image(self::IMAGE_NAME),
             'identifier' => self::IDENTIFIER
         ]);
+
         $uploadResponse->assertCreated();
 
         Storage::disk(config('transmorpher.disks.originals'))->assertExists(
@@ -60,8 +61,8 @@ class ImageTest extends MediaTest
     public function ensureProcessedFilesAreAvailable()
     {
         $media = self::$user->Media()->whereIdentifier(self::IDENTIFIER)->first();
-
         $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $media]));
+
         $getDerivativeResponse->assertOk();
 
         return $media;
@@ -74,8 +75,8 @@ class ImageTest extends MediaTest
     public function ensureUnprocessedFilesAreNotAvailable(Media $media)
     {
         $media->Versions()->first()->update(['processed' => 0]);
-
         $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $media]));
+
         $getDerivativeResponse->assertNotFound();
     }
 }

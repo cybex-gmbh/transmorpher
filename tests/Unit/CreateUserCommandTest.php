@@ -36,6 +36,7 @@ class CreateUserCommandTest extends TestCase
     public function ensureUserHasSanctumToken()
     {
         Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
+
         $this->assertNotEmpty(User::whereName(self::NAME)->first()->tokens);
     }
 
@@ -47,6 +48,7 @@ class CreateUserCommandTest extends TestCase
     {
         Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
         $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
+
         $this->assertEquals(Command::INVALID, $exitStatus);
     }
 
