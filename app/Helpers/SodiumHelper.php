@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-class SigningHelper
+class SodiumHelper
 {
     /**
      * Sign a string with Sodium using the private key.
@@ -14,6 +14,18 @@ class SigningHelper
     public static function sign(string $data): string
     {
         return sodium_bin2hex(sodium_crypto_sign($data, static::getPrivateKey()));
+    }
+
+    /**
+     * Decrypt a signed string with Sodium using the public key.
+     *
+     * @param string $signed
+     *
+     * @return bool|string
+     */
+    public static function decrypt(string $signed): bool|string
+    {
+        return sodium_crypto_sign_open(sodium_hex2bin($signed), self::getPublicKey());
     }
 
     /**

@@ -30,6 +30,15 @@ class ImageHandler implements MediaHandlerInterface
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Media $media, Version $version): ResponseState
     {
         if ($this->invalidateCdnCache($basePath)) {
+            /**
+             * This prevents CDN cache pollution.
+             *
+             * Explanation:
+             * 1. new version is uploaded
+             * 2. media is requested and new version is delivered
+             * 3. cache invalidation fails, version gets deleted
+             * 4. now nonexistent version is still in the CDN cache
+             */
             $version->update(['processed' => true]);
 
             return ResponseState::IMAGE_UPLOAD_SUCCESSFUL;

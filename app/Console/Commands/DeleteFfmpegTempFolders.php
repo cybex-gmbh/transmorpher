@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App;
 use File;
 use Illuminate\Console\Command;
 
@@ -30,8 +31,8 @@ class DeleteFfmpegTempFolders extends Command
     {
         $directoriesDeleted = 0;
 
-        foreach (File::glob(base_path('ffmpeg-passes*')) as $directory) {
-            if (File::isDirectory($directory) && File::lastModified($directory) <= now()->subDay()->timestamp) {
+        foreach (File::glob(App::basePath('ffmpeg-passes*')) as $directory) {
+            if ($this->directoryShouldBeDeleted($directory)) {
                 File::deleteDirectory($directory) ? $directoriesDeleted++ : $this->error(sprintf('Could not delete directory "%s".', $directory));
             }
         }
@@ -39,5 +40,14 @@ class DeleteFfmpegTempFolders extends Command
         $this->info(sprintf('Deleted %d directories.', $directoriesDeleted));
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * @param string $directory
+     * @return bool
+     */
+    public function directoryShouldBeDeleted(string $directory): bool
+    {
+        return File::isDirectory($directory) && File::lastModified($directory) <= now()->subDay()->timestamp;
     }
 }
