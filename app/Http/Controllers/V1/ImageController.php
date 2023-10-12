@@ -5,6 +5,7 @@ namespace App\Http\Controllers\V1;
 use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use App\Exceptions\TransformationEmptyException;
 use App\Http\Controllers\Controller;
 use App\Exceptions\InvalidTransformationValueException;
 use App\Exceptions\TransformationNotFoundException;
@@ -96,7 +97,7 @@ class ImageController extends Controller
     {
         try {
             $transformationsArray = Transformation::arrayFromString($transformations);
-        } catch (TransformationNotFoundException|InvalidTransformationValueException $exception) {
+        } catch (TransformationNotFoundException|InvalidTransformationValueException|TransformationEmptyException $exception) {
             abort(400, $exception->getMessage());
         }
 

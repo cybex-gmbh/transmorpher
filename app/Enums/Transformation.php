@@ -3,6 +3,7 @@
 namespace App\Enums;
 
 use App\Exceptions\InvalidTransformationValueException;
+use App\Exceptions\TransformationEmptyException;
 use App\Exceptions\TransformationNotFoundException;
 use ValueError;
 
@@ -16,6 +17,7 @@ enum Transformation: string
     /**
      * @param string|int $value
      * @return string|int
+     * @throws InvalidTransformationValueException
      */
     public function validate(string|int $value): string|int
     {
@@ -36,6 +38,7 @@ enum Transformation: string
     /**
      * @param string $transformations
      * @return array|null
+     * @throws TransformationNotFoundException
      */
     public static function arrayFromString(string $transformations): array|null
     {
@@ -47,6 +50,10 @@ enum Transformation: string
         $parameters = explode('+', $transformations);
 
         foreach ($parameters as $parameter) {
+            if (!$parameter) {
+                throw new TransformationEmptyException();
+            }
+
             [$key, $value] = explode('-', $parameter, 2);
 
             try {
