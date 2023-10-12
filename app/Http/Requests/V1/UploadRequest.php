@@ -55,7 +55,7 @@ class UploadRequest extends FormRequest
                 'string',
                 sprintf('regex:%s', ValidationRegex::IDENTIFIER->get()),
                 function ($attribute, $value, $fail) {
-                    if ($this->uploadSlot->identifier !== $value) {
+                    if (strtolower($this->uploadSlot->identifier) !== strtolower($value)) {
                         $fail(trans('responses.non_matching_identifier'));
                     }
                 }
