@@ -101,7 +101,7 @@ class UploadSlotController extends Controller
 
         if ($filePath = $originalsDisk->putFileAs($basePath, $uploadedFile, $fileName)) {
             $version->update(['filename' => $fileName]);
-            $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $filePath, $media, $version);
+            $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $filePath, $version);
         } else {
             $responseState = ResponseState::WRITE_FAILED;
         }

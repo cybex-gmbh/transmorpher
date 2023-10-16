@@ -17989,22 +17989,20 @@
          * Creates a job which handles the transcoding of a video.
          *
          * @param string $originalFilePath
-         * @param \App\Models\Media $media
          * @param \App\Models\Version $version
          * @param \App\Models\UploadSlot $uploadSlot
          * @return bool 
          * @static 
          */ 
-        public static function createJob($originalFilePath, $media, $version, $uploadSlot)
+        public static function createJob($originalFilePath, $version, $uploadSlot)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        return $instance->createJob($originalFilePath, $media, $version, $uploadSlot);
+                        return $instance->createJob($originalFilePath, $version, $uploadSlot);
         }
                     /**
          * Creates a job which handles the transcoding of a video when a version number is updated.
          *
          * @param string $originalFilePath
-         * @param \App\Models\Media $media
          * @param \App\Models\Version $version
          * @param \App\Models\UploadSlot $uploadSlot
          * @param int $oldVersionNumber
@@ -18012,10 +18010,10 @@
          * @return bool 
          * @static 
          */ 
-        public static function createJobForVersionUpdate($originalFilePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed)
+        public static function createJobForVersionUpdate($originalFilePath, $version, $uploadSlot, $oldVersionNumber, $wasProcessed)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        return $instance->createJobForVersionUpdate($originalFilePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
+                        return $instance->createJobForVersionUpdate($originalFilePath, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
         }
                     /**
          * Inform client package about the transcoding result.

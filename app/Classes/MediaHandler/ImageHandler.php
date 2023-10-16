@@ -22,12 +22,11 @@ class ImageHandler implements MediaHandlerInterface
      * @param string $basePath
      * @param UploadSlot $uploadSlot
      * @param string $filePath
-     * @param Media $media
      * @param Version $version
      *
      * @return ResponseState
      */
-    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Media $media, Version $version): ResponseState
+    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Version $version): ResponseState
     {
         if ($this->invalidateCdnCache($basePath)) {
             /**
@@ -74,20 +73,19 @@ class ImageHandler implements MediaHandlerInterface
 
     /**
      * @param User $user
-     * @param Media $media
      * @param Version $version
      * @param int $oldVersionNumber
      * @param bool $wasProcessed
      * @param string $callbackUrl
      * @return array
      */
-    public function setVersion(User $user, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
+    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
     {
         // Token and valid_until will be set in the 'saving' event.
         // By creating an upload slot, a currently active upload will be canceled.
-        $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $media->identifier], ['media_type' => MediaType::IMAGE]);
+        $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => MediaType::IMAGE]);
 
-        if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($media))) {
+        if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($version->Media))) {
             $version->update(['processed' => true]);
             $responseState = ResponseState::IMAGE_VERSION_SET;
         } else {

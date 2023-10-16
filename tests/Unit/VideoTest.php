@@ -52,7 +52,7 @@ class VideoTest extends MediaTest
         $outdatedVersion = $media->Versions()->create(['number' => 1, 'filename' => sprintf('1-%s', self::VIDEO_NAME)]);
         $media->Versions()->create(['number' => 2, 'filename' => sprintf('2-%s', self::VIDEO_NAME)]);
 
-        TranscodeVideo::dispatch(FilePathHelper::toOriginalFile($outdatedVersion), $media, $outdatedVersion, $uploadSlot);
+        TranscodeVideo::dispatch(FilePathHelper::toOriginalFile($outdatedVersion), $outdatedVersion, $uploadSlot);
 
         $request = Http::recorded()[0][0];
         $transcodingResult = json_decode(SodiumHelper::decrypt($request->data()['signed_response']), true);

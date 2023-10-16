@@ -125,7 +125,7 @@ class Media extends Model
     public function currentVersion(): Attribute
     {
         return Attribute::make(
-            get: function () {
+            get: function (): Version {
                 $versions = $this->Versions();
                 return $versions->whereNumber($versions->whereProcessed(true)->max('number'))->firstOrFail();
             }

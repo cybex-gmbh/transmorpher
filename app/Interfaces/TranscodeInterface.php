@@ -14,18 +14,16 @@ interface TranscodeInterface
      * Creates a job which handles the transcoding of a video.
      *
      * @param string $originalFilePath
-     * @param Media $media
      * @param Version $version
      * @param UploadSlot $uploadSlot
      * @return bool
      */
-    public function createJob(string $originalFilePath, Media $media, Version $version, UploadSlot $uploadSlot): bool;
+    public function createJob(string $originalFilePath, Version $version, UploadSlot $uploadSlot): bool;
 
     /**
      * Creates a job which handles the transcoding of a video when a version number is updated.
      *
      * @param string $originalFilePath
-     * @param Media $media
      * @param Version $version
      * @param UploadSlot $uploadSlot
      * @param int $oldVersionNumber
@@ -33,7 +31,7 @@ interface TranscodeInterface
      *
      * @return bool
      */
-    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, UploadSlot $uploadSlot, int $oldVersionNumber, bool $wasProcessed): bool;
+    public function createJobForVersionUpdate(string $originalFilePath, Version $version, UploadSlot $uploadSlot, int $oldVersionNumber, bool $wasProcessed): bool;
 
     /**
      * Inform client package about the transcoding result.
