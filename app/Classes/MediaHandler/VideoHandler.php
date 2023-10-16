@@ -72,7 +72,7 @@ class VideoHandler implements MediaHandlerInterface
     public function setVersion(User $user, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
     {
         if ($callbackUrl) {
-            $filePath = FilePathHelper::toOriginalFile($media, $version->number);
+            $filePath = FilePathHelper::toOriginalFile($media, $version->getKey());
 
             // Token and valid_until will be set in the 'saving' event.
             // By creating an upload slot, currently active uploading or transcoding will be canceled.

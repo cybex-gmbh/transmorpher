@@ -36,6 +36,9 @@ class Version extends Model
     /**
      * The attributes that are mass assignable.
      *
+     *  Version number determines the current version.
+     *  Version key distinguishes the files and database rows.
+     *
      * @var array
      */
     protected $fillable = [
