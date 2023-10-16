@@ -324,7 +324,7 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function getTempMp4FileName(): string
     {
-        return sprintf('temp-derivative-%s-%d.mp4', $this->version->Media->identifier, $this->version->number);
+        return sprintf('temp-derivative-%s-%s.mp4', $this->version->Media->identifier, $this->version->getKey());
     }
 
     /**
@@ -332,7 +332,7 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function getTempLocalOriginal(): string
     {
-        return sprintf('temp-original-%s-%d', $this->version->Media->identifier, $this->version->number);
+        return sprintf('temp-original-%s-%s', $this->version->Media->identifier, $this->version->getKey());
     }
 
     /**
