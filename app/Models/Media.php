@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaType;
 use File;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -119,5 +120,15 @@ class Media extends Model
     public function getRouteKeyName(): string
     {
         return 'identifier';
+    }
+
+    public function currentVersion(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $versions = $this->Versions();
+                return $versions->whereNumber($versions->whereProcessed(true)->max('number'))->firstOrFail();
+            }
+        );
     }
 }

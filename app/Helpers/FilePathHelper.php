@@ -10,25 +10,21 @@ class FilePathHelper
 {
     /**
      * Get the path to an (existing) image derivative.
-     * If no version number is given, the path to the current version will be returned.
      * Path structure: {username}/{identifier}/{versionKey}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
      *
-     * @param Media $media
-     * @param string|null $versionKey
+     * @param Version $version
      * @param array|null $transformations
      * @return string
      */
-    public function toImageDerivativeFile(Media $media, string $versionKey = null, array $transformations = null): string
+    public function toImageDerivativeFile(Version $version, array $transformations = null): string
     {
-        $mediaVersions = $media->Versions();
-        $versionKey ??= Version::whereNumber($mediaVersions->whereProcessed(true)->max('number'))->firstOrFail()->getKey();
-        $originalFileExtension = pathinfo($mediaVersions->findOrFail($versionKey)->filename, PATHINFO_EXTENSION);
+        $originalFileExtension = pathinfo($version->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and version number to identify already generated derivatives.
-        $derivativeHash = hash('sha256', json_encode($transformations) . $versionKey);
+        $derivativeHash = hash('sha256', json_encode($transformations) . $version->getKey());
 
         return sprintf('%s/%sx_%sy_%sq_%s.%s',
-            $this->toImageDerivativeVersionDirectory($media, $versionKey),
+            $this->toImageDerivativeVersionDirectory($version),
             $transformations[Transformation::WIDTH->value] ?? '',
             $transformations[Transformation::HEIGHT->value] ?? '',
             $transformations[Transformation::QUALITY->value] ?? '',
@@ -41,33 +37,24 @@ class FilePathHelper
      * Get the path to the directory of an image derivative version.
      * Path structure: {username}/{identifier}/{versionKey}
      *
-     * @param Media $media
-     * @param string $versionKey
-     *
+     * @param Version $version
      * @return string
      */
-    public function toImageDerivativeVersionDirectory(Media $media, string $versionKey): string
+    public function toImageDerivativeVersionDirectory(Version $version): string
     {
-        return sprintf('%s/%s', $this->toBaseDirectory($media), $versionKey);
+        return sprintf('%s/%s', $this->toBaseDirectory($version->Media), $version->getKey());
     }
 
     /**
      * Get the path to an original.
      * Path structure: {username}/{identifier}/{filename}
      *
-     * @param Media $media
-     * @param string|null $versionKey
-     *
+     * @param Version $version
      * @return string
      */
-    public function toOriginalFile(Media $media, string $versionKey = null): string
+    public function toOriginalFile(Version $version): string
     {
-        $mediaVersions = $media->Versions();
-
-        // Get the version for either the specified key or for the current version number.
-        $version = $versionKey ? $mediaVersions->findOrFail($versionKey) : $mediaVersions->whereNumber($mediaVersions->whereProcessed(true)->max('number'))->firstOrFail();
-
-        return sprintf('%s/%s', $this->toBaseDirectory($media), $version->filename);
+        return sprintf('%s/%s', $this->toBaseDirectory($version->Media), $version->filename);
     }
 
     /**
@@ -89,30 +76,27 @@ class FilePathHelper
      * Get the path to a temporary video derivative.
      * Path structure: {username}/{identifier}-{versionKey}-temp/{format}/{filename}
      *
-     * @param Media $media
-     * @param string $versionKey
+     * @param Version $version
      * @param string $format
      * @param string|null $fileName
      *
      * @return string
      */
-    public function toTempVideoDerivativeFile(Media $media, string $versionKey, string $format, string $fileName = null): string
+    public function toTempVideoDerivativeFile(Version $version, string $format, string $fileName = null): string
     {
-        return sprintf('%s/%s/%s', $this->toTempVideoDerivativesDirectory($media, $versionKey), $format, $fileName ?? 'video');
+        return sprintf('%s/%s/%s', $this->toTempVideoDerivativesDirectory($version), $format, $fileName ?? 'video');
     }
 
     /**
      * Get the path to the temporary video derivatives directory.
      * Path structure: {username}/{identifier}-{versionKey}-temp
      *
-     * @param Media $media
-     * @param string $versionKey
-     *
+     * @param Version $version
      * @return string
      */
-    public function toTempVideoDerivativesDirectory(Media $media, string $versionKey): string
+    public function toTempVideoDerivativesDirectory(Version $version): string
     {
-        return sprintf('%s-%s-temp', $this->toBaseDirectory($media), $versionKey);
+        return sprintf('%s-%s-temp', $this->toBaseDirectory($version->Media), $version->getKey());
     }
 
     /**
@@ -131,13 +115,13 @@ class FilePathHelper
      * Create the filename for an original.
      * Filename structure: {versionKey}-{filename}
      *
-     * @param string $versionKey
+     * @param Version $version
      * @param string $fileName
      *
      * @return string
      */
-    public function createOriginalFileName(string $versionKey, string $fileName): string
+    public function createOriginalFileName(Version $version, string $fileName): string
     {
-        return sprintf('%s-%s', $versionKey, trim($fileName));
+        return sprintf('%s-%s', $version->getKey(), trim($fileName));
     }
 }

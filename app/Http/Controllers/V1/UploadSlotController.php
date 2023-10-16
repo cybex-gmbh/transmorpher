@@ -96,7 +96,7 @@ class UploadSlotController extends Controller
         $version = $media->Versions()->create(['number' => $versionNumber]);
 
         $basePath = FilePathHelper::toBaseDirectory($media);
-        $fileName = FilePathHelper::createOriginalFileName($version->getKey(), $uploadedFile->getClientOriginalName());
+        $fileName = FilePathHelper::createOriginalFileName($version, $uploadedFile->getClientOriginalName());
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
         if ($filePath = $originalsDisk->putFileAs($basePath, $uploadedFile, $fileName)) {

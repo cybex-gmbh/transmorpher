@@ -17863,49 +17863,45 @@
                     /**
          * Get the path to an (existing) image derivative.
          * 
-         * If no version number is given, the path to the current version will be returned.
          * Path structure: {username}/{identifier}/{versionKey}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
          *
-         * @param \App\Models\Media $media
-         * @param string|null $versionKey
+         * @param \App\Models\Version $version
          * @param array|null $transformations
          * @return string 
          * @static 
          */ 
-        public static function toImageDerivativeFile($media, $versionKey = null, $transformations = null)
+        public static function toImageDerivativeFile($version, $transformations = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeFile($media, $versionKey, $transformations);
+                        return $instance->toImageDerivativeFile($version, $transformations);
         }
                     /**
          * Get the path to the directory of an image derivative version.
          * 
          * Path structure: {username}/{identifier}/{versionKey}
          *
-         * @param \App\Models\Media $media
-         * @param string $versionKey
+         * @param \App\Models\Version $version
          * @return string 
          * @static 
          */ 
-        public static function toImageDerivativeVersionDirectory($media, $versionKey)
+        public static function toImageDerivativeVersionDirectory($version)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeVersionDirectory($media, $versionKey);
+                        return $instance->toImageDerivativeVersionDirectory($version);
         }
                     /**
          * Get the path to an original.
          * 
          * Path structure: {username}/{identifier}/{filename}
          *
-         * @param \App\Models\Media $media
-         * @param string|null $versionKey
+         * @param \App\Models\Version $version
          * @return string 
          * @static 
          */ 
-        public static function toOriginalFile($media, $versionKey = null)
+        public static function toOriginalFile($version)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toOriginalFile($media, $versionKey);
+                        return $instance->toOriginalFile($version);
         }
                     /**
          * Get the path to a video derivative.
@@ -17928,32 +17924,30 @@
          * 
          * Path structure: {username}/{identifier}-{versionKey}-temp/{format}/{filename}
          *
-         * @param \App\Models\Media $media
-         * @param string $versionKey
+         * @param \App\Models\Version $version
          * @param string $format
          * @param string|null $fileName
          * @return string 
          * @static 
          */ 
-        public static function toTempVideoDerivativeFile($media, $versionKey, $format, $fileName = null)
+        public static function toTempVideoDerivativeFile($version, $format, $fileName = null)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toTempVideoDerivativeFile($media, $versionKey, $format, $fileName);
+                        return $instance->toTempVideoDerivativeFile($version, $format, $fileName);
         }
                     /**
          * Get the path to the temporary video derivatives directory.
          * 
          * Path structure: {username}/{identifier}-{versionKey}-temp
          *
-         * @param \App\Models\Media $media
-         * @param string $versionKey
+         * @param \App\Models\Version $version
          * @return string 
          * @static 
          */ 
-        public static function toTempVideoDerivativesDirectory($media, $versionKey)
+        public static function toTempVideoDerivativesDirectory($version)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toTempVideoDerivativesDirectory($media, $versionKey);
+                        return $instance->toTempVideoDerivativesDirectory($version);
         }
                     /**
          * Get the base path for media.
@@ -17974,15 +17968,15 @@
          * 
          * Filename structure: {versionKey}-{filename}
          *
-         * @param string $versionKey
+         * @param \App\Models\Version $version
          * @param string $fileName
          * @return string 
          * @static 
          */ 
-        public static function createOriginalFileName($versionKey, $fileName)
+        public static function createOriginalFileName($version, $fileName)
         {
                         /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->createOriginalFileName($versionKey, $fileName);
+                        return $instance->createOriginalFileName($version, $fileName);
         }
          
     }

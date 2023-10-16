@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $number
- * @property string $filename
+ * @property string|null $filename
  * @property int $processed
  * @property int $media_id
  * @property \Illuminate\Support\Carbon|null $created_at
