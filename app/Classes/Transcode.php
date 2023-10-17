@@ -20,12 +20,11 @@ class Transcode implements TranscodeInterface
      * Creates a job which handles the transcoding of a video.
      *
      * @param string $originalFilePath
-     * @param Media $media
      * @param Version $version
      * @param UploadSlot $uploadSlot
      * @return bool
      */
-    public function createJob(string $originalFilePath, Media $media, Version $version, UploadSlot $uploadSlot): bool
+    public function createJob(string $originalFilePath, Version $version, UploadSlot $uploadSlot): bool
     {
         /*
         * When using SQS FIFO:
@@ -34,7 +33,7 @@ class Transcode implements TranscodeInterface
         * See SqsFifoQueue class.
         */
         try {
-            TranscodeVideo::dispatch($originalFilePath, $media, $version, $uploadSlot);
+            TranscodeVideo::dispatch($originalFilePath, $version, $uploadSlot);
         } catch (Exception) {
             return false;
         }
@@ -46,7 +45,6 @@ class Transcode implements TranscodeInterface
      * Creates a job which handles the transcoding of a video when a version number is updated.
      *
      * @param string $originalFilePath
-     * @param Media $media
      * @param Version $version
      * @param UploadSlot $uploadSlot
      * @param int $oldVersionNumber
@@ -54,10 +52,10 @@ class Transcode implements TranscodeInterface
      *
      * @return bool
      */
-    public function createJobForVersionUpdate(string $originalFilePath, Media $media, Version $version, UploadSlot $uploadSlot, int $oldVersionNumber, bool $wasProcessed): bool
+    public function createJobForVersionUpdate(string $originalFilePath, Version $version, UploadSlot $uploadSlot, int $oldVersionNumber, bool $wasProcessed): bool
     {
         try {
-            TranscodeVideo::dispatch($originalFilePath, $media, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
+            TranscodeVideo::dispatch($originalFilePath, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
         } catch (Exception) {
             return false;
         }

@@ -93,13 +93,15 @@ class UploadSlotController extends Controller
         $media->save();
 
         $versionNumber = $media->Versions()->max('number') + 1;
+        $version = $media->Versions()->create(['number' => $versionNumber]);
+
         $basePath = FilePathHelper::toBaseDirectory($media);
-        $fileName = FilePathHelper::createOriginalFileName($versionNumber, $uploadedFile->getClientOriginalName());
+        $fileName = FilePathHelper::createOriginalFileName($version, $uploadedFile->getClientOriginalName());
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
         if ($filePath = $originalsDisk->putFileAs($basePath, $uploadedFile, $fileName)) {
-            $version = $media->Versions()->create(['number' => $versionNumber, 'filename' => $fileName]);
-            $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $filePath, $media, $version);
+            $version->update(['filename' => $fileName]);
+            $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $filePath, $version);
         } else {
             $responseState = ResponseState::WRITE_FAILED;
         }

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $number
- * @property string $filename
+ * @property string|null $filename
  * @property int $processed
  * @property int $media_id
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -35,6 +35,9 @@ class Version extends Model
 
     /**
      * The attributes that are mass assignable.
+     *
+     *  Version number determines the current version.
+     *  Version key distinguishes the files and database rows.
      *
      * @var array
      */

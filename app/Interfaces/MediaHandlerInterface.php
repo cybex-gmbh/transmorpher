@@ -16,11 +16,10 @@ interface MediaHandlerInterface
      * @param string $basePath
      * @param UploadSlot $uploadSlot
      * @param string $filePath
-     * @param Media $media
      * @param Version $version
      * @return ResponseState
      */
-    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Media $media, Version $version): ResponseState;
+    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Version $version): ResponseState;
 
     /**
      * @return string
@@ -35,14 +34,13 @@ interface MediaHandlerInterface
 
     /**
      * @param User $user
-     * @param Media $media
      * @param Version $version
      * @param int $oldVersionNumber
      * @param bool $wasProcessed
      * @param string $callbackUrl
      * @return array
      */
-    public function setVersion(User $user, Media $media, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array;
+    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array;
 
     /**
      * @return Filesystem
