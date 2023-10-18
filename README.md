@@ -52,7 +52,9 @@ To use video transcoding, FFmpeg has to be installed on the server:
 
 ## General configuration
 
-### Disks
+### Cloud Setup
+
+#### Disks
 
 By default the media server uses 3 separate disks to store originals, image derivatives and video derivatives. These
 disks are by default AWS S3 disks:
@@ -63,7 +65,49 @@ TRANSMORPHER_DISK_IMAGE_DERIVATIVES=s3ImageDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=s3VideoDerivatives
 ```
 
-If you want to store your files locally instead, simply replace "s3" with "local" in your environment file:
+You will also have to define your AWS S3 buckets for each disk:
+
+```dotenv
+AWS_BUCKET_ORIGINALS=
+AWS_BUCKET_IMAGE_DERIVATIVES=
+AWS_BUCKET_VIDEO_DERIVATIVES=
+```
+
+> **Warning**
+>
+> When using a disk for video derivatives, which is not symlinked to the public folder on the media server, you will have to use a Content Delivery Network or similar service.
+> Videos are delivered directly from a public
+> storage and are not routed through the media server.
+
+#### Content Delivery Network
+
+The Transmorpher media server provides the possibility to use an AWS CloudFront CDN distribution by default. For this, the AWS credentials and the
+CloudFront-Distribution-ID have to be configured.
+The `transmorpher.php` configuration file points to the corresponding `.env` keys.
+
+The CDN cache duration can be set to a long time, since changes to media will automatically trigger an invalidation.
+
+*Image Transformation*
+
+You will have to configure an origin for your Transmorpher media server, to be able to forward incoming requests from the CDN to your media server. For more
+information on configuring origins in CloudFront see
+the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
+
+*Video Transcoding*
+
+If you are using a cloud storage, you will have to configure an origin for your cloud storage, to be able to forward incoming requests from the CDN to your storage. For more
+information on configuring origins in CloudFront see
+the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
+
+Additionally, if you are also using image transformation, you will have to set up a rule (behavior in CloudFront) which is used to differentiate between video and image requests.
+In CloudFront, you should set up a behavior which points requests starting with "/video/*" to your storage origin, whereas the default rule should point to your media server
+origin.
+
+### Local Setup
+
+#### Disks
+
+If you want to store your files locally, you can specify the following disks in your environment file:
 
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=localOriginals
@@ -77,14 +121,6 @@ access public derivatives for videos:
 ```bash
 php artisan storage:link
 ```
-
-### Content Delivery Network
-
-The Transmorpher media server provides the possibility to use a AWS CloudFront CDN distribution by default. For this, the AWS credentials and the
-CloudFront-Distribution-ID have to be configured.
-The `transmorpher.php` configuration file points to the corresponding `.env` keys.
-
-The CDN cache duration can be set to a long time, since changes to media will automatically trigger an invalidation.
 
 ### Additional options
 
@@ -133,6 +169,8 @@ The media server provides following features for media:
 
 ## Image transformation
 
+Images will always be optimized and transformed on the Transmorpher media server. Requests for derivatives will also be directly answered by the media server.
+
 The media server provides the following transformations for images:
 
 - width (w)
@@ -162,9 +200,9 @@ information about the transcoded video as soon as it completes. For this, a sign
 
 To publicly access a video, the client name, the identifier and a format have to be specified. There are different formats available:
 
-- HLS (.m3u8) `https://transmorpher.test/<clientname>/<identifier>/hls/video.m3u8`
-- DASH (.mpd)` https://transmorpher.test/<clientname>/<identifier>/dash/video.mpd`
-- MP4 (.mp4)` https://transmorpher.test/<clientname>/<identifier>/mp4/video.mp4`
+- HLS (.m3u8) `https://transmorpher.test/videos/<clientname>/<identifier>/hls/video.m3u8`
+- DASH (.mpd) `https://transmorpher.test/videos/<clientname>/<identifier>/dash/video.mpd`
+- MP4 (.mp4) `https://transmorpher.test/videos/<clientname>/<identifier>/mp4/video.mp4`
 
 ### Configuration
 
@@ -226,7 +264,7 @@ To configure an AWS SQS queue, see the according keys in the `.env`.
 
 ### Content Delivery Network
 
-If you want to use a different CDN, you will have to provide a class, which implements the `CdnHelperInterface` and
+If you want to use a CDN other than CloudFront, you will have to provide a class, which implements the `CdnHelperInterface` and
 provides the functionality of invalidating the CDN's cache.
 The `CloudFrontHelper` class provides an implementation for CloudFront and can be viewed as an example.
 
