@@ -82,7 +82,7 @@ class Transcode implements TranscodeInterface
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'upload_token' => $uploadToken,
-            'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($media)),
+            'public_path' => sprintf('videos/%s', FilePathHelper::toBaseDirectory($media)),
         ];
 
         $signedResponse = SodiumHelper::sign(json_encode($response));

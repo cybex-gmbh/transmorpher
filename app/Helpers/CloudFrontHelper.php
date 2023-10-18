@@ -33,7 +33,7 @@ class CloudFrontHelper implements CdnHelperInterface
      */
     public function invalidateVideo(string $invalidationPath): void
     {
-        $this->invalidate([sprintf('/derivative-videos/%s/*', $invalidationPath)]);
+        $this->invalidate([sprintf('/videos/%s/*', $invalidationPath)]);
     }
 
     /**
