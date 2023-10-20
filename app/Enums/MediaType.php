@@ -24,4 +24,12 @@ enum MediaType: string
             self::VIDEO => 'videos'
         };
     }
+
+    public function isInstantlyAvailable(): bool
+    {
+        return match ($this) {
+            self::IMAGE => true,
+            self::VIDEO => false
+        };
+    }
 }
