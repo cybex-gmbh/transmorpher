@@ -315,7 +315,7 @@ class TranscodeVideo implements ShouldQueue
     {
         if (CdnHelper::isConfigured()) {
             // If this fails, the 'failed()'-method will handle the cleanup.
-            CdnHelper::invalidateVideo($this->destinationBasePath);
+            CdnHelper::invalidateMedia($this->version->Media->type, $this->destinationBasePath);
         }
     }
 

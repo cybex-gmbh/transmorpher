@@ -62,7 +62,7 @@ class ImageHandler implements MediaHandlerInterface
     {
         if (CdnHelper::isConfigured()) {
             try {
-                CdnHelper::invalidateImage($basePath);
+                CdnHelper::invalidateMedia(MediaType::IMAGE, $basePath);
             } catch (Throwable) {
                 return false;
             }
