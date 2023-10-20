@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Enums\MediaType;
 use App\Interfaces\CdnHelperInterface;
 use Aws\CloudFront\CloudFrontClient;
 
@@ -16,10 +17,12 @@ class CloudFrontHelper implements CdnHelperInterface
      */
     public function invalidateImage(string $invalidationPath): void
     {
+        $prefixedPath = implode(DIRECTORY_SEPARATOR, array_filter([MediaType::IMAGE->prefix(), $invalidationPath]));
+
         $this->invalidate([
-            sprintf('/%s', $invalidationPath),
-            sprintf('/%s/', $invalidationPath),
-            sprintf('/%s/*', $invalidationPath),
+            sprintf('/%s', $prefixedPath),
+            sprintf('/%s/', $prefixedPath),
+            sprintf('/%s/*', $prefixedPath),
         ]);
 
     }
@@ -33,7 +36,12 @@ class CloudFrontHelper implements CdnHelperInterface
      */
     public function invalidateVideo(string $invalidationPath): void
     {
-        $this->invalidate([sprintf('/videos/%s/*', $invalidationPath)]);
+        $this->invalidate([
+                sprintf(
+                    '/%s/*', implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), $invalidationPath]))
+                )
+            ]
+        );
     }
 
     /**

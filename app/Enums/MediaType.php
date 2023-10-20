@@ -16,4 +16,12 @@ enum MediaType: string
     {
         return app(config(sprintf('transmorpher.media_handlers.%s', $this->value)));
     }
+
+    public function prefix(): string
+    {
+        return match ($this) {
+            self::IMAGE => 'images',
+            self::VIDEO => 'videos'
+        };
+    }
 }
