@@ -60,11 +60,17 @@ The configured disks can be found in the `filesystems.php` config file. To chang
 
 > **Warning**
 >
-> The root of the configured disks has to always match the prefix provided by the `MediaType` enum.
->
-> If you change the prefix after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
+> 1. The root of the configured disks has to always match the prefix provided by the `MediaType` enum.
+> 1. If you change the prefix after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
 
 ### Cloud Setup
+
+#### Prerequisites for video functionality
+
+- A publicly available file storage is needed, for example AWS S3
+- A routing capable service is needed, for example a Content Delivery Network, like AWS CloudFront
+
+#### File Storage
 
 By default, AWS S3 disks are configured in the `.env`:
 
@@ -73,13 +79,6 @@ TRANSMORPHER_DISK_ORIGINALS=s3Originals
 TRANSMORPHER_DISK_IMAGE_DERIVATIVES=s3ImageDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=s3VideoDerivatives
 ```
-
-> **Warning**
->
-> When using a disk for video derivatives, which is not symlinked to the public folder on the media server, you will have to use a Content Delivery Network or similar service.
-> Videos are delivered directly from a public
-> storage and are not routed through the media server.
-
 
 You will also have to define your AWS S3 buckets for each disk:
 
@@ -121,7 +120,14 @@ Additionally, if you are also using image transformation, you will have to set u
 In CloudFront, you should set up a behavior which points requests starting with "/videos/*" to your storage origin, whereas the default rule should point to your media server
 origin.
 
-### Local Setup
+### Local disk setup
+
+#### Prerequisites for video functionality
+
+- File storage has to be accessible at `storage/app/videos`
+- File storage needs to be able to be symlinked to `public/videos`
+
+#### File Storage
 
 If you want to store your files locally, you can specify the following disks in your environment file:
 
@@ -131,7 +137,7 @@ TRANSMORPHER_DISK_IMAGE_DERIVATIVES=localImageDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=localVideoDerivatives
 ```
 
-If you use the local disks, you should generate a symlink from the Laravel storage to the public folder, to be able to
+If you use local disks, you should generate a symlink from the Laravel storage to the public folder, to be able to
 access public derivatives for videos:
 
 ```bash
@@ -196,16 +202,16 @@ The media server provides the following transformations for images:
 
 To publicly access an image, the client name and the identifier have to be specified:
 
-`https://transmorpher.test/<clientname>/<identifier>`
+`https://transmorpher.test/images/<clientname>/<identifier>`
 
 Images retrieved from this URL will be derivatives which are optimized.
 Additionally, you can specify transformation parameters in the following format:
 
-`https://transmorpher.test/<clientname>/<identifier>/<transformations>`
+`https://transmorpher.test/images/<clientname>/<identifier>/<transformations>`
 
 For example:
 
-`https://transmorpher.test/catworld/european-short-hair/w-1920+h-1080+f-png+q-50`
+`https://transmorpher.test/images/catworld/european-short-hair/w-1920+h-1080+f-png+q-50`
 
 ## Video transcoding
 
