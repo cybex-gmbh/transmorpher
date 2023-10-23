@@ -52,18 +52,34 @@ To use video transcoding, FFmpeg has to be installed on the server:
 
 ## General configuration
 
-### Cloud Setup
-
 #### Disks
 
-By default the media server uses 3 separate disks to store originals, image derivatives and video derivatives. These
-disks are by default AWS S3 disks:
+By default the media server uses 3 separate disks to store originals, image derivatives and video derivatives.
+
+The configured disks can be found in the `filesystems.php` config file. To change where your media is stored you should use the provided `.env` keys.
+
+> **Warning**
+>
+> The root of the configured disks has to always match the prefix provided by the `MediaType` enum.
+>
+> If you change the prefix after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
+
+### Cloud Setup
+
+By default, AWS S3 disks are configured in the `.env`:
 
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=s3Originals
 TRANSMORPHER_DISK_IMAGE_DERIVATIVES=s3ImageDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=s3VideoDerivatives
 ```
+
+> **Warning**
+>
+> When using a disk for video derivatives, which is not symlinked to the public folder on the media server, you will have to use a Content Delivery Network or similar service.
+> Videos are delivered directly from a public
+> storage and are not routed through the media server.
+
 
 You will also have to define your AWS S3 buckets for each disk:
 
@@ -73,19 +89,21 @@ AWS_BUCKET_IMAGE_DERIVATIVES=
 AWS_BUCKET_VIDEO_DERIVATIVES=
 ```
 
-> **Warning**
->
-> When using a disk for video derivatives, which is not symlinked to the public folder on the media server, you will have to use a Content Delivery Network or similar service.
-> Videos are delivered directly from a public
-> storage and are not routed through the media server.
+To be able to access your AWS services, you will have to enter your credentials:
 
+```dotenv
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=eu-central-1
+```
 #### Content Delivery Network
 
-The Transmorpher media server provides the possibility to use an AWS CloudFront CDN distribution by default. For this, the AWS credentials and the
-CloudFront-Distribution-ID have to be configured.
-The `transmorpher.php` configuration file points to the corresponding `.env` keys.
+The Transmorpher media server provides the possibility to use an AWS CloudFront CDN distribution by default. For this, the CloudFront-Distribution-ID has to be configured:
 
-The CDN cache duration can be set to a long time, since changes to media will automatically trigger an invalidation.
+```dotenv
+AWS_CLOUDFRONT_DISTRIBUTION_ID=
+```
+***Note:*** The CDN cache duration can be set to a long time, since changes to media will automatically trigger an invalidation.
 
 *Image Transformation*
 
@@ -100,12 +118,10 @@ information on configuring origins in CloudFront see
 the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
 
 Additionally, if you are also using image transformation, you will have to set up a rule (behavior in CloudFront) which is used to differentiate between video and image requests.
-In CloudFront, you should set up a behavior which points requests starting with "/video/*" to your storage origin, whereas the default rule should point to your media server
+In CloudFront, you should set up a behavior which points requests starting with "/videos/*" to your storage origin, whereas the default rule should point to your media server
 origin.
 
 ### Local Setup
-
-#### Disks
 
 If you want to store your files locally, you can specify the following disks in your environment file:
 
@@ -217,7 +233,11 @@ To create a keypair, simply use the provided command:
 php artisan transmorpher:keypair
 ```
 
-The newly created keypair has to be written in the `.env` file.
+The newly created keypair has to be written in the `.env` file:
+
+```dotenv
+TRANSMORPHER_SIGNING_KEYPAIR=
+```
 
 ***Note:*** The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
 by any client.
