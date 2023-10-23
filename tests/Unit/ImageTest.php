@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use FilePathHelper;
 use App\Models\Media;
 use Illuminate\Http\UploadedFile;
 use Storage;
@@ -10,7 +11,6 @@ class ImageTest extends MediaTest
 {
     protected const IDENTIFIER = 'testImage';
     protected const IMAGE_NAME = 'image.jpg';
-
 
     protected function setUp(): void
     {
@@ -46,11 +46,7 @@ class ImageTest extends MediaTest
         $uploadResponse->assertCreated();
 
         Storage::disk(config('transmorpher.disks.originals'))->assertExists(
-            sprintf(
-                '%s/1-%s',
-                $uploadResponse->json()['public_path'],
-                self::IMAGE_NAME
-            )
+            FilePathHelper::toOriginalFile(Media::whereIdentifier(self::IDENTIFIER)->first()->Versions()->whereNumber($uploadResponse['version'])->first()),
         );
     }
 

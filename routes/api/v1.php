@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\MediaType;
 use App\Helpers\SodiumHelper;
 use App\Http\Controllers\V1\ImageController;
 use App\Http\Controllers\V1\UploadSlotController;
@@ -24,12 +25,12 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::patch('/media/{media}/version/{version}', [VersionController::class, 'setVersion'])->name('setVersion');
 
             // Image
-            Route::get('/image/{media}/version/{version}/original', [ImageController::class, 'getOriginal'])->name('getOriginal');
-            Route::get('/image/{media}/version/{version}/derivative/{transformations?}', [ImageController::class, 'getDerivativeForVersion'])->name('getDerivativeForVersion');
-            Route::post('/image/reserveUploadSlot', [UploadSlotController::class, 'reserveImageUploadSlot'])->name('reserveImageUploadSlot');
+            Route::get(sprintf('/%s/{media}/version/{version}/original', MediaType::IMAGE->value), [ImageController::class, 'getOriginal'])->name('getOriginal');
+            Route::get(sprintf('/%s/{media}/version/{version}/derivative/{transformations?}', MediaType::IMAGE->value), [ImageController::class, 'getDerivativeForVersion'])->name('getDerivativeForVersion');
+            Route::post(sprintf('/%s/reserveUploadSlot', MediaType::IMAGE->value), [UploadSlotController::class, 'reserveImageUploadSlot'])->name('reserveImageUploadSlot');
 
             // Video
-            Route::post('/video/reserveUploadSlot', [UploadSlotController::class, 'reserveVideoUploadSlot'])->name('reserveVideoUploadSlot');;
+            Route::post(sprintf('/%s/reserveUploadSlot', MediaType::VIDEO->value), [UploadSlotController::class, 'reserveVideoUploadSlot'])->name('reserveVideoUploadSlot');
         }
     );
 

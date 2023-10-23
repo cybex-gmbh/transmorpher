@@ -2,16 +2,16 @@
 
 namespace App\Classes;
 
+use App\Enums\MediaType;
 use App\Enums\ResponseState;
-use App\Models\UploadSlot;
-use App\Models\User;
-use FilePathHelper;
 use App\Helpers\SodiumHelper;
 use App\Interfaces\TranscodeInterface;
 use App\Jobs\TranscodeVideo;
 use App\Models\Media;
+use App\Models\UploadSlot;
 use App\Models\Version;
 use Exception;
+use FilePathHelper;
 use Http;
 
 class Transcode implements TranscodeInterface
@@ -82,7 +82,7 @@ class Transcode implements TranscodeInterface
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'upload_token' => $uploadToken,
-            'public_path' => sprintf('derivative-videos/%s', FilePathHelper::toBaseDirectory($media)),
+            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), FilePathHelper::toBaseDirectory($media)]))
         ];
 
         $signedResponse = SodiumHelper::sign(json_encode($response));

@@ -33,7 +33,7 @@ return [
     */
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
-        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImagesDerivatives'),
+        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
         'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 

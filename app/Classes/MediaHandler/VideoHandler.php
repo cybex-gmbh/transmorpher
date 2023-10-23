@@ -49,7 +49,7 @@ class VideoHandler implements MediaHandlerInterface
     {
         if (CdnHelper::isConfigured()) {
             try {
-                CdnHelper::invalidateVideo($basePath);
+                CdnHelper::invalidateMedia(MediaType::VIDEO, $basePath);
             } catch (Throwable) {
                 return false;
             }

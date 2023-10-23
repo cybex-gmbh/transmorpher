@@ -17787,28 +17787,17 @@
      */ 
         class CdnHelperFacade {
                     /**
-         * Create a CDN invalidation for an image.
+         * Create a CDN invalidation for media.
          *
+         * @param \App\Enums\MediaType $type
          * @param string $invalidationPath
          * @return void 
          * @static 
          */ 
-        public static function invalidateImage($invalidationPath)
+        public static function invalidateMedia($type, $invalidationPath)
         {
                         /** @var \App\Helpers\CloudFrontHelper $instance */
-                        $instance->invalidateImage($invalidationPath);
-        }
-                    /**
-         * Create a CDN invalidation for a video.
-         *
-         * @param string $invalidationPath
-         * @return void 
-         * @static 
-         */ 
-        public static function invalidateVideo($invalidationPath)
-        {
-                        /** @var \App\Helpers\CloudFrontHelper $instance */
-                        $instance->invalidateVideo($invalidationPath);
+                        $instance->invalidateMedia($type, $invalidationPath);
         }
                     /**
          * Return whether the CDN is configured.

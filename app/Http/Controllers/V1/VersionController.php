@@ -62,7 +62,9 @@ class VersionController extends Controller
             'identifier' => $media->identifier,
             'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentVersionNumber,
             // Base path is only passed for images since the video is not available at this path yet.
-            'public_path' => $media->type === MediaType::IMAGE ? FilePathHelper::toBaseDirectory($media) : null,
+            'public_path' => $media->type->isInstantlyAvailable() ?
+                implode(DIRECTORY_SEPARATOR, array_filter([$media->type->prefix(), FilePathHelper::toBaseDirectory($media)]))
+                : null,
             'upload_token' => $uploadToken
         ]);
     }
