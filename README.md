@@ -31,14 +31,14 @@ git clone --branch release/v1 --single-branch https://github.com/cybex-gmbh/tran
 
 See the Dockerfiles for details.
 
-To be able to use the image manipulation features install Imagick:
+To be able to use the image manipulation features:
 
 - [ImageMagick](https://imagemagick.org/index.php)
 - [php-imagick](https://www.php.net/manual/en/book.imagick.php)
 
 > Optionally you can use GD, which can be configured in the Intervention Image configuration file.
 
-For using image optimization features, install several image optimizers:
+For using image optimization features:
 
 - [JpegOptim](https://github.com/tjko/jpegoptim)
 - [Optipng](https://optipng.sourceforge.net/)
@@ -46,7 +46,7 @@ For using image optimization features, install several image optimizers:
 - [Gifsicle](https://www.lcdf.org/gifsicle/)
 - [cwebp](https://developers.google.com/speed/webp/docs/precompiled)
 
-To use video transcoding, install FFmpeg on the server:
+To use video transcoding:
 
 - [FFmpeg](https://ffmpeg.org/)
 
@@ -69,33 +69,18 @@ The configured disks can be found in the `filesystems.php` config file. To chang
 
 #### Prerequisites for video functionality
 
-- A publicly available file storage is needed, for example AWS S3
-- A routing capable service is needed, for example a Content Delivery Network, like AWS CloudFront
+- A publicly available file storage, for example AWS S3
+- A routing capable service, for example a Content Delivery Network, like AWS CloudFront
 
 #### IAM
 
-To ensure all services can communicate properly, set up IAM rules and an IAM user with programmatic access. For more information check the documentation for the corresponding
-service.
+Create an IAM user with programmatic access. For more information check the documentation for the corresponding service.
 
-IAM user:
+IAM permissions:
 
 - read/write/delete access to media storage
 - read/write/delete access to queue service
 - creation of CDN invalidations
-
-File Storage:
-
-- video derivatives storage has to be publicly available, at least to the CDN
-- originals storage and image derivatives storage should be private
-
-Content Delivery Network:
-
-- read access to your video derivatives storage
-
-Queue service:
-
-- read/write/delete access to your video derivatives storage
-
 
 To access your AWS services, enter your credentials:
 
@@ -122,6 +107,11 @@ AWS_BUCKET_ORIGINALS=
 AWS_BUCKET_IMAGE_DERIVATIVES=
 AWS_BUCKET_VIDEO_DERIVATIVES=
 ```
+
+Privacy settings:
+
+- video derivatives storage has to be publicly available, at least to the CDN
+- originals storage and image derivatives storage should be private
 
 #### Content Delivery Network
 
@@ -189,8 +179,8 @@ To configure an AWS SQS queue, see the according keys in the `.env`.
 
 #### Prerequisites for video functionality
 
-- File storage has to be accessible at `storage/app/videos`
-- File storage needs to be able to be symlinked to `public/videos`
+- File storage accessible at `storage/app/videos`
+- File storage able to be symlinked to `public/videos`
 
 #### File Storage
 
