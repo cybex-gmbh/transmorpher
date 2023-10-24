@@ -306,6 +306,8 @@ For example:
 
 `https://transmorpher.test/images/catworld/european-short-hair/w-1920+h-1080+f-png+q-50`
 
+The [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client) will receive this information and store it. It can also create URLs with transformations.
+
 ## Video transcoding
 
 Video transcoding is handled as an asynchronous task. The client will receive the
@@ -318,6 +320,8 @@ To publicly access a video, the client name, the identifier and a format have to
 - HLS (.m3u8) `https://transmorpher.test/videos/<clientname>/<identifier>/hls/video.m3u8`
 - DASH (.mpd) `https://transmorpher.test/videos/<clientname>/<identifier>/dash/video.mpd`
 - MP4 (.mp4) `https://transmorpher.test/videos/<clientname>/<identifier>/mp4/video.mp4`
+
+The [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client) will receive this information and store it.
 
 ## Interchangeability
 
