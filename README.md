@@ -31,14 +31,14 @@ git clone --branch release/v1 --single-branch https://github.com/cybex-gmbh/tran
 
 See the Dockerfiles for details.
 
-To be able to use the image manipulation features:
+Image manipulation:
 
 - [ImageMagick](https://imagemagick.org/index.php)
 - [php-imagick](https://www.php.net/manual/en/book.imagick.php)
 
 > Optionally you can use GD, which can be configured in the Intervention Image configuration file.
 
-For using image optimization features:
+Image optimization:
 
 - [JpegOptim](https://github.com/tjko/jpegoptim)
 - [Optipng](https://optipng.sourceforge.net/)
@@ -268,9 +268,9 @@ php artisan create:token <userId>
 
 ### Media
 
-Media is uniquely identified by a string identifier which is passed when uploading media. This identifier is unique per user.
+Media is identified by a string which is passed when uploading media. This "identifier" is unique per user.
 
-When media is uploaded on the same identifier by the same user, a new version will be created.
+When media is uploaded on the same identifier by the same user, a new version for the same media will be created.
 
 The media server provides following features for media:
 
