@@ -24,7 +24,7 @@ A media server for images and videos.
 To clone the repository and get your media server running use:
 
 ```bash
-git clone --branch release/v1 --single-branch https://github.com/cybex-gmbh/transmorpher.git
+git clone --branch release/v0 --single-branch https://github.com/cybex-gmbh/transmorpher.git
 ```
 
 ### Required software
