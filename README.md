@@ -58,12 +58,12 @@ The media server uses 3 separate Laravel disks to store originals, image derivat
 
 > **Warning**
 >
-> 1. The root folder, like /images, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
+> 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
 > 1. If you change the prefix after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
 
 ### Cloud Setup
 
-The Transmorpher media server is not dependent on a specific cloud service provider, but only supports AWS services out of the box.
+The Transmorpher media server is not dependent on a specific cloud service provider, but only provides classes for AWS services out of the box.
 
 #### Prerequisites for video functionality
 
