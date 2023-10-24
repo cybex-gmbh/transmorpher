@@ -54,13 +54,11 @@ To use video transcoding:
 
 #### Disks
 
-By default the media server uses 3 separate disks to store originals, image derivatives and video derivatives.
-
-The configured disks can be found in the `filesystems.php` config file. To change where your media is stored use the provided `.env` keys.
+The media server uses 3 separate Laravel disks to store originals, image derivatives and video derivatives. Use the provided `.env` keys to select any of the disks in the `filesystems.php` config file.
 
 > **Warning**
 >
-> 1. The root of the configured disks has to always match the prefix provided by the `MediaType` enum.
+> 1. The root folder, like /images, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
 > 1. If you change the prefix after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
 
 ### Cloud Setup
@@ -76,7 +74,7 @@ The Transmorpher media server is not dependent on a specific cloud service provi
 
 Create an IAM user with programmatic access. For more information check the documentation for the corresponding service.
 
-IAM permissions:
+Permissions:
 
 - read/write/delete access to media storage
 - read/write/delete access to queue service
@@ -100,13 +98,15 @@ TRANSMORPHER_DISK_IMAGE_DERIVATIVES=s3ImageDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=s3VideoDerivatives
 ```
 
-You will also have to define your AWS S3 buckets for each disk:
+Define the AWS S3 bucket for each disk:
 
 ```dotenv
 AWS_BUCKET_ORIGINALS=
 AWS_BUCKET_IMAGE_DERIVATIVES=
 AWS_BUCKET_VIDEO_DERIVATIVES=
 ```
+
+It is technically possible to use the same bucket for all 3, but it is recommended to split it up to help manage the files.
 
 Privacy settings:
 
