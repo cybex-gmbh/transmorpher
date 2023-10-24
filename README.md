@@ -54,7 +54,8 @@ To use video transcoding:
 
 #### Disks
 
-The media server uses 3 separate Laravel disks to store originals, image derivatives and video derivatives. Use the provided `.env` keys to select any of the disks in the `filesystems.php` config file.
+The media server uses 3 separate Laravel disks to store originals, image derivatives and video derivatives. Use the provided `.env` keys to select any of the disks in
+the `filesystems.php` config file.
 
 > **Warning**
 >
@@ -128,6 +129,7 @@ For more information on configuring origins in CloudFront see
 the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
 
 In order to properly use the API you need to either:
+
 1. add a rule to not cache anything under `/api/*`
 1. publish the Transmorpher media server under an additional domain that is not behind the CDN
 
@@ -306,7 +308,8 @@ For example:
 
 `https://transmorpher.test/images/catworld/european-short-hair/w-1920+h-1080+f-png+q-50`
 
-The [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client) will receive this information and store it. It can also create URLs with transformations.
+The [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client) will receive this information and store it. It can also create URLs with
+transformations.
 
 ## Video transcoding
 
