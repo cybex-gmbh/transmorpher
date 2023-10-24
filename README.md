@@ -65,11 +65,11 @@ The configured disks can be found in the `filesystems.php` config file. To chang
 
 ### Cloud Setup
 
-***Note***: The Transmorpher media server is not dependent on a specific cloud service provider, but only supports AWS services out of the box.  
+The Transmorpher media server is not dependent on a specific cloud service provider, but only supports AWS services out of the box.
 
 #### Prerequisites for video functionality
 
-- A publicly available file storage, for example AWS S3
+- A file storage, for example AWS S3
 - A routing capable service, for example a Content Delivery Network, like AWS CloudFront
 
 #### IAM
@@ -110,18 +110,18 @@ AWS_BUCKET_VIDEO_DERIVATIVES=
 
 Privacy settings:
 
-- video derivatives storage has to be publicly available, at least to the CDN
-- originals storage and image derivatives storage should be private
+- all file storages should be private
+- the CDN needs to access the video derivatives storage
 
 #### Content Delivery Network
 
-The Transmorpher media server provides the possibility to use an AWS CloudFront CDN distribution by default. For this, the CloudFront-Distribution-ID has to be configured:
+The AWS CloudFront CDN distribution is supported. For this, the CloudFront-Distribution-ID has to be configured:
 
 ```dotenv
 AWS_CLOUDFRONT_DISTRIBUTION_ID=
 ```
 
-***Note:*** Changes to media will automatically trigger a cache invalidation, therefore the CDN cache duration can be set to a long time.
+Changes to media will automatically trigger a cache invalidation, therefore the CDN cache duration can be set to a long time.
 
 To forward incoming requests from the CDN to your media server, configure your Transmorpher media server as an origin.
 For more information on configuring origins in CloudFront see
@@ -155,7 +155,7 @@ The newly created keypair has to be written in the `.env` file:
 TRANSMORPHER_SIGNING_KEYPAIR=
 ```
 
-***Note:*** The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
+The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
 by any client.  
 \
 *Queue*
@@ -218,7 +218,7 @@ The newly created keypair has to be written in the `.env` file:
 TRANSMORPHER_SIGNING_KEYPAIR=
 ```
 
-***Note:*** The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
+The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
 by any client.  
 \
 *Queue*
@@ -244,6 +244,8 @@ demand instead:
 ```dotenv
 TRANSMORPHER_STORE_DERIVATIVES=true
 ```
+
+There are additional settings in the `transmorpher.php` config file.
 
 ## Managing Media
 
@@ -310,31 +312,13 @@ For example:
 Video transcoding is handled as an asynchronous task. The client will receive the
 information about the transcoded video as soon as it completes. For this, a signed request is sent to the client.
 
-***Note:*** Since video transcoding is a complex task it may take some time to complete. The client will also be notified about failed attempts.
+Since video transcoding is a complex task it may take some time to complete. The client will also be notified about failed attempts.
 
 To publicly access a video, the client name, the identifier and a format have to be specified. There are different formats available:
 
 - HLS (.m3u8) `https://transmorpher.test/videos/<clientname>/<identifier>/hls/video.m3u8`
 - DASH (.mpd) `https://transmorpher.test/videos/<clientname>/<identifier>/dash/video.mpd`
 - MP4 (.mp4) `https://transmorpher.test/videos/<clientname>/<identifier>/mp4/video.mp4`
-
-#### Representations and Codec
-
-By default, these representations are generated:
-
-```php
-'representations' => [
-    360, 480, 720, 1080, 1440, 2160
-],
-```
-
-The X.264 codec is used by default:
-
-```php
-'video_codec' => 'x264',
-```
-
-***Note:*** Available representations or codecs are stated in the comment of the configuration value.
 
 ## Interchangeability
 
