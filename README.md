@@ -182,7 +182,7 @@ To configure an AWS SQS queue, see the according keys in the `.env`.
 
 #### File Storage
 
-To store your files on a local disk, you can specify the following disks in your environment file:
+Select the following Laravel disks in the `.env`:
 
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=localOriginals
@@ -233,6 +233,7 @@ QUEUE_CONNECTION=database
 > **Warning**
 >
 > The database connection does neither guarantee FIFO nor prevents duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
+> To prevent duplicate runs with database, use only one worker process.
 
 ### Additional options
 
