@@ -31,14 +31,14 @@ git clone --branch release/v1 --single-branch https://github.com/cybex-gmbh/tran
 
 See the Dockerfiles for details.
 
-To be able to use the image manipulation features Imagick has to be installed:
+To be able to use the image manipulation features install Imagick:
 
 - [ImageMagick](https://imagemagick.org/index.php)
 - [php-imagick](https://www.php.net/manual/en/book.imagick.php)
 
 > Optionally you can use GD, which can be configured in the Intervention Image configuration file.
 
-For using image optimization features several image optimizers have to be installed:
+For using image optimization features, install several image optimizers:
 
 - [JpegOptim](https://github.com/tjko/jpegoptim)
 - [Optipng](https://optipng.sourceforge.net/)
@@ -46,7 +46,7 @@ For using image optimization features several image optimizers have to be instal
 - [Gifsicle](https://www.lcdf.org/gifsicle/)
 - [cwebp](https://developers.google.com/speed/webp/docs/precompiled)
 
-To use video transcoding, FFmpeg has to be installed on the server:
+To use video transcoding, install FFmpeg on the server:
 
 - [FFmpeg](https://ffmpeg.org/)
 
@@ -56,7 +56,7 @@ To use video transcoding, FFmpeg has to be installed on the server:
 
 By default the media server uses 3 separate disks to store originals, image derivatives and video derivatives.
 
-The configured disks can be found in the `filesystems.php` config file. To change where your media is stored you should use the provided `.env` keys.
+The configured disks can be found in the `filesystems.php` config file. To change where your media is stored use the provided `.env` keys.
 
 > **Warning**
 >
@@ -65,10 +65,45 @@ The configured disks can be found in the `filesystems.php` config file. To chang
 
 ### Cloud Setup
 
+***Note***: The Transmorpher media server is not dependent on a specific cloud service provider, but only supports AWS services out of the box.  
+
 #### Prerequisites for video functionality
 
 - A publicly available file storage is needed, for example AWS S3
 - A routing capable service is needed, for example a Content Delivery Network, like AWS CloudFront
+
+#### IAM
+
+To ensure all services can communicate properly, set up IAM rules and an IAM user with programmatic access. For more information check the documentation for the corresponding
+service.
+
+IAM user:
+
+- read/write/delete access to media storage
+- read/write/delete access to queue service
+- creation of CDN invalidations
+
+File Storage:
+
+- video derivatives storage has to be publicly available, at least to the CDN
+- originals storage and image derivatives storage should be private
+
+Content Delivery Network:
+
+- read access to your video derivatives storage
+
+Queue service:
+
+- read/write/delete access to your video derivatives storage
+
+
+To access your AWS services, enter your credentials:
+
+```dotenv
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=eu-central-1
+```
 
 #### File Storage
 
@@ -88,13 +123,6 @@ AWS_BUCKET_IMAGE_DERIVATIVES=
 AWS_BUCKET_VIDEO_DERIVATIVES=
 ```
 
-To be able to access your AWS services, you will have to enter your credentials:
-
-```dotenv
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_DEFAULT_REGION=eu-central-1
-```
 #### Content Delivery Network
 
 The Transmorpher media server provides the possibility to use an AWS CloudFront CDN distribution by default. For this, the CloudFront-Distribution-ID has to be configured:
@@ -102,23 +130,60 @@ The Transmorpher media server provides the possibility to use an AWS CloudFront 
 ```dotenv
 AWS_CLOUDFRONT_DISTRIBUTION_ID=
 ```
-***Note:*** The CDN cache duration can be set to a long time, since changes to media will automatically trigger an invalidation.
 
-*Image Transformation*
+***Note:*** Changes to media will automatically trigger a cache invalidation, therefore the CDN cache duration can be set to a long time.
 
-You will have to configure an origin for your Transmorpher media server, to be able to forward incoming requests from the CDN to your media server. For more
-information on configuring origins in CloudFront see
+To forward incoming requests from the CDN to your media server, configure your Transmorpher media server as an origin.
+For more information on configuring origins in CloudFront see
 the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
 
-*Video Transcoding*
+#### Video specific configuration
 
-If you are using a cloud storage, you will have to configure an origin for your cloud storage, to be able to forward incoming requests from the CDN to your storage. For more
-information on configuring origins in CloudFront see
+*Content Delivery Network*
+
+To forward incoming requests from the CDN to your cloud storage, configure the cloud storage as an origin.
+For more information on configuring origins in CloudFront see
 the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
 
-Additionally, if you are also using image transformation, you will have to set up a rule (behavior in CloudFront) which is used to differentiate between video and image requests.
-In CloudFront, you should set up a behavior which points requests starting with "/videos/*" to your storage origin, whereas the default rule should point to your media server
-origin.
+Additionally, if you are also using image transformation, the CDN has to differentiate between video and image requests.
+In CloudFront, set up a behavior which points requests starting with "/videos/*" to your storage origin, whereas the default rule points to your media server
+origin.  
+\
+*Sodium Keypair*
+
+A signed request is used to notify clients about finished transcodings. For this, a [Sodium](https://www.php.net/manual/en/book.sodium.php) keypair has to be configured.
+
+To create a keypair, simply use the provided command:
+
+```bash
+php artisan transmorpher:keypair
+```
+
+The newly created keypair has to be written in the `.env` file:
+
+```dotenv
+TRANSMORPHER_SIGNING_KEYPAIR=
+```
+
+***Note:*** The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
+by any client.  
+\
+*Queue*
+
+Transcoding jobs are dispatched onto the "video-transcoding" queue. You can have these jobs processed on the main server or dedicated workers. For more information check
+the [Laravel Queue Documentation](https://laravel.com/docs/10.x/queues).
+
+> Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
+> duplicate runs.
+> For this, a custom AWS SQS FIFO queue connection is available.
+
+You can define your queue connection in the `.env` file:
+
+```dotenv
+QUEUE_CONNECTION=sqs-fifo
+```
+
+To configure an AWS SQS queue, see the according keys in the `.env`.
 
 ### Local disk setup
 
@@ -129,7 +194,7 @@ origin.
 
 #### File Storage
 
-If you want to store your files locally, you can specify the following disks in your environment file:
+To store your files on a local disk, you can specify the following disks in your environment file:
 
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=localOriginals
@@ -137,12 +202,49 @@ TRANSMORPHER_DISK_IMAGE_DERIVATIVES=localImageDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=localVideoDerivatives
 ```
 
-If you use local disks, you should generate a symlink from the Laravel storage to the public folder, to be able to
-access public derivatives for videos:
+#### Video specific configuration
+
+*File Storage*
+
+To access public derivatives for videos, generate a symlink from the Laravel storage folder to the public folder:
 
 ```bash
 php artisan storage:link
 ```
+
+*Sodium Keypair*
+
+A signed request is used to notify clients about finished transcodings. For this, a [Sodium](https://www.php.net/manual/en/book.sodium.php) keypair has to be configured.
+
+To create a keypair, simply use the provided command:
+
+```bash
+php artisan transmorpher:keypair
+```
+
+The newly created keypair has to be written in the `.env` file:
+
+```dotenv
+TRANSMORPHER_SIGNING_KEYPAIR=
+```
+
+***Note:*** The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
+by any client.  
+\
+*Queue*
+
+Transcoding jobs are dispatched onto the "video-transcoding" queue. You can have these jobs processed on the main server or dedicated workers. For more information check
+the [Laravel Queue Documentation](https://laravel.com/docs/10.x/queues).
+
+You can define your queue connection in the `.env` file:
+
+```dotenv
+QUEUE_CONNECTION=database
+```
+
+> **Warning**
+>
+> The database connection does neither guarantee FIFO nor prevents duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
 
 ### Additional options
 
@@ -226,32 +328,7 @@ To publicly access a video, the client name, the identifier and a format have to
 - DASH (.mpd) `https://transmorpher.test/videos/<clientname>/<identifier>/dash/video.mpd`
 - MP4 (.mp4) `https://transmorpher.test/videos/<clientname>/<identifier>/mp4/video.mp4`
 
-### Configuration
-
-#### Sodium Keypair
-
-In order to use the video transcoding functionality, a [Sodium](https://www.php.net/manual/en/book.sodium.php) keypair has to be configured. The keypair will be used for
-the signing procedure.
-
-To create a keypair, simply use the provided command:
-
-```bash
-php artisan transmorpher:keypair
-```
-
-The newly created keypair has to be written in the `.env` file:
-
-```dotenv
-TRANSMORPHER_SIGNING_KEYPAIR=
-```
-
-***Note:*** The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
-by any client.
-
 #### Representations and Codec
-
-When using the default implementation of the Transmorpher media server, the representations which are generated when transcoding
-videos to HLS and DASH can be configured.
 
 By default, these representations are generated:
 
@@ -261,30 +338,13 @@ By default, these representations are generated:
 ],
 ```
 
-Also, the codec can be changed:
+The X.264 codec is used by default:
 
 ```php
 'video_codec' => 'x264',
 ```
 
 ***Note:*** Available representations or codecs are stated in the comment of the configuration value.
-
-#### Queue
-
-Transcoding jobs are dispatched onto the "video-transcoding" queue. You can have these jobs processed on the main server or dedicated workers. For more information check
-the [Laravel Queue Documentation](https://laravel.com/docs/10.x/queues).
-
-> Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
-> duplicate runs.
-> For this, a custom AWS SQS FIFO queue connection is available.
-
-You can define your queue connection in the `.env` file:
-
-```dotenv
-QUEUE_CONNECTION=sqs-fifo
-```
-
-To configure an AWS SQS queue, see the according keys in the `.env`.
 
 ## Interchangeability
 
