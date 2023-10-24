@@ -106,7 +106,7 @@ AWS_BUCKET_IMAGE_DERIVATIVES=
 AWS_BUCKET_VIDEO_DERIVATIVES=
 ```
 
-It is technically possible to use the same bucket for all 3, but it is recommended to split it up to help manage the files.
+It is technically possible to use the same bucket for all 3, but it is recommended to split it up to help manage and secure the files.
 
 Privacy settings:
 
@@ -115,7 +115,7 @@ Privacy settings:
 
 #### Content Delivery Network
 
-The AWS CloudFront CDN distribution is supported. For this, the CloudFront-Distribution-ID has to be configured:
+Configure your CloudFront-Distribution-ID:
 
 ```dotenv
 AWS_CLOUDFRONT_DISTRIBUTION_ID=
@@ -126,6 +126,10 @@ Changes to media will automatically trigger a cache invalidation, therefore the 
 To forward incoming requests from the CDN to your media server, configure your Transmorpher media server as an origin.
 For more information on configuring origins in CloudFront see
 the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
+
+In order to properly use the API you need to either:
+1. add a rule to not cache anything under `/api/*`
+1. publish the Transmorpher media server under an additional domain that is not behind the CDN
 
 #### Video specific configuration
 
