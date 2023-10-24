@@ -80,7 +80,7 @@ Permissions:
 - read/write/delete access to queue service
 - creation of CDN invalidations
 
-To access your AWS services, enter your credentials:
+Put the credentials into the `.env`:
 
 ```dotenv
 AWS_ACCESS_KEY_ID=
@@ -123,7 +123,7 @@ AWS_CLOUDFRONT_DISTRIBUTION_ID=
 
 Changes to media will automatically trigger a cache invalidation, therefore the CDN cache duration can be set to a long time.
 
-To forward incoming requests from the CDN to your media server, configure your Transmorpher media server as an origin.
+To forward incoming requests from the CDN to your media server, configure your Transmorpher media server as the main origin.
 For more information on configuring origins in CloudFront see
 the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
 
@@ -135,13 +135,7 @@ In order to properly use the API you need to either:
 
 *Content Delivery Network*
 
-To forward incoming requests from the CDN to your cloud storage, configure the cloud storage as an origin.
-For more information on configuring origins in CloudFront see
-the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
-
-Additionally, if you are also using image transformation, the CDN has to differentiate between video and image requests.
-In CloudFront, set up a behavior which points requests starting with "/videos/*" to your storage origin, whereas the default rule points to your media server
-origin.  
+In the CDN routing create a new behavior which points requests starting with "/videos/*" to a new origin, which is the video derivatives S3 bucket.  
 \
 *Sodium Keypair*
 
