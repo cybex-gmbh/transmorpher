@@ -1,15 +1,8 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches:
-      - "**"
-    tags:
-      - "v*.*.*"
-  pull_request:
-    branches:
-      - "main"
-      - "release/*"
+  release:
+    types: [published]
 
 jobs:
   build-push-docker-image:
@@ -29,16 +22,11 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            cybex/transmorpher
+            cybexwebdev/transmorpher
           flavor: |
             latest=auto
           tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
             type=sha
 
       - name: Build and push
