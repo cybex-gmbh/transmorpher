@@ -47,7 +47,7 @@ class ImageController extends Controller
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
         $pathToOriginal = FilePathHelper::toOriginalFile($version);
 
-        return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => $originalsDisk->mimeType($pathToOriginal)]);
+        return response($originalsDisk->get($pathToOriginal), 200, ['Content-Type' => mime_content_type($originalsDisk->readStream($pathToOriginal))]);
     }
 
     /**
@@ -118,6 +118,6 @@ class ImageController extends Controller
             }
         }
 
-        return response($derivative, 200, ['Content-Type' => $imageDerivativesDisk->mimeType($derivativePath)]);
+        return response($derivative, 200, ['Content-Type' => mime_content_type($imageDerivativesDisk->readStream($derivativePath))]);
     }
 }
