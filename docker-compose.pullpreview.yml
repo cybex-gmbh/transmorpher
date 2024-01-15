@@ -1,0 +1,87 @@
+version: '3.8'
+services:
+  app:
+    container_name: ${APP_CONTAINER_NAME:-transmorpher}
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    networks:
+      - traefik
+      - internal
+    depends_on:
+      mysql:
+        condition: service_healthy
+      traefik:
+        condition: service_started
+    environment:
+      PULLPREVIEW: true
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.middlewares.htpasswd.basicauth.usersfile=/.htpasswd'
+      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'
+      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.tls=true'
+      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.tls.certresolver=production'
+      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.middlewares=htpasswd'
+  mysql:
+    image: 'mysql/mysql-server:8.0'
+    container_name: ${MYSQL_CONTAINER_NAME:-transmorpher-mysql}
+    ports:
+      - '3306:3306'
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - 'mysql:/var/lib/mysql'
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
+      retries: 3
+      timeout: 5s
+  traefik:
+    image: traefik:v2.10
+    container_name: ${TRAEFIK_CONTAINER_NAME:-transmorpher-traefik}
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE: false
+      TRAEFIK_API: false
+      TRAEFIK_API_DASHBOARD: false
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION: true
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_EMAIL: 'webdevelopment@cybex-online.com'
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_CASERVER: 'https://acme-v02.api.letsencrypt.org/directory'
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_STORAGE: '/letsencrypt/acme.json'
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_HTTPCHALLENGE: true
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_HTTPCHALLENGE_ENTRYPOINT: web
+      TRAEFIK_ENTRYPOINTS_WEB: true
+      TRAEFIK_ENTRYPOINTS_WEB_ADDRESS: ':80'
+      TRAEFIK_ENTRYPOINTS_WEB_HTTP: true
+      TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO: websecure
+      TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME: https
+      TRAEFIK_ENTRYPOINTS_WEBSECURE: true
+      TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS: ':443'
+      TRAEFIK_PROVIDERS_DOCKER: true
+      TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT: false
+      TRAEFIK_PROVIDERS_DOCKER_NETWORK: traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+      - ./.htpasswd:/.htpasswd
+    networks:
+      - traefik
+
+networks:
+  internal:
+    internal: true
+  traefik:
+    name: traefik
+
+volumes:
+  mysql:
+    driver: local

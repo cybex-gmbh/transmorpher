@@ -19,6 +19,14 @@ A media server for images and videos.
 
 ## Installation
 
+### Using docker
+
+See the [Docker Hub repository] for images.
+
+To ensure backwards compatibility on automatic updates, use the following image to retrieve the latest version:
+
+`cybexwebdev/transmorpher:0`
+
 ### Cloning the repository
 
 To clone the repository and get your media server running use:
