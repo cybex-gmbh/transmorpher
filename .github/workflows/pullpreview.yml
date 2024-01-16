@@ -40,7 +40,7 @@ jobs:
       - uses: pullpreview/action@v5
         with:
           # Those GitHub users will have SSH access to the servers
-          admins: jheusinger, gael-connan-cybex, holyfabi, mszulik
+          admins: jheusinger,gael-connan-cybex,holyfabi,mszulik
           # Use the cidrs option to restrict access to the live environments to specific IP ranges
           cidrs: "0.0.0.0/0"
           compose_files: docker-compose.pullpreview.yml
