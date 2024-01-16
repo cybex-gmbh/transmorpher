@@ -24,7 +24,7 @@ services:
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.middlewares=htpasswd'
   mysql:
     image: 'mysql/mysql-server:8.0'
-    container_name: ${MYSQL_CONTAINER_NAME:-transmorpher-mysql}
+    container_name: ${MYSQL_CONTAINER_NAME:-transmorpher-mysql-1}
     ports:
       - '3306:3306'
     command: mysqld --default-authentication-plugin=mysql_native_password
