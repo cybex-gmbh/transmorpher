@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "09a4b772f564b60da7d6ba64e47b3e88",
+    "content-hash": "b03be3467e597279bd67243a49f5b699",
     "packages": [
         {
             "name": "aminyazdanpanah/php-ffmpeg-video-streaming",
@@ -295,6 +295,81 @@
                 }
             ],
             "time": "2023-01-15T23:15:59+00:00"
+        },
+        {
+            "name": "cybex/laravel-protector",
+            "version": "v2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cybex-gmbh/laravel-protector.git",
+                "reference": "9ce283314582adfe0d779b77714c6c9afb2b6221"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cybex-gmbh/laravel-protector/zipball/9ce283314582adfe0d779b77714c6c9afb2b6221",
+                "reference": "9ce283314582adfe0d779b77714c6c9afb2b6221",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-pdo": "*",
+                "ext-sodium": "*",
+                "guzzlehttp/guzzle": "^7.4",
+                "illuminate/support": "^9.0|^10.0",
+                "laravel/framework": "^9.0|^10.0",
+                "laravel/sanctum": "^3.2",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "laravel/sail": "^1.18",
+                "orchestra/testbench": "^7.0|^8.0",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Cybex\\Protector\\ProtectorServiceProvider"
+                    ],
+                    "aliases": {
+                        "Protector": "Cybex\\Protector\\ProtectorFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Cybex\\Protector\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marco Szulik",
+                    "email": "webdevelopment@cybex-online.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Protect Databases by generating Backups and Import those on non-productive Environments.",
+            "homepage": "https://github.com/cybex-gmbh/laravel-protector",
+            "keywords": [
+                "backup",
+                "cybex",
+                "database",
+                "encryption",
+                "laravel",
+                "protector",
+                "sync"
+            ],
+            "support": {
+                "issues": "https://github.com/cybex-gmbh/laravel-protector/issues",
+                "source": "https://github.com/cybex-gmbh/laravel-protector/tree/v2.0.1"
+            },
+            "time": "2023-04-25T15:44:47+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -10033,5 +10108,5 @@
         "ext-sodium": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
