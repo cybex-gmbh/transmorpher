@@ -25,6 +25,6 @@ RUN apt update
 RUN apt install -y imagemagick jpegoptim optipng pngquant gifsicle webp ffmpeg
 
 RUN docker-service-enable cron
-RUN docker-cronjob '0 2 * * * application php /var/www/html/artisan ffmpeg:delete-temp
+RUN docker-cronjob '0 2 * * * application php /var/www/html/artisan ffmpeg:delete-temp'
 
 ENTRYPOINT ["/var/www/html/docker/entryfile.sh"]
