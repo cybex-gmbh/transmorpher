@@ -45,8 +45,7 @@ jobs:
           compose_files: docker-compose.pullpreview.yml
           # The preview URL will target this port
           default_port: 80
-          # Use a 512MB RAM instance type instead of the default 2GB
-          instance_type: nano_2_0
+          instance_type: small
           # Ports to open on the server
           ports: 80, 443
         env:
