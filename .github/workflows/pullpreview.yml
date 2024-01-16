@@ -45,7 +45,7 @@ jobs:
           compose_files: docker-compose.pullpreview.yml
           # The preview URL will target this port
           default_port: 80
-          instance_type: small
+          instance_type: medium
           # Ports to open on the server
           ports: 80, 443
         env:
