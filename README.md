@@ -27,6 +27,21 @@ To ensure backwards compatibility on automatic updates, use the following image 
 
 `cybexwebdev/transmorpher:0`
 
+#### Configuration options
+
+The `LARAVEL_WORKERS_AMOUNT` environment variable can be used to specify the amount of laravel workers:
+
+```dotenv
+LARAVEL_WORKERS_AMOUNT=1
+```
+
+This environment variable has to be passed to the app container in your docker-compose.yml:
+
+```yaml
+environment:
+    LARAVEL_WORKERS_AMOUNT: ${LARAVEL_WORKERS_AMOUNT:-1}
+```
+
 ### Cloning the repository
 
 To clone the repository and get your media server running use:
