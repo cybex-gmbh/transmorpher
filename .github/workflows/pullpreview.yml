@@ -1,11 +1,5 @@
 name: PullPreview
 on:
-  # the schedule is optional, but helps to make sure no dangling resources are left when GitHub Action does not behave properly
-  schedule:
-    - cron: "30 2 * * *"
-  push:
-    branches:
-      - main
   pull_request:
     types: [labeled, unlabeled, synchronize, closed, reopened]
 
