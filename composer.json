@@ -9,6 +9,7 @@
         "ext-fileinfo": "*",
         "ext-sodium": "*",
         "aminyazdanpanah/php-ffmpeg-video-streaming": "^1.2",
+        "cybex/laravel-protector": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.7",
         "laravel/framework": "^9.19",
