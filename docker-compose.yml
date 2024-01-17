@@ -24,10 +24,6 @@ services:
         depends_on:
             - mysql
             - mysql_testing
-        labels:
-            - 'traefik.enable=true'
-            - 'traefik.http.routers.transmorpher.rule=Host(`transmorpher.test`)'
-            - 'traefik.http.services.transmorpher.loadbalancer.server.port=80'
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
