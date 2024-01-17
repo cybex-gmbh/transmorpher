@@ -25,16 +25,13 @@ jobs:
       - name: Generate .env file
         env:
           APP_KEY: ${{ secrets.APP_KEY }}
-          BASIC_AUTH: ${{ secrets.BASIC_AUTH }}
-          PROTECTOR_AUTH_TOKEN: ${{ secrets.PROTECTOR_AUTH_TOKEN }}
-          PROTECTOR_PRIVATE_KEY: ${{ secrets.PROTECTOR_PRIVATE_KEY }}
           TRANSMORPHER_SIGNING_KEYPAIR: ${{ secrets.TRANSMORPHER_SIGNING_KEYPAIR }}
+          TRANSMORPHER_AUTH_TOKEN_HASH: ${{ secrets.TRANSMORPHER_AUTH_TOKEN_HASH }}
         run: |
           cp .env.example .env
-          echo "APP_KEY=$APP_KEY" >> .env
-          echo "PROTECTOR_AUTH_TOKEN=$PROTECTOR_AUTH_TOKEN" >> .env
-          echo "PROTECTOR_PRIVATE_KEY=$PROTECTOR_PRIVATE_KEY" >> .env
-          echo "TRANSMORPHER_SIGNING_KEYPAIR=$TRANSMORPHER_SIGNING_KEYPAIR" >> .env
+          echo "$APP_KEY" >> .env
+          echo "$TRANSMORPHER_SIGNING_KEYPAIR" >> .env
+          echo "$TRANSMORPHER_AUTH_TOKEN_HASH" >> .env
 
       - uses: pullpreview/action@v5
         with:

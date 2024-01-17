@@ -15,13 +15,12 @@ services:
         condition: service_started
     environment:
       PULLPREVIEW: true
+      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
     labels:
       - 'traefik.enable=true'
-#      - 'traefik.http.middlewares.htpasswd.basicauth.usersfile=/.htpasswd'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.tls=true'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.tls.certresolver=production'
-#      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.middlewares=htpasswd'
   mysql:
     image: 'mysql/mysql-server:8.0'
     container_name: ${MYSQL_CONTAINER_NAME:-transmorpher-mysql-1}

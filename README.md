@@ -21,7 +21,7 @@ A media server for images and videos.
 
 ### Using docker
 
-See the [Docker Hub repository] for images.
+See the [Docker Hub repository](https://hub.docker.com/r/cybexwebdev/transmorpher) for images.
 
 To ensure backwards compatibility on automatic updates, use the following image to retrieve the latest version:
 
@@ -396,6 +396,27 @@ You will also have to adjust the configuration value:
 ```php
 'transcode_class' => App\Classes\YourTranscodeClass::class,
 ```
+
+## Development
+
+### [Pullpreview](https://github.com/pullpreview/action)
+
+When labeling a pull request with the "pullpreview" label, a staging environment is booted. To make this functional, some environment variables have to be stored in GitHub secrets:
+
+- APP_KEY
+- TRANSMORPHER_SIGNING_KEYPAIR
+- TRANSMORPHER_AUTH_TOKEN_HASH
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+
+The environment is seeded with a user with an auth token. To get access, u will have to locally create a token and use this token and it's hash.
+
+```bash
+php artisan create:user pullpreview pullpreview@example.com
+```
+
+Now take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored
+securely to use in client systems.
 
 ## License
 
