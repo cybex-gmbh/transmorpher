@@ -424,7 +424,7 @@ When labeling a pull request with the "pullpreview" label, a staging environment
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY
 
-The environment is seeded with a user with an auth token. To get access, u will have to locally create a token and use this token and it's hash.
+The environment is seeded with a user with an auth token. To get access, u will have to locally create a token and use this token and its hash.
 
 ```bash
 php artisan create:user pullpreview pullpreview@example.com
