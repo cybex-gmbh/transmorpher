@@ -23,13 +23,13 @@ A media server for images and videos.
 
 See the [Docker Hub repository](https://hub.docker.com/r/cybexwebdev/transmorpher) for images.
 
-To ensure backwards compatibility on automatic updates, use the following image to retrieve the latest version:
+To not accidentally upgrade to a new major version, attach the major version you want to use to the image name:
 
 `cybexwebdev/transmorpher:0`
 
 #### Configuration options
 
-The `LARAVEL_WORKERS_AMOUNT` environment variable can be used to specify the amount of laravel workers:
+There needs to be at least 1 Laravel worker to transcode videos. The following variable specifies how many workers should be running in the container:
 
 ```dotenv
 LARAVEL_WORKERS_AMOUNT=1
@@ -424,13 +424,13 @@ When labeling a pull request with the "pullpreview" label, a staging environment
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY
 
-The environment is seeded with a user with an auth token. To get access, u will have to locally create a token and use this token and its hash.
+The environment is seeded with a user with an auth token. To get access, you will have to locally create a token and use this token and its hash.
 
 ```bash
 php artisan create:user pullpreview pullpreview@example.com
 ```
 
-Now take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored
+Take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command also provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored
 securely to use in client systems.
 
 ## License
