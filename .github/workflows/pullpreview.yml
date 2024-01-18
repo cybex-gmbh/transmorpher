@@ -28,7 +28,6 @@ jobs:
 
       - uses: pullpreview/action@v5
         with:
-          admins: jheusinger, gael-connan-cybex, holyfabi, mszulik
           cidrs: "0.0.0.0/0"
           compose_files: docker-compose.pullpreview.yml
           default_port: 80
