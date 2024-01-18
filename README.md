@@ -424,6 +424,8 @@ When labeling a pull request with the "pullpreview" label, a staging environment
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY
 
+#### Auth Token Hash
+
 The environment is seeded with a user with an auth token. To get access, you will have to locally create a token and use this token and its hash.
 
 ```bash
@@ -432,6 +434,10 @@ php artisan create:user pullpreview pullpreview@example.com
 
 Take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command also provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored
 securely to use in client systems.
+
+#### AWS Credentials
+
+You need credentials of an IAM user that can manage AWS Lightsail. For a recommended configuration take a look at the [Pullpreview wiki](https://github.com/pullpreview/action/wiki/Recommended-AWS-Configuration).
 
 ## License
 
