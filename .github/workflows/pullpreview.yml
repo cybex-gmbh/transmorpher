@@ -17,14 +17,14 @@ jobs:
 
       - name: Generate .env file
         env:
-          APP_KEY: ${{ secrets.APP_KEY }}
-          TRANSMORPHER_SIGNING_KEYPAIR: ${{ secrets.TRANSMORPHER_SIGNING_KEYPAIR }}
-          TRANSMORPHER_AUTH_TOKEN_HASH: ${{ secrets.TRANSMORPHER_AUTH_TOKEN_HASH }}
+          SECRETS_APP_KEY: ${{ secrets.APP_KEY }}
+          SECRETS_TRANSMORPHER_SIGNING_KEYPAIR: ${{ secrets.TRANSMORPHER_SIGNING_KEYPAIR }}
+          SECRETS_TRANSMORPHER_AUTH_TOKEN_HASH: ${{ secrets.TRANSMORPHER_AUTH_TOKEN_HASH }}
         run: |
           cp .env.example .env
-          echo "APP_KEY=$APP_KEY" >> .env
-          echo "TRANSMORPHER_SIGNING_KEYPAIR=$TRANSMORPHER_SIGNING_KEYPAIR" >> .env
-          echo "TRANSMORPHER_AUTH_TOKEN_HASH=$TRANSMORPHER_AUTH_TOKEN_HASH" >> .env
+          echo "APP_KEY=$SECRETS_APP_KEY" >> .env
+          echo "TRANSMORPHER_SIGNING_KEYPAIR=$SECRETS_TRANSMORPHER_SIGNING_KEYPAIR" >> .env
+          echo "TRANSMORPHER_AUTH_TOKEN_HASH=$SECRETS_TRANSMORPHER_AUTH_TOKEN_HASH" >> .env
 
       - uses: pullpreview/action@v5
         with:
