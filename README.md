@@ -420,7 +420,7 @@ When labeling a pull request with the "pullpreview" label, a staging environment
 
 - APP_KEY
 - TRANSMORPHER_SIGNING_KEYPAIR
-- TRANSMORPHER_AUTH_TOKEN_HASH
+- PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY
 
