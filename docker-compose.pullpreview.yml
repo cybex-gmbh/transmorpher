@@ -16,7 +16,7 @@ services:
     environment:
       PULLPREVIEW: true
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
-      LARAVEL_WORKERS_AMOUNT: ${LARAVEL_WORKERS_AMOUNT:-1}
+      VIDEO_TRANSCODING_WORKERS_AMOUNT: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'

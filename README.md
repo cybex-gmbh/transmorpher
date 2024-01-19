@@ -32,14 +32,19 @@ To not accidentally upgrade to a new major version, attach the major version you
 There needs to be at least 1 Laravel worker to transcode videos. The following variable specifies how many workers should be running in the container:
 
 ```dotenv
-LARAVEL_WORKERS_AMOUNT=1
+VIDEO_TRANSCODING_WORKERS_AMOUNT=1
 ```
+
+> [!CAUTION]
+> Using the database queue connection does neither guarantee FIFO nor prevents duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS
+> FIFO.
+> To prevent duplicate runs with database, use only one worker process.
 
 This environment variable has to be passed to the app container in your docker-compose.yml:
 
 ```yaml
 environment:
-    LARAVEL_WORKERS_AMOUNT: ${LARAVEL_WORKERS_AMOUNT:-1}
+    VIDEO_TRANSCODING_WORKERS_AMOUNT: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
 ```
 
 ### Cloning the repository
@@ -80,7 +85,7 @@ To use video transcoding:
 The media server uses 3 separate Laravel disks to store originals, image derivatives and video derivatives. Use the provided `.env` keys to select any of the disks in
 the `filesystems.php` config file.
 
-> **Warning**
+> [!WARNING]
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
 > 1. If you change the prefix after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
@@ -186,6 +191,7 @@ by any client.
 Transcoding jobs are dispatched onto the "video-transcoding" queue. You can have these jobs processed on the main server or dedicated workers. For more information check
 the [Laravel Queue Documentation](https://laravel.com/docs/10.x/queues).
 
+> [!NOTE]
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
 > duplicate runs.
 > For this, a custom AWS SQS FIFO queue connection is available.
@@ -255,7 +261,7 @@ You can define your queue connection in the `.env` file:
 QUEUE_CONNECTION=database
 ```
 
-> **Warning**
+> [!CAUTION]
 >
 > The database connection does neither guarantee FIFO nor prevents duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
 > To prevent duplicate runs with database, use only one worker process.
@@ -437,7 +443,8 @@ securely to use in client systems.
 
 #### AWS Credentials
 
-You need credentials of an IAM user that can manage AWS Lightsail. For a recommended configuration take a look at the [Pullpreview wiki](https://github.com/pullpreview/action/wiki/Recommended-AWS-Configuration).
+You need credentials of an IAM user that can manage AWS Lightsail. For a recommended configuration take a look at
+the [Pullpreview wiki](https://github.com/pullpreview/action/wiki/Recommended-AWS-Configuration).
 
 ## License
 
