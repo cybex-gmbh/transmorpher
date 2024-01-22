@@ -19,6 +19,34 @@ A media server for images and videos.
 
 ## Installation
 
+### Using docker
+
+See the [Docker Hub repository](https://hub.docker.com/r/cybexwebdev/transmorpher) for images.
+
+To not accidentally upgrade to a new major version, attach the major version you want to use to the image name:
+
+`cybexwebdev/transmorpher:0`
+
+#### Configuration options
+
+There needs to be at least 1 Laravel worker to transcode videos. The following variable specifies how many workers should be running in the container:
+
+```dotenv
+VIDEO_TRANSCODING_WORKERS_AMOUNT=1
+```
+
+> [!CAUTION]
+> Using the database queue connection does neither guarantee FIFO nor prevent duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS
+> FIFO.
+> To prevent duplicate runs with database, use only one worker process.
+
+This environment variable has to be passed to the app container in your docker-compose.yml:
+
+```yaml
+environment:
+    VIDEO_TRANSCODING_WORKERS_AMOUNT: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
+```
+
 ### Cloning the repository
 
 To clone the repository and get your media server running use:
@@ -57,10 +85,10 @@ To use video transcoding:
 The media server uses 3 separate Laravel disks to store originals, image derivatives and video derivatives. Use the provided `.env` keys to select any of the disks in
 the `filesystems.php` config file.
 
-> **Warning**
+> [!NOTE]
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
-> 1. If you change the prefix after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
+> 1. If this prefix would be changed after initially launching your media server, clients would no longer be able to retrieve their previously uploaded media.
 
 ### Cloud Setup
 
@@ -163,6 +191,7 @@ by any client.
 Transcoding jobs are dispatched onto the "video-transcoding" queue. You can have these jobs processed on the main server or dedicated workers. For more information check
 the [Laravel Queue Documentation](https://laravel.com/docs/10.x/queues).
 
+> [!NOTE]
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
 > duplicate runs.
 > For this, a custom AWS SQS FIFO queue connection is available.
@@ -232,9 +261,9 @@ You can define your queue connection in the `.env` file:
 QUEUE_CONNECTION=database
 ```
 
-> **Warning**
+> [!CAUTION]
 >
-> The database connection does neither guarantee FIFO nor prevents duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
+> The database connection does neither guarantee FIFO nor prevent duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
 > To prevent duplicate runs with database, use only one worker process.
 
 ### Additional options
@@ -388,6 +417,34 @@ You will also have to adjust the configuration value:
 ```php
 'transcode_class' => App\Classes\YourTranscodeClass::class,
 ```
+
+## Development
+
+### [Pullpreview](https://github.com/pullpreview/action)
+
+When labeling a pull request with the "pullpreview" label, a staging environment is booted. To make this functional, some environment variables have to be stored in GitHub secrets:
+
+- APP_KEY
+- TRANSMORPHER_SIGNING_KEYPAIR
+- PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH
+- AWS_ACCESS_KEY_ID
+- AWS_SECRET_ACCESS_KEY
+
+#### Auth Token Hash
+
+The environment is seeded with a user with an auth token. To get access, you will have to locally create a token and use this token and its hash.
+
+```bash
+php artisan create:user pullpreview pullpreview@example.com
+```
+
+Take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command also provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored
+securely to use in client systems.
+
+#### AWS Credentials
+
+You need credentials of an IAM user that can manage AWS Lightsail. For a recommended configuration take a look at
+the [Pullpreview wiki](https://github.com/pullpreview/action/wiki/Recommended-AWS-Configuration).
 
 ## License
 
