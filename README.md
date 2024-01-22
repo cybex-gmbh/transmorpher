@@ -36,7 +36,7 @@ VIDEO_TRANSCODING_WORKERS_AMOUNT=1
 ```
 
 > [!CAUTION]
-> Using the database queue connection does neither guarantee FIFO nor prevents duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS
+> Using the database queue connection does neither guarantee FIFO nor prevent duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS
 > FIFO.
 > To prevent duplicate runs with database, use only one worker process.
 
@@ -85,10 +85,10 @@ To use video transcoding:
 The media server uses 3 separate Laravel disks to store originals, image derivatives and video derivatives. Use the provided `.env` keys to select any of the disks in
 the `filesystems.php` config file.
 
-> [!WARNING]
+> [!NOTE]
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
-> 1. If you change the prefix after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
+> 1. If this prefix would be changed after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
 
 ### Cloud Setup
 
@@ -263,7 +263,7 @@ QUEUE_CONNECTION=database
 
 > [!CAUTION]
 >
-> The database connection does neither guarantee FIFO nor prevents duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
+> The database connection does neither guarantee FIFO nor prevent duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
 > To prevent duplicate runs with database, use only one worker process.
 
 ### Additional options
