@@ -88,7 +88,7 @@ the `filesystems.php` config file.
 > [!NOTE]
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
-> 1. If this prefix would be changed after initially launching your media server, clients will no longer be able to retrieve their previously uploaded media.
+> 1. If this prefix would be changed after initially launching your media server, clients would no longer be able to retrieve their previously uploaded media.
 
 ### Cloud Setup
 
