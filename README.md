@@ -427,8 +427,10 @@ When labeling a pull request with the "pullpreview" label, a staging environment
 - APP_KEY
 - TRANSMORPHER_SIGNING_KEYPAIR
 - PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH
-- AWS_ACCESS_KEY_ID
-- AWS_SECRET_ACCESS_KEY
+- PULLPREVIEW_AWS_ACCESS_KEY_ID*
+- PULLPREVIEW_AWS_SECRET_ACCESS_KEY*
+
+> *These can be organization secrets as they are used across multiple repositories.
 
 #### Auth Token Hash
 
