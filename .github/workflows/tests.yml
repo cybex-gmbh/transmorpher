@@ -60,6 +60,6 @@ jobs:
       -   name: Execute tests
           run: |
             php artisan migrate:fresh --env=ci
-            php artisan test --env=ci
+            php artisan test --env=ci --no-coverage
           env:
             DB_PORT: ${{ job.services.mysql.ports[3306] }}
