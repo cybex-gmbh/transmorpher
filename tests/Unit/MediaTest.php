@@ -7,7 +7,7 @@ use Laravel\Sanctum\Sanctum;
 use Storage;
 use Tests\TestCase;
 
-abstract class MediaTest extends TestCase
+class MediaTest extends TestCase
 {
     protected static User $user;
 
