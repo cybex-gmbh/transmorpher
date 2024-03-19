@@ -1,11 +1,10 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests;
 
 use App\Models\User;
 use Laravel\Sanctum\Sanctum;
 use Storage;
-use Tests\TestCase;
 
 class MediaTest extends TestCase
 {

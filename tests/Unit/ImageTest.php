@@ -10,6 +10,7 @@ use App\Models\Media;
 use FilePathHelper;
 use Illuminate\Http\UploadedFile;
 use Storage;
+use Tests\MediaTest;
 
 class ImageTest extends MediaTest
 {
