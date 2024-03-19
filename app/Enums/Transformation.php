@@ -5,6 +5,7 @@ namespace App\Enums;
 use App\Exceptions\InvalidTransformationValueException;
 use App\Exceptions\TransformationEmptyException;
 use App\Exceptions\TransformationNotFoundException;
+use ErrorException;
 use ValueError;
 
 enum Transformation: string
@@ -38,7 +39,7 @@ enum Transformation: string
     /**
      * @param string $transformations
      * @return array|null
-     * @throws TransformationNotFoundException
+     * @throws TransformationNotFoundException|TransformationEmptyException
      */
     public static function arrayFromString(string $transformations): array|null
     {
@@ -54,7 +55,11 @@ enum Transformation: string
                 throw new TransformationEmptyException();
             }
 
-            [$key, $value] = explode('-', $parameter, 2);
+            try {
+                [$key, $value] = explode('-', $parameter, 2);
+            } catch (ErrorException $exception) {
+                throw new TransformationEmptyException();
+            }
 
             try {
                 $transformationsArray[$key] = Transformation::from($key)->validate($value);
