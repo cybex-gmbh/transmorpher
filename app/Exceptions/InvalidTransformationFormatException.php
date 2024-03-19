@@ -5,7 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Throwable;
 
-class TransformationEmptyException extends Exception
+class InvalidTransformationFormatException extends Exception
 {
     /**
      * @param int $code
