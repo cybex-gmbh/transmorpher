@@ -177,7 +177,7 @@ class ImageTest extends MediaTest
             ],
 
             'invalidWithMultipleTransformationsAndFirstValueWrong' => [
-                'requestedTransformations' => 'f-dsa+w-200+h-150+q-101',
+                'requestedTransformations' => 'f-dsa+w-200+h-150+q-100',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
