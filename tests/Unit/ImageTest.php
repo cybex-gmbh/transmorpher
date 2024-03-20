@@ -197,22 +197,22 @@ class ImageTest extends MediaTest
             ],
 
             'invalidWithMultipleTransformationsAndFirstKeyWrong' => [
-                'requestedTransformations' => 'foo-png+w-200+h-150+q-101',
+                'requestedTransformations' => 'foo-png+w-200+h-150+q-100',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
             'invalidWithMultipleTransformationsAndMiddleKeyWrong' => [
-                'requestedTransformations' => 'f-png+w-200+foo-150+q-101',
+                'requestedTransformations' => 'f-png+w-200+foo-150+q-100',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
             'invalidWithMultipleTransformationsAndLastKeyWrong' => [
-                'requestedTransformations' => 'f-png+w-200+h-150+foo-101',
+                'requestedTransformations' => 'f-png+w-200+h-150+foo-100',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
             'invalidWithMultipleTransformationsAndMultipleKeysWrong' => [
-                'requestedTransformations' => 'foo-png+w-200+bar-150+q-101',
+                'requestedTransformations' => 'foo-png+w-200+bar-150+q-100',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
