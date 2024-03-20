@@ -88,80 +88,80 @@ class ImageTest extends MediaTest
     public static function provideTransformationStrings(): array
     {
         return [
-            'validQualityTransformation' => [
-                'requestedTransformations' => 'q-50',
+            'valid_Quality' => [
+                'input' => 'q-50',
                 'expectedException' => null,
                 'expectedArray' => [
                     'q' => 50,
                 ]
             ],
 
-            'invalidQualityTransformationNonInteger' => [
-                'requestedTransformations' => 'q-aa',
+            'invalid_QualityNonInteger' => [
+                'input' => 'q-aa',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidQualityTransformationOutOfUpperBounds' => [
-                'requestedTransformations' => 'q-101',
+            'invalid_QualityOutOfUpperBounds' => [
+                'input' => 'q-101',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidQualityTransformationOutOfLowerBounds' => [
-                'requestedTransformations' => 'q-0',
+            'invalid_QualityOutOfLowerBounds' => [
+                'input' => 'q-0',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'validWidthTransformation' => [
-                'requestedTransformations' => 'w-1920',
+            'valid_Width' => [
+                'input' => 'w-1920',
                 'expectedException' => null,
                 'expectedArray' => [
                     'w' => 1920,
                 ]
             ],
 
-            'invalidWidthTransformationOutOfLowerBound' => [
-                'requestedTransformations' => 'w--12',
+            'invalid_WidthOutOfLowerBound' => [
+                'input' => 'w--12',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidWidthTransformationNonInteger' => [
-                'requestedTransformations' => 'w-aa',
+            'invalid_WidthNonInteger' => [
+                'input' => 'w-aa',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'validHeightTransformation' => [
-                'requestedTransformations' => 'h-1080',
+            'valid_Height' => [
+                'input' => 'h-1080',
                 'expectedException' => null,
                 'expectedArray' => [
                     'h' => 1080,
                 ]
             ],
 
-            'invalidHeightTransformationOutOfLowerBound' => [
-                'requestedTransformations' => 'h--12',
+            'invalid_HeightOutOfLowerBound' => [
+                'input' => 'h--12',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidHeightTransformationNonInteger' => [
-                'requestedTransformations' => 'h-aa',
+            'invalid_HeightNonInteger' => [
+                'input' => 'h-aa',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'validFormatTransformation' => [
-                'requestedTransformations' => 'f-webp',
+            'valid_Format' => [
+                'input' => 'f-webp',
                 'expectedException' => null,
                 'expectedArray' => [
                     'f' => 'webp',
                 ]
             ],
 
-            'invalidFormatTransformationUndefinedFormat' => [
-                'requestedTransformations' => 'f-pdf',
+            'invalid_FormatUndefined' => [
+                'input' => 'f-pdf',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'validWithMultipleTransformations' => [
-                'requestedTransformations' => 'f-png+w-200+h-150+q-35',
+            'valid_Multiple' => [
+                'input' => 'f-png+w-200+h-150+q-35',
                 'expectedException' => null,
                 'expectedArray' => [
                     'f' => 'png',
@@ -171,99 +171,109 @@ class ImageTest extends MediaTest
                 ]
             ],
 
-            'invalidWithMultipleTransformationsAndFirstValueWrong' => [
-                'requestedTransformations' => 'f-dsa+w-200+h-150+q-100',
+            'invalid_FirstValueWrong' => [
+                'input' => 'f-dsa+w-200+h-150+q-100',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidWithMultipleTransformationsAndMiddleValueWrong' => [
-                'requestedTransformations' => 'f-png+w-200+h-abc+q-100',
+            'invalid_MiddleValueWrong' => [
+                'input' => 'f-png+w-200+h-abc+q-100',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidWithMultipleTransformationsAndLastValueWrong' => [
-                'requestedTransformations' => 'f-png+w-200+h-150+q-101',
+            'invalid_LastValueWrong' => [
+                'input' => 'f-png+w-200+h-150+q-101',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidWithMultipleTransformationsAndMultipleValuesWrong' => [
-                'requestedTransformations' => 'f-png+w-abc+h-150+q-101',
+            'invalid_MultipleValuesWrong' => [
+                'input' => 'f-png+w-abc+h-150+q-101',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidWithMultipleTransformationsAndFirstKeyWrong' => [
-                'requestedTransformations' => 'foo-png+w-200+h-150+q-100',
+            'invalid_FirstKeyWrong' => [
+                'input' => 'foo-png+w-200+h-150+q-100',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
-            'invalidWithMultipleTransformationsAndMiddleKeyWrong' => [
-                'requestedTransformations' => 'f-png+w-200+foo-150+q-100',
+            'invalid_MiddleKeyWrong' => [
+                'input' => 'f-png+w-200+foo-150+q-100',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
-            'invalidWithMultipleTransformationsAndLastKeyWrong' => [
-                'requestedTransformations' => 'f-png+w-200+h-150+foo-100',
+            'invalid_LastKeyWrong' => [
+                'input' => 'f-png+w-200+h-150+foo-100',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
-            'invalidWithMultipleTransformationsAndMultipleKeysWrong' => [
-                'requestedTransformations' => 'foo-png+w-200+bar-150+q-100',
+            'invalid_MultipleKeysWrong' => [
+                'input' => 'foo-png+w-200+bar-150+q-100',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
-            'invalidFormatLeadingPlus' => [
-                'requestedTransformations' => '+',
+            'invalid_LeadingPlus' => [
+                'input' => '+f-png',
                 'expectedException' => InvalidTransformationFormatException::class,
             ],
 
-            'invalidFormatMissingMinus' => [
-                'requestedTransformations' => 'abc+q-50',
+            'invalid_OnlyPlus' => [
+                'input' => '+',
                 'expectedException' => InvalidTransformationFormatException::class,
             ],
 
-            'invalidLeadingMinus' => [
-                'requestedTransformations' => '-',
+            'invalid_TrailingPlus' => [
+                'input' => 'w-123+',
+                'expectedException' => InvalidTransformationFormatException::class,
+            ],
+
+            'invalid_MissingMinus' => [
+                'input' => 'fpng+q-50',
+                'expectedException' => InvalidTransformationFormatException::class,
+            ],
+
+            'invalid_OnlyMinus' => [
+                'input' => '-',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
-            'invalidMissingTransformation' => [
-                'requestedTransformations' => '-png',
+            'invalid_KeyMissing' => [
+                'input' => '-png',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
-            'invalidMissingValue' => [
-                'requestedTransformations' => 'w-',
+            'invalid_ValueMissing' => [
+                'input' => 'w-',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
             'empty' => [
-                'requestedTransformations' => '',
+                'input' => '',
                 'exceptedException' => null,
                 'expectedArray' => null
             ],
 
-            'invalidFloat' => [
-                'requestedTransformations' => 'q-1.5',
+            'invalid_ValueFloat' => [
+                'input' => 'q-1.5',
                 'exceptedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidLeadingZero' => [
-                'requestedTransformations' => 'q-0005',
+            'invalid_ValueLeadingZero' => [
+                'input' => 'q-0005',
                 'exceptedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidContainingExponent' => [
-                'requestedTransformations' => 'w-1337e0',
+            'invalid_ValueContainingExponent' => [
+                'input' => 'w-1337e0',
                 'exceptedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidHex' => [
-                'requestedTransformations' => 'h-0x539',
+            'invalid_ValueHex' => [
+                'input' => 'h-0x539',
                 'exceptedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidUnderscore' => [
-                'requestedTransformations' => 'h-10_1',
+            'invalid_ValueUnderscore' => [
+                'input' => 'h-10_1',
                 'exceptedException' => InvalidTransformationValueException::class,
             ],
         ];
@@ -273,12 +283,12 @@ class ImageTest extends MediaTest
      * @test
      * @dataProvider provideTransformationStrings
      */
-    public function ensureTransformationStringsAreProperlyParsed(string $requestedTransformations, ?string $expectedException, ?array $expectedArray = null)
+    public function ensureTransformationStringsAreProperlyParsed(string $input, ?string $expectedException, ?array $expectedArray = null)
     {
         if ($expectedException) {
             $this->expectException($expectedException);
         }
 
-        $this->assertEquals($expectedArray, Transformation::arrayFromString($requestedTransformations));
+        $this->assertEquals($expectedArray, Transformation::arrayFromString($input));
     }
 }
