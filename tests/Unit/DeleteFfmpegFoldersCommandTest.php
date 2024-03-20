@@ -36,7 +36,7 @@ class DeleteFfmpegFoldersCommandTest extends TestCase
         );
     }
 
-    protected function folderDataProvider(): array
+    public static function folderDataProvider(): array
     {
         return [
             'directoryOlderThanADay' => [

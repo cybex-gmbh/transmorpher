@@ -77,7 +77,7 @@ class CreateUserCommandTest extends TestCase
         $this->assertEquals(Command::INVALID, $exitStatus);
     }
 
-    protected function duplicateEntryDataProvider(): array
+    public static function duplicateEntryDataProvider(): array
     {
         return [
             'duplicate name' => [
@@ -95,7 +95,7 @@ class CreateUserCommandTest extends TestCase
         ];
     }
 
-    protected function missingArgumentsDataProvider(): array
+    public static function missingArgumentsDataProvider(): array
     {
         return [
             'missing name' => [
@@ -113,7 +113,7 @@ class CreateUserCommandTest extends TestCase
         ];
     }
 
-    protected function invalidArgumentsDataProvider(): array
+    public static function invalidArgumentsDataProvider(): array
     {
         return [
             'invalid name with slash' => [

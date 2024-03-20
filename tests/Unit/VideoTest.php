@@ -9,6 +9,7 @@ use App\Models\UploadSlot;
 use FilePathHelper;
 use Http;
 use Storage;
+use Tests\MediaTest;
 
 class VideoTest extends MediaTest
 {
