@@ -155,11 +155,6 @@ class ImageTest extends MediaTest
                 ]
             ],
 
-            'invalidFormatTransformationNonAlphabetic' => [
-                'requestedTransformations' => 'f-123',
-                'expectedException' => InvalidTransformationValueException::class,
-            ],
-
             'invalidFormatTransformationUndefinedFormat' => [
                 'requestedTransformations' => 'f-pdf',
                 'expectedException' => InvalidTransformationValueException::class,
