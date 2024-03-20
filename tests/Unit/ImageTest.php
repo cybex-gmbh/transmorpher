@@ -231,6 +231,11 @@ class ImageTest extends MediaTest
                 'requestedTransformations' => 'h-0x539',
                 'exceptedException' => InvalidTransformationValueException::class,
             ],
+
+            'invalidUnderscore' => [
+                'requestedTransformations' => 'h-10_1',
+                'exceptedException' => InvalidTransformationValueException::class,
+            ],
         ];
     }
 
