@@ -96,7 +96,7 @@ class ImageTest extends MediaTest
                 ]
             ],
 
-            'invalidQualityTransformationNonNumeric' => [
+            'invalidQualityTransformationNonInteger' => [
                 'requestedTransformations' => 'q-aa',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
@@ -124,7 +124,7 @@ class ImageTest extends MediaTest
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidWidthTransformationNonNumeric' => [
+            'invalidWidthTransformationNonInteger' => [
                 'requestedTransformations' => 'w-aa',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
@@ -142,7 +142,7 @@ class ImageTest extends MediaTest
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-            'invalidHeightTransformationNonNumeric' => [
+            'invalidHeightTransformationNonInteger' => [
                 'requestedTransformations' => 'h-aa',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
@@ -210,7 +210,27 @@ class ImageTest extends MediaTest
                 'requestedTransformations' => '',
                 'exceptedException' => null,
                 'expectedArray' => null
-            ]
+            ],
+
+            'invalidFloat' => [
+                'requestedTransformations' => 'q-1.5',
+                'exceptedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidLeadingZero' => [
+                'requestedTransformations' => 'q-0005',
+                'exceptedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidContainingExponent' => [
+                'requestedTransformations' => 'w-1337e0',
+                'exceptedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidHex' => [
+                'requestedTransformations' => 'h-0x539',
+                'exceptedException' => InvalidTransformationValueException::class,
+            ],
         ];
     }
 
