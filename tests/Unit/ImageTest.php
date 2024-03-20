@@ -176,8 +176,43 @@ class ImageTest extends MediaTest
                 ]
             ],
 
-            'invalidWithMultipleTransformations' => [
+            'invalidWithMultipleTransformationsAndFirstValueWrong' => [
+                'requestedTransformations' => 'f-dsa+w-200+h-150+q-101',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidWithMultipleTransformationsAndMiddleValueWrong' => [
+                'requestedTransformations' => 'f-png+w-200+h-abc+q-100',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidWithMultipleTransformationsAndLastValueWrong' => [
                 'requestedTransformations' => 'f-png+w-200+h-150+q-101',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidWithMultipleTransformationsAndMultipleValuesWrong' => [
+                'requestedTransformations' => 'f-png+w-abc+h-150+q-101',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidWithMultipleTransformationsAndFirstKeyWrong' => [
+                'requestedTransformations' => 'foo-png+w-200+h-150+q-101',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidWithMultipleTransformationsAndMiddleKeyWrong' => [
+                'requestedTransformations' => 'f-png+w-200+foo-150+q-101',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidWithMultipleTransformationsAndLastKeyWrong' => [
+                'requestedTransformations' => 'f-png+w-200+h-150+foo-101',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalidWithMultipleTransformationsAndMultipleKeysWrong' => [
+                'requestedTransformations' => 'foo-png+w-200+bar-150+q-101',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
