@@ -191,9 +191,13 @@ class ImageTest extends MediaTest
                 'expectedException' => InvalidTransformationFormatException::class,
             ],
 
-            // Covers cases where the Transformation is missing.
             'invalidLeadingMinus' => [
                 'requestedTransformations' => '-',
+                'expectedException' => TransformationNotFoundException::class,
+            ],
+
+            'invalidMissingTransformation' => [
+                'requestedTransformations' => '-png',
                 'expectedException' => TransformationNotFoundException::class,
             ],
 
@@ -201,6 +205,12 @@ class ImageTest extends MediaTest
                 'requestedTransformations' => 'w-',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
+
+            'empty' => [
+                'requestedTransformations' => '',
+                'exceptedException' => null,
+                'expectedArray' => null
+            ]
         ];
     }
 
