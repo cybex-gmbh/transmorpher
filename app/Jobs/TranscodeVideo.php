@@ -112,7 +112,7 @@ class TranscodeVideo implements ShouldQueue
      */
     public function failed(?Throwable $exception): void
     {
-        // Properties are not initialized here for failed jobs, since a new instance is used.
+        // All properties have not yet been initialized, because failed jobs use a new instance.
 
         $tempDerivativesDirectoryPath = FilePathHelper::toTempVideoDerivativesDirectory($this->version);
         $localDisk = Storage::disk('local');
