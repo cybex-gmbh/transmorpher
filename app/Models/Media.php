@@ -52,13 +52,16 @@ class Media extends Model
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'type' => MediaType::class,
-    ];
+    protected function casts(): array
+    {
+        return [
+            'type' => MediaType::class,
+        ];
+    }
 
     /**
      * Returns the user that owns the media.
