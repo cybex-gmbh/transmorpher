@@ -7,6 +7,8 @@ use App\Models\User;
 use Artisan;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -17,9 +19,7 @@ class CreateUserCommandTest extends TestCase
     protected const NAME = 'Oswald';
     protected const EMAIL = 'oswald@example.com';
 
-    /**
-     * @test
-     */
+    #[Test]
     public function ensureUserCanBeCreated()
     {
         $this->assertDatabaseMissing(User::getModel()->getTable(), ['name' => self::NAME, 'email' => self::EMAIL]);
@@ -30,9 +30,7 @@ class CreateUserCommandTest extends TestCase
         $this->assertDatabaseHas(User::getModel()->getTable(), ['name' => self::NAME, 'email' => self::EMAIL]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function ensureUserHasSanctumToken()
     {
         Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
@@ -40,10 +38,8 @@ class CreateUserCommandTest extends TestCase
         $this->assertNotEmpty(User::whereName(self::NAME)->first()->tokens);
     }
 
-    /**
-     * @test
-     * @dataProvider duplicateEntryDataProvider
-     */
+    #[Test]
+    #[DataProvider('duplicateEntryDataProvider')]
     public function failOnDuplicateEntry(string $name, string $email)
     {
         Artisan::call(CreateUser::class, ['name' => self::NAME, 'email' => self::EMAIL]);
@@ -52,10 +48,8 @@ class CreateUserCommandTest extends TestCase
         $this->assertEquals(Command::INVALID, $exitStatus);
     }
 
-    /**
-     * @test
-     * @dataProvider missingArgumentsDataProvider
-     */
+    #[Test]
+    #[DataProvider('missingArgumentsDataProvider')]
     public function failOnMissingArguments(?string $name, ?string $email)
     {
         $arguments = [];
@@ -66,10 +60,8 @@ class CreateUserCommandTest extends TestCase
         Artisan::call(CreateUser::class, $arguments);
     }
 
-    /**
-     * @test
-     * @dataProvider invalidArgumentsDataProvider
-     */
+    #[Test]
+    #[DataProvider('invalidArgumentsDataProvider')]
     public function failOnInvalidArguments(string $name, string $email)
     {
         $exitStatus = Artisan::call(CreateUser::class, ['name' => $name, 'email' => $email]);
