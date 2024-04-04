@@ -8,6 +8,8 @@ use App\Jobs\TranscodeVideo;
 use App\Models\UploadSlot;
 use FilePathHelper;
 use Http;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use Storage;
 use Tests\MediaTest;
 
@@ -24,9 +26,7 @@ class VideoTest extends MediaTest
         Storage::persistentFake(config('transmorpher.disks.videoDerivatives'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function ensureVideoUploadSlotCanBeReserved()
     {
         $reserveUploadSlotResponse = $this->json('POST', route('v1.reserveVideoUploadSlot'), [
@@ -39,10 +39,8 @@ class VideoTest extends MediaTest
         return $reserveUploadSlotResponse->json()['upload_token'];
     }
 
-    /**
-     * @test
-     * @depends ensureVideoUploadSlotCanBeReserved
-     */
+    #[Test]
+    #[Depends('ensureVideoUploadSlotCanBeReserved')]
     public function ensureTranscodingIsAbortedWhenNewerVersionExists(string $uploadToken)
     {
         Http::fake();

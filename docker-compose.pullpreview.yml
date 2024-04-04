@@ -17,6 +17,8 @@ services:
       PULLPREVIEW: true
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
       VIDEO_TRANSCODING_WORKERS_AMOUNT: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
+    volumes:
+      - 'app-storage:/var/www/html/storage'
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'
@@ -82,4 +84,6 @@ networks:
 
 volumes:
   mysql:
+    driver: local
+  app-storage:
     driver: local

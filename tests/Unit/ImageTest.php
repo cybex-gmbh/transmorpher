@@ -9,6 +9,9 @@ use App\Exceptions\TransformationNotFoundException;
 use App\Models\Media;
 use FilePathHelper;
 use Illuminate\Http\UploadedFile;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
+use PHPUnit\Framework\Attributes\Test;
 use Storage;
 use Tests\MediaTest;
 
@@ -24,9 +27,7 @@ class ImageTest extends MediaTest
         Storage::persistentFake(config('transmorpher.disks.imageDerivatives'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function ensureImageUploadSlotCanBeReserved()
     {
         $reserveUploadSlotResponse = $this->json('POST', route('v1.reserveImageUploadSlot'), [
@@ -37,10 +38,8 @@ class ImageTest extends MediaTest
         return $reserveUploadSlotResponse->json()['upload_token'];
     }
 
-    /**
-     * @test
-     * @depends ensureImageUploadSlotCanBeReserved
-     */
+    #[Test]
+    #[Depends('ensureImageUploadSlotCanBeReserved')]
     public function ensureImageCanBeUploaded(string $uploadToken)
     {
         $uploadResponse = $this->json('POST', route('v1.upload', [$uploadToken]), [
@@ -55,10 +54,8 @@ class ImageTest extends MediaTest
         );
     }
 
-    /**
-     * @test
-     * @depends ensureImageCanBeUploaded
-     */
+    #[Test]
+    #[Depends('ensureImageCanBeUploaded')]
     public function ensureProcessedFilesAreAvailable()
     {
         $media = self::$user->Media()->whereIdentifier(self::IDENTIFIER)->first();
@@ -69,10 +66,8 @@ class ImageTest extends MediaTest
         return $media;
     }
 
-    /**
-     * @test
-     * @depends ensureProcessedFilesAreAvailable
-     */
+    #[Test]
+    #[Depends('ensureProcessedFilesAreAvailable')]
     public function ensureUnprocessedFilesAreNotAvailable(Media $media)
     {
         $media->Versions()->first()->update(['processed' => 0]);
@@ -249,41 +244,39 @@ class ImageTest extends MediaTest
 
             'empty' => [
                 'input' => '',
-                'exceptedException' => null,
+                'expectedException' => null,
                 'expectedArray' => null
             ],
 
             'invalid_ValueFloat' => [
                 'input' => 'q-1.5',
-                'exceptedException' => InvalidTransformationValueException::class,
+                'expectedException' => InvalidTransformationValueException::class,
             ],
 
             'invalid_ValueLeadingZero' => [
                 'input' => 'q-0005',
-                'exceptedException' => InvalidTransformationValueException::class,
+                'expectedException' => InvalidTransformationValueException::class,
             ],
 
             'invalid_ValueContainingExponent' => [
                 'input' => 'w-1337e0',
-                'exceptedException' => InvalidTransformationValueException::class,
+                'expectedException' => InvalidTransformationValueException::class,
             ],
 
             'invalid_ValueHex' => [
                 'input' => 'h-0x539',
-                'exceptedException' => InvalidTransformationValueException::class,
+                'expectedException' => InvalidTransformationValueException::class,
             ],
 
             'invalid_ValueUnderscore' => [
                 'input' => 'h-10_1',
-                'exceptedException' => InvalidTransformationValueException::class,
+                'expectedException' => InvalidTransformationValueException::class,
             ],
         ];
     }
 
-    /**
-     * @test
-     * @dataProvider provideTransformationStrings
-     */
+    #[Test]
+    #[DataProvider('provideTransformationStrings')]
     public function ensureTransformationStringsAreProperlyParsed(string $input, ?string $expectedException, ?array $expectedArray = null)
     {
         if ($expectedException) {
