@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\V1;
 
-use App\Enums\MediaStorage;
-use App\Enums\MediaType;
 use App\Enums\ResponseState;
+use App\Enums\UploadState;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\SetVersionRequest;
-use App\Enums\UploadState;
 use App\Models\Media;
 use App\Models\Version;
 use FilePathHelper;
@@ -81,9 +79,6 @@ class VersionController extends Controller
         $basePath = FilePathHelper::toBaseDirectory($media);
 
         if ($media->type->handler()->invalidateCdnCache($basePath)) {
-            $media->Versions()->delete();
-            $media->type->handler()->getDerivativesDisk()->deleteDirectory($basePath);
-            MediaStorage::ORIGINALS->getDisk()->deleteDirectory($basePath);
             $media->delete();
 
             $responseState = $media->type->handler()->invalidateCdnCache($basePath) ? ResponseState::DELETION_SUCCESSFUL : ResponseState::CDN_INVALIDATION_FAILED;

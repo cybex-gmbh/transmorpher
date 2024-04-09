@@ -89,7 +89,7 @@ class UploadSlotController extends Controller
         $uploadSlot->invalidate();
 
         $media = $uploadSlot->User->Media()->firstOrNew(['identifier' => $uploadSlot->identifier, 'type' => $type]);
-        $media->validateUploadFile($uploadedFile, $type->handler()->getValidationRules(), $uploadSlot);
+        $media->validateUploadFile($uploadedFile, $type->handler()->getValidationRules());
         $media->save();
 
         $versionNumber = $media->Versions()->max('number') + 1;
@@ -97,10 +97,10 @@ class UploadSlotController extends Controller
 
         $basePath = FilePathHelper::toBaseDirectory($media);
         $fileName = FilePathHelper::createOriginalFileName($version, $uploadedFile->getClientOriginalName());
-        $originalsDisk = MediaStorage::ORIGINALS->getDisk();
 
-        if ($filePath = $originalsDisk->putFileAs($basePath, $uploadedFile, $fileName)) {
-            $version->update(['filename' => $fileName]);
+        $version->update(['filename' => $fileName]);
+
+        if ($filePath = MediaStorage::ORIGINALS->getDisk()->putFileAs($basePath, $uploadedFile, $version->filename)) {
             $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $filePath, $version);
         } else {
             $responseState = ResponseState::WRITE_FAILED;
@@ -108,8 +108,7 @@ class UploadSlotController extends Controller
 
         if ($responseState->getState() === UploadState::ERROR) {
             $versionNumber -= 1;
-            $originalsDisk->delete($filePath);
-            $version?->delete();
+            $version->delete();
         }
 
         // Delete local file.

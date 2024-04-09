@@ -123,7 +123,6 @@ class TranscodeVideo implements ShouldQueue
         $localDisk->deleteDirectory($this->getFfmpegTempDirectory());
 
         if (!$this->oldVersionNumber) {
-            MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
             $this->version->delete();
             $versionNumber = $this->version->number - 1;
         } else {
