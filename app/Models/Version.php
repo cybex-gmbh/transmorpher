@@ -83,4 +83,63 @@ class Version extends Model
     {
         return 'number';
     }
+
+    /**
+     * Get the path to an original.
+     * Path structure: {username}/{identifier}/{filename}
+     *
+     * @return string
+     */
+    public function originalFilePath(): string
+    {
+        return sprintf('%s/%s', $this->Media->baseDirectory(), $this->filename);
+    }
+
+    /**
+     * Create the filename for an original.
+     * Filename structure: {versionKey}-{filename}
+     *
+     * @param string $filename
+     *
+     * @return string
+     */
+    public function createOriginalFileName(string $filename): string
+    {
+        return sprintf('%s-%s', $this->getKey(), trim($filename));
+    }
+
+    /**
+     * Get the path to an (existing) image derivative.
+     * Path structure: {username}/{identifier}/{versionKey}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
+     *
+     * @param array|null $transformations
+     * @return string
+     */
+    public function imageDerivativeFilePath(array $transformations = null): string
+    {
+        $originalFileExtension = pathinfo($this->filename, PATHINFO_EXTENSION);
+
+        // Hash of transformation parameters and version number to identify already generated derivatives.
+        $derivativeHash = hash('sha256', json_encode($transformations) . $this->getKey());
+
+        return sprintf('%s/%sx_%sy_%sq_%s.%s',
+            $this->imageDerivativeDirectoryPath(),
+            $transformations[Transformation::WIDTH->value] ?? '',
+            $transformations[Transformation::HEIGHT->value] ?? '',
+            $transformations[Transformation::QUALITY->value] ?? '',
+            $derivativeHash,
+            $transformations[Transformation::FORMAT->value] ?? $originalFileExtension,
+        );
+    }
+
+    /**
+     * Get the path to the directory of an image derivative version.
+     * Path structure: {username}/{identifier}/{versionKey}
+     *
+     * @return string
+     */
+    public function imageDerivativeDirectoryPath(): string
+    {
+        return sprintf('%s/%s', $this->Media->baseDirectory(), $this->getKey());
+    }
 }

@@ -17932,149 +17932,32 @@ namespace App\Facades {
             /**
      * 
      *
-     */        class FilePathHelperFacade {
-                    /**
-         * Get the path to an (existing) image derivative.
-         * 
-         * Path structure: {username}/{identifier}/{versionKey}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
-         *
-         * @param \App\Models\Version $version
-         * @param array|null $transformations
-         * @return string 
-         * @static 
-         */        public static function toImageDerivativeFile($version, $transformations = null)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeFile($version, $transformations);
-        }
-                    /**
-         * Get the path to the directory of an image derivative version.
-         * 
-         * Path structure: {username}/{identifier}/{versionKey}
-         *
-         * @param \App\Models\Version $version
-         * @return string 
-         * @static 
-         */        public static function toImageDerivativeVersionDirectory($version)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toImageDerivativeVersionDirectory($version);
-        }
-                    /**
-         * Get the path to an original.
-         * 
-         * Path structure: {username}/{identifier}/{filename}
-         *
-         * @param \App\Models\Version $version
-         * @return string 
-         * @static 
-         */        public static function toOriginalFile($version)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toOriginalFile($version);
-        }
-                    /**
-         * Get the path to a video derivative.
-         * 
-         * Path structure: {username}/{identifier}/{format}/{filename}
-         *
-         * @param \App\Models\Media $media
-         * @param string $format
-         * @param string|null $fileName
-         * @return string 
-         * @static 
-         */        public static function toVideoDerivativeFile($media, $format, $fileName = null)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toVideoDerivativeFile($media, $format, $fileName);
-        }
-                    /**
-         * Get the path to a temporary video derivative.
-         * 
-         * Path structure: {username}/{identifier}-{versionKey}-temp/{format}/{filename}
-         *
-         * @param \App\Models\Version $version
-         * @param string $format
-         * @param string|null $fileName
-         * @return string 
-         * @static 
-         */        public static function toTempVideoDerivativeFile($version, $format, $fileName = null)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toTempVideoDerivativeFile($version, $format, $fileName);
-        }
-                    /**
-         * Get the path to the temporary video derivatives directory.
-         * 
-         * Path structure: {username}/{identifier}-{versionKey}-temp
-         *
-         * @param \App\Models\Version $version
-         * @return string 
-         * @static 
-         */        public static function toTempVideoDerivativesDirectory($version)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toTempVideoDerivativesDirectory($version);
-        }
-                    /**
-         * Get the base path for media.
-         * 
-         * Path structure: {username}/{identifier}/
-         *
-         * @param \App\Models\Media $media
-         * @return string 
-         * @static 
-         */        public static function toBaseDirectory($media)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->toBaseDirectory($media);
-        }
-                    /**
-         * Create the filename for an original.
-         * 
-         * Filename structure: {versionKey}-{filename}
-         *
-         * @param \App\Models\Version $version
-         * @param string $fileName
-         * @return string 
-         * @static 
-         */        public static function createOriginalFileName($version, $fileName)
-        {
-                        /** @var \App\Helpers\FilePathHelper $instance */
-                        return $instance->createOriginalFileName($version, $fileName);
-        }
-            }
-            /**
-     * 
-     *
      */        class TranscodeFacade {
                     /**
          * Creates a job which handles the transcoding of a video.
          *
-         * @param string $originalFilePath
          * @param \App\Models\Version $version
          * @param \App\Models\UploadSlot $uploadSlot
          * @return bool 
          * @static 
-         */        public static function createJob($originalFilePath, $version, $uploadSlot)
+         */        public static function createJob($version, $uploadSlot)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        return $instance->createJob($originalFilePath, $version, $uploadSlot);
+                        return $instance->createJob($version, $uploadSlot);
         }
                     /**
          * Creates a job which handles the transcoding of a video when a version number is updated.
          *
-         * @param string $originalFilePath
          * @param \App\Models\Version $version
          * @param \App\Models\UploadSlot $uploadSlot
          * @param int $oldVersionNumber
          * @param bool $wasProcessed
          * @return bool 
          * @static 
-         */        public static function createJobForVersionUpdate($originalFilePath, $version, $uploadSlot, $oldVersionNumber, $wasProcessed)
+         */        public static function createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        return $instance->createJobForVersionUpdate($originalFilePath, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
+                        return $instance->createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed);
         }
                     /**
          * Inform client package about the transcoding result.
@@ -22671,7 +22554,6 @@ namespace  {
             class Vite extends \Illuminate\Support\Facades\Vite {}
             class CdnHelper extends \App\Facades\CdnHelperFacade {}
             class CloudStorage extends \App\Facades\CloudStorageFacade {}
-            class FilePathHelper extends \App\Facades\FilePathHelperFacade {}
             class InterventionImage extends \Intervention\Image\Facades\Image {}
             class Transcode extends \App\Facades\TranscodeFacade {}
             class Transform extends \App\Facades\TransformFacade {}

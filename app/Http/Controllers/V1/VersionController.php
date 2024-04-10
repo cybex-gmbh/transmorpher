@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V1\SetVersionRequest;
 use App\Models\Media;
 use App\Models\Version;
-use FilePathHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -35,7 +34,7 @@ class VersionController extends Controller
     }
 
     /**
-     * Sets a version as current version.
+     * Sets a version as the current version.
      *
      * @param SetVersionRequest $request
      * @param Media $media
@@ -61,7 +60,7 @@ class VersionController extends Controller
             'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentVersionNumber,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $media->type->isInstantlyAvailable() ?
-                implode(DIRECTORY_SEPARATOR, array_filter([$media->type->prefix(), FilePathHelper::toBaseDirectory($media)]))
+                implode(DIRECTORY_SEPARATOR, array_filter([$media->type->prefix(), $media->baseDirectory()]))
                 : null,
             'upload_token' => $uploadToken
         ]);
@@ -76,7 +75,7 @@ class VersionController extends Controller
      */
     public function delete(Request $request, Media $media): JsonResponse
     {
-        $basePath = FilePathHelper::toBaseDirectory($media);
+        $basePath = $media->baseDirectory();
 
         if ($media->type->handler()->invalidateCdnCache($basePath)) {
             $media->delete();

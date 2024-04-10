@@ -6,7 +6,6 @@ use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use DB;
 use File;
-use FilePathHelper;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -162,5 +161,38 @@ class Media extends Model
                 return $versions->whereNumber($versions->whereProcessed(true)->max('number'))->firstOrFail();
             }
         );
+    }
+
+    /**
+     * Get the base path for files.
+     * Path structure: {username}/{identifier}/
+     *
+     * @return string
+     */
+    public function baseDirectory(): string
+    {
+        return sprintf('%s/%s', $this->User->name, $this->identifier);
+    }
+
+    public function deleteBaseDirectories(): void
+    {
+        $baseDirectoryPath = $this->baseDirectory();
+
+        $this->type->handler()->getDerivativesDisk()->deleteDirectory($baseDirectoryPath);
+        MediaStorage::ORIGINALS->getDisk()->deleteDirectory($baseDirectoryPath);
+    }
+
+    /**
+     * Get the path to a video derivative.
+     * Path structure: {username}/{identifier}/{format}/{filename}
+     *
+     * @param string $format
+     * @param string|null $fileName
+     *
+     * @return string
+     */
+    public function videoDerivativeFilePath(string $format, string $fileName = null): string
+    {
+        return sprintf('%s/%s/%s', $this->baseDirectory(), $format, $fileName ?? 'video');
     }
 }

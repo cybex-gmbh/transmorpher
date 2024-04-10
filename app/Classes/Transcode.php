@@ -11,7 +11,6 @@ use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\Version;
 use Exception;
-use FilePathHelper;
 use Http;
 
 class Transcode implements TranscodeInterface
@@ -80,7 +79,7 @@ class Transcode implements TranscodeInterface
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'upload_token' => $uploadToken,
-            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), FilePathHelper::toBaseDirectory($media)]))
+            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), $media->baseDirectory()]))
         ];
 
         $signedResponse = SodiumHelper::sign(json_encode($response));

@@ -12,7 +12,6 @@ use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
 use CdnHelper;
-use FilePathHelper;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Throwable;
 
@@ -84,7 +83,7 @@ class ImageHandler implements MediaHandlerInterface
         // By creating an upload slot, a currently active upload will be canceled.
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => MediaType::IMAGE]);
 
-        if ($this->invalidateCdnCache(FilePathHelper::toBaseDirectory($version->Media))) {
+        if ($this->invalidateCdnCache($version->Media->baseDirectory())) {
             $version->update(['processed' => true]);
             $responseState = ResponseState::IMAGE_VERSION_SET;
         } else {

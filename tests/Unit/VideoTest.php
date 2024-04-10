@@ -7,7 +7,6 @@ use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
 use App\Jobs\TranscodeVideo;
 use App\Models\UploadSlot;
-use FilePathHelper;
 use Http;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use PHPUnit\Framework\Attributes\Depends;
