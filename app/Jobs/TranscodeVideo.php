@@ -47,6 +47,7 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
 
+    protected string $originalFilePath;
     protected string $callbackUrl;
     protected string $uploadToken;
 
@@ -66,7 +67,6 @@ class TranscodeVideo implements ShouldQueue
      * @return void
      */
     public function __construct(
-        protected string $originalFilePath,
         protected Version $version,
         protected UploadSlot $uploadSlot,
         protected ?int $oldVersionNumber = null,
@@ -74,6 +74,7 @@ class TranscodeVideo implements ShouldQueue
     )
     {
         $this->onQueue('video-transcoding');
+        $this->originalFilePath = $version->originalFilePath();
         $this->callbackUrl = $this->uploadSlot->callback_url;
         $this->uploadToken = $this->uploadSlot->token;
     }

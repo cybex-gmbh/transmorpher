@@ -21,12 +21,11 @@ class ImageHandler implements MediaHandlerInterface
     /**
      * @param string $basePath
      * @param UploadSlot $uploadSlot
-     * @param string $filePath
      * @param Version $version
      *
      * @return ResponseState
      */
-    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Version $version): ResponseState
+    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, Version $version): ResponseState
     {
         if ($this->invalidateCdnCache($basePath)) {
             /**
