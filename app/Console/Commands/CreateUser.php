@@ -60,8 +60,9 @@ class CreateUser extends Command
         * Laravel passwords are usually not nullable, so we will need to set something when creating the user.
         * Since we do not want to create a Password for the user, but need to store something secure,
         * we will just generate a string of random bytes.
+        * This needs to be encoded to base64 because null bytes are not accepted anymore (PHP 8.3).
         */
-        $user = User::create(['name' => $name, 'email' => $email, 'password' => Hash::make(random_bytes(300))]);
+        $user = User::create(['name' => $name, 'email' => $email, 'password' => Hash::make(base64_encode(random_bytes(300)))]);
 
         $this->info(sprintf('Successfully created new user %s: %s (%s)', $user->getKey(), $user->name, $user->email));
         $this->newLine();
