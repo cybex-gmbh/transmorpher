@@ -2,12 +2,15 @@
 
 namespace Tests\Unit;
 
+use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Exceptions\InvalidTransformationFormatException;
 use App\Exceptions\InvalidTransformationValueException;
 use App\Exceptions\TransformationNotFoundException;
 use App\Models\Media;
+use App\Models\Version;
 use FilePathHelper;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\UploadedFile;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
@@ -19,12 +22,13 @@ class ImageTest extends MediaTest
 {
     protected const IDENTIFIER = 'testImage';
     protected const IMAGE_NAME = 'image.jpg';
+    protected Filesystem $imageDerivativesDisk;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        Storage::persistentFake(config('transmorpher.disks.imageDerivatives'));
+        $this->imageDerivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::IMAGE_DERIVATIVES->value)));
     }
 
     #[Test]
@@ -49,31 +53,147 @@ class ImageTest extends MediaTest
 
         $uploadResponse->assertCreated();
 
+        $media = Media::whereIdentifier(self::IDENTIFIER)->first();
+        $version = $media->Versions()->whereNumber($uploadResponse['version'])->first();
+
         Storage::disk(config('transmorpher.disks.originals'))->assertExists(
-            FilePathHelper::toOriginalFile(Media::whereIdentifier(self::IDENTIFIER)->first()->Versions()->whereNumber($uploadResponse['version'])->first()),
+            FilePathHelper::toOriginalFile($version),
         );
+
+        return $version;
     }
 
     #[Test]
     #[Depends('ensureImageCanBeUploaded')]
-    public function ensureProcessedFilesAreAvailable()
+    public function ensureProcessedFilesAreAvailable(Version $version)
     {
-        $media = self::$user->Media()->whereIdentifier(self::IDENTIFIER)->first();
-        $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $media]));
+        $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $version->Media]));
 
         $getDerivativeResponse->assertOk();
 
-        return $media;
+        return $version;
     }
 
     #[Test]
     #[Depends('ensureProcessedFilesAreAvailable')]
-    public function ensureUnprocessedFilesAreNotAvailable(Media $media)
+    public function ensureUnprocessedFilesAreNotAvailable(Version $version)
     {
-        $media->Versions()->first()->update(['processed' => 0]);
-        $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $media]));
+        $version->update(['processed' => 0]);
+        $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $version->Media]));
 
         $getDerivativeResponse->assertNotFound();
+
+        return $version;
+    }
+
+    /**
+     * @param Version $version
+     * @return void
+     */
+    public function assertVersionFilesExist(Version $version): void
+    {
+        $this->originalsDisk->assertExists(FilePathHelper::toOriginalFile($version));
+        $this->imageDerivativesDisk->assertExists(FilePathHelper::toImageDerivativeFile($version));
+    }
+
+    /**
+     * @param $media
+     * @return void
+     */
+    public function assertMediaFilesExist($media): void
+    {
+        $this->originalsDisk->assertExists(FilePathHelper::toBaseDirectory($media));
+    }
+
+    /**
+     * @return void
+     */
+    public function assertUserFilesExist(): void
+    {
+        $this->originalsDisk->assertExists(self::$user->name);
+        $this->imageDerivativesDisk->assertExists(self::$user->name);
+    }
+
+    /**
+     * @param Version $version
+     * @return void
+     */
+    public function assertVersionFilesMissing(Version $version): void
+    {
+        $this->originalsDisk->assertMissing(FilePathHelper::toOriginalFile($version));
+        $this->imageDerivativesDisk->assertMissing(FilePathHelper::toImageDerivativeFile($version));
+    }
+
+    /**
+     * @param $media
+     * @return void
+     */
+    public function assertMediaFilesMissing($media): void
+    {
+        $this->originalsDisk->assertMissing(FilePathHelper::toBaseDirectory($media));
+        $this->imageDerivativesDisk->assertMissing(FilePathHelper::toBaseDirectory($media));
+    }
+
+    /**
+     * @return void
+     */
+    public function assertUserFilesMissing(): void
+    {
+        $this->originalsDisk->assertMissing(self::$user->name);
+        $this->imageDerivativesDisk->assertMissing(self::$user->name);
+    }
+
+    #[Test]
+    #[Depends('ensureUnprocessedFilesAreNotAvailable')]
+    public function ensureVersionDeletionMethodsWork(Version $version)
+    {
+        $this->assertVersionFilesExist($version);
+        $this->runProtectedMethod($version, 'deleteFiles');
+        $this->assertVersionFilesMissing($version);
+    }
+
+    #[Test]
+    #[Depends('ensureVersionDeletionMethodsWork')]
+    public function ensureMediaDeletionMethodsWork()
+    {
+        $uploadToken = $this->ensureImageUploadSlotCanBeReserved();
+        // Upload a new version.
+        $version = $this->ensureImageCanBeUploaded($uploadToken);
+        // Create a derivative
+        $this->ensureProcessedFilesAreAvailable($version);
+        $media = $version->Media;
+
+        $this->assertVersionFilesExist($version);
+        $this->assertMediaFilesExist($media);
+
+        $this->runProtectedMethod($media, 'deleteRelatedModels');
+        $this->runProtectedMethod($media, 'deleteBaseDirectories');
+
+        $this->assertVersionFilesMissing($version);
+        $this->assertMediaFilesMissing($media);
+    }
+
+    #[Test]
+    #[Depends('ensureMediaDeletionMethodsWork')]
+    public function ensureUserDeletionMethodsWork()
+    {
+        $uploadToken = $this->ensureImageUploadSlotCanBeReserved();
+        // Upload a new version.
+        $version = $this->ensureImageCanBeUploaded($uploadToken);
+        // Create a derivative
+        $this->ensureProcessedFilesAreAvailable($version);
+        $media = $version->Media;
+
+        $this->assertVersionFilesExist($version);
+        $this->assertMediaFilesExist($media);
+        $this->assertUserFilesExist();
+
+        $this->runProtectedMethod(self::$user, 'deleteRelatedModels');
+        $this->runProtectedMethod(self::$user, 'deleteMediaDirectories');
+
+        $this->assertVersionFilesMissing($version);
+        $this->assertMediaFilesMissing($media);
+        $this->assertUserFilesMissing();
     }
 
     /**

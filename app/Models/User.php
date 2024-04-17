@@ -76,14 +76,23 @@ class User extends Authenticatable
     protected static function booted(): void
     {
         static::deleting(function (User $user) {
-            DB::transaction(function () use ($user) {
-                $user->Media()->get()->each->delete();
-            });
-
-            foreach (MediaStorage::cases() as $mediaStorage) {
-                $mediaStorage->getDisk()->deleteDirectory($user->name);
-            }
+            $user->deleteRelatedModels();
+            $user->deleteMediaDirectories();
         });
+    }
+
+    protected function deleteRelatedModels(): void
+    {
+        DB::transaction(function () {
+            $this->Media()->get()->each->delete();
+        });
+    }
+
+    protected function deleteMediaDirectories(): void
+    {
+        foreach (MediaStorage::cases() as $mediaStorage) {
+            $mediaStorage->getDisk()->deleteDirectory($this->name);
+        }
     }
 
     /**

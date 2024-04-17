@@ -60,11 +60,7 @@ class Media extends Model
     protected static function booted(): void
     {
         static::deleting(function (Media $media) {
-            DB::transaction(function () use ($media) {
-                $media->Versions()->get()->each->delete();
-                $media->User->UploadSlots()->withoutGlobalScopes()->firstWhere('identifier', $media->identifier)?->delete();
-            });
-
+            $media->deleteRelatedModels();
             $media->deleteBaseDirectories();
         });
     }
@@ -79,6 +75,21 @@ class Media extends Model
         return [
             'type' => MediaType::class,
         ];
+    }
+
+    protected function deleteRelatedModels(): void
+    {
+        DB::transaction(function () {
+            $this->Versions()->get()->each->delete();
+            $this->User->UploadSlots()->withoutGlobalScopes()->firstWhere('identifier', $this->identifier)?->delete();
+        });
+    }
+
+    protected function deleteBaseDirectories(): void
+    {
+        $fileBasePath = FilePathHelper::toBaseDirectory($this);
+        $this->type->handler()->getDerivativesDisk()->deleteDirectory($fileBasePath);
+        MediaStorage::ORIGINALS->getDisk()->deleteDirectory($fileBasePath);
     }
 
     /**
@@ -151,12 +162,5 @@ class Media extends Model
                 return $versions->whereNumber($versions->whereProcessed(true)->max('number'))->firstOrFail();
             }
         );
-    }
-
-    public function deleteBaseDirectories(): void
-    {
-        $fileBasePath = FilePathHelper::toBaseDirectory($this);
-        $this->type->handler()->getDerivativesDisk()->deleteDirectory($fileBasePath);
-        MediaStorage::ORIGINALS->getDisk()->deleteDirectory($fileBasePath);
     }
 }

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Enums\MediaStorage;
 use FilePathHelper;
-use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -56,10 +55,15 @@ class Version extends Model
     protected static function booted(): void
     {
         static::deleting(function (Version $version) {
-            MediaStorage::ORIGINALS->getDisk()->delete(FilePathHelper::toOriginalFile($version));
-            MediaStorage::IMAGE_DERIVATIVES->getDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($version));
-            // Video derivatives may not be deleted here, otherwise failed jobs would delete the only existing video derivative.
+            $version->deleteFiles();
         });
+    }
+
+    protected function deleteFiles(): void
+    {
+        MediaStorage::ORIGINALS->getDisk()->delete(FilePathHelper::toOriginalFile($this));
+        MediaStorage::IMAGE_DERIVATIVES->getDisk()->deleteDirectory(FilePathHelper::toImageDerivativeVersionDirectory($this));
+        // Video derivatives may not be deleted here, otherwise failed jobs would delete the only existing video derivative.
     }
 
     /**
