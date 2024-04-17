@@ -127,7 +127,7 @@ class TranscodeVideo implements ShouldQueue
             $this->version->delete();
             $versionNumber = $this->version->number - 1;
         } else {
-            // Restoring an old version has failed. It will not get a higher version number, but keep its old one.
+            // Restoring an old version has failed, therefore we restore its previous state.
             $this->version->update(['number' => $this->oldVersionNumber, 'processed' => $this->wasProcessed]);
             $versionNumber = $this->oldVersionNumber;
         }
