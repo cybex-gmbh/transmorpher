@@ -8,6 +8,7 @@ use App\Exceptions\InvalidTransformationFormatException;
 use App\Exceptions\InvalidTransformationValueException;
 use App\Exceptions\TransformationNotFoundException;
 use App\Models\Media;
+use App\Models\UploadSlot;
 use App\Models\Version;
 use FilePathHelper;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -162,6 +163,7 @@ class ImageTest extends MediaTest
         // Create a derivative
         $this->ensureProcessedFilesAreAvailable($version);
         $media = $version->Media;
+        $uploadSlot = UploadSlot::whereToken($uploadToken)->withoutGlobalScopes()->first();
 
         $this->assertVersionFilesExist($version);
         $this->assertMediaFilesExist($media);
@@ -171,6 +173,9 @@ class ImageTest extends MediaTest
 
         $this->assertVersionFilesMissing($version);
         $this->assertMediaFilesMissing($media);
+
+        $this->assertModelMissing($version);
+        $this->assertModelMissing($uploadSlot);
     }
 
     #[Test]
@@ -183,6 +188,7 @@ class ImageTest extends MediaTest
         // Create a derivative
         $this->ensureProcessedFilesAreAvailable($version);
         $media = $version->Media;
+        $uploadSlot = UploadSlot::whereToken($uploadToken)->withoutGlobalScopes()->first();
 
         $this->assertVersionFilesExist($version);
         $this->assertMediaFilesExist($media);
@@ -194,6 +200,10 @@ class ImageTest extends MediaTest
         $this->assertVersionFilesMissing($version);
         $this->assertMediaFilesMissing($media);
         $this->assertUserFilesMissing();
+
+        $this->assertModelMissing($version);
+        $this->assertModelMissing($media);
+        $this->assertModelMissing($uploadSlot);
     }
 
     /**
