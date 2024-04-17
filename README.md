@@ -422,13 +422,13 @@ You will also have to adjust the configuration value:
 
 ### [Pullpreview](https://github.com/pullpreview/action)
 
-When labeling a pull request with the "pullpreview" label, a staging environment is booted. To make this functional, some environment variables have to be stored in GitHub secrets:
+For more information take a look at the PullPreview section of the [github-workflow repository](https://github.com/cybex-gmbh/github-workflows#pullpreview).
+
+App specific GitHub Secrets:
 
 - APP_KEY
 - TRANSMORPHER_SIGNING_KEYPAIR
 - PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH
-- PULLPREVIEW_AWS_ACCESS_KEY_ID
-- PULLPREVIEW_AWS_SECRET_ACCESS_KEY
 
 #### Auth Token Hash
 
@@ -440,11 +440,6 @@ php artisan create:user pullpreview pullpreview@example.com
 
 Take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command also provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored
 securely to use in client systems.
-
-#### AWS Credentials
-
-You need credentials of an IAM user that can manage AWS Lightsail. For a recommended configuration take a look at
-the [Pullpreview wiki](https://github.com/pullpreview/action/wiki/Recommended-AWS-Configuration).
 
 ## License
 
