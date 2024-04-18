@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use DB;
 use File;
+use FilePathHelper;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -52,6 +55,17 @@ class Media extends Model
     ];
 
     /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (Media $media) {
+            $media->deleteRelatedModels();
+            $media->deleteBaseDirectories();
+        });
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -61,6 +75,21 @@ class Media extends Model
         return [
             'type' => MediaType::class,
         ];
+    }
+
+    protected function deleteRelatedModels(): void
+    {
+        DB::transaction(function () {
+            $this->Versions()->get()->each->delete();
+            $this->User->UploadSlots()->withoutGlobalScopes()->firstWhere('identifier', $this->identifier)?->delete();
+        });
+    }
+
+    protected function deleteBaseDirectories(): void
+    {
+        $fileBasePath = FilePathHelper::toBaseDirectory($this);
+        $this->type->handler()->getDerivativesDisk()->deleteDirectory($fileBasePath);
+        MediaStorage::ORIGINALS->getDisk()->deleteDirectory($fileBasePath);
     }
 
     /**
@@ -80,6 +109,16 @@ class Media extends Model
     }
 
     /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'identifier';
+    }
+
+    /**
      * Validates an uploaded file after the chunks have been combined successfully.
      * This has to be done after all chunks have been received, because the mime type of the received chunks is 'application/octet-stream'.
      *
@@ -93,12 +132,11 @@ class Media extends Model
      *
      * @param UploadedFile $file
      * @param string $mimeTypes
-     * @param UploadSlot $uploadSlot
      *
      * @return void
      * @throws ValidationException
      */
-    public function validateUploadFile(UploadedFile $file, string $mimeTypes, UploadSlot $uploadSlot): void
+    public function validateUploadFile(UploadedFile $file, string $mimeTypes): void
     {
         $validator = Validator::make(['file' => $file], ['file' => [
             'required',
@@ -109,21 +147,11 @@ class Media extends Model
 
         $failed = $validator->fails();
 
-        $validator->after(function () use ($file, $failed, $uploadSlot) {
+        $validator->after(function () use ($file, $failed) {
             if ($failed) {
                 File::delete($file);
             }
         });
-    }
-
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'identifier';
     }
 
     public function currentVersion(): Attribute

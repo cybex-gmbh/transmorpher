@@ -123,10 +123,11 @@ class TranscodeVideo implements ShouldQueue
         $localDisk->deleteDirectory($this->getFfmpegTempDirectory());
 
         if (!$this->oldVersionNumber) {
-            MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
+            // A failed upload must not create a version.
             $this->version->delete();
             $versionNumber = $this->version->number - 1;
         } else {
+            // Restoring an old version has failed, therefore we restore its previous state.
             $this->version->update(['number' => $this->oldVersionNumber, 'processed' => $this->wasProcessed]);
             $versionNumber = $this->oldVersionNumber;
         }

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\MediaStorage;
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -67,6 +69,31 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            $user->deleteRelatedModels();
+            $user->deleteMediaDirectories();
+        });
+    }
+
+    protected function deleteRelatedModels(): void
+    {
+        DB::transaction(function () {
+            $this->Media()->get()->each->delete();
+        });
+    }
+
+    protected function deleteMediaDirectories(): void
+    {
+        foreach (MediaStorage::cases() as $mediaStorage) {
+            $mediaStorage->getDisk()->deleteDirectory($this->name);
+        }
+    }
 
     /**
      * Get the attributes that should be cast.

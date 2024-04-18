@@ -2,12 +2,14 @@
 
 namespace Tests\Unit;
 
+use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
 use App\Jobs\TranscodeVideo;
 use App\Models\UploadSlot;
 use FilePathHelper;
 use Http;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Storage;
@@ -18,12 +20,13 @@ class VideoTest extends MediaTest
     protected const IDENTIFIER = 'testVideo';
     protected const VIDEO_NAME = 'video.mp4';
     protected const CALLBACK_URL = 'http://example.com/callback';
+    protected Filesystem $videoDerivativesDisk;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        Storage::persistentFake(config('transmorpher.disks.videoDerivatives'));
+        $this->videoDerivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::VIDEO_DERIVATIVES->value)));
     }
 
     #[Test]
