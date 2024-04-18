@@ -47,7 +47,7 @@ RUN apt-get update \
     && apt-get install -y mysql-client \
     && apt-get install -y postgresql-client-$POSTGRES_VERSION \
     && apt-get install -y imagemagick \
-    && apt-get install -y php-imagick \
+    && apt-get install -y php8.2-imagick \
     && apt-get install -y jpegoptim \
     && apt-get install -y optipng \
     && apt-get install -y pngquant \
