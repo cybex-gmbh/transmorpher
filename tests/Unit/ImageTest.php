@@ -10,7 +10,6 @@ use App\Exceptions\TransformationNotFoundException;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\Version;
-use FilePathHelper;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
@@ -73,9 +72,7 @@ class ImageTest extends MediaTest
         $media = Media::whereIdentifier(self::IDENTIFIER)->first();
         $version = $media->Versions()->whereNumber($uploadResponse['version'])->first();
 
-        Storage::disk(config('transmorpher.disks.originals'))->assertExists(
-            FilePathHelper::toOriginalFile($version),
-        );
+        Storage::disk(config('transmorpher.disks.originals'))->assertExists($version->originalFilePath());
 
         return $version;
     }
@@ -106,13 +103,13 @@ class ImageTest extends MediaTest
 
     protected function assertVersionFilesExist(Version $version): void
     {
-        $this->originalsDisk->assertExists(FilePathHelper::toOriginalFile($version));
-        $this->imageDerivativesDisk->assertExists(FilePathHelper::toImageDerivativeFile($version));
+        $this->originalsDisk->assertExists($version->originalFilePath());
+        $this->imageDerivativesDisk->assertExists($version->imageDerivativeFilePath());
     }
 
-    protected function assertMediaDirectoryExists($media): void
+    protected function assertMediaDirectoryExists(Media $media): void
     {
-        $this->originalsDisk->assertExists(FilePathHelper::toBaseDirectory($media));
+        $this->originalsDisk->assertExists($media->baseDirectory());
     }
 
     protected function assertUserDirectoryExists(): void
@@ -123,14 +120,14 @@ class ImageTest extends MediaTest
 
     protected function assertVersionFilesMissing(Version $version): void
     {
-        $this->originalsDisk->assertMissing(FilePathHelper::toOriginalFile($version));
-        $this->imageDerivativesDisk->assertMissing(FilePathHelper::toImageDerivativeFile($version));
+        $this->originalsDisk->assertMissing($version->originalFilePath());
+        $this->imageDerivativesDisk->assertMissing($version->imageDerivativeFilePath());
     }
 
-    protected function assertMediaDirectoryMissing($media): void
+    protected function assertMediaDirectoryMissing(Media $media): void
     {
-        $this->originalsDisk->assertMissing(FilePathHelper::toBaseDirectory($media));
-        $this->imageDerivativesDisk->assertMissing(FilePathHelper::toBaseDirectory($media));
+        $this->originalsDisk->assertMissing($media->baseDirectory());
+        $this->imageDerivativesDisk->assertMissing($media->baseDirectory());
     }
 
     protected function assertUserDirectoryMissing(): void

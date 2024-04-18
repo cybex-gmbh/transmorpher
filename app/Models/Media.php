@@ -86,7 +86,7 @@ class Media extends Model
 
     protected function deleteBaseDirectories(): void
     {
-        $fileBasePath = FilePathHelper::toBaseDirectory($this);
+        $fileBasePath = $this->baseDirectory();
         $this->type->handler()->getDerivativesDisk()->deleteDirectory($fileBasePath);
         MediaStorage::ORIGINALS->getDisk()->deleteDirectory($fileBasePath);
     }
@@ -172,14 +172,6 @@ class Media extends Model
     public function baseDirectory(): string
     {
         return sprintf('%s/%s', $this->User->name, $this->identifier);
-    }
-
-    public function deleteBaseDirectories(): void
-    {
-        $baseDirectoryPath = $this->baseDirectory();
-
-        $this->type->handler()->getDerivativesDisk()->deleteDirectory($baseDirectoryPath);
-        MediaStorage::ORIGINALS->getDisk()->deleteDirectory($baseDirectoryPath);
     }
 
     /**
