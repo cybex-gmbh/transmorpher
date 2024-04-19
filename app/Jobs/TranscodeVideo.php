@@ -10,7 +10,6 @@ use App\Models\Version;
 use CdnHelper;
 use CloudStorage;
 use FFMpeg\Format\Video\X264;
-use FilePathHelper;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,6 +46,7 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
 
+    protected string $originalFilePath;
     protected string $callbackUrl;
     protected string $uploadToken;
 
@@ -66,7 +66,6 @@ class TranscodeVideo implements ShouldQueue
      * @return void
      */
     public function __construct(
-        protected string $originalFilePath,
         protected Version $version,
         protected UploadSlot $uploadSlot,
         protected ?int $oldVersionNumber = null,
@@ -74,6 +73,7 @@ class TranscodeVideo implements ShouldQueue
     )
     {
         $this->onQueue('video-transcoding');
+        $this->originalFilePath = $version->originalFilePath();
         $this->callbackUrl = $this->uploadSlot->callback_url;
         $this->uploadToken = $this->uploadSlot->token;
     }
@@ -114,7 +114,7 @@ class TranscodeVideo implements ShouldQueue
     {
         // All properties have not yet been initialized, because failed jobs use a new instance.
 
-        $tempDerivativesDirectoryPath = FilePathHelper::toTempVideoDerivativesDirectory($this->version);
+        $tempDerivativesDirectoryPath = $this->getTempVideoDerivativesDirectoryPath();
         $localDisk = Storage::disk('local');
 
         MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempDerivativesDirectoryPath);
@@ -202,8 +202,8 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function setFilePaths(): void
     {
-        $this->derivativesDestinationPath = FilePathHelper::toBaseDirectory($this->version->Media);
-        $this->tempDerivativesDirectoryPath = FilePathHelper::toTempVideoDerivativesDirectory($this->version);
+        $this->derivativesDestinationPath = $this->version->Media->baseDirectory();
+        $this->tempDerivativesDirectoryPath = $this->getTempVideoDerivativesDirectoryPath();
     }
 
     /**
@@ -218,12 +218,12 @@ class TranscodeVideo implements ShouldQueue
     {
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         $this->isLocalFilesystem($this->derivativesDisk) ?
-            $video->save($this->derivativesDisk->path(FilePathHelper::toTempVideoDerivativeFile($this->version, $format)))
+            $video->save($this->derivativesDisk->path($this->getTempVideoDerivativeFilePath($format)))
             : $video->save(null,
-                CloudStorage::getSaveConfiguration(
-                    sprintf('%s/%s', $this->derivativesDisk->path($this->tempDerivativesDirectoryPath), $format), $this->version->Media->identifier
-                )
-            );
+            CloudStorage::getSaveConfiguration(
+                sprintf('%s/%s', $this->derivativesDisk->path($this->tempDerivativesDirectoryPath), $format), $this->version->Media->identifier
+            )
+        );
     }
 
     /**
@@ -239,7 +239,7 @@ class TranscodeVideo implements ShouldQueue
     {
         $video->save((new X264())->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')), $this->localDisk->path($this->tempMp4Filename));
 
-        $derivativePath = FilePathHelper::toTempVideoDerivativeFile($this->version, 'mp4');
+        $derivativePath = $this->getTempVideoDerivativeFilePath('mp4');
         $this->derivativesDisk->writeStream(
             sprintf('%s.%s', $derivativePath, 'mp4'),
             $this->localDisk->readStream($this->tempMp4Filename)
@@ -300,18 +300,18 @@ class TranscodeVideo implements ShouldQueue
         $dashFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempDerivativesDirectoryPath, StreamingFormat::DASH->value));
 
         foreach ($hlsFiles as $file) {
-            $this->derivativesDisk->move($file, FilePathHelper::toVideoDerivativeFile($this->version->Media, StreamingFormat::HLS->value, basename($file)));
+            $this->derivativesDisk->move($file, $this->version->Media->videoDerivativeFilePath(StreamingFormat::HLS->value, basename($file)));
         }
 
         foreach ($dashFiles as $file) {
-            $this->derivativesDisk->move($file, FilePathHelper::toVideoDerivativeFile($this->version->Media, StreamingFormat::DASH->value, basename($file)));
+            $this->derivativesDisk->move($file, $this->version->Media->videoDerivativeFilePath(StreamingFormat::DASH->value, basename($file)));
         }
 
-        $tempDerivativePath = FilePathHelper::toTempVideoDerivativeFile($this->version, 'mp4');
+        $tempDerivativePath = $this->getTempVideoDerivativeFilePath('mp4');
         // Move MP4 file.
         $this->derivativesDisk->move(
             sprintf('%s.mp4', $tempDerivativePath),
-            sprintf('%s.mp4', FilePathHelper::toVideoDerivativeFile($this->version->Media, 'mp4'))
+            sprintf('%s.mp4', $this->version->Media->videoDerivativeFilePath('mp4'))
         );
     }
 
@@ -360,4 +360,28 @@ class TranscodeVideo implements ShouldQueue
         return $this->version->number === $this->version->Media->Versions()->max('number')
             && $this->version->Media->User->UploadSlots()->withoutGlobalScopes()->whereToken($this->uploadSlot->token)->first();
     }
+
+    /**
+     * Get the path to a temporary video derivative.
+     * Path structure: {username}/{identifier}-{versionKey}-temp/{format}/video
+     *
+     * @param string $format
+     * @return string
+     */
+    protected function getTempVideoDerivativeFilePath(string $format): string
+    {
+        return sprintf('%s/%s/%s', $this->getTempVideoDerivativesDirectoryPath(), $format, 'video');
+    }
+
+    /**
+     * Get the path to the temporary video derivatives directory.
+     * Path structure: {username}/{identifier}-{versionKey}-temp
+     *
+     * @return string
+     */
+    protected function getTempVideoDerivativesDirectoryPath(): string
+    {
+        return sprintf('%s-%s-temp', $this->version->Media->baseDirectory(), $this->version->getKey());
+    }
+
 }

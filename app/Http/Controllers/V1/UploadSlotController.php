@@ -13,7 +13,6 @@ use App\Http\Requests\V1\VideoUploadSlotRequest;
 use App\Models\UploadSlot;
 use App\Models\User;
 use File;
-use FilePathHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
@@ -94,14 +93,12 @@ class UploadSlotController extends Controller
 
         $versionNumber = $media->Versions()->max('number') + 1;
         $version = $media->Versions()->create(['number' => $versionNumber]);
+        $basePath = $media->baseDirectory();
 
-        $basePath = FilePathHelper::toBaseDirectory($media);
-        $fileName = FilePathHelper::createOriginalFileName($version, $uploadedFile->getClientOriginalName());
+        $version->update(['filename' => $version->createOriginalFileName($uploadedFile->getClientOriginalName())]);
 
-        $version->update(['filename' => $fileName]);
-
-        if ($filePath = MediaStorage::ORIGINALS->getDisk()->putFileAs($basePath, $uploadedFile, $version->filename)) {
-            $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $filePath, $version);
+        if (MediaStorage::ORIGINALS->getDisk()->putFileAs($basePath, $uploadedFile, $version->filename)) {
+            $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $version);
         } else {
             $responseState = ResponseState::WRITE_FAILED;
         }

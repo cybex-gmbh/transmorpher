@@ -11,7 +11,6 @@ use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
 use CdnHelper;
-use FilePathHelper;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Throwable;
 use Transcode;
@@ -21,14 +20,13 @@ class VideoHandler implements MediaHandlerInterface
     /**
      * @param string $basePath
      * @param UploadSlot $uploadSlot
-     * @param string $filePath
      * @param Version $version
      *
      * @return ResponseState
      */
-    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Version $version): ResponseState
+    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, Version $version): ResponseState
     {
-        $success = Transcode::createJob($filePath, $version, $uploadSlot);
+        $success = Transcode::createJob($version, $uploadSlot);
 
         return $success ? ResponseState::VIDEO_UPLOAD_SUCCESSFUL : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
     }
@@ -69,13 +67,11 @@ class VideoHandler implements MediaHandlerInterface
     public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
     {
         if ($callbackUrl) {
-            $filePath = FilePathHelper::toOriginalFile($version);
-
             // Token and valid_until will be set in the 'saving' event.
             // By creating an upload slot, currently active uploading or transcoding will be canceled.
             $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['callback_url' => $callbackUrl, 'media_type' => MediaType::VIDEO]);
 
-            $success = Transcode::createJobForVersionUpdate($filePath, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
+            $success = Transcode::createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed);
             $responseState = $success ? ResponseState::VIDEO_VERSION_SET : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
         } else {
             $responseState = ResponseState::NO_CALLBACK_URL_PROVIDED;
