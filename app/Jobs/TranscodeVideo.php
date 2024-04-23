@@ -47,7 +47,6 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $localDisk;
 
     protected string $originalFilePath;
-    protected string $callbackUrl;
     protected string $uploadToken;
 
     // Derivatives are saved to a temporary folder first, else race conditions could cause newer versions to be overwritten.
@@ -74,7 +73,6 @@ class TranscodeVideo implements ShouldQueue
     {
         $this->onQueue('video-transcoding');
         $this->originalFilePath = $version->originalFilePath();
-        $this->callbackUrl = $this->uploadSlot->callback_url;
         $this->uploadToken = $this->uploadSlot->token;
     }
 
@@ -99,7 +97,7 @@ class TranscodeVideo implements ShouldQueue
         }
 
         match ($this->responseState) {
-            ResponseState::TRANSCODING_SUCCESSFUL => Transcode::callback($this->responseState, $this->callbackUrl, $this->uploadToken, $this->version->Media, $this->version->number),
+            ResponseState::TRANSCODING_SUCCESSFUL => Transcode::callback($this->responseState, $this->uploadToken, $this->version->Media, $this->version->number),
             ResponseState::TRANSCODING_ABORTED => $this->failed(null),
         };
     }
@@ -132,7 +130,7 @@ class TranscodeVideo implements ShouldQueue
             $versionNumber = $this->oldVersionNumber;
         }
 
-        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_FAILED, $this->callbackUrl, $this->uploadToken, $this->version->Media, $versionNumber);
+        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_FAILED, $this->uploadToken, $this->version->Media, $versionNumber);
     }
 
     /**

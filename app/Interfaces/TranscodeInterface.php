@@ -34,12 +34,11 @@ interface TranscodeInterface
      * Inform client package about the transcoding result.
      *
      * @param ResponseState $responseState
-     * @param string $callbackUrl
      * @param string $uploadToken
      * @param Media $media
      * @param int $versionNumber
      *
      * @return void
      */
-    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, Media $media, int $versionNumber): void;
+    public function callback(ResponseState $responseState, string $uploadToken, Media $media, int $versionNumber): void;
 }

@@ -5,7 +5,7 @@ namespace App\Http\Requests\V1;
 use App\Enums\ValidationRegex;
 use Illuminate\Foundation\Http\FormRequest;
 
-class ImageUploadSlotRequest extends FormRequest
+class UploadSlotRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,7 +14,7 @@ class ImageUploadSlotRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:reserve-image-upload-slot');
+        return $this->user()->tokenCan('transmorpher:reserve-upload-slot');
     }
 
     /**

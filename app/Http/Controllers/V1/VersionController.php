@@ -51,7 +51,7 @@ class VersionController extends Controller
 
         $version->update(['number' => $newVersionNumber, 'processed' => 0]);
 
-        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $version, $oldVersionNumber, $wasProcessed, $request->get('callback_url'));
+        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $version, $oldVersionNumber, $wasProcessed);
 
         return response()->json([
             'state' => $responseState->getState()->value,
@@ -62,7 +62,8 @@ class VersionController extends Controller
             'public_path' => $media->type->isInstantlyAvailable() ?
                 implode(DIRECTORY_SEPARATOR, array_filter([$media->type->prefix(), $media->baseDirectory()]))
                 : null,
-            'upload_token' => $uploadToken
+            'upload_token' => $uploadToken,
+            'hash' => $media->type->isInstantlyAvailable() ? $version->hash : null,
         ]);
     }
 

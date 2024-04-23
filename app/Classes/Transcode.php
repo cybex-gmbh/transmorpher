@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Enums\ClientNotification;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
@@ -64,14 +65,13 @@ class Transcode implements TranscodeInterface
      * Inform client package about the transcoding result.
      *
      * @param ResponseState $responseState
-     * @param string $callbackUrl
      * @param string $uploadToken
      * @param Media $media
      * @param int $versionNumber
      *
      * @return void
      */
-    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, Media $media, int $versionNumber): void
+    public function callback(ResponseState $responseState, string $uploadToken, Media $media, int $versionNumber): void
     {
         $response = [
             'state' => $responseState->getState()->value,
@@ -79,11 +79,13 @@ class Transcode implements TranscodeInterface
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'upload_token' => $uploadToken,
-            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), $media->baseDirectory()]))
+            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), $media->baseDirectory()])),
+            'hash' => Version::whereNumber($versionNumber)->first()?->hash,
+            'type' => ClientNotification::VIDEO_TRANSCODING,
         ];
 
         $signedResponse = SodiumHelper::sign(json_encode($response));
 
-        Http::post($callbackUrl, ['signed_response' => $signedResponse]);
+        Http::post($media->User->api_url, ['signed_response' => $signedResponse]);
     }
 }

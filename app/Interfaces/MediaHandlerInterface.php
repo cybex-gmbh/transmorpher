@@ -36,10 +36,9 @@ interface MediaHandlerInterface
      * @param Version $version
      * @param int $oldVersionNumber
      * @param bool $wasProcessed
-     * @param string $callbackUrl
      * @return array
      */
-    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array;
+    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array;
 
     /**
      * @return Filesystem
