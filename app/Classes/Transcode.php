@@ -73,7 +73,7 @@ class Transcode implements TranscodeInterface
      */
     public function callback(ResponseState $responseState, string $uploadToken, Media $media, int $versionNumber): void
     {
-        $response = [
+        $notification = [
             'state' => $responseState->getState()->value,
             'message' => $responseState->getMessage(),
             'identifier' => $media->identifier,
@@ -81,11 +81,11 @@ class Transcode implements TranscodeInterface
             'upload_token' => $uploadToken,
             'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), $media->baseDirectory()])),
             'hash' => Version::whereNumber($versionNumber)->first()?->hash,
-            'type' => ClientNotification::VIDEO_TRANSCODING,
+            'notification_type' => ClientNotification::VIDEO_TRANSCODING->value,
         ];
 
-        $signedResponse = SodiumHelper::sign(json_encode($response));
+        $signedNotification = SodiumHelper::sign(json_encode($notification));
 
-        Http::post($media->User->api_url, ['signed_response' => $signedResponse]);
+        Http::post($media->User->api_url, ['signed_notification' => $signedNotification]);
     }
 }

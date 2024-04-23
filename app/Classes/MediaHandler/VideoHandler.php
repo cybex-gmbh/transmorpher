@@ -5,6 +5,7 @@ namespace App\Classes\MediaHandler;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
+use App\Enums\UploadState;
 use App\Interfaces\MediaHandlerInterface;
 use App\Models\Media;
 use App\Models\UploadSlot;
@@ -98,6 +99,34 @@ class VideoHandler implements MediaHandlerInterface
             'currentVersion' => $versions->max('number'),
             'currentlyProcessedVersion' => $versions->where('processed', true)->max('number'),
             'versions' => $versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function purgeDerivatives(): array
+    {
+        $failedMediaIds = [];
+
+        foreach (Media::whereType(MediaType::VIDEO)->get() as $media) {
+            // Restore latest version to (re-)generate derivatives.
+            $version = $media->latestVersion;
+
+            $oldVersionNumber = $version->number;
+            $wasProcessed = $version->processed;
+
+            $version->update(['number' => $media->latestVersion->number + 1, 'processed' => 0]);
+            [$responseState, $uploadToken] = $this->setVersion($media->User, $version, $oldVersionNumber, $wasProcessed);
+
+            if ($responseState->getState() === UploadState::ERROR) {
+                $failedMediaIds[] = $media->getKey();
+            }
+        }
+
+        return [
+            'success' => $success = !count($failedMediaIds),
+            'message' => $success ? 'Restored versions for all video media.' : sprintf('Failed to restore versions for media ids: %s.', implode(', ', $failedMediaIds)),
         ];
     }
 }

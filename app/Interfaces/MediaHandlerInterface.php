@@ -2,9 +2,7 @@
 
 namespace App\Interfaces;
 
-use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
-use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
@@ -44,4 +42,9 @@ interface MediaHandlerInterface
      * @return Filesystem
      */
     public function getDerivativesDisk(): Filesystem;
+
+    /**
+     * @return array
+     */
+    public function purgeDerivatives(): array;
 }

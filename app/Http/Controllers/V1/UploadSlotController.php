@@ -97,7 +97,7 @@ class UploadSlotController extends Controller
         $media->validateUploadFile($uploadedFile, $type->handler()->getValidationRules());
         $media->save();
 
-        $versionNumber = $media->Versions()->max('number') + 1;
+        $versionNumber = $media->latestVersion?->number + 1;
         $version = $media->Versions()->create(['number' => $versionNumber]);
         $basePath = $media->baseDirectory();
 

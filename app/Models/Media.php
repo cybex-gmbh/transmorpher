@@ -163,6 +163,16 @@ class Media extends Model
         );
     }
 
+    public function latestVersion(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?Version {
+                $versions = $this->Versions();
+                return $versions->whereNumber($versions->max('number'))->first();
+            }
+        );
+    }
+
     /**
      * Get the base path for files.
      * Path structure: {username}/{identifier}/

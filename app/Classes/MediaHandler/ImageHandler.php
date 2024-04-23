@@ -119,4 +119,17 @@ class ImageHandler implements MediaHandlerInterface
             'versions' => $processedVersions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function purgeDerivatives(): array
+    {
+        $success = $this->getDerivativesDisk()->deleteDirectory('');
+
+        return [
+            'success' => $success,
+            'message' => $success ? 'Deleted image derivatives.' : 'Failed to delete image derivatives.',
+        ];
+    }
 }
