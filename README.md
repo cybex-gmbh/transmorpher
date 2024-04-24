@@ -55,7 +55,7 @@ To clone the repository and get your media server running use:
 git clone --branch release/v0 --single-branch https://github.com/cybex-gmbh/transmorpher.git
 ```
 
-### Required software
+#### Required software
 
 See the Dockerfiles for details.
 
@@ -77,6 +77,21 @@ Image optimization:
 To use video transcoding:
 
 - [FFmpeg](https://ffmpeg.org/)
+
+#### Scheduling
+
+There may be some cases (e.g. failed uploads) where chunk files are not deleted and stay on the local disk.
+To keep the local disk clean, a command is scheduled hourly to delete chunk files older than 24 hours.
+
+See the [`chunk-upload` configuration file](config/chunk-upload.php) for more information.
+
+To run the scheduler you will need to add a cron job that runs the `schedule:run` command on your server:
+
+```
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+For more information about scheduling check the [Laravel Docs](https://laravel.com/docs/11.x/scheduling).
 
 ## General configuration
 
