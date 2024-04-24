@@ -18012,6 +18012,16 @@ namespace App\Facades {
      *
      */        class TranscodeFacade {
                     /**
+         * Returns the class which handles the actual transcoding.
+         *
+         * @return string 
+         * @static 
+         */        public static function getJobClass()
+        {
+                        /** @var \App\Classes\Transcode $instance */
+                        return $instance->getJobClass();
+        }
+                    /**
          * Creates a job which handles the transcoding of a video.
          *
          * @param \App\Models\Version $version
@@ -18041,16 +18051,15 @@ namespace App\Facades {
          * Inform client package about the transcoding result.
          *
          * @param \App\Enums\ResponseState $responseState
-         * @param string $callbackUrl
          * @param string $uploadToken
          * @param \App\Models\Media $media
          * @param int $versionNumber
          * @return void 
          * @static 
-         */        public static function callback($responseState, $callbackUrl, $uploadToken, $media, $versionNumber)
+         */        public static function callback($responseState, $uploadToken, $media, $versionNumber)
         {
                         /** @var \App\Classes\Transcode $instance */
-                        $instance->callback($responseState, $callbackUrl, $uploadToken, $media, $versionNumber);
+                        $instance->callback($responseState, $uploadToken, $media, $versionNumber);
         }
             }
             /**

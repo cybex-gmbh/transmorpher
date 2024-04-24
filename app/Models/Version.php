@@ -22,7 +22,8 @@ use Illuminate\Support\Carbon;
  * @property int $media_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Media $Media
+ * @property-read \App\Models\Media $Media
+ * @property-read string $hash
  * @method static Builder|Version newModelQuery()
  * @method static Builder|Version newQuery()
  * @method static Builder|Version query()
