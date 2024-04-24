@@ -18,7 +18,6 @@ class VideoTest extends MediaTest
 {
     protected const IDENTIFIER = 'testVideo';
     protected const VIDEO_NAME = 'video.mp4';
-    protected const CALLBACK_URL = 'http://example.com/callback';
     protected Filesystem $videoDerivativesDisk;
 
     protected function setUp(): void
@@ -33,7 +32,6 @@ class VideoTest extends MediaTest
     {
         $reserveUploadSlotResponse = $this->json('POST', route('v1.reserveVideoUploadSlot'), [
             'identifier' => self::IDENTIFIER,
-            'callback_url' => self::CALLBACK_URL
         ]);
 
         $reserveUploadSlotResponse->assertOk();
@@ -56,7 +54,7 @@ class VideoTest extends MediaTest
         TranscodeVideo::dispatch($outdatedVersion, $uploadSlot);
 
         $request = Http::recorded()[0][0];
-        $transcodingResult = json_decode(SodiumHelper::decrypt($request->data()['signed_response']), true);
+        $transcodingResult = json_decode(SodiumHelper::decrypt($request->data()['signed_notification']), true);
 
         $this->assertEquals(ResponseState::TRANSCODING_ABORTED->getState()->value, $transcodingResult['state']);
         $this->assertEquals(ResponseState::TRANSCODING_ABORTED->getMessage(), $transcodingResult['message']);
