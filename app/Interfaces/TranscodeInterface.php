@@ -10,6 +10,13 @@ use App\Models\Version;
 interface TranscodeInterface
 {
     /**
+     * Returns the class which handles the actual transcoding.
+     *
+     * @return string
+     */
+    public function getJobClass(): string;
+
+    /**
      * Creates a job which handles the transcoding of a video.
      *
      * @param Version $version

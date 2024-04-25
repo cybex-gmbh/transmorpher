@@ -17,6 +17,16 @@ use Http;
 class Transcode implements TranscodeInterface
 {
     /**
+     * Returns the class which handles the actual transcoding.
+     *
+     * @return string
+     */
+    public function getJobClass(): string
+    {
+        return TranscodeVideo::class;
+    }
+
+    /**
      * Creates a job which handles the transcoding of a video.
      *
      * @param Version $version
