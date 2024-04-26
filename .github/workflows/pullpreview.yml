@@ -13,6 +13,7 @@ jobs:
       statuses: write # to create commit status
 
     name: Deploy PullPreview staging environment
+    # https://github.com/cybex-gmbh/github-workflows/blob/main/.github/workflows/pullpreview.yml
     uses: cybex-gmbh/github-workflows/.github/workflows/pullpreview.yml@main
     with:
       PULLPREVIEW_ADMINS: jheusinger, gael-connan-cybex, holyfabi, lupinitylabs, mszulik
