@@ -445,8 +445,8 @@ For more information, take a look at the PullPreview section of the [github-work
 
 App-specific GitHub Secrets:
 
-- APP_KEY
-- TRANSMORPHER_SIGNING_KEYPAIR
+- PULLPREVIEW_APP_KEY
+- PULLPREVIEW_TRANSMORPHER_SIGNING_KEYPAIR
 - PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH
 
 #### Auth Token Hash
@@ -454,7 +454,7 @@ App-specific GitHub Secrets:
 The environment is seeded with a user with an auth token. To get access, you will have to locally create a token and use this token and its hash.
 
 ```bash
-php artisan create:user pullpreview pullpreview@example.com
+php artisan create:user pullpreview pullpreview@example.com http://pullpreview.test/transmorpher/notifications
 ```
 
 Take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command also provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored
