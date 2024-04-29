@@ -32,6 +32,11 @@ class PurgeDerivatives extends Command
      */
     public function handle(): int
     {
+        if (!$this->option('image') && !$this->option('video') && !$this->option('all')) {
+            $this->warn(sprintf('No options provided. Call "php artisan %s --help" for a list of all options.', $this->name));
+            return Command::SUCCESS;
+        }
+
         foreach (MediaType::cases() as $mediaType) {
             if ($this->option('all') || $this->option($mediaType->value)) {
                 ['success' => $success, 'message' => $message] = $mediaType->handler()->purgeDerivatives();

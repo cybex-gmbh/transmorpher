@@ -29,7 +29,7 @@ class ClientPurgeNotification implements ShouldQueue
      *
      * @var int
      */
-    public int $timeout = 300;
+    public int $timeout = 10;
 
     /**
      * The number of seconds to wait before retrying the job.
