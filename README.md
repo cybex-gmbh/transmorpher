@@ -102,8 +102,8 @@ For more information about scheduling, check the [Laravel Docs](https://laravel.
 
 #### Disks
 
-The media server uses 3 separate Laravel disks to store originals, image derivatives and video derivatives.
-Use the provided `.env` keys to select any of the disks in the `filesystems.php` config file.
+The media server must use 3 separate Laravel disks to store originals, image derivatives and video derivatives.
+Use the provided `.env` keys to select the according disks in the `filesystems.php` config file.
 
 > [!NOTE]
 >
@@ -158,7 +158,7 @@ AWS_DEFAULT_REGION=eu-central-1
 
 #### File Storage
 
-By default, AWS S3 disks are configured in the `.env`:
+To use AWS S3 disks set the according `.env` values:
 
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=s3Originals
