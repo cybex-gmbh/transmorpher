@@ -84,6 +84,14 @@ class ImageTest extends MediaTest
         return $version;
     }
 
+    #[Test]
+    #[Depends('ensureImageUploadSlotCanBeReserved')]
+    #[Depends('ensureImageCanBeUploaded')]
+    public function ensureUploadTokenIsInvalidatedAfterUpload(string $uploadToken)
+    {
+        $this->uploadImage($uploadToken)->assertNotFound();
+    }
+
     protected function createDerivativeForVersion(Version $version): TestResponse
     {
         return $this->get(route('getDerivative', [$this->user->name, $version->Media]));
