@@ -56,6 +56,12 @@ To clone the repository and get your media server running, use:
 git clone --branch release/v0 --single-branch https://github.com/cybex-gmbh/transmorpher.git
 ```
 
+Install composer dependencies:
+
+```bash
+composer install --no-dev
+```
+
 #### Required software
 
 See the Dockerfiles for details.
@@ -99,6 +105,22 @@ To run the scheduler, you will need to add a cron job that runs the `schedule:ru
 For more information about scheduling, check the [Laravel Docs](https://laravel.com/docs/11.x/scheduling).
 
 ## General configuration
+
+#### Basics
+
+1. Create an app key:
+
+```bash
+php artisan key:generate
+```
+
+2. Configure the database in the `.env` file.
+
+3. Migrate the database:
+
+```bash
+php artisan migrate
+```
 
 #### Disks
 
@@ -436,6 +458,24 @@ The command accepts the options `--image`, `--video` and `--all` (or `-a`) for p
 Image derivatives will be deleted, for video derivatives we dispatch a new transcoding job for the current version.
 
 The derivatives revision is available on the route `/api/v*/cacheInvalidationRevision`.
+
+## Recovery
+
+To restore operation of the server, restore the following:
+
+- database
+- the `originals` disk
+- `.env` file*
+- the `image derivatives` disk*
+- the `video derivatives` disk*
+
+> Marked with * are optional, but recommended.
+
+If the `.env` file is lost follow the setup instructions above, including creating a new signing keypair.
+
+If video derivatives are lost, use the [purge command](#purging-derivatives) to restore them. 
+
+Lost image derivatives will automatically be re-generated on demand.
 
 ## Development
 
