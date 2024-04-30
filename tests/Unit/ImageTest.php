@@ -212,7 +212,7 @@ class ImageTest extends MediaTest
 
             return $request->url() == $this->user->api_url
                 && $decryptedNotification['notification_type'] == ClientNotification::CACHE_INVALIDATION->value
-                && $decryptedNotification['cache_invalidation_counter'] == $cacheCounterAfterCommand;
+                && $decryptedNotification['cache_invalidator'] == $cacheCounterAfterCommand;
         });
 
         $this->assertTrue(++$cacheCounterBeforeCommand == $cacheCounterAfterCommand);

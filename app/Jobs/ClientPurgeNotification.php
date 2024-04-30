@@ -56,7 +56,7 @@ class ClientPurgeNotification implements ShouldQueue
     {
         $notification = [
             'notification_type' => $this->notificationType,
-            'cache_invalidation_counter' => $this->cacheInvalidationCounter
+            'cache_invalidator' => $this->cacheInvalidationCounter
         ];
 
         $signedNotification = SodiumHelper::sign(json_encode($notification));
