@@ -12,7 +12,7 @@ class BinaryAvailabilityTest extends TestCase
      */
     protected function assertBinaryExists($binaryName): void
     {
-        exec(sprintf('which %s', $binaryName), $output, $exitCode);
+        $exitCode = Process::run(['which', $binaryName])->exitCode();
 
         $this->assertEquals(0, $exitCode, sprintf('%s is not installed', $binaryName));
     }
