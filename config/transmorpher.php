@@ -185,11 +185,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cache Invalidation File Path
+    | Cache Invalidation Counter File Path
     |--------------------------------------------------------------------------
     |
-    | The path to a file on the originals disk that stores the current cache invalidation revision number.
+    | The path to a file on the originals disk that stores the cache invalidation counter.
     |
     */
-    'cache_invalidation_file_path' => env('CACHE_INVALIDATION_FILE_PATH', 'cacheInvalidationRevision'),
+    'cache_invalidation_counter_file_path' => env('CACHE_INVALIDATION_COUNTER_FILE_PATH', 'cacheInvalidationCounter'),
 ];

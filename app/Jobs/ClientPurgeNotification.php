@@ -43,7 +43,7 @@ class ClientPurgeNotification implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(protected User $user, protected int $cacheInvalidationRevision)
+    public function __construct(protected User $user, protected int $cacheInvalidationCounter)
     {
         $this->onQueue('client-notifications');
     }
@@ -56,7 +56,7 @@ class ClientPurgeNotification implements ShouldQueue
     {
         $notification = [
             'notification_type' => $this->notificationType,
-            'cache_invalidation_revision' => $this->cacheInvalidationRevision
+            'cache_invalidation_counter' => $this->cacheInvalidationCounter
         ];
 
         $signedNotification = SodiumHelper::sign(json_encode($notification));

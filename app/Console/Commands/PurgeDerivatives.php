@@ -25,7 +25,7 @@ class PurgeDerivatives extends Command
      *
      * @var string
      */
-    protected $description = 'Purge all derivatives, increment the cacheInvalidationRevision and notify all clients';
+    protected $description = 'Purge all derivatives, increment the cache invalidation counter and notify all clients';
 
     /**
      * Execute the console command.
@@ -45,14 +45,14 @@ class PurgeDerivatives extends Command
         }
 
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
-        $cacheInvalidationFilePath = config('transmorpher.cache_invalidation_file_path');
+        $cacheInvalidationCounterFilePath = config('transmorpher.cache_invalidation_counter_file_path');
 
-        if (!$originalsDisk->put($cacheInvalidationFilePath, $originalsDisk->get($cacheInvalidationFilePath) + 1)) {
-            $this->error(sprintf('Failed to update cache invalidation revision at path %s on disk %s', $cacheInvalidationFilePath, MediaStorage::ORIGINALS->value));
+        if (!$originalsDisk->put($cacheInvalidationCounterFilePath, $originalsDisk->get($cacheInvalidationCounterFilePath) + 1)) {
+            $this->error(sprintf('Failed to update cache invalidation counter at path %s on disk %s', $cacheInvalidationCounterFilePath, MediaStorage::ORIGINALS->value));
         }
 
         foreach (User::get() as $user) {
-            ClientPurgeNotification::dispatch($user, $originalsDisk->get($cacheInvalidationFilePath));
+            ClientPurgeNotification::dispatch($user, $originalsDisk->get($cacheInvalidationCounterFilePath));
         }
 
         return Command::SUCCESS;

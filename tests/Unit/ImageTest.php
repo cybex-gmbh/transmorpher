@@ -197,7 +197,7 @@ class ImageTest extends MediaTest
 
         $this->assertVersionFilesExist($this->version);
 
-        $cacheRevisionBeforeCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_file_path'));
+        $cacheCounterBeforeCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
 
         Http::fake([
             $this->user->api_url => Http::response()
@@ -205,17 +205,17 @@ class ImageTest extends MediaTest
 
         Artisan::call(PurgeDerivatives::class, ['--image' => true]);
 
-        $cacheRevisionAfterCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_file_path'));
+        $cacheCounterAfterCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
 
-        Http::assertSent(function (Request $request) use ($cacheRevisionAfterCommand) {
+        Http::assertSent(function (Request $request) use ($cacheCounterAfterCommand) {
             $decryptedNotification = json_decode(SodiumHelper::decrypt($request['signed_notification']), true);
 
             return $request->url() == $this->user->api_url
                 && $decryptedNotification['notification_type'] == ClientNotification::CACHE_INVALIDATION->value
-                && $decryptedNotification['cache_invalidation_revision'] == $cacheRevisionAfterCommand;
+                && $decryptedNotification['cache_invalidation_counter'] == $cacheCounterAfterCommand;
         });
 
-        $this->assertTrue(++$cacheRevisionBeforeCommand == $cacheRevisionAfterCommand);
+        $this->assertTrue(++$cacheCounterBeforeCommand == $cacheCounterAfterCommand);
         $this->imageDerivativesDisk->assertMissing($this->version->imageDerivativeFilePath());
     }
 

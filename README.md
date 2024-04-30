@@ -457,7 +457,7 @@ php artisan purge:derivatives
 The command accepts the options `--image`, `--video` and `--all` (or `-a`) for purging the respective derivatives.
 Image derivatives will be deleted, for video derivatives we dispatch a new transcoding job for the current version.
 
-The derivatives revision is available on the route `/api/v*/cacheInvalidationRevision`.
+The derivatives revision is available on the route `/api/v*/cacheInvalidationCounter`.
 
 ## Recovery
 
