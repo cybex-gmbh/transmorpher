@@ -20,14 +20,4 @@ enum MediaStorage: string
     {
         return Storage::disk(config(sprintf('transmorpher.disks.%s', $this->value)));
     }
-
-    /**
-     * Returns the file path to the cache invalidation file in which the current revision is stored.
-     *
-     * @return string
-     */
-    public static function getCacheInvalidationFilePath(): string
-    {
-        return 'cacheInvalidationRevision';
-    }
 }

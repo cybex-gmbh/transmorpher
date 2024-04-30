@@ -182,4 +182,14 @@ return [
         'image' => App\Classes\MediaHandler\ImageHandler::class,
         'video' => App\Classes\MediaHandler\VideoHandler::class
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Invalidation File Path
+    |--------------------------------------------------------------------------
+    |
+    | The path to a file on the originals disk that stores the current cache invalidation revision number.
+    |
+    */
+    'cache_invalidation_file_path' => env('CACHE_INVALIDATION_FILE_PATH', 'cacheInvalidationRevision'),
 ];

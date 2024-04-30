@@ -197,7 +197,7 @@ class ImageTest extends MediaTest
 
         $this->assertVersionFilesExist($this->version);
 
-        $cacheRevisionBeforeCommand = $this->originalsDisk->get(MediaStorage::getCacheInvalidationFilePath());
+        $cacheRevisionBeforeCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_file_path'));
 
         Http::fake([
             $this->user->api_url => Http::response()
@@ -205,7 +205,7 @@ class ImageTest extends MediaTest
 
         Artisan::call(PurgeDerivatives::class, ['--image' => true]);
 
-        $cacheRevisionAfterCommand = $this->originalsDisk->get(MediaStorage::getCacheInvalidationFilePath());
+        $cacheRevisionAfterCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_file_path'));
 
         Http::assertSent(function (Request $request) use ($cacheRevisionAfterCommand) {
             $decryptedNotification = json_decode(SodiumHelper::decrypt($request['signed_notification']), true);
