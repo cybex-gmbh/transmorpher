@@ -2,9 +2,7 @@
 
 namespace App\Interfaces;
 
-use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
-use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
@@ -36,13 +34,17 @@ interface MediaHandlerInterface
      * @param Version $version
      * @param int $oldVersionNumber
      * @param bool $wasProcessed
-     * @param string $callbackUrl
      * @return array
      */
-    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array;
+    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array;
 
     /**
      * @return Filesystem
      */
     public function getDerivativesDisk(): Filesystem;
+
+    /**
+     * @return array
+     */
+    public function purgeDerivatives(): array;
 }

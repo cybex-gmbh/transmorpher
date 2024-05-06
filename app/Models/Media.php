@@ -28,6 +28,7 @@ use Validator;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Version> $Versions
  * @property-read int|null $versions_count
  * @property-read \App\Models\Version $current_version
+ * @property-read \App\Models\Version|null $latest_version
  * @method static \Illuminate\Database\Eloquent\Builder|Media newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Media newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Media query()
@@ -159,6 +160,16 @@ class Media extends Model
             get: function (): Version {
                 $versions = $this->Versions();
                 return $versions->whereNumber($versions->whereProcessed(true)->max('number'))->firstOrFail();
+            }
+        );
+    }
+
+    public function latestVersion(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?Version {
+                $versions = $this->Versions();
+                return $versions->whereNumber($versions->max('number'))->first();
             }
         );
     }

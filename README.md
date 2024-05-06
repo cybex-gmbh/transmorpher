@@ -29,15 +29,16 @@ To not accidentally upgrade to a new major version, attach the major version you
 
 #### Configuration options
 
-There needs to be at least 1 Laravel worker to transcode videos. The following variable specifies how many workers should be running in the container:
+There needs to be at least 1 Laravel worker to transcode videos.
+The following variable specifies how many workers should be running in the container:
 
 ```dotenv
 VIDEO_TRANSCODING_WORKERS_AMOUNT=1
 ```
 
 > [!CAUTION]
-> Using the database queue connection does neither guarantee FIFO nor prevent duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS
-> FIFO.
+> Using the database queue connection does neither guarantee FIFO nor prevent duplicate runs.
+> It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
 > To prevent duplicate runs with database, use only one worker process.
 
 This environment variable has to be passed to the app container in your docker-compose.yml:
@@ -49,10 +50,16 @@ environment:
 
 ### Cloning the repository
 
-To clone the repository and get your media server running use:
+To clone the repository and get your media server running, use:
 
 ```bash
 git clone --branch release/v0 --single-branch https://github.com/cybex-gmbh/transmorpher.git
+```
+
+Install composer dependencies:
+
+```bash
+composer install --no-dev
 ```
 
 #### Required software
@@ -64,19 +71,23 @@ Image manipulation:
 - [ImageMagick](https://imagemagick.org/index.php)
 - [php-imagick](https://www.php.net/manual/en/book.imagick.php)
 
-> Optionally you can use GD, which can be configured in the Intervention Image configuration file.
+> Optionally, you can use GD, which can be configured in the Intervention Image configuration file.
 
 Image optimization:
 
 - [JpegOptim](https://github.com/tjko/jpegoptim)
 - [Optipng](https://optipng.sourceforge.net/)
-- [Pngquant 2](https://pngquant.org/)
+- [Pngquant](https://pngquant.org/)
 - [Gifsicle](https://www.lcdf.org/gifsicle/)
 - [cwebp](https://developers.google.com/speed/webp/docs/precompiled)
 
 To use video transcoding:
 
 - [FFmpeg](https://ffmpeg.org/)
+
+#### Generic workers
+
+Client notifications will be pushed on the queue `client-notifications`. You will need to set up 1 worker for this queue.
 
 #### Scheduling
 
@@ -85,25 +96,60 @@ To keep the local disk clean, a command is scheduled hourly to delete chunk file
 
 See the [`chunk-upload` configuration file](config/chunk-upload.php) for more information.
 
-To run the scheduler you will need to add a cron job that runs the `schedule:run` command on your server:
+To run the scheduler, you will need to add a cron job that runs the `schedule:run` command on your server:
 
 ```
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-For more information about scheduling check the [Laravel Docs](https://laravel.com/docs/11.x/scheduling).
+For more information about scheduling, check the [Laravel Docs](https://laravel.com/docs/11.x/scheduling).
 
 ## General configuration
 
+#### Basics
+
+1. Create an app key:
+
+```bash
+php artisan key:generate
+```
+
+2. Configure the database in the `.env` file.
+
+3. Migrate the database:
+
+```bash
+php artisan migrate
+```
+
 #### Disks
 
-The media server uses 3 separate Laravel disks to store originals, image derivatives and video derivatives. Use the provided `.env` keys to select any of the disks in
-the `filesystems.php` config file.
+The media server must use 3 separate Laravel disks to store originals, image derivatives and video derivatives.
+Use the provided `.env` keys to select the according disks in the `filesystems.php` config file.
 
 > [!NOTE]
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
 > 1. If this prefix would be changed after initially launching your media server, clients would no longer be able to retrieve their previously uploaded media.
+
+#### Sodium Keypair
+
+A signed request is used to notify clients about finished transcodings and when derivatives are purged.
+For this, a [Sodium](https://www.php.net/manual/en/book.sodium.php) keypair has to be configured.
+
+To create a keypair, use the provided command:
+
+```bash
+php artisan create:keypair
+```
+
+The newly created keypair has to be written in the `.env` file:
+
+```dotenv
+TRANSMORPHER_SIGNING_KEYPAIR=
+```
+
+The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested by any client.
 
 ### Cloud Setup
 
@@ -111,12 +157,12 @@ The Transmorpher media server is not dependent on a specific cloud service provi
 
 #### Prerequisites for video functionality
 
-- A file storage, for example AWS S3
-- A routing capable service, for example a Content Delivery Network, like AWS CloudFront
+- A file storage, for example, AWS S3
+- A routing-capable service, for example, a Content Delivery Network, like AWS CloudFront
 
 #### IAM
 
-Create an IAM user with programmatic access. For more information check the documentation for the corresponding service.
+Create an IAM user with programmatic access. For more information, check the documentation for the corresponding service.
 
 Permissions:
 
@@ -134,7 +180,7 @@ AWS_DEFAULT_REGION=eu-central-1
 
 #### File Storage
 
-By default, AWS S3 disks are configured in the `.env`:
+To use AWS S3 disks set the according `.env` values:
 
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=s3Originals
@@ -165,13 +211,13 @@ Configure your CloudFront-Distribution-ID:
 AWS_CLOUDFRONT_DISTRIBUTION_ID=
 ```
 
-Changes to media will automatically trigger a cache invalidation, therefore the CDN cache duration can be set to a long time.
+Changes to media will automatically trigger a cache invalidation. Therefore, the CDN cache duration can be set to a long time.
 
 To forward incoming requests from the CDN to your media server, configure your Transmorpher media server as the main origin.
 For more information on configuring origins in CloudFront see
 the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html).
 
-In order to properly use the API you need to either:
+To properly use the API, you need to either:
 
 1. add a rule to not cache anything under `/api/*`
 1. publish the Transmorpher media server under an additional domain that is not behind the CDN
@@ -180,31 +226,13 @@ In order to properly use the API you need to either:
 
 *Content Delivery Network*
 
-In the CDN routing create a new behavior which points requests starting with "/videos/*" to a new origin, which is the video derivatives S3 bucket.  
-\
-*Sodium Keypair*
+In the CDN routing create a new behavior which points requests starting with "/videos/*" to a new origin, which is the video derivatives S3 bucket.
 
-A signed request is used to notify clients about finished transcodings. For this, a [Sodium](https://www.php.net/manual/en/book.sodium.php) keypair has to be configured.
-
-To create a keypair, simply use the provided command:
-
-```bash
-php artisan transmorpher:keypair
-```
-
-The newly created keypair has to be written in the `.env` file:
-
-```dotenv
-TRANSMORPHER_SIGNING_KEYPAIR=
-```
-
-The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
-by any client.  
-\
 *Queue*
 
-Transcoding jobs are dispatched onto the "video-transcoding" queue. You can have these jobs processed on the main server or dedicated workers. For more information check
-the [Laravel Queue Documentation](https://laravel.com/docs/10.x/queues).
+Transcoding jobs are dispatched onto the "video-transcoding" queue.
+You can have these jobs processed on the main server or dedicated workers.
+For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/11.x/queues).
 
 > [!NOTE]
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
@@ -246,29 +274,11 @@ To access public derivatives for videos, generate a symlink from the Laravel sto
 php artisan storage:link
 ```
 
-*Sodium Keypair*
-
-A signed request is used to notify clients about finished transcodings. For this, a [Sodium](https://www.php.net/manual/en/book.sodium.php) keypair has to be configured.
-
-To create a keypair, simply use the provided command:
-
-```bash
-php artisan transmorpher:keypair
-```
-
-The newly created keypair has to be written in the `.env` file:
-
-```dotenv
-TRANSMORPHER_SIGNING_KEYPAIR=
-```
-
-The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested
-by any client.  
-\
 *Queue*
 
-Transcoding jobs are dispatched onto the "video-transcoding" queue. You can have these jobs processed on the main server or dedicated workers. For more information check
-the [Laravel Queue Documentation](https://laravel.com/docs/10.x/queues).
+Transcoding jobs are dispatched onto the "video-transcoding" queue.
+You can have these jobs processed on the main server or dedicated workers.
+For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/11.x/queues).
 
 You can define your queue connection in the `.env` file:
 
@@ -302,7 +312,7 @@ Media always belongs to a user. To easily create one, use the provided command:
 php artisan create:user <name> <email>
 ```
 
-This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/10.x/sanctum) token, which has to be
+This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/11.x/sanctum) token, which has to be
 written in the `.env` file of a client system.
 > The token will be passed for all API requests for authorization and is connected to the corresponding user.
 
@@ -318,7 +328,7 @@ Media is identified by a string which is passed when uploading media. This "iden
 
 When media is uploaded on the same identifier by the same user, a new version for the same media will be created.
 
-The media server provides following features for media:
+The media server provides the following features for media:
 
 - upload
 - get derivative
@@ -330,7 +340,8 @@ The media server provides following features for media:
 
 ## Image transformation
 
-Images will always be optimized and transformed on the Transmorpher media server. Requests for derivatives will also be directly answered by the media server.
+Images will always be optimized and transformed on the Transmorpher media server.
+The media server will also directly answer requests for derivatives.
 
 The media server provides the following transformations for images:
 
@@ -360,7 +371,8 @@ transformations.
 Video transcoding is handled as an asynchronous task. The client will receive the
 information about the transcoded video as soon as it completes. For this, a signed request is sent to the client.
 
-Since video transcoding is a complex task it may take some time to complete. The client will also be notified about failed attempts.
+Since video transcoding is a complex task, it may take some time to complete.
+The client will also be notified about failed attempts.
 
 To publicly access a video, the client name, the identifier and a format have to be specified. There are different formats available:
 
@@ -389,9 +401,8 @@ You will also have to adjust the `transmorpher.php` configuration value for the 
 The class to transform images as well as the classes to convert images to different formats are interchangeable.
 This provides the ability to add additional image manipulation libraries or logic in a modular way.
 
-To add a class for image transformation, simply create a new class which implements the `TransformInterface`. An example
-implementation can be found
-at `App\Classes\Intervention\Transform`.
+To add a class for image transformation, create a new class which implements the `TransformInterface`.
+An example implementation can be found at `App\Classes\Intervention\Transform`.
 Additionally, the newly created class has to be specified in the `transmorpher.php` configuration file:
 
 ```php
@@ -416,7 +427,7 @@ You will also have to adjust the configuration values:
 
 The `image-optimizer.php` configuration file specifies which optimizers should be used. Here you can configure options for each optimizer and add new or remove optimizers.
 
-For more information on adding custom optimizers check the documentation of
+For more information on adding custom optimizers, check the documentation of
 the [Laravel Image Optimizer](https://github.com/spatie/laravel-image-optimizer#adding-your-own-optimizers) package.
 
 ### Video Transcoding
@@ -424,7 +435,7 @@ the [Laravel Image Optimizer](https://github.com/spatie/laravel-image-optimizer#
 By default, the Transmorpher uses FFmpeg and Laravel jobs for transcoding videos. This can be changed similar to the
 image transformation classes.
 
-To interchange the class, which is responsible for initiating transcoding, simply create a new class which implements
+To interchange the class, which is responsible for initiating transcoding, create a new class which implements
 the `TranscodeInterface`. An example implementation, which
 dispatches a job, can be found at `App\Classes\Transcode.php`.
 You will also have to adjust the configuration value:
@@ -433,16 +444,49 @@ You will also have to adjust the configuration value:
 'transcode_class' => App\Classes\YourTranscodeClass::class,
 ```
 
+## Purging derivatives
+
+Adjusting the way derivatives are generated will not be reflected on already existing derivatives. Therefore, you might want to delete all existing derivatives or re-generate them.
+
+We provide a command which will additionally notify clients with a signed request about a new derivatives revision, so they can react accordingly (e.g. update cache buster).
+
+```bash
+php artisan purge:derivatives
+```
+
+The command accepts the options `--image`, `--video` and `--all` (or `-a`) for purging the respective derivatives.
+Image derivatives will be deleted, for video derivatives we dispatch a new transcoding job for the current version.
+
+The derivatives revision is available on the route `/api/v*/cacheInvalidator`.
+
+## Recovery
+
+To restore operation of the server, restore the following:
+
+- database
+- the `originals` disk
+- `.env` file*
+- the `image derivatives` disk*
+- the `video derivatives` disk*
+
+> Marked with * are optional, but recommended.
+
+If the `.env` file is lost follow the setup instructions above, including creating a new signing keypair.
+
+If video derivatives are lost, use the [purge command](#purging-derivatives) to restore them. 
+
+Lost image derivatives will automatically be re-generated on demand.
+
 ## Development
 
 ### [Pullpreview](https://github.com/pullpreview/action)
 
-For more information take a look at the PullPreview section of the [github-workflow repository](https://github.com/cybex-gmbh/github-workflows#pullpreview).
+For more information, take a look at the PullPreview section of the [github-workflow repository](https://github.com/cybex-gmbh/github-workflows#pullpreview).
 
-App specific GitHub Secrets:
+App-specific GitHub Secrets:
 
-- APP_KEY
-- TRANSMORPHER_SIGNING_KEYPAIR
+- PULLPREVIEW_APP_KEY
+- PULLPREVIEW_TRANSMORPHER_SIGNING_KEYPAIR
 - PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH
 
 #### Auth Token Hash
@@ -450,7 +494,7 @@ App specific GitHub Secrets:
 The environment is seeded with a user with an auth token. To get access, you will have to locally create a token and use this token and its hash.
 
 ```bash
-php artisan create:user pullpreview pullpreview@example.com
+php artisan create:user pullpreview pullpreview@example.com http://pullpreview.test/transmorpher/notifications
 ```
 
 Take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command also provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored

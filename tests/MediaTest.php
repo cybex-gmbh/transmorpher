@@ -10,7 +10,7 @@ use Storage;
 
 class MediaTest extends TestCase
 {
-    protected static User $user;
+    protected User $user;
     protected Filesystem $originalsDisk;
 
     protected function setUp(): void
@@ -20,7 +20,7 @@ class MediaTest extends TestCase
         $this->originalsDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::ORIGINALS->value)));
 
         Sanctum::actingAs(
-            self::$user ??= User::factory()->create(),
+            $this->user ??= User::first() ?: User::factory()->create(),
             ['*']
         );
     }

@@ -2,15 +2,21 @@
 
 namespace Tests\Unit;
 
+use App\Console\Commands\PurgeDerivatives;
+use App\Enums\ClientNotification;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Exceptions\InvalidTransformationFormatException;
 use App\Exceptions\InvalidTransformationValueException;
 use App\Exceptions\TransformationNotFoundException;
+use App\Helpers\SodiumHelper;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\Version;
+use Artisan;
+use Http;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -61,6 +67,7 @@ class ImageTest extends MediaTest
         ]);
     }
 
+
     #[Test]
     #[Depends('ensureImageUploadSlotCanBeReserved')]
     public function ensureImageCanBeUploaded(string $uploadToken)
@@ -77,9 +84,17 @@ class ImageTest extends MediaTest
         return $version;
     }
 
+    #[Test]
+    #[Depends('ensureImageUploadSlotCanBeReserved')]
+    #[Depends('ensureImageCanBeUploaded')]
+    public function ensureUploadTokenIsInvalidatedAfterUpload(string $uploadToken)
+    {
+        $this->uploadImage($uploadToken)->assertNotFound();
+    }
+
     protected function createDerivativeForVersion(Version $version): TestResponse
     {
-        return $this->get(route('getDerivative', [self::$user->name, $version->Media]));
+        return $this->get(route('getDerivative', [$this->user->name, $version->Media]));
     }
 
     #[Test]
@@ -96,7 +111,7 @@ class ImageTest extends MediaTest
     public function ensureUnprocessedFilesAreNotAvailable(Version $version)
     {
         $version->update(['processed' => 0]);
-        $getDerivativeResponse = $this->get(route('getDerivative', [self::$user->name, $version->Media]));
+        $getDerivativeResponse = $this->get(route('getDerivative', [$this->user->name, $version->Media]));
 
         $getDerivativeResponse->assertNotFound();
     }
@@ -114,8 +129,8 @@ class ImageTest extends MediaTest
 
     protected function assertUserDirectoryExists(): void
     {
-        $this->originalsDisk->assertExists(self::$user->name);
-        $this->imageDerivativesDisk->assertExists(self::$user->name);
+        $this->originalsDisk->assertExists($this->user->name);
+        $this->imageDerivativesDisk->assertExists($this->user->name);
     }
 
     protected function assertVersionFilesMissing(Version $version): void
@@ -132,11 +147,11 @@ class ImageTest extends MediaTest
 
     protected function assertUserDirectoryMissing(): void
     {
-        $this->originalsDisk->assertMissing(self::$user->name);
-        $this->imageDerivativesDisk->assertMissing(self::$user->name);
+        $this->originalsDisk->assertMissing($this->user->name);
+        $this->imageDerivativesDisk->assertMissing($this->user->name);
     }
 
-    protected function setupDeletionTest(): void
+    protected function setupMediaAndVersion(): void
     {
         $this->uploadToken = $this->reserveUploadSlot()->json()['upload_token'];
         $this->version = Media::whereIdentifier(self::IDENTIFIER)->first()->Versions()->whereNumber($this->uploadImage($this->uploadToken)['version'])->first();
@@ -148,7 +163,7 @@ class ImageTest extends MediaTest
     #[Test]
     public function ensureVersionDeletionMethodsWork()
     {
-        $this->setupDeletionTest();
+        $this->setupMediaAndVersion();
 
         $this->assertVersionFilesExist($this->version);
 
@@ -160,7 +175,7 @@ class ImageTest extends MediaTest
     #[Test]
     public function ensureMediaDeletionMethodsWork()
     {
-        $this->setupDeletionTest();
+        $this->setupMediaAndVersion();
 
         $this->assertVersionFilesExist($this->version);
         $this->assertMediaDirectoryExists($this->media);
@@ -176,16 +191,45 @@ class ImageTest extends MediaTest
     }
 
     #[Test]
+    public function ensureImageDerivativesArePurged()
+    {
+        $this->setupMediaAndVersion();
+
+        $this->assertVersionFilesExist($this->version);
+
+        $cacheCounterBeforeCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
+
+        Http::fake([
+            $this->user->api_url => Http::response()
+        ]);
+
+        Artisan::call(PurgeDerivatives::class, ['--image' => true]);
+
+        $cacheCounterAfterCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
+
+        Http::assertSent(function (Request $request) use ($cacheCounterAfterCommand) {
+            $decryptedNotification = json_decode(SodiumHelper::decrypt($request['signed_notification']), true);
+
+            return $request->url() == $this->user->api_url
+                && $decryptedNotification['notification_type'] == ClientNotification::CACHE_INVALIDATION->value
+                && $decryptedNotification['cache_invalidator'] == $cacheCounterAfterCommand;
+        });
+
+        $this->assertTrue(++$cacheCounterBeforeCommand == $cacheCounterAfterCommand);
+        $this->imageDerivativesDisk->assertMissing($this->version->imageDerivativeFilePath());
+    }
+
+    #[Test]
     public function ensureUserDeletionMethodsWork()
     {
-        $this->setupDeletionTest();
+        $this->setupMediaAndVersion();
 
         $this->assertVersionFilesExist($this->version);
         $this->assertMediaDirectoryExists($this->media);
         $this->assertUserDirectoryExists();
 
-        $this->runProtectedMethod(self::$user, 'deleteRelatedModels');
-        $this->runProtectedMethod(self::$user, 'deleteMediaDirectories');
+        $this->runProtectedMethod($this->user, 'deleteRelatedModels');
+        $this->runProtectedMethod($this->user, 'deleteMediaDirectories');
 
         $this->assertVersionFilesMissing($this->version);
         $this->assertMediaDirectoryMissing($this->media);

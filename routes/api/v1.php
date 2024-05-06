@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Helpers\SodiumHelper;
 use App\Http\Controllers\V1\ImageController;
@@ -36,4 +37,5 @@ Route::prefix('v1')->name('v1.')->group(function () {
 
     Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile'])->name('upload');
     Route::get('publickey', fn(): string => SodiumHelper::getPublicKey())->name('getPublicKey');
+    Route::get('cacheInvalidator', fn(): string => MediaStorage::ORIGINALS->getDisk()->get(config('transmorpher.cache_invalidation_counter_file_path')) ?? 0)->name('getCacheInvalidator');
 });

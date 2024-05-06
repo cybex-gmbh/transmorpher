@@ -7,9 +7,8 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\ImageUploadSlotRequest;
 use App\Http\Requests\V1\UploadRequest;
-use App\Http\Requests\V1\VideoUploadSlotRequest;
+use App\Http\Requests\V1\UploadSlotRequest;
 use App\Models\UploadSlot;
 use App\Models\User;
 use File;
@@ -54,25 +53,30 @@ class UploadSlotController extends Controller
     /**
      * Handle the incoming request.
      *
-     * @param ImageUploadSlotRequest $request
+     * @param UploadSlotRequest $request
      *
      * @return JsonResponse
      */
-    public function reserveImageUploadSlot(ImageUploadSlotRequest $request): JsonResponse
+    public function reserveImageUploadSlot(UploadSlotRequest $request): JsonResponse
     {
-        return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => MediaType::IMAGE->value])->all());
+        return $this->reserveUploadSlot($request, MediaType::IMAGE);
     }
 
     /**
      * Handle the incoming request.
      *
-     * @param VideoUploadSlotRequest $request
+     * @param UploadSlotRequest $request
      *
      * @return JsonResponse
      */
-    public function reserveVideoUploadSlot(VideoUploadSlotRequest $request): JsonResponse
+    public function reserveVideoUploadSlot(UploadSlotRequest $request): JsonResponse
     {
-        return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => MediaType::VIDEO->value])->all());
+        return $this->reserveUploadSlot($request, MediaType::VIDEO);
+    }
+
+    protected function reserveUploadSlot(UploadSlotRequest $request, MediaType $mediaType): JsonResponse
+    {
+        return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => $mediaType->value])->all());
     }
 
     /**
@@ -91,7 +95,7 @@ class UploadSlotController extends Controller
         $media->validateUploadFile($uploadedFile, $type->handler()->getValidationRules());
         $media->save();
 
-        $versionNumber = $media->Versions()->max('number') + 1;
+        $versionNumber = $media->latestVersion?->number + 1;
         $version = $media->Versions()->create(['number' => $versionNumber]);
         $basePath = $media->baseDirectory();
 
@@ -118,7 +122,8 @@ class UploadSlotController extends Controller
             'version' => $versionNumber,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $type->isInstantlyAvailable() ? implode(DIRECTORY_SEPARATOR, array_filter([$type->prefix(), $basePath])) : null,
-            'upload_token' => $uploadSlot->token
+            'upload_token' => $uploadSlot->token,
+            'hash' => $type->isInstantlyAvailable() ? $version?->hash : null,
         ], 201);
     }
 

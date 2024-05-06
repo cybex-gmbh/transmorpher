@@ -15,8 +15,8 @@ class PullpreviewSeeder extends Seeder
      */
     public function run(): void
     {
-        Artisan::call('create:user pullpreview pullpreview@example.com');
+        Artisan::call('create:user pullpreview pullpreview@example.com http://pullpreview.test/transmorpher/notifications');
 
-        DB::table('personal_access_tokens')->where('id', 1)->update(['token' => env('PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH')]);
+        DB::table('personal_access_tokens')->where('id', 1)->update(['token' => env('TRANSMORPHER_AUTH_TOKEN_HASH')]);
     }
 }

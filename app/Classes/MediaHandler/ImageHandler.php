@@ -74,10 +74,9 @@ class ImageHandler implements MediaHandlerInterface
      * @param Version $version
      * @param int $oldVersionNumber
      * @param bool $wasProcessed
-     * @param string $callbackUrl
      * @return array
      */
-    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
+    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array
     {
         // Token and valid_until will be set in the 'saving' event.
         // By creating an upload slot, a currently active upload will be canceled.
@@ -118,6 +117,19 @@ class ImageHandler implements MediaHandlerInterface
             'currentVersion' => $currentVersionNumber,
             'currentlyProcessedVersion' => $currentVersionNumber,
             'versions' => $processedVersions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function purgeDerivatives(): array
+    {
+        $success = $this->getDerivativesDisk()->deleteDirectory('');
+
+        return [
+            'success' => $success,
+            'message' => $success ? 'Deleted image derivatives.' : 'Failed to delete image derivatives.',
         ];
     }
 }

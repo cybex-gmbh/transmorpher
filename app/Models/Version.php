@@ -4,9 +4,13 @@ namespace App\Models;
 
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Version
@@ -16,20 +20,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $filename
  * @property int $processed
  * @property int $media_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read \App\Models\Media $Media
- * @method static \Illuminate\Database\Eloquent\Builder|Version newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Version newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Version query()
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereFilename($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereMediaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereProcessed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read string $hash
+ * @method static Builder|Version newModelQuery()
+ * @method static Builder|Version newQuery()
+ * @method static Builder|Version query()
+ * @method static Builder|Version whereCreatedAt($value)
+ * @method static Builder|Version whereFilename($value)
+ * @method static Builder|Version whereId($value)
+ * @method static Builder|Version whereMediaId($value)
+ * @method static Builder|Version whereNumber($value)
+ * @method static Builder|Version whereProcessed($value)
+ * @method static Builder|Version whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Version extends Model
 {
@@ -44,8 +49,8 @@ class Version extends Model
      * @var array
      */
     protected $fillable = [
-        'number',
         'filename',
+        'number',
         'processed',
     ];
 
@@ -141,5 +146,12 @@ class Version extends Model
     public function imageDerivativeDirectoryPath(): string
     {
         return sprintf('%s/%s', $this->Media->baseDirectory(), $this->getKey());
+    }
+
+    public function hash(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): string => md5(sprintf('%s-%s', $this->number, $this->created_at))
+        );
     }
 }

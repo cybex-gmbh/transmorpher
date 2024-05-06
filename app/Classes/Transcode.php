@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Enums\ClientNotification;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
@@ -15,6 +16,16 @@ use Http;
 
 class Transcode implements TranscodeInterface
 {
+    /**
+     * Returns the class which handles the actual transcoding.
+     *
+     * @return string
+     */
+    public function getJobClass(): string
+    {
+        return TranscodeVideo::class;
+    }
+
     /**
      * Creates a job which handles the transcoding of a video.
      *
@@ -64,26 +75,27 @@ class Transcode implements TranscodeInterface
      * Inform client package about the transcoding result.
      *
      * @param ResponseState $responseState
-     * @param string $callbackUrl
      * @param string $uploadToken
      * @param Media $media
      * @param int $versionNumber
      *
      * @return void
      */
-    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, Media $media, int $versionNumber): void
+    public function callback(ResponseState $responseState, string $uploadToken, Media $media, int $versionNumber): void
     {
-        $response = [
+        $notification = [
             'state' => $responseState->getState()->value,
             'message' => $responseState->getMessage(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'upload_token' => $uploadToken,
-            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), $media->baseDirectory()]))
+            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), $media->baseDirectory()])),
+            'hash' => Version::whereNumber($versionNumber)->first()?->hash,
+            'notification_type' => ClientNotification::VIDEO_TRANSCODING->value,
         ];
 
-        $signedResponse = SodiumHelper::sign(json_encode($response));
+        $signedNotification = SodiumHelper::sign(json_encode($notification));
 
-        Http::post($callbackUrl, ['signed_response' => $signedResponse]);
+        Http::post($media->User->api_url, ['signed_notification' => $signedNotification]);
     }
 }

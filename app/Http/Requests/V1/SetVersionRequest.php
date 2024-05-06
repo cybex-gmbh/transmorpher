@@ -23,9 +23,6 @@ class SetVersionRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Nullable because this information is only used for videos. Validation is happening inside the VersionController.
-        return [
-            'callback_url' => ['nullable', 'string', 'url']
-        ];
+        return [];
     }
 }

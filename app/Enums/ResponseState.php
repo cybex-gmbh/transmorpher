@@ -8,7 +8,6 @@ enum ResponseState: string
     case DELETION_SUCCESSFUL = 'deletion_successful';
     case IMAGE_UPLOAD_SUCCESSFUL = 'image_upload_successful';
     case IMAGE_VERSION_SET = 'image_version_set';
-    case NO_CALLBACK_URL_PROVIDED = 'no_callback_url_provided';
     case TRANSCODING_ABORTED = 'transcoding_aborted';
     case TRANSCODING_FAILED = 'transcoding_failed';
     case TRANSCODING_JOB_DISPATCH_FAILED = 'transcoding_job_dispatch_failed';

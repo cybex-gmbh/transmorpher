@@ -11,6 +11,7 @@ on:
 jobs:
   execute-tests:
     name: Setup testing environment and execute tests
+    # https://github.com/cybex-gmbh/github-workflows/blob/main/.github/workflows/tests.yml
     uses: cybex-gmbh/github-workflows/.github/workflows/tests.yml@main
     strategy:
       fail-fast: true
@@ -23,3 +24,4 @@ jobs:
       LARAVEL_VERSION: ${{ matrix.laravel }}
       DEPENDENCY_VERSION: ${{ matrix.dependency-version }}
       MYSQL_DATABASE: transmorpher_test
+      LINUX_PACKAGES: imagemagick jpegoptim optipng pngquant gifsicle webp ffmpeg
