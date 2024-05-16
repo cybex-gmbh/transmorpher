@@ -67,7 +67,6 @@ class ImageTest extends MediaTest
         ]);
     }
 
-
     #[Test]
     #[Depends('ensureImageUploadSlotCanBeReserved')]
     public function ensureImageCanBeUploaded(string $uploadToken)
