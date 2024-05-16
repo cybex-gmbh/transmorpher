@@ -30,16 +30,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('delivery', [
             SubstituteBindings::class
         ]);
-
-        $middleware->append([
-            // \App\Http\Middleware\TrustHosts::class,
-            TrustProxies::class,
-            HandleCors::class,
-            PreventRequestsDuringMaintenance::class,
-            ValidatePostSize::class,
-            TrimStrings::class,
-            ConvertEmptyStringsToNull::class,
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
