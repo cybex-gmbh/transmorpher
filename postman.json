@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "23ebb632-4931-4f81-ad4e-2f6d70a9395a",
+		"_postman_id": "a73e372b-901f-4c27-a088-4816a3e1497b",
 		"name": "transmorpher server",
-		"description": "Configuration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to Settings > General > Allow reading files outside working directory, and enable the option.",
+		"description": "Configuration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com`\n    \n- use the provided auth token and adjust the \"authToken\" variable\n    \n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to Settings > General > Allow reading files outside working directory, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "24082093"
+		"_exporter_id": "35989477"
 	},
 	"item": [
 		{
@@ -51,8 +51,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -121,8 +120,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -189,8 +187,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -254,8 +251,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -322,8 +318,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -393,8 +388,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -492,8 +486,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -569,8 +562,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -651,8 +643,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -735,8 +726,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -816,8 +806,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -861,7 +850,8 @@
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -872,13 +862,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/q-1+f-jpg",
+							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/q-1+f-jpg",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
 								"test"
 							],
 							"path": [
+								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
 								"q-1+f-jpg"
@@ -900,7 +891,8 @@
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -911,13 +903,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/q-1+f-png",
+							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/q-1+f-png",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
 								"test"
 							],
 							"path": [
+								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
 								"q-1+f-png"
@@ -939,7 +932,8 @@
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -950,13 +944,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/q-1+f-webp",
+							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/q-1+f-webp",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
 								"test"
 							],
 							"path": [
+								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
 								"q-1+f-webp"
@@ -978,7 +973,8 @@
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -989,13 +985,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}",
+							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
 								"test"
 							],
 							"path": [
+								"images",
 								"{{user}}",
 								"{{imageIdentifier}}"
 							]
@@ -1048,8 +1045,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
@@ -1098,8 +1094,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
@@ -1175,8 +1170,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
@@ -1233,8 +1227,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
@@ -1292,8 +1285,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
@@ -1319,7 +1311,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1335,7 +1328,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1344,18 +1338,18 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/w-abc",
+							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/w-abc",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
 								"test"
 							],
 							"path": [
+								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
 								"w-abc"
@@ -1373,7 +1367,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1388,7 +1383,8 @@
 									"    \"message\": \"The provided value bba for the HEIGHT parameter is not valid.\"\r",
 									"} */"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1397,18 +1393,18 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/h-bba",
+							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/h-bba",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
 								"test"
 							],
 							"path": [
+								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
 								"h-bba"
@@ -1426,7 +1422,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1441,7 +1438,8 @@
 									"    \"message\": \"The provided value 123 for the QUALITY parameter is not valid.\"\r",
 									"} */"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1450,18 +1448,18 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/q-123",
+							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/q-123",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
 								"test"
 							],
 							"path": [
+								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
 								"q-123"
@@ -1479,7 +1477,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1494,7 +1493,8 @@
 									"    \"message\": \"The provided value pgn for the FORMAT parameter is not valid.\"\r",
 									"} */"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1503,18 +1503,18 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/{{user}}/{{imageIdentifier}}/f-pgn",
+							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/f-pgn",
 							"protocol": "http",
 							"host": [
 								"transmorpher",
 								"test"
 							],
 							"path": [
+								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
 								"f-pgn"
@@ -1587,8 +1587,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -1691,8 +1690,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -1763,8 +1761,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -1847,8 +1844,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -1966,8 +1962,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -1981,151 +1976,6 @@
 								{
 									"key": "callback_url",
 									"value": "{{videoCallbackUrl}}",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/video/reserveUploadSlot",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"video",
-								"reserveUploadSlot"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Reserve slot: No callback URL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Unable to obtain video upload slot: Missing callback URL\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    console.log(jsonData);\r",
-									"    pm.expect(pm.response.json().errors).to.have.property(\"callback_url\");\r",
-									"});\r",
-									"/* {\r",
-									"    \"message\": \"The callback url field is required.\",\r",
-									"    \"errors\": {\r",
-									"        \"callback_url\": [\r",
-									"            \"The callback url field is required.\"\r",
-									"        ]\r",
-									"    }\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disabledSystemHeaders": {}
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "identifier",
-									"value": "postmanUnusedVideo",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/video/reserveUploadSlot",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"video",
-								"reserveUploadSlot"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Reserve slot: Invalid callback URL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Unable to obtain video upload slot: Invalid callback URL\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    console.log(jsonData);\r",
-									"    pm.expect(pm.response.json().errors).to.have.property(\"callback_url\");\r",
-									"});\r",
-									"/* {\r",
-									"    \"message\": \"The callback url must be a valid URL.\",\r",
-									"    \"errors\": {\r",
-									"        \"callback_url\": [\r",
-									"            \"The callback url must be a valid URL.\"\r",
-									"        ]\r",
-									"    }\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disabledSystemHeaders": {}
-					},
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "identifier",
-									"value": "postmanUnusedVideo",
-									"type": "text"
-								},
-								{
-									"key": "callback_url",
-									"value": "not_an_URL",
 									"type": "text"
 								}
 							]
@@ -2186,8 +2036,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2259,8 +2108,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2328,8 +2176,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2396,8 +2243,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2467,8 +2313,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2567,8 +2412,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2643,8 +2487,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2747,8 +2590,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2819,8 +2661,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -2903,8 +2744,7 @@
 						"header": [
 							{
 								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
+								"value": "application/json"
 							}
 						],
 						"body": {
@@ -3000,8 +2840,7 @@
 				"header": [
 					{
 						"key": "Accept",
-						"value": "application/json",
-						"type": "default"
+						"value": "application/json"
 					}
 				],
 				"url": {
@@ -3050,7 +2889,7 @@
 	"variable": [
 		{
 			"key": "authToken",
-			"value": "2|SSkfqSkNq3zmogcCeSipLxcjIpviqO7vawD3FsxH",
+			"value": "ONjT9Fnm512HOFoATgsF5hSNkTwcMtmcumxSV340da10aace",
 			"type": "string"
 		},
 		{
