@@ -32,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Relation::enforceMorphMap([
+            'user' => User::class,
+        ]);
+
         $this->configureRateLimiting();
 
         Route::bind('media', function (string $identifier): Media {
@@ -55,9 +59,5 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
-
-        Relation::enforceMorphMap([
-            'user' => User::class,
-        ]);
     }
 }
