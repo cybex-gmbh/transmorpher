@@ -29,6 +29,7 @@ jobs:
             .env.amigor
 
   deploy-staging-environment:
+    needs: prepare-amigor-env
     permissions:
       contents: read # to fetch code (actions/checkout)
       deployments: write # to delete deployments
