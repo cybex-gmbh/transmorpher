@@ -492,7 +492,7 @@ App-specific GitHub Secrets:
 
 #### Companion App
 
-A companion app is booted with PullPreview and available at the PullPreview root URL. The Transmorpher media server runs under `/transmorpherServer`. 
+A demonstration app, which implements the client package, is booted with PullPreview and available at the PullPreview root URL. The Transmorpher media server runs under `/transmorpherServer`. 
 
 #### Auth Token Hash
 
