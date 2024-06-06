@@ -5,6 +5,29 @@ on:
     types: [ labeled, unlabeled, synchronize, closed, reopened ]
 
 jobs:
+  prepare-amigor-env:
+    name: Prepare Amigor .env
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Transmorpher repo
+        # https://github.com/actions/checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .env.amigor
+          # https://git-scm.com/docs/git-sparse-checkout#_internalscone_mode_handling
+          sparse-checkout-cone-mode: false
+      - run: echo "TRANSMORPHER_AUTH_TOKEN=\"${{ secrets.PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN }}\"" >> .env.amigor
+
+      - name: Upload Amigor .env file
+        # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: amigor-env
+          path: |
+            .env.amigor
+
   deploy-staging-environment:
     permissions:
       contents: read # to fetch code (actions/checkout)
@@ -18,6 +41,7 @@ jobs:
     with:
       PULLPREVIEW_ADMINS: jheusinger, gael-connan-cybex, holyfabi, lupinitylabs, mszulik
       INSTANCE_TYPE: medium
+      ARTIFACT_NAME: amigor-env
     secrets:
       ENV_VARS: |
         APP_KEY="${{ secrets.PULLPREVIEW_APP_KEY }}"

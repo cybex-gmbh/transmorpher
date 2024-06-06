@@ -487,7 +487,12 @@ App-specific GitHub Secrets:
 
 - PULLPREVIEW_APP_KEY
 - PULLPREVIEW_TRANSMORPHER_SIGNING_KEYPAIR
+- PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN
 - PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH
+
+#### Companion App
+
+A companion app is booted with PullPreview and available at the PullPreview root URL. The Transmorpher media server runs under `/transmorpherServer`. 
 
 #### Auth Token Hash
 
