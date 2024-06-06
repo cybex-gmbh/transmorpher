@@ -73,6 +73,12 @@ services:
       - 'traefik.http.routers.${AMIGOR_CONTAINER_NAME:-amigor}.tls=true'
       - 'traefik.http.routers.${AMIGOR_CONTAINER_NAME:-amigor}.tls.certresolver=production'
       - 'traefik.http.routers.${AMIGOR_CONTAINER_NAME:-amigor}.priority=1'
+      - 'traefik.http.routers.amigor-root.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`) && Path(`/`)'
+      - 'traefik.http.routers.amigor-root.middlewares=htpasswd'
+      - 'traefik.http.routers.amigor-root.tls=true'
+      - 'traefik.http.routers.amigor-root.tls.certresolver=production'
+      - 'traefik.http.routers.amigor-root.priority=3'
+      - 'traefik.http.middlewares.htpasswd.basicauth.usersfile=/.htpasswd'
   mysql-amigor:
     image: 'mysql/mysql-server:8.0'
     container_name: ${AMIGOR_MYSQL_CONTAINER_NAME:-amigor-mysql-1}
@@ -123,6 +129,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./storage/letsencrypt:/letsencrypt
       - ./storage/logs:/logs
+      - ./.htpasswd:/.htpasswd:ro
     networks:
       - traefik
 
