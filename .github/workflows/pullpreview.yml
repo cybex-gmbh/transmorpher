@@ -41,7 +41,7 @@ jobs:
     uses: cybex-gmbh/github-workflows/.github/workflows/pullpreview.yml@main
     with:
       PULLPREVIEW_ADMINS: jheusinger, gael-connan-cybex, holyfabi, lupinitylabs, mszulik
-      INSTANCE_TYPE: medium
+      INSTANCE_TYPE: large
       ARTIFACT_NAME: amigor-env
     secrets:
       ENV_VARS: |
