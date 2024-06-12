@@ -14,7 +14,6 @@ return [
     'deletion_successful' => 'Successfully deleted media.',
     'image_upload_successful' => 'Successfully uploaded new image version.',
     'image_version_set' => 'Successfully set image version.',
-    'no_callback_url_provided' => 'A callback URL is needed for this identifier.',
     'transcoding_aborted' => 'Transcoding process aborted due to a new version or upload.',
     'transcoding_failed' => 'Video transcoding failed, version has been removed.',
     'transcoding_job_dispatch_failed' => 'There was an error when trying to dispatch the transcoding job.',

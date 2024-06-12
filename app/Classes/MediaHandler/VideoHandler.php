@@ -5,13 +5,13 @@ namespace App\Classes\MediaHandler;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
+use App\Enums\UploadState;
 use App\Interfaces\MediaHandlerInterface;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
 use CdnHelper;
-use FilePathHelper;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Throwable;
 use Transcode;
@@ -21,14 +21,13 @@ class VideoHandler implements MediaHandlerInterface
     /**
      * @param string $basePath
      * @param UploadSlot $uploadSlot
-     * @param string $filePath
      * @param Version $version
      *
      * @return ResponseState
      */
-    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, string $filePath, Version $version): ResponseState
+    public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, Version $version): ResponseState
     {
-        $success = Transcode::createJob($filePath, $version, $uploadSlot);
+        $success = Transcode::createJob($version, $uploadSlot);
 
         return $success ? ResponseState::VIDEO_UPLOAD_SUCCESSFUL : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
     }
@@ -63,23 +62,16 @@ class VideoHandler implements MediaHandlerInterface
      * @param Version $version
      * @param int $oldVersionNumber
      * @param bool $wasProcessed
-     * @param string $callbackUrl
      * @return array
      */
-    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed, string $callbackUrl): array
+    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array
     {
-        if ($callbackUrl) {
-            $filePath = FilePathHelper::toOriginalFile($version);
+        // Token and valid_until will be set in the 'saving' event.
+        // By creating an upload slot, currently active uploading or transcoding will be canceled.
+        $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => MediaType::VIDEO]);
 
-            // Token and valid_until will be set in the 'saving' event.
-            // By creating an upload slot, currently active uploading or transcoding will be canceled.
-            $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['callback_url' => $callbackUrl, 'media_type' => MediaType::VIDEO]);
-
-            $success = Transcode::createJobForVersionUpdate($filePath, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
-            $responseState = $success ? ResponseState::VIDEO_VERSION_SET : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
-        } else {
-            $responseState = ResponseState::NO_CALLBACK_URL_PROVIDED;
-        }
+        $success = Transcode::createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed);
+        $responseState = $success ? ResponseState::VIDEO_VERSION_SET : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
 
         return [
             $responseState,
@@ -107,6 +99,34 @@ class VideoHandler implements MediaHandlerInterface
             'currentVersion' => $versions->max('number'),
             'currentlyProcessedVersion' => $versions->where('processed', true)->max('number'),
             'versions' => $versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function purgeDerivatives(): array
+    {
+        $failedMediaIds = [];
+
+        foreach (Media::whereType(MediaType::VIDEO)->get() as $media) {
+            // Restore latest version to (re-)generate derivatives.
+            $version = $media->latestVersion;
+
+            $oldVersionNumber = $version->number;
+            $wasProcessed = $version->processed;
+
+            $version->update(['number' => $media->latestVersion->number + 1, 'processed' => 0]);
+            [$responseState, $uploadToken] = $this->setVersion($media->User, $version, $oldVersionNumber, $wasProcessed);
+
+            if ($responseState->getState() === UploadState::ERROR) {
+                $failedMediaIds[] = $media->getKey();
+            }
+        }
+
+        return [
+            'success' => $success = !count($failedMediaIds),
+            'message' => $success ? 'Restored versions for all video media.' : sprintf('Failed to restore versions for media ids: %s.', implode(', ', $failedMediaIds)),
         ];
     }
 }

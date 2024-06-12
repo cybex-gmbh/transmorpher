@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use DB;
 use File;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +27,8 @@ use Validator;
  * @property-read \App\Models\User $User
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Version> $Versions
  * @property-read int|null $versions_count
+ * @property-read \App\Models\Version $current_version
+ * @property-read \App\Models\Version|null $latest_version
  * @method static \Illuminate\Database\Eloquent\Builder|Media newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Media newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Media query()
@@ -51,13 +55,42 @@ class Media extends Model
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * The "booted" method of the model.
      */
-    protected $casts = [
-        'type' => MediaType::class,
-    ];
+    protected static function booted(): void
+    {
+        static::deleting(function (Media $media) {
+            $media->deleteRelatedModels();
+            $media->deleteBaseDirectories();
+        });
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'type' => MediaType::class,
+        ];
+    }
+
+    protected function deleteRelatedModels(): void
+    {
+        DB::transaction(function () {
+            $this->Versions()->get()->each->delete();
+            $this->User->UploadSlots()->withoutGlobalScopes()->firstWhere('identifier', $this->identifier)?->delete();
+        });
+    }
+
+    protected function deleteBaseDirectories(): void
+    {
+        $fileBasePath = $this->baseDirectory();
+        $this->type->handler()->getDerivativesDisk()->deleteDirectory($fileBasePath);
+        MediaStorage::ORIGINALS->getDisk()->deleteDirectory($fileBasePath);
+    }
 
     /**
      * Returns the user that owns the media.
@@ -76,6 +109,16 @@ class Media extends Model
     }
 
     /**
+     * Get the route key for the model.
+     *
+     * @return string
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'identifier';
+    }
+
+    /**
      * Validates an uploaded file after the chunks have been combined successfully.
      * This has to be done after all chunks have been received, because the mime type of the received chunks is 'application/octet-stream'.
      *
@@ -89,12 +132,11 @@ class Media extends Model
      *
      * @param UploadedFile $file
      * @param string $mimeTypes
-     * @param UploadSlot $uploadSlot
      *
      * @return void
      * @throws ValidationException
      */
-    public function validateUploadFile(UploadedFile $file, string $mimeTypes, UploadSlot $uploadSlot): void
+    public function validateUploadFile(UploadedFile $file, string $mimeTypes): void
     {
         $validator = Validator::make(['file' => $file], ['file' => [
             'required',
@@ -105,21 +147,11 @@ class Media extends Model
 
         $failed = $validator->fails();
 
-        $validator->after(function () use ($file, $failed, $uploadSlot) {
+        $validator->after(function () use ($file, $failed) {
             if ($failed) {
                 File::delete($file);
             }
         });
-    }
-
-    /**
-     * Get the route key for the model.
-     *
-     * @return string
-     */
-    public function getRouteKeyName(): string
-    {
-        return 'identifier';
     }
 
     public function currentVersion(): Attribute
@@ -130,5 +162,40 @@ class Media extends Model
                 return $versions->whereNumber($versions->whereProcessed(true)->max('number'))->firstOrFail();
             }
         );
+    }
+
+    public function latestVersion(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?Version {
+                $versions = $this->Versions();
+                return $versions->whereNumber($versions->max('number'))->first();
+            }
+        );
+    }
+
+    /**
+     * Get the base path for files.
+     * Path structure: {username}/{identifier}/
+     *
+     * @return string
+     */
+    public function baseDirectory(): string
+    {
+        return sprintf('%s/%s', $this->User->name, $this->identifier);
+    }
+
+    /**
+     * Get the path to a video derivative.
+     * Path structure: {username}/{identifier}/{format}/{filename}
+     *
+     * @param string $format
+     * @param string|null $fileName
+     *
+     * @return string
+     */
+    public function videoDerivativeFilePath(string $format, string $fileName = null): string
+    {
+        return sprintf('%s/%s/%s', $this->baseDirectory(), $format, $fileName ?? 'video');
     }
 }

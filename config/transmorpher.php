@@ -182,4 +182,14 @@ return [
         'image' => App\Classes\MediaHandler\ImageHandler::class,
         'video' => App\Classes\MediaHandler\VideoHandler::class
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cache Invalidation Counter File Path
+    |--------------------------------------------------------------------------
+    |
+    | The path to a file on the originals disk that stores the cache invalidation counter.
+    |
+    */
+    'cache_invalidation_counter_file_path' => env('CACHE_INVALIDATION_COUNTER_FILE_PATH', 'cacheInvalidationCounter'),
 ];

@@ -2,9 +2,15 @@
 
 namespace App\Models;
 
+use App\Enums\MediaStorage;
+use App\Enums\Transformation;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Version
@@ -14,20 +20,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $filename
  * @property int $processed
  * @property int $media_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read \App\Models\Media $Media
- * @method static \Illuminate\Database\Eloquent\Builder|Version newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Version newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Version query()
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereFilename($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereMediaId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereProcessed($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Version whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property-read string $hash
+ * @method static Builder|Version newModelQuery()
+ * @method static Builder|Version newQuery()
+ * @method static Builder|Version query()
+ * @method static Builder|Version whereCreatedAt($value)
+ * @method static Builder|Version whereFilename($value)
+ * @method static Builder|Version whereId($value)
+ * @method static Builder|Version whereMediaId($value)
+ * @method static Builder|Version whereNumber($value)
+ * @method static Builder|Version whereProcessed($value)
+ * @method static Builder|Version whereUpdatedAt($value)
+ * @mixin Eloquent
  */
 class Version extends Model
 {
@@ -42,10 +49,27 @@ class Version extends Model
      * @var array
      */
     protected $fillable = [
-        'number',
         'filename',
+        'number',
         'processed',
     ];
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (Version $version) {
+            $version->deleteFiles();
+        });
+    }
+
+    protected function deleteFiles(): void
+    {
+        MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath());
+        MediaStorage::IMAGE_DERIVATIVES->getDisk()->deleteDirectory($this->imageDerivativeDirectoryPath());
+        // Video derivatives may not be deleted here, otherwise failed jobs would delete the only existing video derivative.
+    }
 
     /**
      * Returns the media that the version belongs to.
@@ -63,5 +87,71 @@ class Version extends Model
     public function getRouteKeyName(): string
     {
         return 'number';
+    }
+
+    /**
+     * Get the path to an original.
+     * Path structure: {username}/{identifier}/{filename}
+     *
+     * @return string
+     */
+    public function originalFilePath(): string
+    {
+        return sprintf('%s/%s', $this->Media->baseDirectory(), $this->filename);
+    }
+
+    /**
+     * Create the filename for an original.
+     * Filename structure: {versionKey}-{filename}
+     *
+     * @param string $filename
+     *
+     * @return string
+     */
+    public function createOriginalFileName(string $filename): string
+    {
+        return sprintf('%s-%s', $this->getKey(), trim($filename));
+    }
+
+    /**
+     * Get the path to an (existing) image derivative.
+     * Path structure: {username}/{identifier}/{versionKey}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
+     *
+     * @param array|null $transformations
+     * @return string
+     */
+    public function imageDerivativeFilePath(array $transformations = null): string
+    {
+        $originalFileExtension = pathinfo($this->filename, PATHINFO_EXTENSION);
+
+        // Hash of transformation parameters and version number to identify already generated derivatives.
+        $derivativeHash = hash('sha256', json_encode($transformations) . $this->getKey());
+
+        return sprintf('%s/%sx_%sy_%sq_%s.%s',
+            $this->imageDerivativeDirectoryPath(),
+            $transformations[Transformation::WIDTH->value] ?? '',
+            $transformations[Transformation::HEIGHT->value] ?? '',
+            $transformations[Transformation::QUALITY->value] ?? '',
+            $derivativeHash,
+            $transformations[Transformation::FORMAT->value] ?? $originalFileExtension,
+        );
+    }
+
+    /**
+     * Get the path to the directory of an image derivative version.
+     * Path structure: {username}/{identifier}/{versionKey}
+     *
+     * @return string
+     */
+    public function imageDerivativeDirectoryPath(): string
+    {
+        return sprintf('%s/%s', $this->Media->baseDirectory(), $this->getKey());
+    }
+
+    public function hash(): Attribute
+    {
+        return Attribute::make(
+            get: fn(): string => md5(sprintf('%s-%s', $this->number, $this->created_at))
+        );
     }
 }

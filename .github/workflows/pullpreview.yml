@@ -1,40 +1,53 @@
 name: PullPreview
+
 on:
   pull_request:
-    types: [labeled, unlabeled, synchronize, closed, reopened]
+    types: [ labeled, unlabeled, synchronize, closed, reopened ]
 
 jobs:
-  deploy:
+  prepare-amigor-env:
+    name: Prepare Amigor .env
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Transmorpher repo
+        # https://github.com/actions/checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .env.amigor
+          # https://git-scm.com/docs/git-sparse-checkout#_internalscone_mode_handling
+          sparse-checkout-cone-mode: false
+      - run: echo "TRANSMORPHER_AUTH_TOKEN=\"${{ secrets.PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN }}\"" >> .env.amigor
+
+      - name: Upload Amigor .env file
+        # https://github.com/actions/upload-artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: amigor-env
+          path: |
+            .env.amigor
+
+  deploy-staging-environment:
+    needs: prepare-amigor-env
     permissions:
       contents: read # to fetch code (actions/checkout)
       deployments: write # to delete deployments
       pull-requests: write # to remove labels
       statuses: write # to create commit status
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Generate .env file
-        env:
-          SECRETS_APP_KEY: ${{ secrets.APP_KEY }}
-          SECRETS_TRANSMORPHER_SIGNING_KEYPAIR: ${{ secrets.TRANSMORPHER_SIGNING_KEYPAIR }}
-          SECRETS_PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH: ${{ secrets.PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH }}
-        run: |
-          cp .env.example .env
-          echo "APP_KEY=$SECRETS_APP_KEY" >> .env
-          echo "TRANSMORPHER_SIGNING_KEYPAIR=$SECRETS_TRANSMORPHER_SIGNING_KEYPAIR" >> .env
-          echo "PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH=$SECRETS_PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH" >> .env
-
-      - uses: pullpreview/action@v5
-        with:
-          admins: jheusinger, gael-connan-cybex, holyfabi, lupinitylabs, mszulik
-          cidrs: "0.0.0.0/0"
-          compose_files: docker-compose.pullpreview.yml
-          default_port: 80
-          instance_type: medium
-          ports: 80, 443
-        env:
-          AWS_ACCESS_KEY_ID: "${{ secrets.PULLPREVIEW_AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.PULLPREVIEW_AWS_SECRET_ACCESS_KEY }}"
-          AWS_REGION: "eu-central-1"
+    name: Deploy PullPreview staging environment
+    # https://github.com/cybex-gmbh/github-workflows/blob/main/.github/workflows/pullpreview.yml
+    uses: cybex-gmbh/github-workflows/.github/workflows/pullpreview.yml@main
+    with:
+      PULLPREVIEW_ADMINS: jheusinger, gael-connan-cybex, holyfabi, lupinitylabs, mszulik
+      INSTANCE_TYPE: large
+      ARTIFACT_NAME: amigor-env
+    secrets:
+      ENV_VARS: |
+        APP_KEY="${{ secrets.PULLPREVIEW_APP_KEY }}"
+        TRANSMORPHER_SIGNING_KEYPAIR="${{ secrets.PULLPREVIEW_TRANSMORPHER_SIGNING_KEYPAIR }}"
+        TRANSMORPHER_AUTH_TOKEN_HASH="${{ secrets.PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH }}"
+      PULLPREVIEW_AWS_ACCESS_KEY_ID: ${{ secrets.PULLPREVIEW_AWS_ACCESS_KEY_ID }}
+      PULLPREVIEW_AWS_SECRET_ACCESS_KEY: ${{ secrets.PULLPREVIEW_AWS_SECRET_ACCESS_KEY }}
+      PULLPREVIEW_BASIC_AUTH: ${{ secrets.PULLPREVIEW_BASIC_AUTH }}

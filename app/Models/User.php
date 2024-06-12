@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\MediaStorage;
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,10 +17,12 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string $name
  * @property string $email
  * @property \Illuminate\Support\Carbon|null $email_verified_at
- * @property string $password
+ * @property mixed $password
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $protector_public_key The sodium public key for the Protector package.
+ * @property string $api_url The URL at which the client can receive notifications.
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Media> $Media
  * @property-read int|null $media_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\UploadSlot> $UploadSlots
@@ -31,12 +35,14 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|User query()
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereApiUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereEmailVerifiedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|User whereProtectorPublicKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
  * @mixin \Eloquent
@@ -51,8 +57,9 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'api_url',
         'email',
+        'name',
         'password',
     ];
 
@@ -67,13 +74,42 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * The "booted" method of the model.
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user) {
+            $user->deleteRelatedModels();
+            $user->deleteMediaDirectories();
+        });
+    }
+
+    protected function deleteRelatedModels(): void
+    {
+        DB::transaction(function () {
+            $this->Media()->get()->each->delete();
+        });
+    }
+
+    protected function deleteMediaDirectories(): void
+    {
+        foreach (MediaStorage::cases() as $mediaStorage) {
+            $mediaStorage->getDisk()->deleteDirectory($this->name);
+        }
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
 
     /**
      * Returns media for the user.

@@ -1,9 +1,10 @@
+/.phpunit.cache
 /node_modules
 /public/build
 /public/hot
 /public/storage
 /public/videos
-/storage/*.key
+/storage
 /vendor
 .env
 .env.backup

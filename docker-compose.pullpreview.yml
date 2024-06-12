@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   app:
     container_name: ${APP_CONTAINER_NAME:-transmorpher}
@@ -17,11 +16,17 @@ services:
       PULLPREVIEW: true
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
       VIDEO_TRANSCODING_WORKERS_AMOUNT: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
+      APP_URL: ${PULLPREVIEW_URL}/transmorpherServer
+    volumes:
+      - 'app-storage:/var/www/html/storage'
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'
+      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`) && PathPrefix(`/transmorpherServer`)'
+      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.middlewares=strip-path-prefix@docker'
+      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.priority=2'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.tls=true'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.tls.certresolver=production'
+      - "traefik.http.middlewares.strip-path-prefix.stripprefix.prefixes=/transmorpherServer"
   mysql:
     image: 'mysql/mysql-server:8.0'
     container_name: ${MYSQL_CONTAINER_NAME:-transmorpher-mysql-1}
@@ -42,16 +47,68 @@ services:
       test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
       retries: 3
       timeout: 5s
+  amigor:
+    image: 'cybexwebdev/transmorpher-amigor'
+    container_name: ${AMIGOR_CONTAINER_NAME:-amigor}
+    networks:
+      - traefik
+      - internal
+    depends_on:
+      mysql-amigor:
+        condition: service_healthy
+      traefik:
+        condition: service_started
+    environment:
+      PULLPREVIEW: true
+      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
+      TRANSMORPHER_WEB_DELIVERY_BASE_URL: https://${PULLPREVIEW_PUBLIC_DNS}/transmorpherServer
+      TRANSMORPHER_WEB_API_BASE_URL: https://${PULLPREVIEW_PUBLIC_DNS}/transmorpherServer/api
+      APP_URL: ${PULLPREVIEW_URL}
+    volumes:
+      - 'amigor-storage:/var/www/html/storage'
+      - '.env.amigor:/var/www/html/.env'
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.${AMIGOR_CONTAINER_NAME:-amigor}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'
+      - 'traefik.http.routers.${AMIGOR_CONTAINER_NAME:-amigor}.tls=true'
+      - 'traefik.http.routers.${AMIGOR_CONTAINER_NAME:-amigor}.tls.certresolver=production'
+      - 'traefik.http.routers.${AMIGOR_CONTAINER_NAME:-amigor}.priority=1'
+      - 'traefik.http.routers.amigor-root.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`) && Path(`/`)'
+      - 'traefik.http.routers.amigor-root.middlewares=htpasswd'
+      - 'traefik.http.routers.amigor-root.tls=true'
+      - 'traefik.http.routers.amigor-root.tls.certresolver=production'
+      - 'traefik.http.routers.amigor-root.priority=3'
+      - 'traefik.http.middlewares.htpasswd.basicauth.usersfile=/.htpasswd'
+  mysql-amigor:
+    image: 'mysql/mysql-server:8.0'
+    container_name: ${AMIGOR_MYSQL_CONTAINER_NAME:-amigor-mysql-1}
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: 'amigor'
+      MYSQL_USER: 'amigor'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - 'mysql-amigor:/var/lib/mysql'
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-ppassword" ]
+      retries: 3
+      timeout: 5s
   traefik:
-    image: traefik:v2.10
+    image: traefik:mimolette
     container_name: ${TRAEFIK_CONTAINER_NAME:-transmorpher-traefik}
     ports:
       - '80:80'
       - '443:443'
     environment:
       TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE: false
+      TRAEFIK_LOG: true
+      TRAEFIK_LOG_FILEPATH: '/logs/traefik.log'
+      TRAEFIK_LOG_LEVEL: DEBUG
       TRAEFIK_API: false
-      TRAEFIK_API_DASHBOARD: false
       TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION: true
       TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_EMAIL: 'cloud@cybex-online.com'
       TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_CASERVER: 'https://acme-v02.api.letsencrypt.org/directory'
@@ -70,9 +127,12 @@ services:
       TRAEFIK_PROVIDERS_DOCKER_NETWORK: traefik
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./letsencrypt:/letsencrypt
+      - ./storage/letsencrypt:/letsencrypt
+      - ./storage/logs:/logs
+      - ./.htpasswd:/.htpasswd:ro
     networks:
       - traefik
+
 
 networks:
   internal:
@@ -82,4 +142,10 @@ networks:
 
 volumes:
   mysql:
+    driver: local
+  mysql-amigor:
+    driver: local
+  app-storage:
+    driver: local
+  amigor-storage:
     driver: local

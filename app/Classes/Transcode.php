@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use App\Enums\ClientNotification;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
@@ -11,20 +12,28 @@ use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\Version;
 use Exception;
-use FilePathHelper;
 use Http;
 
 class Transcode implements TranscodeInterface
 {
     /**
+     * Returns the class which handles the actual transcoding.
+     *
+     * @return string
+     */
+    public function getJobClass(): string
+    {
+        return TranscodeVideo::class;
+    }
+
+    /**
      * Creates a job which handles the transcoding of a video.
      *
-     * @param string $originalFilePath
      * @param Version $version
      * @param UploadSlot $uploadSlot
      * @return bool
      */
-    public function createJob(string $originalFilePath, Version $version, UploadSlot $uploadSlot): bool
+    public function createJob(Version $version, UploadSlot $uploadSlot): bool
     {
         /*
         * When using SQS FIFO:
@@ -33,7 +42,7 @@ class Transcode implements TranscodeInterface
         * See SqsFifoQueue class.
         */
         try {
-            TranscodeVideo::dispatch($originalFilePath, $version, $uploadSlot);
+            TranscodeVideo::dispatch($version, $uploadSlot);
         } catch (Exception) {
             return false;
         }
@@ -44,7 +53,6 @@ class Transcode implements TranscodeInterface
     /**
      * Creates a job which handles the transcoding of a video when a version number is updated.
      *
-     * @param string $originalFilePath
      * @param Version $version
      * @param UploadSlot $uploadSlot
      * @param int $oldVersionNumber
@@ -52,10 +60,10 @@ class Transcode implements TranscodeInterface
      *
      * @return bool
      */
-    public function createJobForVersionUpdate(string $originalFilePath, Version $version, UploadSlot $uploadSlot, int $oldVersionNumber, bool $wasProcessed): bool
+    public function createJobForVersionUpdate(Version $version, UploadSlot $uploadSlot, int $oldVersionNumber, bool $wasProcessed): bool
     {
         try {
-            TranscodeVideo::dispatch($originalFilePath, $version, $uploadSlot, $oldVersionNumber, $wasProcessed);
+            TranscodeVideo::dispatch($version, $uploadSlot, $oldVersionNumber, $wasProcessed);
         } catch (Exception) {
             return false;
         }
@@ -67,26 +75,27 @@ class Transcode implements TranscodeInterface
      * Inform client package about the transcoding result.
      *
      * @param ResponseState $responseState
-     * @param string $callbackUrl
      * @param string $uploadToken
      * @param Media $media
      * @param int $versionNumber
      *
      * @return void
      */
-    public function callback(ResponseState $responseState, string $callbackUrl, string $uploadToken, Media $media, int $versionNumber): void
+    public function callback(ResponseState $responseState, string $uploadToken, Media $media, int $versionNumber): void
     {
-        $response = [
+        $notification = [
             'state' => $responseState->getState()->value,
             'message' => $responseState->getMessage(),
             'identifier' => $media->identifier,
             'version' => $versionNumber,
             'upload_token' => $uploadToken,
-            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), FilePathHelper::toBaseDirectory($media)]))
+            'public_path' => implode(DIRECTORY_SEPARATOR, array_filter([MediaType::VIDEO->prefix(), $media->baseDirectory()])),
+            'hash' => Version::whereNumber($versionNumber)->first()?->hash,
+            'notification_type' => ClientNotification::VIDEO_TRANSCODING->value,
         ];
 
-        $signedResponse = SodiumHelper::sign(json_encode($response));
+        $signedNotification = SodiumHelper::sign(json_encode($notification));
 
-        Http::post($callbackUrl, ['signed_response' => $signedResponse]);
+        Http::post($media->User->api_url, ['signed_notification' => $signedNotification]);
     }
 }
