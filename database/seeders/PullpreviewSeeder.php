@@ -16,10 +16,10 @@ class PullpreviewSeeder extends Seeder
     public function run(): void
     {
         Artisan::call('create:user', [
-            'name' => env('PULLPREVIEW_USER_NAME', 'pullpreview'),
-            'email' => env('PULLPREVIEW_USER_EMAIL', 'pullpreview@example.com'),
-            'api_url' => env('PULLPREVIEW_USER_API_URL', 'http://amigor/transmorpher/notifications'),
-            'password' => env('PULLPREVIEW_USER_PASSWORD')
+            'name' => env('SEED_USER_NAME'),
+            'email' => env('SEED_USER_EMAIL'),
+            'api_url' => sprintf('http://%s/%s', env('CLIENT_CONTAINER_NAME'), env('CLIENT_NOTIFICATION_ROUTE', 'transmorpher/notifications')),
+            'password' => env('SEED_USER_PASSWORD')
         ]);
 
         DB::table('personal_access_tokens')->where('id', 1)->update(['token' => env('TRANSMORPHER_AUTH_TOKEN_HASH')]);
