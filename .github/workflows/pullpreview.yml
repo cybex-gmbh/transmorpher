@@ -18,7 +18,7 @@ jobs:
             .env.amigor
           # https://git-scm.com/docs/git-sparse-checkout#_internalscone_mode_handling
           sparse-checkout-cone-mode: false
-      - run: echo "TRANSMORPHER_AUTH_TOKEN=\"${{ secrets.PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN }}\"" >> .env.amigor
+      - run: echo "TRANSMORPHER_AUTH_TOKEN=\"${{ secrets.PULLPREVIEW_SANCTUM_AUTH_TOKEN }}\"" >> .env.amigor
 
       - name: Upload Amigor .env file
         # https://github.com/actions/upload-artifact
