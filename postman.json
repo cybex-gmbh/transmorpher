@@ -1,17 +1,17 @@
 {
 	"info": {
-		"_postman_id": "a73e372b-901f-4c27-a088-4816a3e1497b",
+		"_postman_id": "42f0908d-10ad-4429-bb67-590ce6f11a9c",
 		"name": "transmorpher server",
-		"description": "Configuration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com`\n    \n- use the provided auth token and adjust the \"authToken\" variable\n    \n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to Settings > General > Allow reading files outside working directory, and enable the option.",
+		"description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "35989477"
+		"_exporter_id": "25831362"
 	},
 	"item": [
 		{
 			"name": "Image",
 			"item": [
 				{
-					"name": "Reserve slot: No auth",
+					"name": "Reserve upload slot: No auth",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -19,7 +19,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -36,7 +37,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -65,11 +67,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/image/reserveUploadSlot",
+							"raw": "{{domain}}/api/v1/image/reserveUploadSlot",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"image",
 								"reserveUploadSlot"
 							]
@@ -78,7 +82,7 @@
 					"response": []
 				},
 				{
-					"name": "Reserve slot: Invalid identifier",
+					"name": "Reserve upload slot: Invalid identifier",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -86,7 +90,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -97,6 +102,7 @@
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
 									"});\r",
 									"/* {\r",
 									"    \"message\": \"The identifier format is invalid.\",\r",
@@ -108,7 +114,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -134,11 +141,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/image/reserveUploadSlot",
+							"raw": "{{domain}}/api/v1/image/reserveUploadSlot",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"image",
 								"reserveUploadSlot"
 							]
@@ -147,7 +156,7 @@
 					"response": []
 				},
 				{
-					"name": "Reserve slot: OK",
+					"name": "Reserve upload slot: OK",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -155,7 +164,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -166,6 +176,7 @@
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(jsonData.state).to.eql('initializing');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"});\r",
 									"/* {\r",
 									"    \"state\": 'initializing',\r",
@@ -175,7 +186,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -201,11 +213,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/image/reserveUploadSlot",
+							"raw": "{{domain}}/api/v1/image/reserveUploadSlot",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"image",
 								"reserveUploadSlot"
 							]
@@ -226,11 +240,12 @@
 									"    pm.expect(pm.response.code).to.equal(404);\r",
 									"});\r",
 									"/* {\r",
-									"    \"message\": \"Requested UploadSlot couldn't be found.\"\r",
+									"    \"message\": \"No query results for model [App\\\\Models\\\\UploadSlot] wrongImageToken\"\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -239,7 +254,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -261,24 +277,24 @@
 									"key": "file",
 									"type": "file",
 									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								},
+								{
+									"key": "identifier",
+									"value": "{{imageIdentifier}}",
+									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/foo",
+							"raw": "{{domain}}/api/v1/upload/wrongImageToken",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
-								"foo"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
+								"wrongImageToken"
 							]
 						}
 					},
@@ -295,6 +311,7 @@
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
 									"});\r",
 									"/* {\r",
 									"    \"message\": \"The file field is required.\",\r",
@@ -306,7 +323,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -323,23 +341,24 @@
 						],
 						"body": {
 							"mode": "formdata",
-							"formdata": []
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "{{imageIdentifier}}",
+									"type": "text"
+								}
+							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{imageUploadToken}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
 								"{{imageUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -356,6 +375,7 @@
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
 									"});\r",
 									"/* {\r",
 									"    \"message\": \"The file must be a file of type: jpg, png, gif, webp.\",\r",
@@ -367,7 +387,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -376,7 +397,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -407,20 +429,15 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{imageUploadToken}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
 								"{{imageUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -439,11 +456,12 @@
 									"    pm.expect(pm.response.code).to.equal(404);\r",
 									"});\r",
 									"/* {\r",
-									"    \"message\": \"Requested UploadSlot couldn't be found.\"\r",
+									"    \"message\": \"No query results for model [App\\\\Models\\\\UploadSlot] 668859273610d\"\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -452,7 +470,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/image/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/image/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -474,327 +492,8 @@
 									");\r",
 									""
 								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"upload",
-								"{{imageUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Upload: non-matching identifier",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    console.log(jsonData);\r",
-									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
-									"});\r",
-									"/* {\r",
-									"    \"message\": \"The provided identifier does not match the identifier of the reserved upload slot.\",\r",
-									"    \"errors\": {\r",
-									"        \"identifier\": [\r",
-									"            \"The provided identifier does not match the identifier of the reserved upload slot.\"\r",
-									"        ]\r",
-									"    }\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
-								},
-								{
-									"key": "identifier",
-									"value": "thisDoesNotMatch",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"upload",
-								"{{imageUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Upload: missing identifier",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    console.log(jsonData);\r",
-									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
-									"});\r",
-									"/* {\r",
-									"    \"message\": \"The identifier field is required.\",\r",
-									"    \"errors\": {\r",
-									"        \"identifier\": [\r",
-									"            \"The identifier field is required.\"\r",
-									"        ]\r",
-									"    }\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
-								},
-								{
-									"key": "",
-									"value": "",
-									"type": "text",
-									"disabled": true
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"upload",
-								"{{imageUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Upload: invalid identifier",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    console.log(jsonData);\r",
-									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
-									"});\r",
-									"/* {\r",
-									"    \"message\": \"The identifier format is invalid. (and 1 more error)\",\r",
-									"    \"errors\": {\r",
-									"        \"identifier\": [\r",
-									"            \"The identifier format is invalid.\",\r",
-									"            \"The provided identifier does not match the identifier of the reserved upload slot.\"\r",
-									"        ]\r",
-									"    }\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "file",
-									"type": "file",
-									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
-								},
-								{
-									"key": "identifier",
-									"value": "--thisIdentifierIsInvalid",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"upload",
-								"{{imageUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Upload: OK",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Image uploaded\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.state).to.eql('success');\r",
-									"});\r",
-									"/* {\r",
-									"    \"state\": 'success',\r",
-									"    \"message\": \"Successfully uploaded new image version.\",\r",
-									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"version\": 1,\r",
-									"    \"public_path\": \"nameandemail/postmanTestImage\",\r",
-									"    \"upload_token\": \"6464a87163b5a\"\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -825,11 +524,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/{{imageUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{imageUploadToken}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
 								"{{imageUploadToken}}"
 							]
@@ -838,16 +539,36 @@
 					"response": []
 				},
 				{
-					"name": "JPG",
+					"name": "Upload: non-matching identifier",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Received JPG image derivative\", function() {\r",
-									"    pm.expect(pm.response.code).to.equal(200);\r",
-									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/jpeg\");\r",
+									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
 									"});\r",
+									"/* {\r",
+									"    \"message\": \"The provided identifier does not match the identifier of the reserved upload slot.\",\r",
+									"    \"errors\": {\r",
+									"        \"identifier\": [\r",
+									"            \"The provided identifier does not match the identifier of the reserved upload slot.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
 									""
 								],
 								"type": "text/javascript",
@@ -859,27 +580,333 @@
 						"auth": {
 							"type": "noauth"
 						},
-						"method": "GET",
-						"header": [],
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								},
+								{
+									"key": "identifier",
+									"value": "thisDoesNotMatch",
+									"type": "text"
+								}
+							]
+						},
 						"url": {
-							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/q-1+f-jpg",
-							"protocol": "http",
+							"raw": "{{domain}}/api/v1/upload/{{imageUploadToken}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{domain}}"
 							],
 							"path": [
-								"images",
-								"{{user}}",
-								"{{imageIdentifier}}",
-								"q-1+f-jpg"
+								"api",
+								"v1",
+								"upload",
+								"{{imageUploadToken}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "PNG",
+					"name": "Upload: missing identifier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The identifier field is required.\",\r",
+									"    \"errors\": {\r",
+									"        \"identifier\": [\r",
+									"            \"The identifier field is required.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{imageUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{imageUploadToken}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: invalid identifier",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The identifier format is invalid. (and 1 more error)\",\r",
+									"    \"errors\": {\r",
+									"        \"identifier\": [\r",
+									"            \"The identifier format is invalid.\",\r",
+									"            \"The provided identifier does not match the identifier of the reserved upload slot.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								},
+								{
+									"key": "identifier",
+									"value": "--thisIdentifierIsInvalid",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{imageUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{imageUploadToken}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.state).to.eql('success');\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"    pm.collectionVariables.set('currentImageVersion', jsonData.version);\r",
+									"    console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": 'success',\r",
+									"    \"message\": \"Successfully uploaded new image version.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"version\": 1,\r",
+									"    \"public_path\": \"images/postman/postmanTestImage\",\r",
+									"    \"upload_token\": \"6464a87163b5a\",\r",
+									"    \"hash\": \"db36a07353dd308635fb54a5443f7277\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								},
+								{
+									"key": "identifier",
+									"value": "{{imageIdentifier}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{imageUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{imageUploadToken}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download as AAA: invalid format",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Retrieving derivative failed: invalid format parameter\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(400);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The provided value aaa for the FORMAT parameter is not valid.\"\r",
+									"} */"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/f-aaa",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"images",
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"f-aaa"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download as PNG: OK",
 					"event": [
 						{
 							"listen": "test",
@@ -903,11 +930,48 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/q-1+f-png",
-							"protocol": "http",
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/f-png",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{domain}}"
+							],
+							"path": [
+								"images",
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"f-png"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download as PNG, low quality: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received PNG image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/png\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/q-1+f-png",
+							"host": [
+								"{{domain}}"
 							],
 							"path": [
 								"images",
@@ -920,7 +984,46 @@
 					"response": []
 				},
 				{
-					"name": "WEBP",
+					"name": "Download as JPG, low quality: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received JPG image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/jpeg\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/q-1+f-jpg",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"images",
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"q-1+f-jpg"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download as WEBP, low quality: OK",
 					"event": [
 						{
 							"listen": "test",
@@ -944,11 +1047,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/q-1+f-webp",
-							"protocol": "http",
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/q-1+f-webp",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{domain}}"
 							],
 							"path": [
 								"images",
@@ -961,7 +1062,7 @@
 					"response": []
 				},
 				{
-					"name": "Default",
+					"name": "Download (default): OK",
 					"event": [
 						{
 							"listen": "test",
@@ -985,11 +1086,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}",
-							"protocol": "http",
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{domain}}"
 							],
 							"path": [
 								"images",
@@ -1001,309 +1100,7 @@
 					"response": []
 				},
 				{
-					"name": "Derivative Version",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.sendRequest(\r",
-									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
-									"        method: \"GET\",\r",
-									"        header: {\r",
-									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
-									"            \"Accept\": \"application/json\",\r",
-									"            \"Content-Type\": \"application/json\"\r",
-									"        }\r",
-									"    }, function (err, response) {\r",
-									"        var jsonData = response.json();\r",
-									"        var currentVersion = jsonData.currentVersion;\r",
-									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
-									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
-									"    }\r",
-									");"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Received derivative for specific version\", function () {\r",
-									"    pm.expect(pm.response.code).to.equal(200);\r",
-									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/q-1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"image",
-								"{{imageIdentifier}}",
-								"version",
-								"{{currentImageVersion}}",
-								"derivative",
-								"q-1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Original Version: No auth",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Not allowed to read original Image without auth token\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    console.log(jsonData);\r",
-									"    pm.expect(pm.response.code).to.equal(401);\r",
-									"});\r",
-									"/* {\r",
-									"    \"message\": \"Unauthenticated.\"\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/1/original",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"image",
-								"{{imageIdentifier}}",
-								"version",
-								"1",
-								"original"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Original Version: OK",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Received original image\", function() {\r",
-									"    pm.expect(pm.response.code).to.equal(200);\r",
-									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.sendRequest(\r",
-									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
-									"        method: \"GET\",\r",
-									"        header: {\r",
-									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
-									"            \"Accept\": \"application/json\",\r",
-									"            \"Content-Type\": \"application/json\"\r",
-									"        }\r",
-									"    }, function (err, response) {\r",
-									"        var jsonData = response.json();\r",
-									"        var currentVersion = jsonData.currentVersion;\r",
-									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
-									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
-									"    }\r",
-									");\r",
-									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully retrieved version numbers.\",\r",
-									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"currentVersion\": 2,\r",
-									"    \"currentlyProcessedVersion\": null,\r",
-									"    \"versions\": {\r",
-									"        \"2\": 1684330530\r",
-									"    },\r",
-									"    \"client\": \"postman\"\r",
-									"} */"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"image",
-								"{{imageIdentifier}}",
-								"version",
-								"{{currentImageVersion}}",
-								"original"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Version get: No auth",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Unable to retreive image versions: no auth\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    console.log(jsonData);\r",
-									"    pm.expect(pm.response.code).to.equal(401);\r",
-									"});\r",
-									"/* {\r",
-									"    \"message\": \"Unauthenticated.\"\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/versions",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"media",
-								"{{imageIdentifier}}",
-								"versions"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Version get: OK",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Image versions retrieved\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.state).to.eql('success');\r",
-									"});\r",
-									"/* {\r",
-									"    \"state\": 'success',\r",
-									"    \"message\": \"Successfully retrieved version numbers.\",\r",
-									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"currentVersion\": 3,\r",
-									"    \"currentlyProcessedVersion\": null,\r",
-									"    \"versions\": {\r",
-									"        \"3\": 1684330530\r",
-									"    },\r",
-									"} */\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/versions",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"media",
-								"{{imageIdentifier}}",
-								"versions"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Derivative: invalid width parameter",
+					"name": "Download width abc: invalid width",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1342,11 +1139,9 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/w-abc",
-							"protocol": "http",
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/w-abc",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{domain}}"
 							],
 							"path": [
 								"images",
@@ -1359,29 +1154,17 @@
 					"response": []
 				},
 				{
-					"name": "Derivative: invalid height parameter",
+					"name": "Download width 100: OK",
 					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Retrieving derivative failed: invalid height parameter\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(pm.response.code).to.equal(400);\r",
+									"pm.test(\"Received PNG image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/png\");\r",
 									"});\r",
-									"/* {\r",
-									"    \"message\": \"The provided value bba for the HEIGHT parameter is not valid.\"\r",
-									"} */"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1389,32 +1172,28 @@
 						}
 					],
 					"request": {
+						"auth": {
+							"type": "noauth"
+						},
 						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
+						"header": [],
 						"url": {
-							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/h-bba",
-							"protocol": "http",
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/w-100",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{domain}}"
 							],
 							"path": [
 								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
-								"h-bba"
+								"w-100"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Derivative: invalid quality parameter",
+					"name": "Download quality 123: invalid quality",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1452,11 +1231,9 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/q-123",
-							"protocol": "http",
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/q-123",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{domain}}"
 							],
 							"path": [
 								"images",
@@ -1469,7 +1246,46 @@
 					"response": []
 				},
 				{
-					"name": "Derivative: invalid format parameter",
+					"name": "Download quality 90: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received PNG image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/png\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/q-90",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"images",
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"q-90"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download height xyz: invalid height",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1485,12 +1301,12 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Retrieving derivative failed: invalid format parameter\", function () {\r",
+									"pm.test(\"Retrieving derivative failed: invalid height parameter\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(pm.response.code).to.equal(400);\r",
 									"});\r",
 									"/* {\r",
-									"    \"message\": \"The provided value pgn for the FORMAT parameter is not valid.\"\r",
+									"    \"message\": \"The provided value xyz for the HEIGHT parameter is not valid.\"\r",
 									"} */"
 								],
 								"type": "text/javascript",
@@ -1507,24 +1323,375 @@
 							}
 						],
 						"url": {
-							"raw": "http://transmorpher.test/images/{{user}}/{{imageIdentifier}}/f-pgn",
-							"protocol": "http",
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/h-xyz",
 							"host": [
-								"transmorpher",
-								"test"
+								"{{domain}}"
 							],
 							"path": [
 								"images",
 								"{{user}}",
 								"{{imageIdentifier}}",
-								"f-pgn"
+								"h-xyz"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Version set: No auth",
+					"name": "Download height 100: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received PNG image derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/png\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/images/{{user}}/{{imageIdentifier}}/h-100",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"images",
+								"{{user}}",
+								"{{imageIdentifier}}",
+								"h-100"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download specific Version original: No auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not allowed to read original Image without auth token\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"{{imageIdentifier}}",
+								"version",
+								"{{currentImageVersion}}",
+								"original"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download specific Version original: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received original image\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        method: \"GET\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        var currentVersion = jsonData.currentVersion;\r",
+									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
+									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
+									"    }\r",
+									");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"{{imageIdentifier}}",
+								"version",
+								"{{currentImageVersion}}",
+								"original"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download specific Version derivative: OK",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        method: \"GET\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        var currentVersion = jsonData.currentVersion;\r",
+									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
+									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
+									"    }\r",
+									");"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received derivative for specific version\", function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/q-1",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"{{imageIdentifier}}",
+								"version",
+								"{{currentImageVersion}}",
+								"derivative",
+								"q-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Versions: No auth",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to retreive image versions: no auth\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/media/{{imageIdentifier}}/versions",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"media",
+								"{{imageIdentifier}}",
+								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Versions: OK",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Image versions retrieved\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.state).to.eql('success');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": 'success',\r",
+									"    \"message\": \"Successfully retrieved version numbers.\",\r",
+									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"currentVersion\": 3,\r",
+									"    \"currentlyProcessedVersion\": 3,\r",
+									"    \"versions\": {\r",
+									"        \"1\": 1720201274,\r",
+									"        \"2\": 1720205610,\r",
+									"        \"3\": 1720208565\r",
+									"    },\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/media/{{imageIdentifier}}/versions",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"media",
+								"{{imageIdentifier}}",
+								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Restore old Version: No auth",
 					"event": [
 						{
 							"listen": "test",
@@ -1540,7 +1707,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1549,7 +1717,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
 									"        method: \"GET\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -1575,7 +1743,8 @@
 									"    \"client\": \"postman\"\r",
 									"} */"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1599,11 +1768,6 @@
 									"type": "text"
 								},
 								{
-									"key": "callback_url",
-									"value": "http://transmorpher.test/api/test",
-									"type": "text"
-								},
-								{
 									"key": "_method",
 									"value": "patch",
 									"type": "text"
@@ -1611,11 +1775,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
+							"raw": "{{domain}}/api/v1/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"media",
 								"{{imageIdentifier}}",
 								"version",
@@ -1626,7 +1792,7 @@
 					"response": []
 				},
 				{
-					"name": "Version set: OK",
+					"name": "Restore old Version: OK",
 					"event": [
 						{
 							"listen": "test",
@@ -1635,18 +1801,21 @@
 									"pm.test(\"Image version set\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('success');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"});\r",
 									"/* {\r",
-									"    \"state\": 'success',\r",
-									"    \"message\": \"Successfully set media version.\",\r",
+									"    \"state\": \"success\",\r",
+									"    \"message\": \"Successfully set image version.\",\r",
 									"    \"identifier\": \"postmanTestImage\",\r",
 									"    \"version\": 2,\r",
-									"    \"public_path\": \"postman/postmanTestImage\",\r",
-									"    \"upload_token\": \"6464e2634f4aa\"\r",
+									"    \"public_path\": \"images/postman/postmanTestImage\",\r",
+									"    \"upload_token\": \"66885feb496fe\",\r",
+									"    \"hash\": \"021881ce82531c8a30d6db156e49635a\"\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1655,7 +1824,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
 									"        method: \"GET\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -1670,18 +1839,17 @@
 									"    }\r",
 									");\r",
 									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully retrieved version numbers.\",\r",
+									"    \"state\": \"success\",\r",
+									"    \"message\": \"Successfully set image version.\",\r",
 									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"currentVersion\": 2,\r",
-									"    \"currentlyProcessedVersion\": null,\r",
-									"    \"versions\": {\r",
-									"        \"2\": 1684330530\r",
-									"    },\r",
-									"    \"client\": \"postman\"\r",
+									"    \"version\": 7,\r",
+									"    \"public_path\": \"images/postman/postmanTestImage\",\r",
+									"    \"upload_token\": \"66885c772e464\",\r",
+									"    \"hash\": \"78c1ca529ca4db228ae34780050f77f6\"\r",
 									"} */"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1697,11 +1865,6 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "callback_url",
-									"value": "http://transmorpher.test/api/test",
-									"type": "text"
-								},
-								{
 									"key": "_method",
 									"value": "patch",
 									"type": "text"
@@ -1709,11 +1872,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
+							"raw": "{{domain}}/api/v1/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"media",
 								"{{imageIdentifier}}",
 								"version",
@@ -1740,7 +1905,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1749,7 +1915,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1769,20 +1936,15 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{imageIdentifier}}",
+							"raw": "{{domain}}/api/v1/media/{{imageIdentifier}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"media",
 								"{{imageIdentifier}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -1798,6 +1960,7 @@
 									"pm.test(\"Image deleted\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('deleted');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"});\r",
 									"/* {\r",
 									"    \"state\": 'deleted',\r",
@@ -1822,11 +1985,12 @@
 									"    );\r",
 									"});\r",
 									"/* {\r",
-									"    message: \"Requested Media couldn't be found.\"\r",
+									"    \"message\": \"No query results for model [App\\\\Models\\\\Media].\"\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1835,7 +1999,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1852,20 +2017,15 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{imageIdentifier}}",
+							"raw": "{{domain}}/api/v1/media/{{imageIdentifier}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"media",
 								"{{imageIdentifier}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -1880,7 +2040,7 @@
 						"exec": [
 							"pm.sendRequest(",
 							"    {",
-							"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/image/reserveUploadSlot\",",
+							"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/image/reserveUploadSlot\",",
 							"        method: \"POST\",",
 							"        header: {",
 							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),",
@@ -1922,7 +2082,7 @@
 			"name": "Video",
 			"item": [
 				{
-					"name": "Reserve slot: No auth",
+					"name": "Reserve upload slot: No auth",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1930,7 +2090,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -1947,7 +2108,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -1970,22 +2132,19 @@
 							"formdata": [
 								{
 									"key": "identifier",
-									"value": "postmanUnusedVideo",
-									"type": "text"
-								},
-								{
-									"key": "callback_url",
-									"value": "{{videoCallbackUrl}}",
+									"value": "{{videoIdentifier}}",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/video/reserveUploadSlot",
+							"raw": "{{domain}}/api/v1/video/reserveUploadSlot",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"video",
 								"reserveUploadSlot"
 							]
@@ -1994,7 +2153,7 @@
 					"response": []
 				},
 				{
-					"name": "Reserve slot: Invalid identifier",
+					"name": "Reserve upload slot: Invalid identifier",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2002,7 +2161,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2013,6 +2173,7 @@
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(pm.response.json().errors).to.have.property(\"identifier\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
 									"});\r",
 									"/* {\r",
 									"    \"message\": \"The identifier format is invalid.\",\r",
@@ -2024,7 +2185,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2046,20 +2208,17 @@
 									"key": "identifier",
 									"value": "--not-allowed",
 									"type": "text"
-								},
-								{
-									"key": "callback_url",
-									"value": "{{videoCallbackUrl}}",
-									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/video/reserveUploadSlot",
+							"raw": "{{domain}}/api/v1/video/reserveUploadSlot",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"video",
 								"reserveUploadSlot"
 							]
@@ -2068,7 +2227,7 @@
 					"response": []
 				},
 				{
-					"name": "Reserve slot: OK",
+					"name": "Reserve upload slot: OK",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2076,7 +2235,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2087,16 +2247,18 @@
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(jsonData.state).to.eql('initializing');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"});\r",
 									"/* {\r",
 									"    \"state\": 'initializing',\r",
 									"    \"message\": \"Successfully created upload slot.\",\r",
-									"    \"identifier\": \"postmanUnusedVideo\",\r",
+									"    \"identifier\": \"postmanTestVideo\",\r",
 									"    \"upload_token\": \"6464c1a67c372\"\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2116,22 +2278,19 @@
 							"formdata": [
 								{
 									"key": "identifier",
-									"value": "postmanUnusedVideo",
-									"type": "text"
-								},
-								{
-									"key": "callback_url",
-									"value": "{{videoCallbackUrl}}",
+									"value": "{{videoIdentifier}}",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/video/reserveUploadSlot",
+							"raw": "{{domain}}/api/v1/video/reserveUploadSlot",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"video",
 								"reserveUploadSlot"
 							]
@@ -2152,10 +2311,11 @@
 									"    pm.expect(pm.response.code).to.equal(404);\r",
 									"});\r",
 									"/* {\r",
-									"    \"message\": \"Requested UploadSlot couldn't be found.\"\r",
+									"    \"message\": \"No query results for model [App\\\\Models\\\\UploadSlot] invalidUploadSlot\"\r",
 									"} */"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2164,7 +2324,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2190,20 +2351,15 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/foo",
+							"raw": "{{domain}}/api/v1/upload/invalidUploadSlot",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
-								"foo"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
+								"invalidUploadSlot"
 							]
 						}
 					},
@@ -2220,18 +2376,23 @@
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
 									"});\r",
 									"/* {\r",
-									"    \"message\": \"The file field is required.\",\r",
+									"    \"message\": \"The file field is required. (and 1 more error)\",\r",
 									"    \"errors\": {\r",
 									"        \"file\": [\r",
 									"            \"The file field is required.\"\r",
+									"        ],\r",
+									"        \"identifier\": [\r",
+									"            \"The identifier field is required.\"\r",
 									"        ]\r",
 									"    }\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2251,20 +2412,15 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/{{videoUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
 								"{{videoUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -2281,6 +2437,7 @@
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
 									"});\r",
 									"/* {\r",
 									"    \"message\": \"The file must be a file of type: video/x-msvideo, video/mpeg, video/ogg, video/webm, video/mp4.\",\r",
@@ -2292,7 +2449,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2301,7 +2459,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2332,20 +2491,15 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/{{videoUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
 								"{{videoUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -2364,11 +2518,12 @@
 									"    pm.expect(pm.response.code).to.equal(404);\r",
 									"});\r",
 									"/* {\r",
-									"    \"message\": \"Requested UploadSlot couldn't be found.\"\r",
+									"    \"message\": \"No query results for model [App\\\\Models\\\\UploadSlot] 6688761375576\"\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2377,7 +2532,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/video/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -2400,7 +2555,8 @@
 									");\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2426,20 +2582,15 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/{{videoUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
 								"{{videoUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -2455,18 +2606,21 @@
 									"pm.test(\"Video uploaded\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('processing');\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
 									"});\r",
 									"/* {\r",
-									"    \"state\": 'processing',\r",
+									"    \"state\": \"processing\",\r",
 									"    \"message\": \"Successfully uploaded new video version, transcoding job has been dispatched.\",\r",
 									"    \"identifier\": \"postmanTestVideo\",\r",
-									"    \"version\": 2,\r",
+									"    \"version\": 1,\r",
 									"    \"public_path\": null,\r",
-									"    \"upload_token\": \"6464c4c93e217\"\r",
+									"    \"upload_token\": \"668866635232e\",\r",
+									"    \"hash\": null\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2475,7 +2629,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2506,20 +2661,15 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/upload/{{videoUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"upload",
 								"{{videoUploadToken}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -2535,18 +2685,21 @@
 									"pm.test(\"Video version set\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('processing');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"});\r",
 									"/* {\r",
-									"    \"state\": 'processing',\r",
-									"    \"message\": \"Successfully set media version.\",\r",
+									"    \"state\": \"processing\",\r",
+									"    \"message\": \"Successfully set video version, transcoding job has been dispatched.\",\r",
 									"    \"identifier\": \"postmanTestVideo\",\r",
-									"    \"version\": 3,\r",
+									"    \"version\": 5,\r",
 									"    \"public_path\": null,\r",
-									"    \"upload_token\": \"646752a25011c\"\r",
+									"    \"upload_token\": \"668876687f4d6\",\r",
+									"    \"hash\": null\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2555,7 +2708,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/media/\" + pm.collectionVariables.get(\"videoIdentifier\") + \"/versions\",\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"videoIdentifier\") + \"/versions\",\r",
 									"        method: \"GET\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -2581,7 +2734,8 @@
 									"    \"client\": \"postman\"\r",
 									"} */"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2597,11 +2751,6 @@
 							"mode": "formdata",
 							"formdata": [
 								{
-									"key": "callback_url",
-									"value": "http://transmorpher.test/api/test",
-									"type": "text"
-								},
-								{
 									"key": "_method",
 									"value": "patch",
 									"type": "text"
@@ -2609,11 +2758,13 @@
 							]
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{videoIdentifier}}/version/{{currentVideoVersion}}",
+							"raw": "{{domain}}/api/v1/media/{{videoIdentifier}}/version/{{currentVideoVersion}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"media",
 								"{{videoIdentifier}}",
 								"version",
@@ -2640,7 +2791,8 @@
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2649,7 +2801,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2669,20 +2822,15 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{videoIdentifier}}",
+							"raw": "{{domain}}/api/v1/media/{{videoIdentifier}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"media",
 								"{{videoIdentifier}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -2698,11 +2846,12 @@
 									"pm.test(\"Video deleted\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('deleted');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"});\r",
 									"/* {\r",
 									"    \"state\": 'deleted',\r",
 									"    \"response\": \"Successfully deleted media.\",\r",
-									"    \"identifier\": \"postmanTestImage\",\r",
+									"    \"identifier\": \"postmanTestVideo\",\r",
 									"} */\r",
 									"pm.test(\"Video not found after deletion\", function () {\r",
 									"    pm.sendRequest(\r",
@@ -2722,11 +2871,12 @@
 									"    );\r",
 									"});\r",
 									"/* {\r",
-									"    message: \"Requested Media couldn't be found.\"\r",
+									"    \"message\": \"No query results for model [App\\\\Models\\\\Media].\"\r",
 									"} */\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2735,7 +2885,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2752,20 +2903,15 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{baseUrl}}/media/{{videoIdentifier}}",
+							"raw": "{{domain}}/api/v1/media/{{videoIdentifier}}",
 							"host": [
-								"{{baseUrl}}"
+								"{{domain}}"
 							],
 							"path": [
+								"api",
+								"v1",
 								"media",
 								"{{videoIdentifier}}"
-							],
-							"query": [
-								{
-									"key": null,
-									"value": "",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -2780,7 +2926,7 @@
 						"exec": [
 							"pm.sendRequest(",
 							"    {",
-							"        url: pm.collectionVariables.replaceIn(\"{{baseUrl}}\") + \"/video/reserveUploadSlot\",",
+							"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",",
 							"        method: \"POST\",",
 							"        header: {",
 							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),",
@@ -2831,7 +2977,8 @@
 							"});\r",
 							""
 						],
-						"type": "text/javascript"
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
@@ -2844,11 +2991,13 @@
 					}
 				],
 				"url": {
-					"raw": "{{baseUrl}}/publickey",
+					"raw": "{{domain}}/api/v1/publickey",
 					"host": [
-						"{{baseUrl}}"
+						"{{domain}}"
 					],
 					"path": [
+						"api",
+						"v1",
 						"publickey"
 					]
 				}
@@ -2889,17 +3038,12 @@
 	"variable": [
 		{
 			"key": "authToken",
-			"value": "ONjT9Fnm512HOFoATgsF5hSNkTwcMtmcumxSV340da10aace",
+			"value": "thisIsAnExamplePleaseEnterTheCorrectTokenForUser",
 			"type": "string"
 		},
 		{
 			"key": "domain",
 			"value": "transmorpher.test",
-			"type": "string"
-		},
-		{
-			"key": "apiVersion",
-			"value": "1",
 			"type": "string"
 		},
 		{
@@ -2910,11 +3054,6 @@
 		{
 			"key": "user",
 			"value": "postman",
-			"type": "string"
-		},
-		{
-			"key": "baseUrl",
-			"value": "{{domain}}/api/v{{apiVersion}}",
 			"type": "string"
 		},
 		{
@@ -2935,11 +3074,6 @@
 		{
 			"key": "videoIdentifier",
 			"value": "postmanTestVideo",
-			"type": "string"
-		},
-		{
-			"key": "videoCallbackUrl",
-			"value": "http://maminator/transmorpher/callback",
 			"type": "string"
 		},
 		{
