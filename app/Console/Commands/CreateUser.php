@@ -74,7 +74,7 @@ class CreateUser extends Command
             'name' => $name,
             'email' => $email,
             'api_url' => $apiUrl,
-            'password' => Hash::make($this->option('password') ?: base64_encode(random_bytes(300)))
+            'password' => $this->option('password') ?: base64_encode(random_bytes(300))
         ]);
 
         $this->info(sprintf('Successfully created new user %s: %s (%s)', $user->getKey(), $user->name, $user->email));
