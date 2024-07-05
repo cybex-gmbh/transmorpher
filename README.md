@@ -514,7 +514,7 @@ securely to use in client systems.
 
 In addition to the GitHub Secrets, you'll need to set the `CLIENT_CONTAINER_NAME` env variable for the Transmorpher server. 
 
-You may use the `CLIENT_NOTIFICATION_ROUTE` env variable if you have a custom notifications url than the default client implementation.  
+You may use the `CLIENT_NOTIFICATION_ROUTE` env variable if you have a custom notifications url, which differs from the default client implementation.  
 
 ## License
 
