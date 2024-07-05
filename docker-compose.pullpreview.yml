@@ -17,6 +17,7 @@ services:
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
       VIDEO_TRANSCODING_WORKERS_AMOUNT: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
       APP_URL: ${PULLPREVIEW_URL}/transmorpherServer
+      CLIENT_CONTAINER_NAME: ${AMIGOR_CONTAINER_NAME:-amigor}
     volumes:
       - 'app-storage:/var/www/html/storage'
     labels:

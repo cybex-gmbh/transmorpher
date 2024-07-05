@@ -309,8 +309,11 @@ There are additional settings in the `transmorpher.php` config file.
 Media always belongs to a user. To easily create one, use the provided command:
 
 ```bash
-php artisan create:user <name> <email>
+php artisan create:user <name> <email> <api_url>
 ```
+
+The server sends notifications to the api url, for example, video transcoding information. 
+For our standard laravel client implementation, this is: `https://example.com/transmorpher/notifications`.
 
 This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/11.x/sanctum) token, which has to be
 written in the `.env` file of a client system.
@@ -486,9 +489,11 @@ For more information, take a look at the PullPreview section of the [github-work
 App-specific GitHub Secrets:
 
 - PULLPREVIEW_APP_KEY
-- PULLPREVIEW_TRANSMORPHER_SIGNING_KEYPAIR
-- PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN
-- PULLPREVIEW_TRANSMORPHER_AUTH_TOKEN_HASH
+- PULLPREVIEW_SODIUM_KEYPAIR
+- PULLPREVIEW_SANCTUM_AUTH_TOKEN
+- PULLPREVIEW_SANCTUM_AUTH_TOKEN_HASH
+- PULLPREVIEW_USER_NAME
+- PULLPREVIEW_USER_EMAIL
 
 #### Companion App
 
@@ -504,6 +509,12 @@ php artisan create:user pullpreview pullpreview@example.com http://pullpreview.t
 
 Take the hash of the token from the `personal_access_tokens` table and save it to GitHub secrets. The command also provides a `TRANSMORPHER_AUTH_TOKEN`, which should be stored
 securely to use in client systems.
+
+#### Using your custom PullPreview environment
+
+In addition to the GitHub Secrets, you'll need to set the `CLIENT_CONTAINER_NAME` env variable for the Transmorpher server. 
+
+You may use the `CLIENT_NOTIFICATION_ROUTE` env variable if you have a custom notifications url, which differs from the default client implementation.  
 
 ## License
 

@@ -17,7 +17,8 @@ class CreateUser extends Command
     protected $signature = 'create:user
                 {name : The name of the user.}
                 {email : The E-Mail of the user.}
-                {api_url : The URL at which the client can receive notifications.}';
+                {api_url : The URL at which the client can receive notifications.}
+                {--password= : The password of the user.}';
 
     /**
      * The console command description.
@@ -69,7 +70,12 @@ class CreateUser extends Command
         * we will just generate a string of random bytes.
         * This needs to be encoded to base64 because null bytes are not accepted anymore (PHP 8.3).
         */
-        $user = User::create(['name' => $name, 'email' => $email, 'api_url' => $apiUrl, 'password' => Hash::make(base64_encode(random_bytes(300)))]);
+        $user = User::create([
+            'name' => $name,
+            'email' => $email,
+            'api_url' => $apiUrl,
+            'password' => $this->option('password') ?: base64_encode(random_bytes(300))
+        ]);
 
         $this->info(sprintf('Successfully created new user %s: %s (%s)', $user->getKey(), $user->name, $user->email));
         $this->newLine();
