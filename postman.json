@@ -2966,7 +2966,7 @@
 			]
 		},
 		{
-			"name": "Get public key",
+			"name": "Get public key: OK",
 			"event": [
 				{
 					"listen": "test",
