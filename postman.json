@@ -223,7 +223,8 @@
 								"image",
 								"reserveUploadSlot"
 							]
-						}
+						},
+						"description": "Providing the user token, the client reserves an upload slot for an image identifier. This action of the client backend secures the transaction, allowing the frontend to upload the image to the Transmorpher media server directly."
 					},
 					"response": []
 				},
@@ -848,7 +849,8 @@
 								"upload",
 								"{{imageUploadToken}}"
 							]
-						}
+						},
+						"description": "Providing the correct upload slot token for the image identifier, the client frontend can upload the image to the Transmorpher media server. The answer of this call contains the public URL where the image will be available immediatly after upload."
 					},
 					"response": []
 				},
@@ -2032,6 +2034,7 @@
 					"response": []
 				}
 			],
+			"description": "The Transmorpher Media server treats images in realtime. As soon as an image is uploaded, it is available for download. Image transformations are created when they are requested.",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -2294,7 +2297,8 @@
 								"video",
 								"reserveUploadSlot"
 							]
-						}
+						},
+						"description": "Providing the user token, the client reserves an upload slot for a video identifier. This action of the client backend secures the transaction, allowing the frontend to upload the video to the Transmorpher media server directly."
 					},
 					"response": []
 				},
@@ -2671,7 +2675,8 @@
 								"upload",
 								"{{videoUploadToken}}"
 							]
-						}
+						},
+						"description": "Providing the correct upload slot token for the video identifier, the client frontend can upload the video to the Transmorpher media server. When the video has been transcoded, the client backend will receive a notification message, which includes the public URL of the video."
 					},
 					"response": []
 				},
@@ -2918,6 +2923,7 @@
 					"response": []
 				}
 			],
+			"description": "The Transmorpher Media server processes videos in a queue. When the encoding into regular and stream formats have completed, the client is notified through a call. The client uses the public key URL to check if the notification is from the right source.",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -3000,7 +3006,8 @@
 						"v1",
 						"publickey"
 					]
-				}
+				},
+				"description": "Messages from the Transmorpher media server to a client are signed. This public key allows verifying the identity of the notification sender."
 			},
 			"response": []
 		}
@@ -3058,7 +3065,7 @@
 		},
 		{
 			"key": "imageUploadToken",
-			"value": "foo",
+			"value": "exampleUploadToken",
 			"type": "string"
 		},
 		{
@@ -3068,7 +3075,7 @@
 		},
 		{
 			"key": "videoUploadToken",
-			"value": "foo",
+			"value": "exampleUploadToken",
 			"type": "string"
 		},
 		{
@@ -3078,12 +3085,12 @@
 		},
 		{
 			"key": "currentImageVersion",
-			"value": "0",
+			"value": "5",
 			"type": "string"
 		},
 		{
 			"key": "currentVideoVersion",
-			"value": "0",
+			"value": "5",
 			"type": "string"
 		}
 	]
