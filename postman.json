@@ -224,7 +224,7 @@
 								"reserveUploadSlot"
 							]
 						},
-						"description": "Providing the user token, the client reserves an upload slot for an image identifier. This action of the client backend secures the transaction, allowing the frontend to upload the image to the Transmorpher media server directly."
+						"description": "Providing the auth token, the client reserves an upload slot for an image identifier. This action of the client backend secures the transaction, allowing the frontend to upload the image to the Transmorpher media server directly."
 					},
 					"response": []
 				},
