@@ -2923,7 +2923,7 @@
 					"response": []
 				}
 			],
-			"description": "The Transmorpher Media server processes videos in a queue. When the encoding into regular and stream formats have completed, the client is notified through a call. The client uses the public key URL to check if the notification is from the right source.",
+			"description": "The Transmorpher Media server processes videos in a queue. When the encoding into regular and stream formats is completed, the client is notified through a signed call. The client has to use the public key URL to verify the server's signature.",
 			"event": [
 				{
 					"listen": "prerequest",
