@@ -2404,6 +2404,8 @@
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('processing');\r",
 									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"    pm.collectionVariables.set('currentVideoVersion', jsonData.version);\r",
+									"    console.log('set currentVideoVersion to: ' + pm.collectionVariables.get('currentVideoVersion'));\r",
 									"});\r",
 									"/* {\r",
 									"    \"state\": \"processing\",\r",
