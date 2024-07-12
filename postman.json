@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "aaf95d51-4e36-45f2-bfac-27119d8e6fce",
-		"name": "transmorpher server",
+		"name": "Transmorpher Server API v1",
 		"description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "25831362"
@@ -1430,6 +1430,62 @@
 					"response": []
 				},
 				{
+					"name": "Download specific Version original: Invalid version",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Cannot download original of non-existing version\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(404);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Requested Version couldn't be found.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/image/{{imageIdentifier}}/version/999999999/original",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"{{imageIdentifier}}",
+								"version",
+								"999999999",
+								"original"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Download specific Version original: OK",
 					"event": [
 						{
@@ -1450,22 +1506,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.sendRequest(\r",
-									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
-									"        method: \"GET\",\r",
-									"        header: {\r",
-									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
-									"            \"Accept\": \"application/json\",\r",
-									"            \"Content-Type\": \"application/json\"\r",
-									"        }\r",
-									"    }, function (err, response) {\r",
-									"        var jsonData = response.json();\r",
-									"        var currentVersion = jsonData.currentVersion;\r",
-									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
-									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
-									"    }\r",
-									");\r",
 									""
 								],
 								"type": "text/javascript",
@@ -1500,28 +1540,129 @@
 					"response": []
 				},
 				{
+					"name": "Download specific Version derivative: No auth",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not allowed to read derivative of an Image Version without auth token\", function () {\r",
+									"    pm.expect(pm.response.code).to.equal(401);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Unauthenticated.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/q-1",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"{{imageIdentifier}}",
+								"version",
+								"{{currentImageVersion}}",
+								"derivative",
+								"q-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download specific Version derivative: Invalid version",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Cannot download derivative of non-existing version\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(404);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Requested Version couldn't be found.\"\r",
+									"} */"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/image/{{imageIdentifier}}/version/99999999/derivative/q-1",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"{{imageIdentifier}}",
+								"version",
+								"99999999",
+								"derivative",
+								"q-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Download specific Version derivative: OK",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.sendRequest(\r",
-									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
-									"        method: \"GET\",\r",
-									"        header: {\r",
-									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
-									"            \"Accept\": \"application/json\",\r",
-									"            \"Content-Type\": \"application/json\"\r",
-									"        }\r",
-									"    }, function (err, response) {\r",
-									"        var jsonData = response.json();\r",
-									"        var currentVersion = jsonData.currentVersion;\r",
-									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
-									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
-									"    }\r",
-									");"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1717,33 +1858,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.sendRequest(\r",
-									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
-									"        method: \"GET\",\r",
-									"        header: {\r",
-									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
-									"            \"Accept\": \"application/json\",\r",
-									"            \"Content-Type\": \"application/json\"\r",
-									"        }\r",
-									"    }, function (err, response) {\r",
-									"        var jsonData = response.json();\r",
-									"        var currentVersion = jsonData.currentVersion;\r",
-									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
-									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
-									"    }\r",
-									");\r",
-									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully retrieved version numbers.\",\r",
-									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"currentVersion\": 2,\r",
-									"    \"currentlyProcessedVersion\": null,\r",
-									"    \"versions\": {\r",
-									"        \"2\": 1684330530\r",
-									"    },\r",
-									"    \"client\": \"postman\"\r",
-									"} */"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1794,6 +1909,72 @@
 					"response": []
 				},
 				{
+					"name": "Restore old Version: Invalid Version",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unable to set non-existing Image version\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(404);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Requested Version couldn't be found.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "_method",
+									"value": "patch",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/media/{{imageIdentifier}}/version/99999999",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"media",
+								"{{imageIdentifier}}",
+								"version",
+								"99999999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Restore old Version: OK",
 					"event": [
 						{
@@ -1824,31 +2005,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.sendRequest(\r",
-									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
-									"        method: \"GET\",\r",
-									"        header: {\r",
-									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
-									"            \"Accept\": \"application/json\",\r",
-									"            \"Content-Type\": \"application/json\"\r",
-									"        }\r",
-									"    }, function (err, response) {\r",
-									"        var jsonData = response.json();\r",
-									"        var currentVersion = jsonData.currentVersion;\r",
-									"        pm.collectionVariables.set(\"currentImageVersion\", currentVersion);\r",
-									"        console.log('set currentImageVersion to: ' + pm.collectionVariables.get('currentImageVersion'));\r",
-									"    }\r",
-									");\r",
-									"/* {\r",
-									"    \"state\": \"success\",\r",
-									"    \"message\": \"Successfully set image version.\",\r",
-									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"version\": 7,\r",
-									"    \"public_path\": \"images/postman/postmanTestImage\",\r",
-									"    \"upload_token\": \"66885c772e464\",\r",
-									"    \"hash\": \"78c1ca529ca4db228ae34780050f77f6\"\r",
-									"} */"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2412,33 +2569,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.sendRequest(\r",
-									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"videoIdentifier\") + \"/versions\",\r",
-									"        method: \"GET\",\r",
-									"        header: {\r",
-									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
-									"            \"Accept\": \"application/json\",\r",
-									"            \"Content-Type\": \"application/json\"\r",
-									"        }\r",
-									"    }, function (err, response) {\r",
-									"        var jsonData = response.json();\r",
-									"        var currentVersion = jsonData.currentVersion;\r",
-									"        pm.collectionVariables.set(\"currentVideoVersion\", currentVersion);\r",
-									"        console.log('set currentVideoVersion to: ' + pm.collectionVariables.get('currentVideoVersion'));\r",
-									"    }\r",
-									");\r",
-									"/* {\r",
-									"    \"success\": true,\r",
-									"    \"response\": \"Successfully retrieved version numbers.\",\r",
-									"    \"identifier\": \"postmanTestImage\",\r",
-									"    \"currentVersion\": 2,\r",
-									"    \"currentlyProcessedVersion\": null,\r",
-									"    \"versions\": {\r",
-									"        \"2\": 1684330530\r",
-									"    },\r",
-									"    \"client\": \"postman\"\r",
-									"} */"
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2647,6 +2778,46 @@
 					]
 				},
 				"description": "Messages from the Transmorpher media server to a client are signed. This public key allows verifying the identity of the notification sender."
+			},
+			"response": []
+		},
+		{
+			"name": "Get cache invalidator: OK",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Received the cache invalidation reset counter\", function() {\r",
+							"    pm.expect(pm.response.code).to.equal(200);\r",
+							"});\r",
+							"// 0"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{domain}}/api/v1/cacheInvalidator",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"cacheInvalidator"
+					]
+				},
+				"description": "When the Transmorpher server needs to invalidate its derivatives, it sends a notification to all clients. The clients can also look up the current invalidation count with this call. The value is to be used as part of the cache buster in the URL."
 			},
 			"response": []
 		}
