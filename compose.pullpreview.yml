@@ -66,8 +66,8 @@ services:
       TRANSMORPHER_WEB_API_BASE_URL: https://${PULLPREVIEW_PUBLIC_DNS}/transmorpherServer/api
       APP_URL: ${PULLPREVIEW_URL}
     volumes:
-      - 'amigor-storage:/var/www/html/storage'
-      - '.env.amigor:/var/www/html/.env'
+      - 'amigor-storage:/var/www/html/amigor/storage'
+      - '.env.amigor:/var/www/html/amigor/.env'
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.${AMIGOR_CONTAINER_NAME:-amigor}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'
