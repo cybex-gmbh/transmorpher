@@ -175,10 +175,7 @@ class TranscodeVideo implements ShouldQueue
     {
         return $this->isLocalFilesystem($this->originalsDisk) ?
             $ffmpeg->open($this->originalsDisk->path($this->originalFilePath))
-            : $ffmpeg->openFromCloud(
-                CloudStorage::getOpenConfiguration($this->originalsDisk->path($this->originalFilePath)),
-                $this->localDisk->path($this->tempOriginalFilename)
-            );
+            : $this->openFromCloud($ffmpeg);
     }
 
     /**
@@ -191,6 +188,19 @@ class TranscodeVideo implements ShouldQueue
     protected function isLocalFilesystem(Filesystem $disk): bool
     {
         return $disk->getAdapter() instanceof LocalFilesystemAdapter;
+    }
+
+    /**
+     * The original needs to be available locally, since transcoding to MP4 uses the basic PHP-FFmpeg package, which cannot access cloud storages.
+     *
+     * @param FFMpeg $ffmpeg
+     * @return StreamingMedia
+     */
+    protected function openFromCloud(FFMpeg $ffmpeg): StreamingMedia
+    {
+        $this->localDisk->writeStream($this->tempOriginalFilename, $this->originalsDisk->readStream($this->originalFilePath));
+
+        return $ffmpeg->open($this->localDisk->path($this->tempOriginalFilename));
     }
 
     /**
@@ -219,7 +229,7 @@ class TranscodeVideo implements ShouldQueue
             $video->save($this->derivativesDisk->path($this->getTempVideoDerivativeFilePath($format)))
             : $video->save(null,
             CloudStorage::getSaveConfiguration(
-                sprintf('%s/%s', $this->derivativesDisk->path($this->tempDerivativesDirectoryPath), $format), $this->version->Media->identifier
+                sprintf('%s/%s', $this->derivativesDisk->path($this->tempDerivativesDirectoryPath), $format), 'video'
             )
         );
     }
@@ -381,5 +391,4 @@ class TranscodeVideo implements ShouldQueue
     {
         return sprintf('%s-%s-temp', $this->version->Media->baseDirectory(), $this->version->getKey());
     }
-
 }
