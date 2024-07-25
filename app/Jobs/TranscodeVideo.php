@@ -66,6 +66,7 @@ class TranscodeVideo implements ShouldQueue
     )
     {
         $this->onQueue('video-transcoding');
+        \Log::info(sprintf('Construction job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
         $this->uploadToken = $this->uploadSlot->token;
     }
