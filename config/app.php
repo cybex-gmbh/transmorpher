@@ -175,7 +175,6 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\CdnHelperServiceProvider::class,
-        App\Providers\CloudStorageServiceProvider::class,
         App\Providers\SqsFifoServiceProvider::class,
         App\Providers\TranscodeServiceProvider::class,
         App\Providers\TransformServiceProvider::class,
@@ -194,7 +193,6 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'CdnHelper' => App\Facades\CdnHelperFacade::class,
-        'CloudStorage' => App\Facades\CloudStorageFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
         'Transcode' => App\Facades\TranscodeFacade::class,
         'Transform' => App\Facades\TransformFacade::class,

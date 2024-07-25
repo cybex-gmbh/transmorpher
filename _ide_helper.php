@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 11.5.0.
+ * Generated for Laravel 11.7.0.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -18036,34 +18036,6 @@ namespace App\Facades {
             /**
      * 
      *
-     */        class CloudStorageFacade {
-                    /**
-         * Returns the configuration for opening data from the cloud storage.
-         *
-         * @param string $key
-         * @return array 
-         * @static 
-         */        public static function getOpenConfiguration($key)
-        {
-                        /** @var \App\Helpers\PhpFfmpegVideoStreaming\S3Helper $instance */
-                        return $instance->getOpenConfiguration($key);
-        }
-                    /**
-         * Returns the configuration for saving data to the cloud storage.
-         *
-         * @param string $destinationPath
-         * @param string $fileName
-         * @return array 
-         * @static 
-         */        public static function getSaveConfiguration($destinationPath, $fileName)
-        {
-                        /** @var \App\Helpers\PhpFfmpegVideoStreaming\S3Helper $instance */
-                        return $instance->getSaveConfiguration($destinationPath, $fileName);
-        }
-            }
-            /**
-     * 
-     *
      */        class TranscodeFacade {
                     /**
          * Returns the class which handles the actual transcoding.
@@ -18853,10 +18825,10 @@ namespace Spatie\LaravelIgnition\Facades {
          * 
          *
          * @static 
-         */        public static function registerErrorHandler()
+         */        public static function registerErrorHandler($errorLevels = null)
         {
                         /** @var \Spatie\FlareClient\Flare $instance */
-                        return $instance->registerErrorHandler();
+                        return $instance->registerErrorHandler($errorLevels);
         }
                     /**
          * 
@@ -18924,10 +18896,19 @@ namespace Spatie\LaravelIgnition\Facades {
          * 
          *
          * @static 
-         */        public static function report($throwable, $callback = null, $report = null)
+         */        public static function report($throwable, $callback = null, $report = null, $handled = null)
         {
                         /** @var \Spatie\FlareClient\Flare $instance */
-                        return $instance->report($throwable, $callback, $report);
+                        return $instance->report($throwable, $callback, $report, $handled);
+        }
+                    /**
+         * 
+         *
+         * @static 
+         */        public static function reportHandled($throwable)
+        {
+                        /** @var \Spatie\FlareClient\Flare $instance */
+                        return $instance->reportHandled($throwable);
         }
                     /**
          * 
@@ -21583,6 +21564,57 @@ namespace  {
                                 return $instance->orWhereJsonDoesntContain($column, $value);
             }
                             /**
+             * Add a "where JSON overlaps" clause to the query.
+             *
+             * @param string $column
+             * @param mixed $value
+             * @param string $boolean
+             * @param bool $not
+             * @return \Illuminate\Database\Query\Builder 
+             * @static 
+             */            public static function whereJsonOverlaps($column, $value, $boolean = 'and', $not = false)
+            {
+                                /** @var \Illuminate\Database\Query\Builder $instance */
+                                return $instance->whereJsonOverlaps($column, $value, $boolean, $not);
+            }
+                            /**
+             * Add an "or where JSON overlaps" clause to the query.
+             *
+             * @param string $column
+             * @param mixed $value
+             * @return \Illuminate\Database\Query\Builder 
+             * @static 
+             */            public static function orWhereJsonOverlaps($column, $value)
+            {
+                                /** @var \Illuminate\Database\Query\Builder $instance */
+                                return $instance->orWhereJsonOverlaps($column, $value);
+            }
+                            /**
+             * Add a "where JSON not overlap" clause to the query.
+             *
+             * @param string $column
+             * @param mixed $value
+             * @param string $boolean
+             * @return \Illuminate\Database\Query\Builder 
+             * @static 
+             */            public static function whereJsonDoesntOverlap($column, $value, $boolean = 'and')
+            {
+                                /** @var \Illuminate\Database\Query\Builder $instance */
+                                return $instance->whereJsonDoesntOverlap($column, $value, $boolean);
+            }
+                            /**
+             * Add an "or where JSON not overlap" clause to the query.
+             *
+             * @param string $column
+             * @param mixed $value
+             * @return \Illuminate\Database\Query\Builder 
+             * @static 
+             */            public static function orWhereJsonDoesntOverlap($column, $value)
+            {
+                                /** @var \Illuminate\Database\Query\Builder $instance */
+                                return $instance->orWhereJsonDoesntOverlap($column, $value);
+            }
+                            /**
              * Add a clause that determines if a JSON path exists to the query.
              *
              * @param string $column
@@ -22717,7 +22749,6 @@ namespace  {
             class View extends \Illuminate\Support\Facades\View {}
             class Vite extends \Illuminate\Support\Facades\Vite {}
             class CdnHelper extends \App\Facades\CdnHelperFacade {}
-            class CloudStorage extends \App\Facades\CloudStorageFacade {}
             class InterventionImage extends \Intervention\Image\Facades\Image {}
             class Transcode extends \App\Facades\TranscodeFacade {}
             class Transform extends \App\Facades\TransformFacade {}
