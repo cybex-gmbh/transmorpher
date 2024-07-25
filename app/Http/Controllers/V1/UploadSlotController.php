@@ -102,8 +102,10 @@ class UploadSlotController extends Controller
         $version->update(['filename' => $version->createOriginalFileName($uploadedFile->getClientOriginalName())]);
 
         if (MediaStorage::ORIGINALS->getDisk()->putFileAs($basePath, $uploadedFile, $version->filename)) {
+            \Log::info(sprintf('File for media %s and version %s saved successfully.', $media->identifier, $version->number));
             $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $version);
         } else {
+            \Log::error(sprintf('Could not write file for media %s and version %s.', $media->identifier, $version->number));
             $responseState = ResponseState::WRITE_FAILED;
         }
 
