@@ -112,7 +112,7 @@ class TranscodeVideo implements ShouldQueue
         $localDisk->delete($this->getTempOriginalFilename());
         $localDisk->deleteDirectory($this->getFfmpegTempDirectory());
         // This directory stores local temp derivatives in case cloud storage is used.
-        $localDisk->deleteDirectory($this->version->Media->User->name);
+        $localDisk->deleteDirectory($this->getTempDerivativesDirectoryPath());
 
         if (!$this->oldVersionNumber) {
             // A failed upload must not create a version.
@@ -153,7 +153,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->localDisk->delete($this->tempOriginalFilename);
         $this->localDisk->deleteDirectory($this->getFfmpegTempDirectory());
-        $this->localDisk->deleteDirectory($this->version->Media->User->name);
+        $this->localDisk->deleteDirectory($this->getTempDerivativesDirectoryPath());
 
         // Derivatives are generated at this point of time and located in the temporary folder.
         $this->moveDerivativesToDestinationPath();
@@ -225,7 +225,7 @@ class TranscodeVideo implements ShouldQueue
             $video->save($this->derivativesDisk->path($tempDerivativeFilePath));
         } else {
             // When using cloud storage, we save to local storage first and then upload manually,
-            // because the php-ffmpeg-video-streaming package direct upload functionality led to errors.
+            // because the php-ffmpeg-video-streaming package direct upload functionality led to S3 disconnects for large files.
             $video->save($this->localDisk->path($tempDerivativeFilePath));
 
             $tempDerivativesFormatDirectoryPath = $this->getTempDerivativesFormatDirectoryPath($format);
