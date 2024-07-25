@@ -27,9 +27,9 @@ class VideoHandler implements MediaHandlerInterface
      */
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, Version $version): ResponseState
     {
-        \Log::info('Dispatching transcoding job...');
+        \Log::info(sprintf('Dispatching transcoding job for media %s and version %s.', $version->Media->identifier, $version->getKey()));
         $success = Transcode::createJob($version, $uploadSlot);
-        \Log::info(sprintf('Transcoding job dispatched with result: %s.', $success));
+        \Log::info(sprintf('Transcoding job dispatched with result %s for media %s and version %s.', $success, $version->Media->identifier, $version->getKey()));
 
         return $success ? ResponseState::VIDEO_UPLOAD_SUCCESSFUL : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
     }

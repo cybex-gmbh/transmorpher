@@ -77,7 +77,7 @@ class TranscodeVideo implements ShouldQueue
      */
     public function handle(): void
     {
-        \Log::info(sprintf('Transcoding video for media %s and version %s.', $this->version->Media->identifier, $this->version->number));
+        \Log::info(sprintf('Transcoding video for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         // Check for newer versions and validity of upload slot.
         if ($this->isMostRecentVersion()) {
             $this->originalsDisk = MediaStorage::ORIGINALS->getDisk();
@@ -90,7 +90,7 @@ class TranscodeVideo implements ShouldQueue
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
 
-        \Log::info(sprintf('Transcoding finished for media %s and version %s with response state %s.', $this->version->Media->identifier, $this->version->number, $this->responseState->value));
+        \Log::info(sprintf('Transcoding finished for media %s and version %s with response state %s.', $this->version->Media->identifier, $this->version->getKey(), $this->responseState->value));
         match ($this->responseState) {
             ResponseState::TRANSCODING_SUCCESSFUL => Transcode::callback($this->responseState, $this->uploadToken, $this->version->Media, $this->version->number),
             ResponseState::TRANSCODING_ABORTED => $this->failed(null),
@@ -106,7 +106,7 @@ class TranscodeVideo implements ShouldQueue
     public function failed(?Throwable $exception): void
     {
         // All properties have not yet been initialized, because failed jobs use a new instance.
-        \Log::error(sprintf('Transcoding video for media %s and version %s failed. Exception: %s', $this->version->Media->identifier, $this->version->number, $exception?->getMessage()));
+        \Log::error(sprintf('Transcoding video for media %s and version %s failed. Exception: %s', $this->version->Media->identifier, $this->version->getKey(), $exception?->getMessage()));
 
         $localDisk = Storage::disk('local');
 
@@ -142,7 +142,7 @@ class TranscodeVideo implements ShouldQueue
             'temporary_directory' => $this->localDisk->path($this->getFfmpegTempDirectory())
         ]);
 
-        \Log::info(sprintf('Downloading video for media %s and version %s.', $this->version->Media->identifier, $this->version->number));
+        \Log::info(sprintf('Downloading video for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         $video = $this->loadVideo($ffmpeg);
 
         // Set the necessary file path information.
@@ -225,7 +225,7 @@ class TranscodeVideo implements ShouldQueue
     {
         $tempDerivativeFilePath = $this->getTempDerivativeFilePath($format);
 
-        \Log::info(sprintf('Generating %s for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->number));
+        \Log::info(sprintf('Generating %s for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->getKey()));
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         if ($this->isLocalFilesystem($this->derivativesDisk)) {
             $video->save($this->derivativesDisk->path($tempDerivativeFilePath));
@@ -236,7 +236,7 @@ class TranscodeVideo implements ShouldQueue
 
             $tempDerivativesFormatDirectoryPath = $this->getTempDerivativesFormatDirectoryPath($format);
 
-            \Log::info(sprintf('Writing %s to S3 for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->number));
+            \Log::info(sprintf('Writing %s to S3 for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->getKey()));
             foreach ($this->localDisk->allFiles($tempDerivativesFormatDirectoryPath) as $filePath) {
                 $this->derivativesDisk->writeStream(
                     $filePath,
@@ -259,10 +259,10 @@ class TranscodeVideo implements ShouldQueue
     protected function generateMp4(StreamingMedia $video): void
     {
         $tempMp4Filename = $this->getTempMp4Filename();
-        \Log::info(sprintf('Generating MP4 for media %s and version %s.', $this->version->Media->identifier, $this->version->number));
+        \Log::info(sprintf('Generating MP4 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         $video->save((new X264())->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')), $this->localDisk->path($tempMp4Filename));
 
-        \Log::info(sprintf('Writing MP4 to S3 for media %s and version %s.', $this->version->Media->identifier, $this->version->number));
+        \Log::info(sprintf('Writing MP4 to S3 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         $this->derivativesDisk->writeStream(
             sprintf('%s.%s', $this->getTempDerivativeFilePath('mp4'), 'mp4'),
             $this->localDisk->readStream($tempMp4Filename)
@@ -282,21 +282,21 @@ class TranscodeVideo implements ShouldQueue
         if ($this->isMostRecentVersion()) {
             // This will make sure we can invalidate the cache before the current derivative gets deleted.
             // If this fails, the job will stop and cleanup will be done in the 'failed()'-method.
-            \Log::info(sprintf('Invalidating CDN cache for media %s and version %s.', $this->version->Media->identifier, $this->version->number));
+            \Log::info(sprintf('Invalidating CDN cache for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->invalidateCdnCache();
 
             $this->derivativesDisk->deleteDirectory($this->derivativesDestinationPath);
-            \Log::info(sprintf('Moving video derivatives for media %s and version %s.', $this->version->Media->identifier, $this->version->number));
+            \Log::info(sprintf('Moving video derivatives for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->moveFromTempDirectory();
 
             // Invalidate the cache again for the newly generated derivative.
-            \Log::info(sprintf('Invalidating CDN cache after moving for media %s and version %s.', $this->version->Media->identifier, $this->version->number));
+            \Log::info(sprintf('Invalidating CDN cache after moving for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->invalidateCdnCache();
 
             $this->version->update(['processed' => true]);
             $this->responseState = ResponseState::TRANSCODING_SUCCESSFUL;
         } else {
-            \Log::info(sprintf('Transcoding aborted since not latest version for media %s and version %s.', $this->version->Media->identifier, $this->version->number));
+            \Log::info(sprintf('Transcoding aborted since not latest version for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
     }
