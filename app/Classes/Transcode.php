@@ -96,6 +96,7 @@ class Transcode implements TranscodeInterface
 
         $signedNotification = SodiumHelper::sign(json_encode($notification));
 
+        \Log::info(sprintf('Sending signed notification with state %s to client package for media %s and version %s, message: %s.', $responseState->getState()->value, $media->identifier, Version::whereNumber($versionNumber)->first()?->getKey(), $responseState->getMessage()));
         Http::post($media->User->api_url, ['signed_notification' => $signedNotification]);
     }
 }
