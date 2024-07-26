@@ -3,6 +3,8 @@ name: Docker Image CI
 on:
   release:
     types: [ published ]
+  pull_request:
+    types: [ labeled, synchronize, closed ]
 
 jobs:
   build-push-docker-image:

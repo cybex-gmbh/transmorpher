@@ -8,7 +8,6 @@ use App\Enums\StreamingFormat;
 use App\Models\UploadSlot;
 use App\Models\Version;
 use CdnHelper;
-use CloudStorage;
 use FFMpeg\Format\Video\X264;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -48,11 +47,6 @@ class TranscodeVideo implements ShouldQueue
 
     protected string $originalFilePath;
     protected string $uploadToken;
-
-    // Derivatives are saved to a temporary folder first, else race conditions could cause newer versions to be overwritten.
-    protected string $tempDerivativesDirectoryPath;
-    // Mp4 needs to be saved locally after transcoding, before being streamed to the configured disk.
-    protected string $tempMp4Filename;
     // Videos stored in the cloud have to be downloaded for transcoding.
     protected string $tempOriginalFilename;
     protected string $derivativesDestinationPath;
@@ -72,6 +66,7 @@ class TranscodeVideo implements ShouldQueue
     )
     {
         $this->onQueue('video-transcoding');
+        \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
         $this->uploadToken = $this->uploadSlot->token;
     }
@@ -83,12 +78,12 @@ class TranscodeVideo implements ShouldQueue
      */
     public function handle(): void
     {
+        \Log::info(sprintf('Transcoding video for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         // Check for newer versions and validity of upload slot.
         if ($this->isMostRecentVersion()) {
             $this->originalsDisk = MediaStorage::ORIGINALS->getDisk();
             $this->derivativesDisk = MediaStorage::VIDEO_DERIVATIVES->getDisk();
             $this->localDisk = Storage::disk('local');
-            $this->tempMp4Filename = $this->getTempMp4Filename();
             $this->tempOriginalFilename = $this->getTempOriginalFilename();
 
             $this->transcodeVideo();
@@ -96,6 +91,7 @@ class TranscodeVideo implements ShouldQueue
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
 
+        \Log::info(sprintf('Transcoding finished for media %s and version %s with response state %s.', $this->version->Media->identifier, $this->version->getKey(), $this->responseState->value));
         match ($this->responseState) {
             ResponseState::TRANSCODING_SUCCESSFUL => Transcode::callback($this->responseState, $this->uploadToken, $this->version->Media, $this->version->number),
             ResponseState::TRANSCODING_ABORTED => $this->failed(null),
@@ -111,14 +107,16 @@ class TranscodeVideo implements ShouldQueue
     public function failed(?Throwable $exception): void
     {
         // All properties have not yet been initialized, because failed jobs use a new instance.
+        \Log::error(sprintf('Transcoding video for media %s and version %s failed. Exception: %s', $this->version->Media->identifier, $this->version->getKey(), $exception?->getMessage()));
 
-        $tempDerivativesDirectoryPath = $this->getTempVideoDerivativesDirectoryPath();
         $localDisk = Storage::disk('local');
 
-        MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($tempDerivativesDirectoryPath);
+        MediaStorage::VIDEO_DERIVATIVES->getDisk()->deleteDirectory($this->getTempDerivativesDirectoryPath());
         $localDisk->delete($this->getTempMp4Filename());
         $localDisk->delete($this->getTempOriginalFilename());
         $localDisk->deleteDirectory($this->getFfmpegTempDirectory());
+        // This directory stores local temp derivatives in case cloud storage is used.
+        $localDisk->deleteDirectory($this->getTempDerivativesDirectoryPath());
 
         if (!$this->oldVersionNumber) {
             // A failed upload must not create a version.
@@ -145,10 +143,12 @@ class TranscodeVideo implements ShouldQueue
             'temporary_directory' => $this->localDisk->path($this->getFfmpegTempDirectory())
         ]);
 
+        \Log::info(sprintf('Downloading video for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         $video = $this->loadVideo($ffmpeg);
 
         // Set the necessary file path information.
         $this->setFilePaths();
+
 
         // Generate MP4.
         $this->generateMp4($video);
@@ -159,6 +159,7 @@ class TranscodeVideo implements ShouldQueue
 
         $this->localDisk->delete($this->tempOriginalFilename);
         $this->localDisk->deleteDirectory($this->getFfmpegTempDirectory());
+        $this->localDisk->deleteDirectory($this->getTempDerivativesDirectoryPath());
 
         // Derivatives are generated at this point of time and located in the temporary folder.
         $this->moveDerivativesToDestinationPath();
@@ -211,7 +212,6 @@ class TranscodeVideo implements ShouldQueue
     protected function setFilePaths(): void
     {
         $this->derivativesDestinationPath = $this->version->Media->baseDirectory();
-        $this->tempDerivativesDirectoryPath = $this->getTempVideoDerivativesDirectoryPath();
     }
 
     /**
@@ -224,14 +224,28 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function saveVideo(Streaming $video, string $format): void
     {
+        $tempDerivativeFilePath = $this->getTempDerivativeFilePath($format);
+
+        \Log::info(sprintf('Generating %s for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->getKey()));
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
-        $this->isLocalFilesystem($this->derivativesDisk) ?
-            $video->save($this->derivativesDisk->path($this->getTempVideoDerivativeFilePath($format)))
-            : $video->save(null,
-            CloudStorage::getSaveConfiguration(
-                sprintf('%s/%s', $this->derivativesDisk->path($this->tempDerivativesDirectoryPath), $format), 'video'
-            )
-        );
+        if ($this->isLocalFilesystem($this->derivativesDisk)) {
+            $video->save($this->derivativesDisk->path($tempDerivativeFilePath));
+        } else {
+            // When using cloud storage, we save to local storage first and then upload manually,
+            // because the php-ffmpeg-video-streaming package direct upload functionality led to S3 disconnects for large files.
+            $video->save($this->localDisk->path($tempDerivativeFilePath));
+
+            $tempDerivativesFormatDirectoryPath = $this->getTempDerivativesFormatDirectoryPath($format);
+
+            \Log::info(sprintf('Writing %s to S3 for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->getKey()));
+            foreach ($this->localDisk->allFiles($tempDerivativesFormatDirectoryPath) as $filePath) {
+                $this->derivativesDisk->writeStream(
+                    $filePath,
+                    $this->localDisk->readStream($filePath));
+            }
+
+            $this->localDisk->deleteDirectory($tempDerivativesFormatDirectoryPath);
+        }
     }
 
     /**
@@ -245,15 +259,17 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function generateMp4(StreamingMedia $video): void
     {
-        $video->save((new X264())->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')), $this->localDisk->path($this->tempMp4Filename));
+        $tempMp4Filename = $this->getTempMp4Filename();
+        \Log::info(sprintf('Generating MP4 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
+        $video->save((new X264())->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')), $this->localDisk->path($tempMp4Filename));
 
-        $derivativePath = $this->getTempVideoDerivativeFilePath('mp4');
+        \Log::info(sprintf('Writing MP4 to S3 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         $this->derivativesDisk->writeStream(
-            sprintf('%s.%s', $derivativePath, 'mp4'),
-            $this->localDisk->readStream($this->tempMp4Filename)
+            sprintf('%s.%s', $this->getTempDerivativeFilePath('mp4'), 'mp4'),
+            $this->localDisk->readStream($tempMp4Filename)
         );
 
-        $this->localDisk->delete($this->tempMp4Filename);
+        $this->localDisk->delete($tempMp4Filename);
     }
 
     /**
@@ -267,17 +283,21 @@ class TranscodeVideo implements ShouldQueue
         if ($this->isMostRecentVersion()) {
             // This will make sure we can invalidate the cache before the current derivative gets deleted.
             // If this fails, the job will stop and cleanup will be done in the 'failed()'-method.
+            \Log::info(sprintf('Invalidating CDN cache for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->invalidateCdnCache();
 
             $this->derivativesDisk->deleteDirectory($this->derivativesDestinationPath);
+            \Log::info(sprintf('Moving video derivatives for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->moveFromTempDirectory();
 
             // Invalidate the cache again for the newly generated derivative.
+            \Log::info(sprintf('Invalidating CDN cache after moving for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->invalidateCdnCache();
 
             $this->version->update(['processed' => true]);
             $this->responseState = ResponseState::TRANSCODING_SUCCESSFUL;
         } else {
+            \Log::info(sprintf('Transcoding aborted since not latest version for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
     }
@@ -290,7 +310,7 @@ class TranscodeVideo implements ShouldQueue
     protected function moveFromTempDirectory(): void
     {
         if ($this->isLocalFilesystem($this->derivativesDisk)) {
-            $this->derivativesDisk->move($this->tempDerivativesDirectoryPath, $this->derivativesDestinationPath);
+            $this->derivativesDisk->move($this->getTempDerivativesDirectoryPath(), $this->derivativesDestinationPath);
         } else {
             $this->moveFromCloudTempDirectory();
         }
@@ -304,8 +324,8 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function moveFromCloudTempDirectory(): void
     {
-        $hlsFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempDerivativesDirectoryPath, StreamingFormat::HLS->value));
-        $dashFiles = $this->derivativesDisk->allFiles(sprintf('%s/%s/', $this->tempDerivativesDirectoryPath, StreamingFormat::DASH->value));
+        $hlsFiles = $this->derivativesDisk->allFiles($this->getTempDerivativesFormatDirectoryPath(StreamingFormat::HLS->value));
+        $dashFiles = $this->derivativesDisk->allFiles($this->getTempDerivativesFormatDirectoryPath(StreamingFormat::DASH->value));
 
         foreach ($hlsFiles as $file) {
             $this->derivativesDisk->move($file, $this->version->Media->videoDerivativeFilePath(StreamingFormat::HLS->value, basename($file)));
@@ -315,10 +335,9 @@ class TranscodeVideo implements ShouldQueue
             $this->derivativesDisk->move($file, $this->version->Media->videoDerivativeFilePath(StreamingFormat::DASH->value, basename($file)));
         }
 
-        $tempDerivativePath = $this->getTempVideoDerivativeFilePath('mp4');
         // Move MP4 file.
         $this->derivativesDisk->move(
-            sprintf('%s.mp4', $tempDerivativePath),
+            sprintf('%s.mp4', $this->getTempDerivativeFilePath('mp4')),
             sprintf('%s.mp4', $this->version->Media->videoDerivativeFilePath('mp4'))
         );
     }
@@ -376,9 +395,9 @@ class TranscodeVideo implements ShouldQueue
      * @param string $format
      * @return string
      */
-    protected function getTempVideoDerivativeFilePath(string $format): string
+    protected function getTempDerivativeFilePath(string $format): string
     {
-        return sprintf('%s/%s/%s', $this->getTempVideoDerivativesDirectoryPath(), $format, 'video');
+        return sprintf('%s/%s', $this->getTempDerivativesFormatDirectoryPath($format), 'video');
     }
 
     /**
@@ -387,8 +406,17 @@ class TranscodeVideo implements ShouldQueue
      *
      * @return string
      */
-    protected function getTempVideoDerivativesDirectoryPath(): string
+    protected function getTempDerivativesDirectoryPath(): string
     {
         return sprintf('%s-%s-temp', $this->version->Media->baseDirectory(), $this->version->getKey());
+    }
+
+    /**
+     * Get the path to the temporary video derivatives directory for a format.
+     * Path structure: {username}/{identifier}-{versionKey}-temp/{format}
+     */
+    protected function getTempDerivativesFormatDirectoryPath(string $format): string
+    {
+        return sprintf('%s/%s', $this->getTempDerivativesDirectoryPath(), $format);
     }
 }
