@@ -2744,6 +2744,795 @@
 			]
 		},
 		{
+			"name": "Video Chunks",
+			"item": [
+				{
+					"name": "Upload Chunk 1: no file field",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video chunk uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The file field is required.\",\r",
+									"    \"errors\": {\r",
+									"        \"file\": [\r",
+									"            \"The file field is required.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        method: \"POST\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        },\r",
+									"        body: {\r",
+									"            \"mode\": \"application/json\",\r",
+									"            \"raw\": JSON.stringify(\r",
+									"                {\r",
+									"                    'identifier': pm.collectionVariables.get(\"videoIdentifier\"),\r",
+									"                    'callback_url': pm.collectionVariables.get(\"videoCallbackUrl\")\r",
+									"                }\r",
+									"            )\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        console.log(jsonData);\r",
+									"        pm.collectionVariables.set('videoUploadToken', jsonData.upload_token);\r",
+									"        console.log('set videoUploadToken to: ' + pm.collectionVariables.get('videoUploadToken'));\r",
+									"        console.log('-------------------------------------------')\r",
+									"    }\r",
+									");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
+								},
+								{
+									"key": "totalChunks",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "chunkNumber",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{videoUploadToken}}"
+							]
+						},
+						"description": "The file field is mandatory."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Chunk 1: no file",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video chunk uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The file field is required.\",\r",
+									"    \"errors\": {\r",
+									"        \"file\": [\r",
+									"            \"The file field is required.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        method: \"POST\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        },\r",
+									"        body: {\r",
+									"            \"mode\": \"application/json\",\r",
+									"            \"raw\": JSON.stringify(\r",
+									"                {\r",
+									"                    'identifier': pm.collectionVariables.get(\"videoIdentifier\"),\r",
+									"                    'callback_url': pm.collectionVariables.get(\"videoCallbackUrl\")\r",
+									"                }\r",
+									"            )\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        console.log(jsonData);\r",
+									"        pm.collectionVariables.set('videoUploadToken', jsonData.upload_token);\r",
+									"        console.log('set videoUploadToken to: ' + pm.collectionVariables.get('videoUploadToken'));\r",
+									"        console.log('-------------------------------------------')\r",
+									"    }\r",
+									");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
+								},
+								{
+									"key": "totalChunks",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "chunkNumber",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{videoUploadToken}}"
+							]
+						},
+						"description": "There must be file content."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Chunk 1: not a file",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video chunk uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The file must be a file.\",\r",
+									"    \"errors\": {\r",
+									"        \"file\": [\r",
+									"            \"The file must be a file.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        method: \"POST\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        },\r",
+									"        body: {\r",
+									"            \"mode\": \"application/json\",\r",
+									"            \"raw\": JSON.stringify(\r",
+									"                {\r",
+									"                    'identifier': pm.collectionVariables.get(\"videoIdentifier\"),\r",
+									"                    'callback_url': pm.collectionVariables.get(\"videoCallbackUrl\")\r",
+									"                }\r",
+									"            )\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        console.log(jsonData);\r",
+									"        pm.collectionVariables.set('videoUploadToken', jsonData.upload_token);\r",
+									"        console.log('set videoUploadToken to: ' + pm.collectionVariables.get('videoUploadToken'));\r",
+									"        console.log('-------------------------------------------')\r",
+									"    }\r",
+									");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"value": "A567HILUAF84D4U699H03IN3UHISFDNILUHSFDNUHISFDNU4HIFDS34NUI3",
+									"type": "text"
+								},
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
+								},
+								{
+									"key": "totalChunks",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "chunkNumber",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{videoUploadToken}}"
+							]
+						},
+						"description": "The file content must not be transmitted as a text form field."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Chunk 1: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video chunk uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.done).to.eql(50);\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"/* {\r",
+									"    \"done\": 50\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        method: \"POST\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        },\r",
+									"        body: {\r",
+									"            \"mode\": \"application/json\",\r",
+									"            \"raw\": JSON.stringify(\r",
+									"                {\r",
+									"                    'identifier': pm.collectionVariables.get(\"videoIdentifier\"),\r",
+									"                    'callback_url': pm.collectionVariables.get(\"videoCallbackUrl\")\r",
+									"                }\r",
+									"            )\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        console.log(jsonData);\r",
+									"        pm.collectionVariables.set('videoUploadToken', jsonData.upload_token);\r",
+									"        console.log('set videoUploadToken to: ' + pm.collectionVariables.get('videoUploadToken'));\r",
+									"        console.log('-------------------------------------------')\r",
+									"    }\r",
+									");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/user/Videos/_chunk1/chunkedVideo.mp4"
+								},
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
+								},
+								{
+									"key": "totalChunks",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "chunkNumber",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{videoUploadToken}}"
+							]
+						},
+						"description": "This is the simplest way to define the chunks. In this case, the chunks start counting at 1. The answer contains the percentage uploaded value, which can be used in percentage bars etc. Make sure to transmit the same file name for all chunks!"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Chunk 2: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video chunk uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.state).to.eql('processing');\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"    pm.collectionVariables.set('currentVideoVersion', jsonData.version);\r",
+									"    console.log('set currentVideoVersion to: ' + pm.collectionVariables.get('currentVideoVersion'));\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": \"processing\",\r",
+									"    \"message\": \"Successfully uploaded new video version, transcoding job has been dispatched.\",\r",
+									"    \"identifier\": \"postmanTestVideo\",\r",
+									"    \"version\": 1,\r",
+									"    \"public_path\": null,\r",
+									"    \"upload_token\": \"668866635232e\",\r",
+									"    \"hash\": null\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/user/Videos/_chunk2/chunkedVideo.mp4"
+								},
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
+								},
+								{
+									"key": "totalChunks",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "chunkNumber",
+									"value": "2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{videoUploadToken}}"
+							]
+						},
+						"description": "Number 2 is the last chunk in this example. When it has been uploaded, the regular video upload complete message is returned."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Chunk 1 dropzone: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video chunk uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.done).to.eql(50);\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"/* {\r",
+									"    \"done\": 50\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest(\r",
+									"    {\r",
+									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        method: \"POST\",\r",
+									"        header: {\r",
+									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"            \"Accept\": \"application/json\",\r",
+									"            \"Content-Type\": \"application/json\"\r",
+									"        },\r",
+									"        body: {\r",
+									"            \"mode\": \"application/json\",\r",
+									"            \"raw\": JSON.stringify(\r",
+									"                {\r",
+									"                    'identifier': pm.collectionVariables.get(\"videoIdentifier\"),\r",
+									"                    'callback_url': pm.collectionVariables.get(\"videoCallbackUrl\")\r",
+									"                }\r",
+									"            )\r",
+									"        }\r",
+									"    }, function (err, response) {\r",
+									"        var jsonData = response.json();\r",
+									"        console.log(jsonData);\r",
+									"        pm.collectionVariables.set('videoUploadToken', jsonData.upload_token);\r",
+									"        console.log('set videoUploadToken to: ' + pm.collectionVariables.get('videoUploadToken'));\r",
+									"        console.log('-------------------------------------------')\r",
+									"    }\r",
+									");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "dzuuid",
+									"value": "59922a52-8e64-4b23-a630-e417ad3e6e99",
+									"type": "text"
+								},
+								{
+									"key": "dzchunkindex",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "dztotalfilesize",
+									"value": "4000314",
+									"type": "text"
+								},
+								{
+									"key": "dzchunksize",
+									"value": "2097152",
+									"type": "text"
+								},
+								{
+									"key": "dztotalchunkcount",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "dzchunkbyteoffset",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/user/Videos/_chunk1/chunkedVideo.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{videoUploadToken}}"
+							]
+						},
+						"description": "Dropzone is also supported, including parallel uploads. Mind that the chunks start counting at 0 in this case. Make sure to transmit the same file name for all chunks!"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Chunk 2 dropzone: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Video chunk uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.state).to.eql('processing');\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"    pm.collectionVariables.set('currentVideoVersion', jsonData.version);\r",
+									"    console.log('set currentVideoVersion to: ' + pm.collectionVariables.get('currentVideoVersion'));\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": \"processing\",\r",
+									"    \"message\": \"Successfully uploaded new video version, transcoding job has been dispatched.\",\r",
+									"    \"identifier\": \"postmanTestVideo\",\r",
+									"    \"version\": 1,\r",
+									"    \"public_path\": null,\r",
+									"    \"upload_token\": \"668866635232e\",\r",
+									"    \"hash\": null\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "dzuuid",
+									"value": "59922a52-8e64-4b23-a630-e417ad3e6e99",
+									"type": "text"
+								},
+								{
+									"key": "dzchunkindex",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "dztotalfilesize",
+									"value": "4000314",
+									"type": "text"
+								},
+								{
+									"key": "dzchunksize",
+									"value": "2097152",
+									"type": "text"
+								},
+								{
+									"key": "dztotalchunkcount",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "dzchunkbyteoffset",
+									"value": "2097152",
+									"type": "text"
+								},
+								{
+									"key": "identifier",
+									"value": "{{videoIdentifier}}",
+									"type": "text"
+								},
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/user/Videos/_chunk2/chunkedVideo.mp4"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{videoUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{videoUploadToken}}"
+							]
+						},
+						"description": "Number 1 is the last chunk in this example. When it has been uploaded, the regular video upload complete message is returned."
+					},
+					"response": []
+				}
+			],
+			"description": "Video files can be sent as multipart form attachments. The file content must be transmitted as file, not as a text form field. Make sure to transmit the same file name for all chunks!"
+		},
+		{
 			"name": "Get public key: OK",
 			"event": [
 				{
@@ -2862,7 +3651,7 @@
 		},
 		{
 			"key": "domain",
-			"value": "transmorpher.test",
+			"value": "http://transmorpher.test",
 			"type": "string"
 		},
 		{
