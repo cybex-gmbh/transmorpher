@@ -112,6 +112,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Initial Transcoding Parameters
+    |--------------------------------------------------------------------------
+    |
+    | These parameters will be added to the FFmpeg transcoding command before the input parameter.
+    */
+    'initial_transcoding_parameters' => [
+        // GPU decoding has issues
+        // '-hwaccel', 'cuda',
+        // '-hwaccel_output_format','cuda',
+        // '-extra_hw_frames', '10',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Additional Transcoding Parameters
     |--------------------------------------------------------------------------
     |
@@ -122,7 +136,11 @@ return [
     | -sn: omit subtitles. Subtitles would need an encoder configuration for DASH, and possibly HLS.
     */
     'additional_transcoding_parameters' => [
-        '-dn', '-map', '-0:t?', '-sn'
+        '-dn', '-map', '-0:t?', '-sn',
+
+        // GPU encoding
+        // https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
+         '-c:v', 'h264_nvenc',
     ],
 
     /*

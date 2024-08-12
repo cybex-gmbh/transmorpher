@@ -22,7 +22,15 @@ RUN chown -R application:application /var/www/html/storage
 RUN php /var/www/html/artisan storage:link
 
 RUN apt update
-RUN apt install -y default-mysql-client imagemagick jpegoptim optipng pngquant gifsicle webp ffmpeg
+RUN apt install -y default-mysql-client imagemagick jpegoptim optipng pngquant gifsicle webp
+
+# ffmpeg 6
+RUN printf "\ndeb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt/sources.list
+RUN apt-get update -oAcquire::AllowInsecureRepositories=true
+RUN apt-get -y --allow-unauthenticated install deb-multimedia-keyring
+RUN wget https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb
+RUN dpkg -i deb-multimedia-keyring_2016.8.1_all.deb
+RUN apt-get -y --allow-unauthenticated install ffmpeg
 
 RUN docker-service-enable cron
 RUN docker-cronjob '* * * * * application /usr/local/bin/php /var/www/html/artisan schedule:run >> /dev/null 2>&1'

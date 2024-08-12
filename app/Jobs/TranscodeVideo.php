@@ -149,7 +149,6 @@ class TranscodeVideo implements ShouldQueue
         // Set the necessary file path information.
         $this->setFilePaths();
 
-
         // Generate MP4.
         $this->generateMp4($video);
         // Generate HLS
@@ -175,7 +174,7 @@ class TranscodeVideo implements ShouldQueue
     protected function loadVideo(FFMpeg $ffmpeg): StreamingMedia
     {
         return $this->isLocalFilesystem($this->originalsDisk) ?
-            $ffmpeg->open($this->originalsDisk->path($this->originalFilePath))
+            $ffmpeg->customInput($this->originalsDisk->path($this->originalFilePath), config('transmorpher.initial_transcoding_parameters'))
             : $this->openFromCloud($ffmpeg);
     }
 
@@ -201,7 +200,7 @@ class TranscodeVideo implements ShouldQueue
     {
         $this->localDisk->writeStream($this->tempOriginalFilename, $this->originalsDisk->readStream($this->originalFilePath));
 
-        return $ffmpeg->open($this->localDisk->path($this->tempOriginalFilename));
+        return $ffmpeg->customInput($this->localDisk->path($this->tempOriginalFilename), config('transmorpher.initial_transcoding_parameters'));
     }
 
     /**
@@ -226,7 +225,7 @@ class TranscodeVideo implements ShouldQueue
     {
         $tempDerivativeFilePath = $this->getTempDerivativeFilePath($format);
 
-        \Log::info(sprintf('Generating %s for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->getKey()));
+        \Log::info(sprintf('Generating %s for media %s and version %s.', strtoupper($format), $this->version->Media->identifier, $this->version->getKey()));
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         if ($this->isLocalFilesystem($this->derivativesDisk)) {
             $video->save($this->derivativesDisk->path($tempDerivativeFilePath));
@@ -261,9 +260,15 @@ class TranscodeVideo implements ShouldQueue
     {
         $tempMp4Filename = $this->getTempMp4Filename();
         \Log::info(sprintf('Generating MP4 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
-        $video->save((new X264())->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')), $this->localDisk->path($tempMp4Filename));
+        // GPU accelerated encoding cannot be set via setVideoCodec(). h264_nvenc may be set through the additional params.
+        $video->save(
+            (new X264())
+                ->setInitialParameters(config('transmorpher.initial_transcoding_parameters'))
+                ->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')),
+            $this->localDisk->path($tempMp4Filename)
+        );
 
-        \Log::info(sprintf('Writing MP4 to S3 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
+        \Log::info(sprintf('Writing MP4 to %s for media %s and version %s.', MediaStorage::VIDEO_DERIVATIVES->getDiskName(), $this->version->Media->identifier, $this->version->getKey()));
         $this->derivativesDisk->writeStream(
             sprintf('%s.%s', $this->getTempDerivativeFilePath('mp4'), 'mp4'),
             $this->localDisk->readStream($tempMp4Filename)
@@ -283,7 +288,6 @@ class TranscodeVideo implements ShouldQueue
         if ($this->isMostRecentVersion()) {
             // This will make sure we can invalidate the cache before the current derivative gets deleted.
             // If this fails, the job will stop and cleanup will be done in the 'failed()'-method.
-            \Log::info(sprintf('Invalidating CDN cache for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->invalidateCdnCache();
 
             $this->derivativesDisk->deleteDirectory($this->derivativesDestinationPath);
@@ -350,8 +354,11 @@ class TranscodeVideo implements ShouldQueue
     protected function invalidateCdnCache(): void
     {
         if (CdnHelper::isConfigured()) {
+            \Log::info(sprintf('Invalidating CDN cache for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             // If this fails, the 'failed()'-method will handle the cleanup.
             CdnHelper::invalidateMedia($this->version->Media->type, $this->derivativesDestinationPath);
+        } else {
+            \Log::info('Skipping CDN invalidation. CDN is not configured.');
         }
     }
 
