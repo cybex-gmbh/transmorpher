@@ -140,7 +140,11 @@ return [
 
         // GPU encoding
         // https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
-         '-c:v', 'h264_nvenc',
+        // only sets the encoder
+        //  '-c:v', 'h264_nvenc',
+        // https://docs.nvidia.com/video-technologies/video-codec-sdk/pdf/Using_FFmpeg_with_NVIDIA_GPU_Hardware_Acceleration.pdf
+        // p4 is the default, medium quality preset
+        '-preset', 'p4',
     ],
 
     /*
