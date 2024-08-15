@@ -439,9 +439,14 @@ TRANSMORPHER_VIDEO_ENCODER=nvidia_h264
 
 The nVidia encoders have different presets available. 
 Higher preset numbers are higher quality and slower. 
-For an encoder specific list see: ffmpeg -h encoder=h264_nvenc
+For encoder specific lists of presets see: 
 
-To set the high quality preset, use the following environment variable:
+```bash
+ffmpeg -h encoder=h264_nvenc
+ffmpeg -h encoder=hevc_nvenc
+```
+
+The default preset is `p4`. To set the high quality preset, use the following environment variable:
 
 ```dotenv
 TRANSMORPHER_VIDEO_ENCODER_NVIDIA_PRESET=p6
