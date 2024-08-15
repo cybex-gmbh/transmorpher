@@ -83,17 +83,56 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Video Codec
+    | Video Decoder
     |--------------------------------------------------------------------------
     |
-    | The codec used when transcoding videos to HLS and DASH.
-    | This does not affect the codec used for MP4, which is x264 since it's the only one supported by the PHP-FFmpeg package for MP4.
+    | The decoder used when transcoding videos.
     |
     | You can choose from:
-    | x264, hevc
+    | cpu, nvidia_cuda
     |
+    | nvidia notes:
+    | - Requires the according hardware and driver setup on the host machine. See: https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
+    | - GPU video decoding is experimental and unstable
     */
-    'video_codec' => 'x264',
+    'decoder' => [
+        'name' => env('TRANSMORPHER_VIDEO_DECODER', 'cpu'),
+        'nvidia' => [
+            'hwFrames' => env('TRANSMORPHER_VIDEO_DECODER_NVIDIA_HWFRAMES', 10),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Video Encoder
+    |--------------------------------------------------------------------------
+    |
+    | The encoder used when transcoding videos.
+    |
+    | This controls the codec used when transcoding videos to HLS and DASH, as well as the device used.
+    | For the MP4 fallback file, h264 is used because
+    | - FFmpeg only supports hevc in MP4 files when encoding with a GPU.
+    | - h264 is the most widely supported codec, and this file is to be used when a client does not support HLS or DASH.
+    |
+    | You can choose from:
+    | cpu_h264, cpu_hevc, nvidia_h264, nvidia_hevc
+    |
+    | bitrate:
+    | - setting may be ignored for the DASH/HLS streaming formats.
+    | - For suitable bit rates, see: https://help.twitch.tv/s/article/broadcast-guidelines?language=de#recommended
+    |
+    | nvidia notes:
+    | - Requires the according hardware and driver setup on the host machine. See: https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
+    | - Higher preset numbers are higher quality and slower. For an encoder specific list see: ffmpeg -h encoder=h264_nvenc
+    | - Further information: https://docs.nvidia.com/video-technologies/video-codec-sdk/pdf/Using_FFmpeg_with_NVIDIA_GPU_Hardware_Acceleration.pdf
+    */
+    'encoder' => [
+        'name' => env('TRANSMORPHER_VIDEO_ENCODER', 'cpu_h264'),
+        'bitrate' => env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k'),
+        'nvidia' => [
+            'preset' => env('TRANSMORPHER_VIDEO_ENCODER_NVIDIA_PRESET', 'p4'),
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -116,12 +155,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | These parameters will be added to the FFmpeg transcoding command before the input parameter.
+    | They take precedence over other options in this file.
     */
     'initial_transcoding_parameters' => [
-        // GPU decoding has issues
-        // '-hwaccel', 'cuda',
-        // '-hwaccel_output_format','cuda',
-        // '-extra_hw_frames', '10',
+        //
     ],
 
     /*
@@ -130,6 +167,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | These parameters will be added to the FFmpeg transcoding command.
+    | They take precedence over other options in this file.
     |
     | -dn: omit data streams (e.g. timecodes). Transcoding sometimes failed when data streams were not omitted.
     | -map -0:t?: omit attachments (e.g. metadata files). Metadata should not be publicly available.
@@ -137,14 +175,6 @@ return [
     */
     'additional_transcoding_parameters' => [
         '-dn', '-map', '-0:t?', '-sn',
-
-        // GPU encoding
-        // https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
-        // only sets the encoder
-        '-c:v', 'h264_nvenc',
-        // https://docs.nvidia.com/video-technologies/video-codec-sdk/pdf/Using_FFmpeg_with_NVIDIA_GPU_Hardware_Acceleration.pdf
-        // p4 is the default, medium quality preset
-//        '-preset', 'p4',
     ],
 
     /*

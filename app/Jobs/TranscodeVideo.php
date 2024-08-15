@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Enums\Decoder;
+use App\Enums\Encoder;
 use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Enums\StreamingFormat;
@@ -45,6 +47,9 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
 
+    protected Decoder $decoder;
+    protected Encoder $encoder;
+
     protected string $originalFilePath;
     protected string $uploadToken;
     // Videos stored in the cloud have to be downloaded for transcoding.
@@ -69,6 +74,8 @@ class TranscodeVideo implements ShouldQueue
         \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
         $this->uploadToken = $this->uploadSlot->token;
+        $this->decoder = Decoder::from(config('transmorpher.decoder.name'));
+        $this->encoder = Encoder::from(config('transmorpher.encoder.name'));
     }
 
     /**
@@ -152,9 +159,9 @@ class TranscodeVideo implements ShouldQueue
         // Generate MP4.
         $this->generateMp4($video);
         // Generate HLS
-        $this->saveVideo(StreamingFormat::HLS->configure($video), StreamingFormat::HLS->value);
+        $this->saveVideo(StreamingFormat::HLS->configure($video, $this->encoder), StreamingFormat::HLS->value);
         // Generate DASH
-        $this->saveVideo(StreamingFormat::DASH->configure($video), StreamingFormat::DASH->value);
+        $this->saveVideo(StreamingFormat::DASH->configure($video, $this->encoder), StreamingFormat::DASH->value);
 
         $this->localDisk->delete($this->tempOriginalFilename);
         $this->localDisk->deleteDirectory($this->getFfmpegTempDirectory());
@@ -174,7 +181,7 @@ class TranscodeVideo implements ShouldQueue
     protected function loadVideo(FFMpeg $ffmpeg): StreamingMedia
     {
         return $this->isLocalFilesystem($this->originalsDisk) ?
-            $ffmpeg->customInput($this->originalsDisk->path($this->originalFilePath), config('transmorpher.initial_transcoding_parameters'))
+            $ffmpeg->customInput($this->originalsDisk->path($this->originalFilePath), $this->decoder->getInitialParameters())
             : $this->openFromCloud($ffmpeg);
     }
 
@@ -200,7 +207,7 @@ class TranscodeVideo implements ShouldQueue
     {
         $this->localDisk->writeStream($this->tempOriginalFilename, $this->originalsDisk->readStream($this->originalFilePath));
 
-        return $ffmpeg->customInput($this->localDisk->path($this->tempOriginalFilename), config('transmorpher.initial_transcoding_parameters'));
+        return $ffmpeg->customInput($this->localDisk->path($this->tempOriginalFilename), $this->decoder->getInitialParameters());
     }
 
     /**
@@ -225,7 +232,7 @@ class TranscodeVideo implements ShouldQueue
     {
         $tempDerivativeFilePath = $this->getTempDerivativeFilePath($format);
 
-        \Log::info(sprintf('Generating %s for media %s and version %s.', strtoupper($format), $this->version->Media->identifier, $this->version->getKey()));
+        \Log::info(sprintf('Generating %s for media %s and version %s. Using: %s -> %s', strtoupper($format), $this->version->Media->identifier, $this->version->getKey(), $this->decoder->name, $this->encoder->name));
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         if ($this->isLocalFilesystem($this->derivativesDisk)) {
             $video->save($this->derivativesDisk->path($tempDerivativeFilePath));
@@ -259,12 +266,12 @@ class TranscodeVideo implements ShouldQueue
     protected function generateMp4(StreamingMedia $video): void
     {
         $tempMp4Filename = $this->getTempMp4Filename();
-        \Log::info(sprintf('Generating MP4 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
+        \Log::info(sprintf('Generating MP4 for media %s and version %s. Using: %s -> %s', $this->version->Media->identifier, $this->version->getKey(), $this->decoder->name, $this->encoder->name));
         // GPU accelerated encoding cannot be set via setVideoCodec(). h264_nvenc may be set through the additional params.
         $video->save(
             (new X264())
-                ->setInitialParameters(config('transmorpher.initial_transcoding_parameters'))
-                ->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')),
+                ->setInitialParameters($this->decoder->getInitialParameters(forMp4Fallback: true))
+                ->setAdditionalParameters($this->encoder->getAdditionalParameters(forMp4Fallback: true)),
             $this->localDisk->path($tempMp4Filename)
         );
 
