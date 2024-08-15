@@ -385,6 +385,72 @@ To publicly access a video, the client name, the identifier and a format have to
 
 The [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client) will receive this information and store it.
 
+### Bit rate
+
+The bit rate for video transcoding can be set in the `.env` file in kilobits:
+
+```dotenv
+TRANSMORPHER_VIDEO_ENCODER_BITRATE=9000k
+```
+
+This setting will be ignored for the DASH/HLS streaming formats because they are calculated automatically.
+For suitable bit rates, see: https://help.twitch.tv/s/article/broadcast-guidelines?language=de#recommended
+
+### Streaming Codec
+
+To encode the DASH and HLS formats with either HEVC or h264, set the following environment variable.
+
+```dotenv
+TRANSMORPHER_VIDEO_ENCODER=cpu_hevc
+```
+or
+```dotenv
+TRANSMORPHER_VIDEO_ENCODER=cpu_h264
+```
+
+For the MP4 fallback file, h264 is always used because
+- FFmpeg doesn't support HEVC in MP4 files when encoding with a CPU.
+- h264 is the most widely supported codec, and this file is to be used when a client does not support HLS or DASH.
+
+### GPU Acceleration
+
+Videos may be transcoded using a machine's nVidia GPU.
+This requires the according hardware and driver setup on the host machine.
+- https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
+- https://docs.nvidia.com/video-technologies/video-codec-sdk/pdf/Using_FFmpeg_with_NVIDIA_GPU_Hardware_Acceleration.pdf
+
+The following steps are necessary on a docker host:
+- Install nvidia drivers
+- Install nvidia container toolkit
+- Configure the docker nvidia runtime (note difference for rootless docker)
+- Add gpu capabilities and nvidia runtime to according compose.yml files 
+- Restart docker and according containers
+
+To use GPU encoding with HEVC or h264, set the following environment variable.
+This controls the codec used when transcoding videos to HLS and DASH, as well as the device used.
+
+```dotenv
+TRANSMORPHER_VIDEO_ENCODER=nvidia_hevc
+```
+or
+```dotenv
+TRANSMORPHER_VIDEO_ENCODER=nvidia_h264
+```
+
+The nVidia encoders have different presets available. 
+Higher preset numbers are higher quality and slower. 
+For an encoder specific list see: ffmpeg -h encoder=h264_nvenc
+
+To set the high quality preset, use the following environment variable:
+
+```dotenv
+TRANSMORPHER_VIDEO_ENCODER_NVIDIA_PRESET=p6
+```
+
+See the transformer config for more available options.
+Note that the optional GPU video decoding setting is experimental and unstable. 
+By default, videos are decoded using the CPU.
+
 ## Interchangeability
 
 ### Content Delivery Network
