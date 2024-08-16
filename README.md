@@ -452,7 +452,8 @@ The default preset is `p4`. To set the high quality preset, use the following en
 TRANSMORPHER_VIDEO_ENCODER_NVIDIA_PRESET=p6
 ```
 
-See the transformer config for more available options.
+Each encoder has its own configuration file in the `config/encoder` folder, containing FFmpeg parameters.  
+
 Note that the optional GPU video decoding setting is experimental and unstable. 
 By default, videos are decoded using the CPU.
 

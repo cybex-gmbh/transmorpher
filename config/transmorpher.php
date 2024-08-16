@@ -87,16 +87,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | The decoder used when transcoding videos.
+    | These are defined through the `config/decoder` files.
     |
     | You can choose from:
     | cpu, nvidia_cuda
     */
-    'decoder' => [
-        'name' => env('TRANSMORPHER_VIDEO_DECODER', 'cpu'),
-        'nvidia' => [
-            'hwFrames' => env('TRANSMORPHER_VIDEO_DECODER_NVIDIA_HWFRAMES', 10),
-        ],
-    ],
+    'decoder' => env('TRANSMORPHER_VIDEO_DECODER', 'cpu'),
 
     /*
     |--------------------------------------------------------------------------
@@ -104,17 +100,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | The encoder used when transcoding videos.
+    | Additional FFmpeg parameters are controlled through the according `config/encoder` files.
     |
     | You can choose from:
     | cpu_h264, cpu_hevc, nvidia_h264, nvidia_hevc
     */
-    'encoder' => [
-        'name' => env('TRANSMORPHER_VIDEO_ENCODER', 'cpu_h264'),
-        'bitrate' => env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k'),
-        'nvidia' => [
-            'preset' => env('TRANSMORPHER_VIDEO_ENCODER_NVIDIA_PRESET', 'p4'),
-        ],
-    ],
+    'encoder' => env('TRANSMORPHER_VIDEO_ENCODER', 'cpu_h264'),
 
     /*
     |--------------------------------------------------------------------------
@@ -129,34 +120,6 @@ return [
     */
     'representations' => [
         360, 480, 720, 1080, 1440, 2160
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Initial Transcoding Parameters
-    |--------------------------------------------------------------------------
-    |
-    | These parameters will be added to the FFmpeg transcoding command before the input parameter.
-    | They take precedence over other options in this file.
-    */
-    'initial_transcoding_parameters' => [
-        //
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Additional Transcoding Parameters
-    |--------------------------------------------------------------------------
-    |
-    | These parameters will be added to the FFmpeg transcoding command.
-    | They take precedence over other options in this file.
-    |
-    | -dn: omit data streams (e.g. timecodes). Transcoding sometimes failed when data streams were not omitted.
-    | -map -0:t?: omit attachments (e.g. metadata files). Metadata should not be publicly available.
-    | -sn: omit subtitles. Subtitles would need an encoder configuration for DASH, and possibly HLS.
-    */
-    'additional_transcoding_parameters' => [
-        '-dn', '-map', '-0:t?', '-sn'
     ],
 
     /*

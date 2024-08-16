@@ -74,8 +74,8 @@ class TranscodeVideo implements ShouldQueue
         \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
         $this->uploadToken = $this->uploadSlot->token;
-        $this->decoder = Decoder::from(config('transmorpher.decoder.name'));
-        $this->encoder = Encoder::from(config('transmorpher.encoder.name'));
+        $this->decoder = Decoder::from(config('transmorpher.decoder'));
+        $this->encoder = Encoder::from(config('transmorpher.encoder'));
     }
 
     /**
@@ -270,7 +270,7 @@ class TranscodeVideo implements ShouldQueue
         // GPU accelerated encoding cannot be set via setVideoCodec(). h264_nvenc may be set through the additional params.
         $video->save(
             (new X264())
-                ->setInitialParameters($this->decoder->getInitialParameters(forMp4Fallback: true))
+                ->setInitialParameters($this->decoder->getInitialParameters())
                 ->setAdditionalParameters($this->encoder->getAdditionalParameters(forMp4Fallback: true)),
             $this->localDisk->path($tempMp4Filename)
         );

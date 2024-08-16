@@ -25,6 +25,6 @@ enum StreamingFormat: string
         return $video->$format()
             ->$codec()
             ->autoGenerateRepresentations(config('transmorpher.representations'))
-            ->setAdditionalParams(config('transmorpher.additional_transcoding_parameters'));
+            ->setAdditionalParams($encoder->getAdditionalParameters());
     }
 }

@@ -11,21 +11,21 @@ enum Encoder: string
 
     public function getAdditionalParameters(bool $forMp4Fallback = false): array
     {
-        return array_merge(
-            $forMp4Fallback ? ['-b:v', config('transmorpher.encoder.bitrate')] : [],
+        return array_merge($forMp4Fallback ?
             match ($this) {
-                Encoder::NVIDIA_H264 => [
+                Encoder::NVIDIA_H264, Encoder::NVIDIA_HEVC => [
                     '-c:v', 'h264_nvenc',
-                    '-preset', config('transmorpher.encoder.nvidia.preset')
+                    '-b:v', env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k'),
                 ],
-                Encoder::NVIDIA_HEVC => [
-                    // Fallback MP4 video should be h264
-                    '-c:v', $forMp4Fallback ? 'h264_nvenc' : 'hevc_nvenc',
-                    '-preset', config('transmorpher.encoder.nvidia.preset')
+                default => [
+                    '-b:v', env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k'),
                 ],
-                default => []
+            } : match ($this) {
+                Encoder::NVIDIA_H264 => ['-c:v', 'h264_nvenc'],
+                Encoder::NVIDIA_HEVC => ['-c:v', 'hevc_nvenc'],
+                default => [],
             },
-            config('transmorpher.additional_transcoding_parameters')
+            config(sprintf('decoder.%s', $this->value)) ?? [],
         );
     }
 
