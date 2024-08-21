@@ -54,10 +54,6 @@ RUN apt-get update \
     && apt-get install -y gifsicle \
     && apt-get install -y webp \
     && apt-get install -y ffmpeg \
-#    && apt-get install -y linux-modules-nvidia-535-generic \
-#    && apt-get install -y libnvidia-compute-535 \
-#    && apt-get install -y nvidia-cuda-dev \
-#    && apt-get install -y nvidia-cuda-toolkit \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

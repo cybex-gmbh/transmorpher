@@ -90,7 +90,7 @@ return [
     | These are defined through the `config/decoder` files.
     |
     | You can choose from:
-    | cpu, nvidia_cuda
+    | cpu, nvidia-cuda
     */
     'decoder' => env('TRANSMORPHER_VIDEO_DECODER', 'cpu'),
 
@@ -103,9 +103,9 @@ return [
     | Additional FFmpeg parameters are controlled through the according `config/encoder` files.
     |
     | You can choose from:
-    | cpu_h264, cpu_hevc, nvidia_h264, nvidia_hevc
+    | cpu-h264, cpu-hevc, nvidia-h264, nvidia-hevc
     */
-    'encoder' => env('TRANSMORPHER_VIDEO_ENCODER', 'cpu_h264'),
+    'encoder' => env('TRANSMORPHER_VIDEO_ENCODER', 'cpu-h264'),
 
     /*
     |--------------------------------------------------------------------------

@@ -6,10 +6,10 @@ enum Decoder: string
 {
     //
     case CPU = 'cpu';
-    case NVIDIA_CUDA = 'nvidia_cuda';
+    case NVIDIA_CUDA = 'nvidia-cuda';
 
     public function getInitialParameters(): array
     {
-        return config(sprintf('decoder.%s', $this->value)) ?? [];
+        return config(sprintf('decoder.%s', $this->value), []);
     }
 }

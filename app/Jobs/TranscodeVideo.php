@@ -46,10 +46,8 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
-
     protected Decoder $decoder;
     protected Encoder $encoder;
-
     protected string $originalFilePath;
     protected string $uploadToken;
     // Videos stored in the cloud have to be downloaded for transcoding.
@@ -93,7 +91,7 @@ class TranscodeVideo implements ShouldQueue
             $this->localDisk = Storage::disk('local');
             $this->tempOriginalFilename = $this->getTempOriginalFilename();
 
-            $this->transcodeVideo();
+            $this->transcode();
         } else {
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
@@ -143,7 +141,7 @@ class TranscodeVideo implements ShouldQueue
      *
      * @return void
      */
-    protected function transcodeVideo(): void
+    protected function transcode(): void
     {
         $ffmpeg = FFMpeg::create([
             'timeout' => $this->timeout,
@@ -180,9 +178,14 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function loadVideo(FFMpeg $ffmpeg): StreamingMedia
     {
-        return $this->isLocalFilesystem($this->originalsDisk) ?
-            $ffmpeg->customInput($this->originalsDisk->path($this->originalFilePath), $this->decoder->getInitialParameters())
-            : $this->openFromCloud($ffmpeg);
+        $localPath = $this->originalsDisk->path($this->originalFilePath);
+
+        if (!$this->isLocalFilesystem($this->originalsDisk)) {
+            $this->localDisk->writeStream($this->tempOriginalFilename, $this->originalsDisk->readStream($this->originalFilePath));
+            $localPath = $this->localDisk->path($this->tempOriginalFilename);
+        }
+
+        return $ffmpeg->customInput($localPath, $this->decoder->getInitialParameters());
     }
 
     /**

@@ -401,11 +401,11 @@ For suitable bit rates, see: https://help.twitch.tv/s/article/broadcast-guidelin
 To encode the DASH and HLS formats with either HEVC or h264, set the following environment variable.
 
 ```dotenv
-TRANSMORPHER_VIDEO_ENCODER=cpu_hevc
+TRANSMORPHER_VIDEO_ENCODER=cpu-hevc
 ```
 or
 ```dotenv
-TRANSMORPHER_VIDEO_ENCODER=cpu_h264
+TRANSMORPHER_VIDEO_ENCODER=cpu-h264
 ```
 
 For the MP4 fallback file, h264 is always used because
@@ -430,11 +430,11 @@ To use GPU encoding with HEVC or h264, set the following environment variable.
 This controls the codec used when transcoding videos to HLS and DASH, as well as the device used.
 
 ```dotenv
-TRANSMORPHER_VIDEO_ENCODER=nvidia_hevc
+TRANSMORPHER_VIDEO_ENCODER=nvidia-hevc
 ```
 or
 ```dotenv
-TRANSMORPHER_VIDEO_ENCODER=nvidia_h264
+TRANSMORPHER_VIDEO_ENCODER=nvidia-h264
 ```
 
 The nVidia encoders have different presets available. 

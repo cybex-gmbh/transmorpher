@@ -4,29 +4,28 @@ namespace App\Enums;
 
 enum Encoder: string
 {
-    case CPU_H264 = 'cpu_h264';
-    case CPU_HEVC = 'cpu_hevc';
-    case NVIDIA_H264 = 'nvidia_h264';
-    case NVIDIA_HEVC = 'nvidia_hevc';
+    case CPU_H264 = 'cpu-h264';
+    case CPU_HEVC = 'cpu-hevc';
+    case NVIDIA_H264 = 'nvidia-h264';
+    case NVIDIA_HEVC = 'nvidia-hevc';
 
     public function getAdditionalParameters(bool $forMp4Fallback = false): array
     {
-        return array_merge($forMp4Fallback ?
-            match ($this) {
-                Encoder::NVIDIA_H264, Encoder::NVIDIA_HEVC => [
-                    '-c:v', 'h264_nvenc',
-                    '-b:v', env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k'),
-                ],
-                default => [
-                    '-b:v', env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k'),
-                ],
-            } : match ($this) {
-                Encoder::NVIDIA_H264 => ['-c:v', 'h264_nvenc'],
-                Encoder::NVIDIA_HEVC => ['-c:v', 'hevc_nvenc'],
-                default => [],
-            },
-            config(sprintf('decoder.%s', $this->value)) ?? [],
-        );
+        $enumParameters = match ($this) {
+            Encoder::NVIDIA_H264 => ['-c:v', 'h264_nvenc'],
+            Encoder::NVIDIA_HEVC => ['-c:v', 'hevc_nvenc'],
+            default => [],
+        };
+        $configuredParameters = config(sprintf('encoder.%s', $this->value), []);
+
+        if ($forMp4Fallback) {
+            $enumParameters = match ($this) {
+                Encoder::NVIDIA_H264, Encoder::NVIDIA_HEVC => ['-c:v', 'h264_nvenc', '-b:v', env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k')],
+                default => ['-b:v', env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k')],
+            };
+        }
+
+        return array_merge($enumParameters, $configuredParameters);
     }
 
     public function getStreamingCodec(): string
