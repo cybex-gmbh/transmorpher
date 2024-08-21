@@ -21,7 +21,6 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
 use Storage;
 use Streaming\FFMpeg;
 use Streaming\Media as StreamingMedia;
-use Streaming\Streaming;
 use Throwable;
 use Transcode;
 
@@ -151,15 +150,10 @@ class TranscodeVideo implements ShouldQueue
         \Log::info(sprintf('Downloading video for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         $video = $this->loadVideo($ffmpeg);
 
-        // Set the necessary file path information.
         $this->setFilePaths();
-
-        // Generate MP4.
         $this->generateMp4($video);
-        // Generate HLS
-        $this->saveVideo(StreamingFormat::HLS->configure($video, $this->encoder), StreamingFormat::HLS->value);
-        // Generate DASH
-        $this->saveVideo(StreamingFormat::DASH->configure($video, $this->encoder), StreamingFormat::DASH->value);
+        $this->saveVideo($video, StreamingFormat::HLS);
+        $this->saveVideo($video, StreamingFormat::DASH);
 
         $this->localDisk->delete($this->tempOriginalFilename);
         $this->localDisk->deleteDirectory($this->getFfmpegTempDirectory());
@@ -213,27 +207,28 @@ class TranscodeVideo implements ShouldQueue
     /**
      * Saves the transcoded video to storage.
      *
-     * @param Streaming $video
-     * @param string $format
+     * @param StreamingMedia $media
+     * @param StreamingFormat $streamingFormat
      *
      * @return void
      */
-    protected function saveVideo(Streaming $video, string $format): void
+    protected function saveVideo(StreamingMedia $media, StreamingFormat $streamingFormat): void
     {
-        $tempDerivativeFilePath = $this->getTempDerivativeFilePath($format);
+        $configuredMedia = $streamingFormat->configure($media, $this->encoder);
+        $tempDerivativeFilePath = $this->getTempDerivativeFilePath($streamingFormat->value);
 
-        \Log::info(sprintf('Generating %s for media %s and version %s. Using: %s -> %s', strtoupper($format), $this->version->Media->identifier, $this->version->getKey(), $this->decoder->name, $this->encoder->name));
+        \Log::info(sprintf('Generating %s for media %s and version %s. Using: %s -> %s', strtoupper($streamingFormat->value), $this->version->Media->identifier, $this->version->getKey(), $this->decoder->name, $this->encoder->name));
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         if ($this->isLocalFilesystem($this->derivativesDisk)) {
-            $video->save($this->derivativesDisk->path($tempDerivativeFilePath));
+            $configuredMedia->save($this->derivativesDisk->path($tempDerivativeFilePath));
         } else {
             // When using cloud storage, we save to local storage first and then upload manually,
             // because the php-ffmpeg-video-streaming package direct upload functionality led to S3 disconnects for large files.
-            $video->save($this->localDisk->path($tempDerivativeFilePath));
+            $configuredMedia->save($this->localDisk->path($tempDerivativeFilePath));
 
-            $tempDerivativesFormatDirectoryPath = $this->getTempDerivativesFormatDirectoryPath($format);
+            $tempDerivativesFormatDirectoryPath = $this->getTempDerivativesFormatDirectoryPath($streamingFormat->value);
 
-            \Log::info(sprintf('Writing %s to S3 for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->getKey()));
+            \Log::info(sprintf('Writing %s to S3 for media %s and version %s.', $streamingFormat->value, $this->version->Media->identifier, $this->version->getKey()));
             foreach ($this->localDisk->allFiles($tempDerivativesFormatDirectoryPath) as $filePath) {
                 $this->derivativesDisk->writeStream(
                     $filePath,
