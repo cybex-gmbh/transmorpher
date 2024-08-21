@@ -2,20 +2,6 @@
 services:
   app:
     container_name: ${DOCKER_CONTAINER_NAME:-transmorpher}
-
-    # prod
-    #    image: cybexwebdev/transmorpher
-
-
-    #    # pullpreview
-    #        build:
-    #          context: .
-    #          dockerfile: ./docker/Dockerfile
-    #        image: sail-${DOCKER_PHP_VERSION:-8.2}/app-pullpr
-    #        image: cybexwebdev/transmorpher:feature-gpu-encoding
-
-
-    #    # original
     build:
       context: ./docker/${DOCKER_PHP_VERSION:-8.2}
       dockerfile: Dockerfile
