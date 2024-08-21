@@ -201,19 +201,6 @@ class TranscodeVideo implements ShouldQueue
     }
 
     /**
-     * The original needs to be available locally, since transcoding to MP4 uses the basic PHP-FFmpeg package, which cannot access cloud storages.
-     *
-     * @param FFMpeg $ffmpeg
-     * @return StreamingMedia
-     */
-    protected function openFromCloud(FFMpeg $ffmpeg): StreamingMedia
-    {
-        $this->localDisk->writeStream($this->tempOriginalFilename, $this->originalsDisk->readStream($this->originalFilePath));
-
-        return $ffmpeg->customInput($this->localDisk->path($this->tempOriginalFilename), $this->decoder->getInitialParameters());
-    }
-
-    /**
      * Sets the file name and file paths which are needed for the transcoding process.
      *
      * @return void
