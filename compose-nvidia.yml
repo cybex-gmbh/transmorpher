@@ -10,7 +10,6 @@ services:
       args:
         WWWGROUP: '${WWWGROUP}'
     image: transmorpher-sail-${DOCKER_PHP_VERSION:-8.2}/app-nvidia
-    runtime: nvidia
     deploy:
       resources:
         reservations:
