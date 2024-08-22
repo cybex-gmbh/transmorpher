@@ -11,17 +11,18 @@ enum Encoder: string
 
     public function getAdditionalParameters(bool $forMp4Fallback = false): array
     {
-        $enumParameters = match ($this) {
-            Encoder::NVIDIA_H264 => ['-c:v', 'h264_nvenc'],
-            Encoder::NVIDIA_HEVC => ['-c:v', 'hevc_nvenc'],
-            default => [],
-        };
         $configuredParameters = config(sprintf('encoder.%s', $this->value), []);
 
         if ($forMp4Fallback) {
             $enumParameters = match ($this) {
                 Encoder::NVIDIA_H264, Encoder::NVIDIA_HEVC => ['-c:v', 'h264_nvenc', '-b:v', env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k')],
                 default => ['-b:v', env('TRANSMORPHER_VIDEO_ENCODER_BITRATE', '6000k')],
+            };
+        } else {
+            $enumParameters = match ($this) {
+                Encoder::NVIDIA_H264 => ['-c:v', 'h264_nvenc'],
+                Encoder::NVIDIA_HEVC => ['-c:v', 'hevc_nvenc'],
+                default => [],
             };
         }
 
