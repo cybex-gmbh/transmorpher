@@ -394,7 +394,7 @@ TRANSMORPHER_VIDEO_ENCODER_BITRATE=9000k
 ```
 
 This setting will be ignored for the DASH/HLS streaming formats because they are calculated automatically.
-For suitable bit rates, see: https://help.twitch.tv/s/article/broadcast-guidelines?language=de#recommended
+For suitable bit rates, see: https://help.twitch.tv/s/article/broadcast-guidelines#recommended
 
 ### Streaming Codec
 
