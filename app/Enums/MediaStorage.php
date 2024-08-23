@@ -18,6 +18,11 @@ enum MediaStorage: string
      */
     public function getDisk(): Filesystem
     {
-        return Storage::disk(config(sprintf('transmorpher.disks.%s', $this->value)));
+        return Storage::disk($this->getDiskName());
+    }
+
+    public function getDiskName(): string
+    {
+        return config(sprintf('transmorpher.disks.%s', $this->value));
     }
 }

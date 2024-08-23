@@ -1,0 +1,35 @@
+services:
+  app:
+    extends:
+      file: compose.yml
+      service: app
+    build:
+      context: ./docker/${DOCKER_PHP_VERSION:-8.2}
+      dockerfile: Dockerfile
+      target: transmorpher_nvidia
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: transmorpher-sail-${DOCKER_PHP_VERSION:-8.2}/app-nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu,video,utility,compute ]
+  mysql:
+    extends:
+      file: compose.yml
+      service: mysql
+  mysql_testing:
+    extends:
+      file: compose.yml
+      service: mysql_testing
+networks:
+  internal:
+    internal: true
+  shared:
+    external: true
+volumes:
+  sail-mysql:
+    driver: local

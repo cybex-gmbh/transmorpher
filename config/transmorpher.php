@@ -83,17 +83,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Video Codec
+    | Video Decoder
     |--------------------------------------------------------------------------
     |
-    | The codec used when transcoding videos to HLS and DASH.
-    | This does not affect the codec used for MP4, which is x264 since it's the only one supported by the PHP-FFmpeg package for MP4.
+    | The decoder used when transcoding videos.
+    | These are defined through the `config/decoder` files.
     |
     | You can choose from:
-    | x264, hevc
-    |
+    | cpu, nvidia-cuda
     */
-    'video_codec' => 'x264',
+    'decoder' => env('TRANSMORPHER_VIDEO_DECODER', 'cpu'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Video Encoder
+    |--------------------------------------------------------------------------
+    |
+    | The encoder used when transcoding videos.
+    | Additional FFmpeg parameters are controlled through the according `config/encoder` files.
+    |
+    | You can choose from:
+    | cpu-h264, cpu-hevc, nvidia-h264, nvidia-hevc
+    */
+    'encoder' => env('TRANSMORPHER_VIDEO_ENCODER', 'cpu-h264'),
 
     /*
     |--------------------------------------------------------------------------
@@ -108,21 +120,6 @@ return [
     */
     'representations' => [
         360, 480, 720, 1080, 1440, 2160
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Additional Transcoding Parameters
-    |--------------------------------------------------------------------------
-    |
-    | These parameters will be added to the FFmpeg transcoding command.
-    |
-    | -dn: omit data streams (e.g. timecodes). Transcoding sometimes failed when data streams were not omitted.
-    | -map -0:t?: omit attachments (e.g. metadata files). Metadata should not be publicly available.
-    | -sn: omit subtitles. Subtitles would need an encoder configuration for DASH, and possibly HLS.
-    */
-    'additional_transcoding_parameters' => [
-        '-dn', '-map', '-0:t?', '-sn'
     ],
 
     /*
