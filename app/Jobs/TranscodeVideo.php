@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Enums\Decoder;
+use App\Enums\Encoder;
 use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Enums\StreamingFormat;
@@ -19,7 +21,6 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
 use Storage;
 use Streaming\FFMpeg;
 use Streaming\Media as StreamingMedia;
-use Streaming\Streaming;
 use Throwable;
 use Transcode;
 
@@ -44,7 +45,8 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
-
+    protected Decoder $decoder;
+    protected Encoder $encoder;
     protected string $originalFilePath;
     protected string $uploadToken;
     // Videos stored in the cloud have to be downloaded for transcoding.
@@ -69,6 +71,8 @@ class TranscodeVideo implements ShouldQueue
         \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
         $this->uploadToken = $this->uploadSlot->token;
+        $this->decoder = Decoder::from(config('transmorpher.decoder'));
+        $this->encoder = Encoder::from(config('transmorpher.encoder'));
     }
 
     /**
@@ -86,7 +90,7 @@ class TranscodeVideo implements ShouldQueue
             $this->localDisk = Storage::disk('local');
             $this->tempOriginalFilename = $this->getTempOriginalFilename();
 
-            $this->transcodeVideo();
+            $this->transcode();
         } else {
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
@@ -136,7 +140,7 @@ class TranscodeVideo implements ShouldQueue
      *
      * @return void
      */
-    protected function transcodeVideo(): void
+    protected function transcode(): void
     {
         $ffmpeg = FFMpeg::create([
             'timeout' => $this->timeout,
@@ -146,16 +150,10 @@ class TranscodeVideo implements ShouldQueue
         \Log::info(sprintf('Downloading video for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
         $video = $this->loadVideo($ffmpeg);
 
-        // Set the necessary file path information.
         $this->setFilePaths();
-
-
-        // Generate MP4.
         $this->generateMp4($video);
-        // Generate HLS
-        $this->saveVideo(StreamingFormat::HLS->configure($video), StreamingFormat::HLS->value);
-        // Generate DASH
-        $this->saveVideo(StreamingFormat::DASH->configure($video), StreamingFormat::DASH->value);
+        $this->saveVideo($video, StreamingFormat::HLS);
+        $this->saveVideo($video, StreamingFormat::DASH);
 
         $this->localDisk->delete($this->tempOriginalFilename);
         $this->localDisk->deleteDirectory($this->getFfmpegTempDirectory());
@@ -174,9 +172,14 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function loadVideo(FFMpeg $ffmpeg): StreamingMedia
     {
-        return $this->isLocalFilesystem($this->originalsDisk) ?
-            $ffmpeg->open($this->originalsDisk->path($this->originalFilePath))
-            : $this->openFromCloud($ffmpeg);
+        $localPath = $this->originalsDisk->path($this->originalFilePath);
+
+        if (!$this->isLocalFilesystem($this->originalsDisk)) {
+            $this->localDisk->writeStream($this->tempOriginalFilename, $this->originalsDisk->readStream($this->originalFilePath));
+            $localPath = $this->localDisk->path($this->tempOriginalFilename);
+        }
+
+        return $ffmpeg->customInput($localPath, $this->decoder->getInitialParameters());
     }
 
     /**
@@ -192,19 +195,6 @@ class TranscodeVideo implements ShouldQueue
     }
 
     /**
-     * The original needs to be available locally, since transcoding to MP4 uses the basic PHP-FFmpeg package, which cannot access cloud storages.
-     *
-     * @param FFMpeg $ffmpeg
-     * @return StreamingMedia
-     */
-    protected function openFromCloud(FFMpeg $ffmpeg): StreamingMedia
-    {
-        $this->localDisk->writeStream($this->tempOriginalFilename, $this->originalsDisk->readStream($this->originalFilePath));
-
-        return $ffmpeg->open($this->localDisk->path($this->tempOriginalFilename));
-    }
-
-    /**
      * Sets the file name and file paths which are needed for the transcoding process.
      *
      * @return void
@@ -217,27 +207,28 @@ class TranscodeVideo implements ShouldQueue
     /**
      * Saves the transcoded video to storage.
      *
-     * @param Streaming $video
-     * @param string $format
+     * @param StreamingMedia $media
+     * @param StreamingFormat $streamingFormat
      *
      * @return void
      */
-    protected function saveVideo(Streaming $video, string $format): void
+    protected function saveVideo(StreamingMedia $media, StreamingFormat $streamingFormat): void
     {
-        $tempDerivativeFilePath = $this->getTempDerivativeFilePath($format);
+        $configuredMedia = $streamingFormat->configure($media, $this->encoder);
+        $tempDerivativeFilePath = $this->getTempDerivativeFilePath($streamingFormat->value);
 
-        \Log::info(sprintf('Generating %s for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->getKey()));
+        \Log::info(sprintf('Generating %s for media %s and version %s. Using: %s -> %s', strtoupper($streamingFormat->value), $this->version->Media->identifier, $this->version->getKey(), $this->decoder->name, $this->encoder->name));
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         if ($this->isLocalFilesystem($this->derivativesDisk)) {
-            $video->save($this->derivativesDisk->path($tempDerivativeFilePath));
+            $configuredMedia->save($this->derivativesDisk->path($tempDerivativeFilePath));
         } else {
             // When using cloud storage, we save to local storage first and then upload manually,
             // because the php-ffmpeg-video-streaming package direct upload functionality led to S3 disconnects for large files.
-            $video->save($this->localDisk->path($tempDerivativeFilePath));
+            $configuredMedia->save($this->localDisk->path($tempDerivativeFilePath));
 
-            $tempDerivativesFormatDirectoryPath = $this->getTempDerivativesFormatDirectoryPath($format);
+            $tempDerivativesFormatDirectoryPath = $this->getTempDerivativesFormatDirectoryPath($streamingFormat->value);
 
-            \Log::info(sprintf('Writing %s to S3 for media %s and version %s.', $format, $this->version->Media->identifier, $this->version->getKey()));
+            \Log::info(sprintf('Writing %s to S3 for media %s and version %s.', $streamingFormat->value, $this->version->Media->identifier, $this->version->getKey()));
             foreach ($this->localDisk->allFiles($tempDerivativesFormatDirectoryPath) as $filePath) {
                 $this->derivativesDisk->writeStream(
                     $filePath,
@@ -260,10 +251,16 @@ class TranscodeVideo implements ShouldQueue
     protected function generateMp4(StreamingMedia $video): void
     {
         $tempMp4Filename = $this->getTempMp4Filename();
-        \Log::info(sprintf('Generating MP4 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
-        $video->save((new X264())->setAdditionalParameters(config('transmorpher.additional_transcoding_parameters')), $this->localDisk->path($tempMp4Filename));
+        \Log::info(sprintf('Generating MP4 for media %s and version %s. Using: %s -> %s', $this->version->Media->identifier, $this->version->getKey(), $this->decoder->name, $this->encoder->name));
+        // GPU accelerated encoding cannot be set via setVideoCodec(). h264_nvenc may be set through the additional params.
+        $video->save(
+            (new X264())
+                ->setInitialParameters($this->decoder->getInitialParameters())
+                ->setAdditionalParameters($this->encoder->getAdditionalParameters(forMp4Fallback: true)),
+            $this->localDisk->path($tempMp4Filename)
+        );
 
-        \Log::info(sprintf('Writing MP4 to S3 for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
+        \Log::info(sprintf('Writing MP4 to %s for media %s and version %s.', MediaStorage::VIDEO_DERIVATIVES->getDiskName(), $this->version->Media->identifier, $this->version->getKey()));
         $this->derivativesDisk->writeStream(
             sprintf('%s.%s', $this->getTempDerivativeFilePath('mp4'), 'mp4'),
             $this->localDisk->readStream($tempMp4Filename)
@@ -283,7 +280,6 @@ class TranscodeVideo implements ShouldQueue
         if ($this->isMostRecentVersion()) {
             // This will make sure we can invalidate the cache before the current derivative gets deleted.
             // If this fails, the job will stop and cleanup will be done in the 'failed()'-method.
-            \Log::info(sprintf('Invalidating CDN cache for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             $this->invalidateCdnCache();
 
             $this->derivativesDisk->deleteDirectory($this->derivativesDestinationPath);
@@ -350,8 +346,11 @@ class TranscodeVideo implements ShouldQueue
     protected function invalidateCdnCache(): void
     {
         if (CdnHelper::isConfigured()) {
+            \Log::info(sprintf('Invalidating CDN cache for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
             // If this fails, the 'failed()'-method will handle the cleanup.
             CdnHelper::invalidateMedia($this->version->Media->type, $this->derivativesDestinationPath);
+        } else {
+            \Log::info('Skipping CDN invalidation. CDN is not configured.');
         }
     }
 
