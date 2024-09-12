@@ -11,6 +11,7 @@ LABEL com.centurylinklabs.watchtower.lifecycle.post-update="/var/www/html/docker
 
 COPY . /var/www/html
 COPY ./docker/workers.conf /opt/docker/etc/supervisor.d/
+COPY ./docker/location-root.conf /opt/docker/etc/nginx/vhost.common.d/10-location-root.conf
 
 RUN composer install --no-interaction --no-dev
 
