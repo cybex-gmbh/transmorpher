@@ -588,6 +588,18 @@ In addition to the GitHub Secrets, you'll need to set the `CLIENT_CONTAINER_NAME
 
 You may use the `CLIENT_NOTIFICATION_ROUTE` env variable if you have a custom notifications url, which differs from the default client implementation.  
 
+### Chunk a file in Artisan Tinker
+
+Place a file called `test.mp4` in the `storage/app` folder.
+
+```php
+$chunkSize = <chunkSize in bytes>;
+$fh = fopen(Storage::path('test.mp4'), 'r');
+
+Storage::put('chunk1/chunkedVideo.mp4', fread($fh, $chunkSize));
+Storage::put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
+```
+
 ## License
 
 The Transmorpher media server is licensed under the [MIT license](https://opensource.org/licenses/MIT).
