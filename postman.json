@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "aaf95d51-4e36-45f2-bfac-27119d8e6fce",
+		"_postman_id": "50dcf20c-b9c1-4f5c-8fcd-2e161aff5e2e",
 		"name": "Transmorpher Server API v1",
 		"description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "25831362"
+		"_exporter_id": "24082093"
 	},
 	"item": [
 		{
@@ -2129,7 +2129,7 @@
 									"pm.test(\"Image not found after deletion\", function () {\r",
 									"    pm.sendRequest(\r",
 									"        {\r",
-									"            url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
+									"            url: pm.collectionVariables.get(\"domain\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"imageIdentifier\") + \"/versions\",\r",
 									"            method: \"GET\",\r",
 									"            header: {\r",
 									"                \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -2140,6 +2140,7 @@
 									"            var jsonData = response.json();\r",
 									"            console.log(jsonData);\r",
 									"            pm.expect(response.code).to.eql(404);\r",
+									"            pm.expect(jsonData.message).to.eql(\"Requested Media couldn't be found.\");\r",
 									"        }\r",
 									"    );\r",
 									"});\r",
@@ -2200,7 +2201,7 @@
 						"exec": [
 							"pm.sendRequest(",
 							"    {",
-							"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/image/reserveUploadSlot\",",
+							"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/image/reserveUploadSlot\",",
 							"        method: \"POST\",",
 							"        header: {",
 							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),",
@@ -2633,7 +2634,7 @@
 									"pm.test(\"Video not found after deletion\", function () {\r",
 									"    pm.sendRequest(\r",
 									"        {\r",
-									"            url: \"http://transmorpher.test/api/media/\" + pm.collectionVariables.get(\"videoIdentifier\") + \"/versions\",\r",
+									"            url: pm.collectionVariables.get(\"domain\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"videoIdentifier\") + \"/versions\",\r",
 									"            method: \"GET\",\r",
 									"            header: {\r",
 									"                \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -2644,6 +2645,7 @@
 									"            var jsonData = response.json();\r",
 									"            console.log(jsonData);\r",
 									"            pm.expect(response.code).to.eql(404);\r",
+									"            pm.expect(jsonData.message).to.eql(\"Requested Media couldn't be found.\");\r",
 									"        }\r",
 									"    );\r",
 									"});\r",
@@ -2704,7 +2706,7 @@
 						"exec": [
 							"pm.sendRequest(",
 							"    {",
-							"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",",
+							"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/video/reserveUploadSlot\",",
 							"        method: \"POST\",",
 							"        header: {",
 							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),",
@@ -2777,7 +2779,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/video/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -2886,7 +2888,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/video/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -3000,7 +3002,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/video/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -3110,7 +3112,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/video/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -3158,7 +3160,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/C:/Users/user/Videos/_chunk1/chunkedVideo.mp4"
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
 								},
 								{
 									"key": "identifier",
@@ -3189,7 +3191,7 @@
 								"{{videoUploadToken}}"
 							]
 						},
-						"description": "This is the simplest way to define the chunks. In this case, the chunks start counting at 1. The answer contains the percentage uploaded value, which can be used in percentage bars etc. Make sure to transmit the same file name for all chunks!"
+						"description": "This is the simplest way to define the chunks. In this case, the chunks start counting at 1. The answer contains the percentage uploaded value, which can be used in percentage bars etc. Make sure to transmit the same file name for all chunks!\n\nThe provided example video is not actually chunked. Please refer to the Transmorpher GitHub documentation if you want to chunk a video to actually test this."
 					},
 					"response": []
 				},
@@ -3251,7 +3253,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/C:/Users/user/Videos/_chunk2/chunkedVideo.mp4"
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
 								},
 								{
 									"key": "identifier",
@@ -3282,7 +3284,7 @@
 								"{{videoUploadToken}}"
 							]
 						},
-						"description": "Number 2 is the last chunk in this example. When it has been uploaded, the regular video upload complete message is returned."
+						"description": "Number 2 is the last chunk in this example. When it has been uploaded, the regular video upload complete message is returned.\n\nThe provided example video is not actually chunked. Please refer to the Transmorpher GitHub documentation if you want to chunk a video to actually test this."
 					},
 					"response": []
 				},
@@ -3313,7 +3315,7 @@
 								"exec": [
 									"pm.sendRequest(\r",
 									"    {\r",
-									"        url: pm.collectionVariables.replaceIn(\"{{domain}}\") + \"/api/v1/video/reserveUploadSlot\",\r",
+									"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/video/reserveUploadSlot\",\r",
 									"        method: \"POST\",\r",
 									"        header: {\r",
 									"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -3396,7 +3398,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/C:/Users/user/Videos/_chunk1/chunkedVideo.mp4"
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
 								}
 							]
 						},
@@ -3412,7 +3414,7 @@
 								"{{videoUploadToken}}"
 							]
 						},
-						"description": "Dropzone is also supported, including parallel uploads. Mind that the chunks start counting at 0 in this case. Make sure to transmit the same file name for all chunks!"
+						"description": "Dropzone is also supported, including parallel uploads. Mind that the chunks start counting at 0 in this case. Make sure to transmit the same file name for all chunks!\n\nThe provided example video is not actually chunked. Please refer to the Transmorpher GitHub documentation if you want to chunk a video to actually test this."
 					},
 					"response": []
 				},
@@ -3509,7 +3511,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/C:/Users/user/Videos/_chunk2/chunkedVideo.mp4"
+									"src": "/C:/Windows/SystemApps/Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy/media/oobe-intro.mp4"
 								}
 							]
 						},
@@ -3525,7 +3527,7 @@
 								"{{videoUploadToken}}"
 							]
 						},
-						"description": "Number 1 is the last chunk in this example. When it has been uploaded, the regular video upload complete message is returned."
+						"description": "Number 1 is the last chunk in this example. When it has been uploaded, the regular video upload complete message is returned.\n\nThe provided example video is not actually chunked. Please refer to the Transmorpher GitHub documentation if you want to chunk a video to actually test this."
 					},
 					"response": []
 				}
