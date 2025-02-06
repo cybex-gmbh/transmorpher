@@ -165,7 +165,6 @@ return [
         /*
          * Package Service Providers...
          */
-        Intervention\Image\ImageServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -193,7 +192,6 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'CdnHelper' => App\Facades\CdnHelperFacade::class,
-        'InterventionImage' => Intervention\Image\Facades\Image::class,
         'Transcode' => App\Facades\TranscodeFacade::class,
         'Transform' => App\Facades\TransformFacade::class,
     ])->toArray(),

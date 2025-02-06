@@ -5,7 +5,7 @@ namespace App\Interfaces;
 interface ConvertInterface
 {
     /**
-     * Encode to specified format and if possible set quality.
+     * Encode to specified format and if possible, set quality.
      *
      * @param string   $image Binary string of the image.
      * @param string   $format
@@ -13,5 +13,5 @@ interface ConvertInterface
      *
      * @return ConvertedImageInterface
      */
-    public function encode(string $image, string $format, int $quality = null): ConvertedImageInterface;
+    public function encode(string $image, string $format, ?int $quality = null): ConvertedImageInterface;
 }
