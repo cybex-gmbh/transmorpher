@@ -50,31 +50,7 @@ class UploadSlotController extends Controller
         ]);
     }
 
-    /**
-     * Handle the incoming request.
-     *
-     * @param UploadSlotRequest $request
-     *
-     * @return JsonResponse
-     */
-    public function reserveImageUploadSlot(UploadSlotRequest $request): JsonResponse
-    {
-        return $this->reserveUploadSlot($request, MediaType::IMAGE);
-    }
-
-    /**
-     * Handle the incoming request.
-     *
-     * @param UploadSlotRequest $request
-     *
-     * @return JsonResponse
-     */
-    public function reserveVideoUploadSlot(UploadSlotRequest $request): JsonResponse
-    {
-        return $this->reserveUploadSlot($request, MediaType::VIDEO);
-    }
-
-    protected function reserveUploadSlot(UploadSlotRequest $request, MediaType $mediaType): JsonResponse
+    public function reserveUploadSlot(UploadSlotRequest $request, MediaType $mediaType): JsonResponse
     {
         return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => $mediaType->value])->all());
     }

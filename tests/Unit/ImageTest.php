@@ -93,7 +93,7 @@ class ImageTest extends MediaTest
 
     protected function createDerivativeForVersion(Version $version): TestResponse
     {
-        return $this->get(route('getDerivative', [$this->user->name, $version->Media]));
+        return $this->get(route('getImageDerivative', [$this->user->name, $version->Media]));
     }
 
     #[Test]
@@ -110,7 +110,7 @@ class ImageTest extends MediaTest
     public function ensureUnprocessedFilesAreNotAvailable(Version $version)
     {
         $version->update(['processed' => 0]);
-        $getDerivativeResponse = $this->get(route('getDerivative', [$this->user->name, $version->Media]));
+        $getDerivativeResponse = $this->get(route('getImageDerivative', [$this->user->name, $version->Media]));
 
         $getDerivativeResponse->assertNotFound();
     }
@@ -118,7 +118,7 @@ class ImageTest extends MediaTest
     protected function assertVersionFilesExist(Version $version): void
     {
         $this->originalsDisk->assertExists($version->originalFilePath());
-        $this->imageDerivativesDisk->assertExists($version->imageDerivativeFilePath());
+        $this->imageDerivativesDisk->assertExists($version->nonVideoDerivativeFilePath());
     }
 
     protected function assertMediaDirectoryExists(Media $media): void
@@ -135,7 +135,7 @@ class ImageTest extends MediaTest
     protected function assertVersionFilesMissing(Version $version): void
     {
         $this->originalsDisk->assertMissing($version->originalFilePath());
-        $this->imageDerivativesDisk->assertMissing($version->imageDerivativeFilePath());
+        $this->imageDerivativesDisk->assertMissing($version->nonVideoDerivativeFilePath());
     }
 
     protected function assertMediaDirectoryMissing(Media $media): void
@@ -215,7 +215,7 @@ class ImageTest extends MediaTest
         });
 
         $this->assertTrue(++$cacheCounterBeforeCommand == $cacheCounterAfterCommand);
-        $this->imageDerivativesDisk->assertMissing($this->version->imageDerivativeFilePath());
+        $this->imageDerivativesDisk->assertMissing($this->version->nonVideoDerivativeFilePath());
     }
 
     #[Test]

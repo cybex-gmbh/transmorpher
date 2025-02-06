@@ -17,6 +17,7 @@ class PurgeDerivatives extends Command
      */
     protected $signature = 'purge:derivatives
       {--image : Delete image derivatives.}
+      {--pdf : Delete PDF derivatives.}
       {--video : Re-generate video derivatives.}
       {--a|all : Purge all derivatives.}';
 
@@ -32,7 +33,8 @@ class PurgeDerivatives extends Command
      */
     public function handle(): int
     {
-        if (!$this->option('image') && !$this->option('video') && !$this->option('all')) {
+
+        if (!$this->option('image') && !$this->option('pdf') && !$this->option('video') && !$this->option('all')) {
             $this->warn(sprintf('No options provided. Call "php artisan %s --help" for a list of all options.', $this->name));
             return Command::SUCCESS;
         }

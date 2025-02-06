@@ -67,8 +67,13 @@ class Version extends Model
     protected function deleteFiles(): void
     {
         MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath());
-        MediaStorage::IMAGE_DERIVATIVES->getDisk()->deleteDirectory($this->imageDerivativeDirectoryPath());
-        // Video derivatives may not be deleted here, otherwise failed jobs would delete the only existing video derivative.
+
+        if (($derivativesDisk = $this->Media->type->handler()->getDerivativesDisk()) === MediaStorage::VIDEO_DERIVATIVES->getDisk()) {
+            // Video derivatives may not be deleted here, otherwise failed jobs would delete the only existing video derivative.
+           return;
+        }
+
+        $derivativesDisk->deleteDirectory($this->nonVideoDerivativeDirectoryPath());
     }
 
     /**
@@ -120,20 +125,22 @@ class Version extends Model
      * @param array|null $transformations
      * @return string
      */
-    public function imageDerivativeFilePath(array $transformations = null): string
+    public function nonVideoDerivativeFilePath(array $transformations = null): string
     {
+        $mediaType = $this->Media->type;
         $originalFileExtension = pathinfo($this->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and version number to identify already generated derivatives.
         $derivativeHash = hash('sha256', json_encode($transformations) . $this->getKey());
 
-        return sprintf('%s/%sx_%sy_%sq_%s.%s',
-            $this->imageDerivativeDirectoryPath(),
+        return sprintf('%s/%sx_%sy_%sq_%sp_%s.%s',
+            $this->nonVideoDerivativeDirectoryPath(),
             $transformations[Transformation::WIDTH->value] ?? '',
             $transformations[Transformation::HEIGHT->value] ?? '',
             $transformations[Transformation::QUALITY->value] ?? '',
+            $transformations[Transformation::PAGE->value] ?? '',
             $derivativeHash,
-            $transformations[Transformation::FORMAT->value] ?? $originalFileExtension,
+            $transformations[Transformation::FORMAT->value] ?? ($mediaType->usesOriginalFileExtension() ? $originalFileExtension : $mediaType->getDefaultExtension($transformations))
         );
     }
 
@@ -143,7 +150,7 @@ class Version extends Model
      *
      * @return string
      */
-    public function imageDerivativeDirectoryPath(): string
+    public function nonVideoDerivativeDirectoryPath(): string
     {
         return sprintf('%s/%s', $this->Media->baseDirectory(), $this->getKey());
     }

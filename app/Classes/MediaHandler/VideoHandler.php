@@ -6,18 +6,22 @@ use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
-use App\Interfaces\MediaHandlerInterface;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
-use CdnHelper;
-use Illuminate\Contracts\Filesystem\Filesystem;
-use Throwable;
+use BadMethodCallException;
 use Transcode;
 
-class VideoHandler implements MediaHandlerInterface
+class VideoHandler extends MediaHandler
 {
+    protected MediaType $type = MediaType::VIDEO;
+    protected MediaStorage $derivativesStorage = MediaStorage::VIDEO_DERIVATIVES;
+    protected ResponseState $uploadSuccessful = ResponseState::VIDEO_UPLOAD_SUCCESSFUL;
+    protected ResponseState $uploadFailed = ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
+    protected ResponseState $versionSetSuccessful = ResponseState::VIDEO_VERSION_SET;
+    protected ResponseState $versionSetFailed = ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
+
     /**
      * @param string $basePath
      * @param UploadSlot $uploadSlot
@@ -31,7 +35,7 @@ class VideoHandler implements MediaHandlerInterface
         $success = Transcode::createJob($version, $uploadSlot);
         \Log::info(sprintf('Transcoding job dispatched with result %s for media %s and version %s.', $success, $version->Media->identifier, $version->getKey()));
 
-        return $success ? ResponseState::VIDEO_UPLOAD_SUCCESSFUL : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
+        return $success ? $this->uploadSuccessful : $this->uploadFailed;
     }
 
     /**
@@ -40,23 +44,6 @@ class VideoHandler implements MediaHandlerInterface
     public function getValidationRules(): string
     {
         return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4,video/x-matroska';
-    }
-
-    /**
-     * @param string $basePath
-     * @return bool
-     */
-    public function invalidateCdnCache(string $basePath): bool
-    {
-        if (CdnHelper::isConfigured()) {
-            try {
-                CdnHelper::invalidateMedia(MediaType::VIDEO, $basePath);
-            } catch (Throwable) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -73,20 +60,12 @@ class VideoHandler implements MediaHandlerInterface
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => MediaType::VIDEO]);
 
         $success = Transcode::createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed);
-        $responseState = $success ? ResponseState::VIDEO_VERSION_SET : ResponseState::TRANSCODING_JOB_DISPATCH_FAILED;
+        $responseState = $success ? $this->versionSetSuccessful : $this->versionSetFailed;
 
         return [
             $responseState,
             $uploadSlot?->token
         ];
-    }
-
-    /**
-     * @return Filesystem
-     */
-    public function getDerivativesDisk(): Filesystem
-    {
-        return MediaStorage::VIDEO_DERIVATIVES->getDisk();
     }
 
     /**
@@ -130,5 +109,15 @@ class VideoHandler implements MediaHandlerInterface
             'success' => $success = !count($failedMediaIds),
             'message' => $success ? 'Restored versions for all video media.' : sprintf('Failed to restore versions for media ids: %s.', implode(', ', $failedMediaIds)),
         ];
+    }
+
+    /**
+     * @param Version $version
+     * @param array|null $transformationsArray
+     * @return false|string
+     */
+    public function applyTransformations(Version $version, ?array $transformationsArray): false|string
+    {
+        throw new BadMethodCallException('Not yet applicable for this media type.');
     }
 }

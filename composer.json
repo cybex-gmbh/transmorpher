@@ -15,6 +15,7 @@
         "aminyazdanpanah/php-ffmpeg-video-streaming": "^1.2.17",
         "cybex/laravel-protector": "^3.0",
         "intervention/image": "^2.7",
+        "karriere/pdf-merge": "^3.2",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "^3.12",

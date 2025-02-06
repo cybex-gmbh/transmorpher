@@ -3,11 +3,13 @@
 namespace App\Enums;
 
 use App\Interfaces\MediaHandlerInterface;
+use Exception;
 
 enum MediaType: string
 {
     case IMAGE = 'image';
     case VIDEO = 'video';
+    case PDF = 'pdf';
 
     /**
      * @return MediaHandlerInterface
@@ -26,7 +28,8 @@ enum MediaType: string
     {
         return match ($this) {
             self::IMAGE => 'images',
-            self::VIDEO => 'videos'
+            self::VIDEO => 'videos',
+            self::PDF => 'pdfs'
         };
     }
 
@@ -38,21 +41,54 @@ enum MediaType: string
     public function isInstantlyAvailable(): bool
     {
         return match ($this) {
-            self::IMAGE => true,
+            self::IMAGE,
+            self::PDF => true,
             self::VIDEO => false
         };
     }
 
     /**
-     * Get whether this media needs a short invalidation path for the CDN.
+     * Get whether this media needs exhaustive invalidation for the CDN:
+     * - <identifier>,
+     * - <identifier>/,
+     * - <identifier>/*
      *
      * @return bool
      */
-    public function needsShortPathInvalidation(): bool
+    public function needsExhaustiveCdnInvalidation(): bool
     {
         return match ($this) {
-            self::IMAGE => true,
+            self::IMAGE,
+            self::PDF => true,
             self::VIDEO => false
         };
     }
+
+    /**
+     * Get whether this media type uses its original file extension for derivatives if no explicit format is specified.
+     *
+     * @throws Exception
+     */
+    public function usesOriginalFileExtension(): bool
+    {
+        return match ($this) {
+            self::IMAGE => true,
+            self::PDF => false,
+            default => throw new Exception('Not available for this media type'),
+        };
+    }
+
+    /**
+     * Get the default extension for this media type, if applicable.
+     *
+     * @throws Exception
+     */
+    public function getDefaultExtension(array $transformations = null): string
+    {
+        return match ($this) {
+            self::PDF => $transformations ? config('transmorpher.pdf_default_image_format') : 'pdf',
+            default => throw new Exception('Not available for this media type'),
+        };
+    }
 }
+

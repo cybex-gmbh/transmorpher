@@ -6,35 +6,93 @@ use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Interfaces\ConvertedImageInterface;
+use App\Exceptions\PdfPageDoesNotExistException;
 use App\Interfaces\TransformInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use InterventionImage;
+use Imagick;
+use ImagickException;
 
 class Transform implements TransformInterface
 {
     /**
-     * Transmorph image based on specified transformations.
+     * Transform image based on specified transformations.
      *
      * @param string     $pathToOriginalImage
      * @param array|null $transformations
      *
      * @return string Binary string of the image.
+     */
+    public function transform(string $pathToOriginalImage, ?array $transformations = null): string
+    {
+        $fileHandle = $this->getOriginalFileStream($pathToOriginalImage);
+        $mimeType = mime_content_type($fileHandle);
+        $fileData = stream_get_contents($fileHandle);
+
+        return match ($mimeType) {
+            'application/pdf' => $this->pdfToImage($fileData, $transformations),
+            default => $this->applyTransformations($fileData, $transformations),
+        };
+    }
+
+    /**
+     * @param string $fileData
+     * @param array|null $transformations
+     * @return string
+     * @throws PdfPageDoesNotExistException
+     */
+    protected function pdfToImage(string $fileData, ?array $transformations = null): string
+    {
+        // We need a local file for Imagick to be able to access only the requested page.
+        $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
+        file_put_contents($tempFile, $fileData);
+
+        try {
+            $imagick = new Imagick();
+
+            // 300 DPI, might make this a transformation
+            $imagick->setResolution(300, 300);
+            $imagick->readImage(sprintf('%s[%d]', $tempFile, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
+        } catch (ImagickException) {
+            // Assuming an error happened because the requested page does not exist, we throw a custom exception.
+            throw new PdfPageDoesNotExistException($transformations[Transformation::PAGE->value]);
+        } finally {
+            unlink($tempFile);
+        }
+
+        $imagick->setImageFormat(ImageFormat::from(config('transmorpher.pdf_default_image_format'))->value);
+
+        return $this->applyTransformations($imagick->getImageBlob(), $transformations);
+    }
+
+    /**
+     * @param string $path
+     * @return resource|null
      * @throws FileNotFoundException
      */
-    public function transform(string $pathToOriginalImage, array $transformations = null): string
+    protected function getOriginalFileStream(string $path)
     {
         $disk = MediaStorage::ORIGINALS->getDisk();
 
-        if (!$disk->exists($pathToOriginalImage)) {
-            throw new FileNotFoundException(sprintf('File not found at path "%s" on configured disk', $pathToOriginalImage));
+        if (!$disk->exists($path)) {
+            throw new FileNotFoundException(sprintf('File not found at path "%s" on configured disk', $path));
         }
 
-        $imageData = $disk->get($pathToOriginalImage);
-        $image     = InterventionImage::make($imageData);
+        return $disk->readStream($path);
+    }
 
+    /**
+     * @param string $imageData
+     * @param array|null $transformations
+     * @return string
+     */
+    protected function applyTransformations(string $imageData, ?array $transformations = null): string
+    {
         if (!$transformations) {
             return $imageData;
         }
+
+        $image = InterventionImage::make($imageData);
 
         $width   = $transformations[Transformation::WIDTH->value] ?? $image->getWidth();
         $height  = $transformations[Transformation::HEIGHT->value] ?? $image->getHeight();
