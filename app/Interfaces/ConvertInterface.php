@@ -5,7 +5,7 @@ namespace App\Interfaces;
 interface ConvertInterface
 {
     /**
-     * Encode to specified format and if possible set quality.
+     * Encode to specified format and if possible, set quality.
      *
      * @param string   $image Binary string of the image.
      * @param string   $format

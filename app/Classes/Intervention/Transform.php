@@ -5,13 +5,13 @@ namespace App\Classes\Intervention;
 use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
-use App\Interfaces\ConvertedImageInterface;
 use App\Exceptions\DocumentPageDoesNotExistException;
 use App\Interfaces\TransformInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use InterventionImage;
 use Imagick;
 use ImagickException;
+use Intervention\Image\Encoders\AutoEncoder;
+use Intervention\Image\Laravel\Facades\Image as ImageManager;
 use Log;
 
 class Transform implements TransformInterface
@@ -96,49 +96,19 @@ class Transform implements TransformInterface
      */
     protected function applyTransformations(string $imageData, ?array $transformations = null): string
     {
-        $image = InterventionImage::make($imageData);
+        $image = ImageManager::read($imageData);
 
-        $width   = $transformations[Transformation::WIDTH->value] ?? $image->getWidth();
-        $height  = $transformations[Transformation::HEIGHT->value] ?? $image->getHeight();
-        $format  = $transformations[Transformation::FORMAT->value] ?? null;
+        $width = $transformations[Transformation::WIDTH->value] ?? $image->width();
+        $height = $transformations[Transformation::HEIGHT->value] ?? $image->height();
+        $format = $transformations[Transformation::FORMAT->value] ?? null;
         $quality = $transformations[Transformation::QUALITY->value] ?? null;
 
-        $image = $this->resize($image, $width, $height);
+        $image = $image->scaleDown($width, $height);
 
         if ($format) {
-            return $this->format($image->stream(), $format, $quality)->getBinary();
+            return ImageFormat::from($format)->getConverter()->encode($image, $format, $quality)->getBinary();
         }
 
-        return $image->stream(null, $quality);
-    }
-
-    /**
-     * Resize an image based on specified width and height.
-     * Keeps the aspect ratio and prevents upsizing.
-     *
-     * @param     $image
-     * @param int $width
-     * @param int $height
-     */
-    public function resize($image, int $width, int $height)
-    {
-        return $image->resize($width, $height, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
-    }
-
-    /**
-     * Use a converter class to encode the image to given format and quality.
-     *
-     * @param          $image
-     * @param string   $format
-     * @param int|null $quality
-     *
-     * @return ConvertedImageInterface
-     */
-    public function format($image, string $format, ?int $quality = null): ConvertedImageInterface
-    {
-        return ImageFormat::from($format)->getConverter()->encode($image, $format, $quality);
+        return $image->encode(new AutoEncoder(quality: $quality))->toString();
     }
 }
