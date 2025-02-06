@@ -24,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Media $Media
+ * @property-read \App\Models\TFactory|null $use_factory
  * @property-read string $hash
  * @method static Builder<static>|Version newModelQuery()
  * @method static Builder<static>|Version newQuery()
