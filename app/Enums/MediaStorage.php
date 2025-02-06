@@ -9,6 +9,7 @@ enum MediaStorage: string
 {
     case ORIGINALS = 'originals';
     case IMAGE_DERIVATIVES = 'imageDerivatives';
+    case PDF_DERIVATIVES = 'pdfDerivatives';
     case VIDEO_DERIVATIVES = 'videoDerivatives';
 
     /**

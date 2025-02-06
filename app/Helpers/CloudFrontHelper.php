@@ -17,7 +17,7 @@ class CloudFrontHelper implements CdnHelperInterface
      */
     public function invalidateMedia(MediaType $type, string $invalidationPath): void
     {
-        if ($type->needsShortPathInvalidation()) {
+        if ($type->needsExhaustiveCdnInvalidation()) {
             $prefixedPath = implode(DIRECTORY_SEPARATOR, array_filter([$type->prefix(), $invalidationPath]));
 
             $this->invalidate([

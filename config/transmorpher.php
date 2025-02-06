@@ -34,6 +34,7 @@ return [
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
         'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
+        'pdfDerivatives' =>  env('TRANSMORPHER_DISK_PDF_DERIVATIVES', 'localPdfDerivatives'),
         'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 
@@ -70,13 +71,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | PDF Default Image Format
+    |--------------------------------------------------------------------------
+    |
+    | Defines the default image format for PDFs if no format transformation is specified.
+    | Check the ImageFormat enum for available formats.
+    |
+    */
+    'pdf_default_image_format' => 'jpg',
+
+    /*
+    |--------------------------------------------------------------------------
     | Transcode Class
     |--------------------------------------------------------------------------
     |
     | The class which is used for transcoding videos.
     |
     | Available Transcode classes:
-    | -  Transcode (uses FFmpeg and Laravel Queue for transcoding)
+    | - Transcode (uses FFmpeg and Laravel Queue for transcoding)
     |
     */
     'transcode_class' => App\Classes\Transcode::class,
@@ -167,6 +179,7 @@ return [
     */
     'media_handlers' => [
         'image' => App\Classes\MediaHandler\ImageHandler::class,
+        'pdf' => App\Classes\MediaHandler\PdfHandler::class,
         'video' => App\Classes\MediaHandler\VideoHandler::class
     ],
 

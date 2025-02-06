@@ -47,4 +47,11 @@ interface MediaHandlerInterface
      * @return array
      */
     public function purgeDerivatives(): array;
+
+    /**
+     * @param Version $version
+     * @param array|null $transformationsArray
+     * @return false|string
+     */
+    public function applyTransformations(Version $version, ?array $transformationsArray): false|string;
 }

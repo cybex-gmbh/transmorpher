@@ -22391,6 +22391,77 @@ namespace App\Facades {
      * 
      *
      */
+    class DeliveryFacade {
+        /**
+         * Retrieve an original for a version.
+         *
+         * @param \App\Models\Version $version
+         * @return \Illuminate\Contracts\Foundation\Application|\Response|\Illuminate\Contracts\Routing\ResponseFactory 
+         * @static 
+         */
+        public static function getOriginal($version)
+        {
+            /** @var \App\Classes\Delivery $instance */
+            return $instance->getOriginal($version);
+        }
+
+        /**
+         * 
+         *
+         * @param string $transformations
+         * @param \App\Models\Version $version
+         * @param \App\Enums\MediaType $mediaType
+         * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory|\Response 
+         * @static 
+         */
+        public static function getDerivative($transformations, $version, $mediaType)
+        {
+            /** @var \App\Classes\Delivery $instance */
+            return $instance->getDerivative($transformations, $version, $mediaType);
+        }
+
+            }
+    /**
+     * 
+     *
+     */
+    class OptimizeFacade {
+        /**
+         * Optimize an image derivative.
+         * 
+         * Creates a temporary file since image optimizers only work locally.
+         *
+         * @param string $derivative
+         * @param int|null $quality
+         * @return string 
+         * @throws Exception
+         * @static 
+         */
+        public static function optimize($derivative, $quality = null)
+        {
+            /** @var \App\Classes\Optimizer\Optimize $instance */
+            return $instance->optimize($derivative, $quality);
+        }
+
+        /**
+         * 
+         *
+         * @param string $derivative
+         * @return string 
+         * @throws Exception
+         * @static 
+         */
+        public static function removePdfMetadata($derivative)
+        {
+            /** @var \App\Classes\Optimizer\Optimize $instance */
+            return $instance->removePdfMetadata($derivative);
+        }
+
+            }
+    /**
+     * 
+     *
+     */
     class TranscodeFacade {
         /**
          * Returns the class which handles the actual transcoding.
@@ -22462,7 +22533,6 @@ namespace App\Facades {
          * @param string $pathToOriginalImage
          * @param array|null $transformations
          * @return string Binary string of the image.
-         * @throws FileNotFoundException
          * @static 
          */
         public static function transform($pathToOriginalImage, $transformations = null)
@@ -28252,6 +28322,8 @@ namespace  {
     class View extends \Illuminate\Support\Facades\View {}
     class Vite extends \Illuminate\Support\Facades\Vite {}
     class CdnHelper extends \App\Facades\CdnHelperFacade {}
+    class Delivery extends \App\Facades\DeliveryFacade {}
+    class Optimize extends \App\Facades\OptimizeFacade {}
     class Transcode extends \App\Facades\TranscodeFacade {}
     class Transform extends \App\Facades\TransformFacade {}
     class Protector extends \Cybex\Protector\ProtectorFacade {}
