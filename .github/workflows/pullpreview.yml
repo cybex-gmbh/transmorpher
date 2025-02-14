@@ -5,12 +5,15 @@ on:
     types: [ labeled, unlabeled, synchronize, closed, reopened ]
 
 jobs:
+  # https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
   prepare-amigor-env:
     name: Prepare Amigor .env
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'pullpreview') || github.event.action == 'unlabeled' || github.event.action == 'closed' }}
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Transmorpher repo
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'pullpreview') && github.event.action != 'unlabeled' && github.event.action != 'closed' }}
         # https://github.com/actions/checkout
         uses: actions/checkout@v4
         with:
@@ -18,13 +21,18 @@ jobs:
             .env.amigor
           # https://git-scm.com/docs/git-sparse-checkout#_internalscone_mode_handling
           sparse-checkout-cone-mode: false
-      - run: echo "TRANSMORPHER_AUTH_TOKEN=\"${{ secrets.PULLPREVIEW_SANCTUM_AUTH_TOKEN }}\"" >> .env.amigor
+
+      - name: Write secrets in .env file
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'pullpreview') && github.event.action != 'unlabeled' && github.event.action != 'closed' }}
+        run: echo "TRANSMORPHER_AUTH_TOKEN=\"${{ secrets.PULLPREVIEW_SANCTUM_AUTH_TOKEN }}\"" >> .env.amigor
 
       - name: Upload Amigor .env file
+        if: ${{ contains(github.event.pull_request.labels.*.name, 'pullpreview') && github.event.action != 'unlabeled' && github.event.action != 'closed' }}
         # https://github.com/actions/upload-artifact
         uses: actions/upload-artifact@v4
         with:
           name: amigor-env
+          include-hidden-files: true
           path: |
             .env.amigor
 
