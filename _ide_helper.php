@@ -22541,18 +22541,6 @@ namespace App\Facades {
             return $instance->transform($pathToOriginalImage, $transformations);
         }
 
-        /**
-         * 
-         *
-         * @return string[] 
-         * @static 
-         */
-        public static function getSupportedFormats()
-        {
-            /** @var \App\Classes\Intervention\Transform $instance */
-            return $instance->getSupportedFormats();
-        }
-
             }
     }
 
