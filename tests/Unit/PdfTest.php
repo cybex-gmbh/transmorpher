@@ -27,12 +27,12 @@ class PdfTest extends MediaTest
     {
         parent::setUp();
 
-        $this->pdfDerivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::PDF_DERIVATIVES->value)));
+        $this->pdfDerivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::DOCUMENT_DERIVATIVES->value)));
     }
 
     protected function reserveUploadSlot(): TestResponse
     {
-        return $this->json('POST', route('v1.reservePdfUploadSlot'), [
+        return $this->json('POST', route('v1.reserveDocumentUploadSlot'), [
             'identifier' => self::IDENTIFIER
         ]);
     }
@@ -81,12 +81,12 @@ class PdfTest extends MediaTest
 
     protected function getOriginal(Version $version): TestResponse
     {
-        return $this->get(route('v1.getPdfOriginal', [$version->Media, $version]));
+        return $this->get(route('v1.getDocumentOriginal', [$version->Media, $version]));
     }
 
     protected function getDerivative(Version $version, ?string $transformations = null): TestResponse
     {
-        return $this->get(route('getPdfDerivative', [$this->user->name, $version->Media, $transformations]));
+        return $this->get(route('getDocumentDerivative', [$this->user->name, $version->Media, $transformations]));
     }
 
     #[Test]
@@ -136,17 +136,17 @@ class PdfTest extends MediaTest
             'width' => [
                 'w-100',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.pdf_default_image_format')),
+                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
             ],
             'height' => [
                 'h-100',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.pdf_default_image_format')),
+                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
             ],
             'width and height' => [
                 'w-100+h-100',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.pdf_default_image_format')),
+                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
             ],
             'format png' => [
                 'f-png',
@@ -171,7 +171,7 @@ class PdfTest extends MediaTest
             'page' => [
                 'p-1',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.pdf_default_image_format')),
+                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
             ],
             'page width height format png' => [
                 'p-1+f-png+w-500+h-1000',
@@ -188,7 +188,7 @@ class PdfTest extends MediaTest
     {
         $version->Media->Versions->each->update(['processed' => 0]);
 
-        $this->get(route('getPdfDerivative', [$this->user->name, $version->Media]))->assertNotFound();
+        $this->get(route('getDocumentDerivative', [$this->user->name, $version->Media]))->assertNotFound();
 
         return $version;
     }
@@ -244,7 +244,7 @@ class PdfTest extends MediaTest
             $this->user->api_url => Http::response()
         ]);
 
-        Artisan::call(PurgeDerivatives::class, ['--pdf' => true]);
+        Artisan::call(PurgeDerivatives::class, ['--document' => true]);
 
         $cacheCounterAfterCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
 

@@ -58,9 +58,9 @@ return [
             'throw' => false,
         ],
 
-        'localPdfDerivatives' => [
+        'localDocumentDerivatives' => [
             'driver' => 'local',
-            'root' => storage_path('app/' . MediaType::PDF->prefix()),
+            'root' => storage_path('app/' . MediaType::DOCUMENT->prefix()),
             'throw' => false,
         ],
 
@@ -99,9 +99,9 @@ return [
         ],
 
 
-        's3PdfDerivatives' => [
+        's3DocumentDerivatives' => [
             'driver' => 's3',
-            'root' => MediaType::PDF->prefix(),
+            'root' => MediaType::DOCUMENT->prefix(),
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),

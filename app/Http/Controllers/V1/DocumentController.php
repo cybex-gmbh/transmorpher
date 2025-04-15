@@ -13,7 +13,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class PdfController extends Controller
+class DocumentController extends Controller
 {
     /**
      * Handles incoming image derivative requests.
@@ -63,6 +63,6 @@ class PdfController extends Controller
      */
     protected function getDerivative(string $transformations, Version $version): ResponseFactory|Application|Response
     {
-        return Delivery::getDerivative($transformations, $version, MediaType::PDF);
+        return Delivery::getDerivative($transformations, $version, MediaType::DOCUMENT);
     }
 }

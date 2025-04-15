@@ -6,18 +6,18 @@ use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\Transformation;
-use App\Exceptions\PdfPageDoesNotExistException;
+use App\Exceptions\DocumentPageDoesNotExistException;
 use App\Models\Version;
 use Optimize;
 use Transform;
 
-class PdfHandler extends StaticMediaHandler
+class DocumentHandler extends StaticMediaHandler
 {
-    protected MediaType $type = MediaType::PDF;
-    protected MediaStorage $derivativesStorage = MediaStorage::PDF_DERIVATIVES;
-    protected ResponseState $uploadSuccessful = ResponseState::PDF_UPLOAD_SUCCESSFUL;
+    protected MediaType $type = MediaType::DOCUMENT;
+    protected MediaStorage $derivativesStorage = MediaStorage::DOCUMENT_DERIVATIVES;
+    protected ResponseState $uploadSuccessful = ResponseState::DOCUMENT_UPLOAD_SUCCESSFUL;
     protected ResponseState $uploadFailed = ResponseState::CDN_INVALIDATION_FAILED;
-    protected ResponseState $versionSetSuccessful = ResponseState::PDF_VERSION_SET;
+    protected ResponseState $versionSetSuccessful = ResponseState::DOCUMENT_VERSION_SET;
     protected ResponseState $versionSetFailed = ResponseState::CDN_INVALIDATION_FAILED;
 
     /**
@@ -38,13 +38,13 @@ class PdfHandler extends StaticMediaHandler
         if ($transformationsArray) {
             try {
                 $derivative = Transform::transform($version->originalFilePath(), $transformationsArray);
-            } catch (PdfPageDoesNotExistException $exception) {
+            } catch (DocumentPageDoesNotExistException $exception) {
                 abort(400, $exception->getMessage());
             }
 
             return Optimize::optimize($derivative, $transformationsArray[Transformation::QUALITY->value] ?? null);
         }
 
-        return Optimize::removePdfMetadata(MediaStorage::ORIGINALS->getDisk()->get($version->originalFilePath()));
+        return Optimize::removeDocumentMetadata(MediaStorage::ORIGINALS->getDisk()->get($version->originalFilePath()));
     }
 }

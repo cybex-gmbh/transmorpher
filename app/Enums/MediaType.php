@@ -9,7 +9,7 @@ enum MediaType: string
 {
     case IMAGE = 'image';
     case VIDEO = 'video';
-    case PDF = 'pdf';
+    case DOCUMENT = 'document';
 
     /**
      * @return MediaHandlerInterface
@@ -29,7 +29,7 @@ enum MediaType: string
         return match ($this) {
             self::IMAGE => 'images',
             self::VIDEO => 'videos',
-            self::PDF => 'pdfs'
+            self::DOCUMENT => 'documents'
         };
     }
 
@@ -42,7 +42,7 @@ enum MediaType: string
     {
         return match ($this) {
             self::IMAGE,
-            self::PDF => true,
+            self::DOCUMENT => true,
             self::VIDEO => false
         };
     }
@@ -59,7 +59,7 @@ enum MediaType: string
     {
         return match ($this) {
             self::IMAGE,
-            self::PDF => true,
+            self::DOCUMENT => true,
             self::VIDEO => false
         };
     }
@@ -73,7 +73,7 @@ enum MediaType: string
     {
         return match ($this) {
             self::IMAGE => true,
-            self::PDF => false,
+            self::DOCUMENT => false,
             default => throw new Exception('Not available for this media type'),
         };
     }
@@ -86,7 +86,7 @@ enum MediaType: string
     public function getDefaultExtension(array $transformations = null): string
     {
         return match ($this) {
-            self::PDF => $transformations ? config('transmorpher.pdf_default_image_format') : 'pdf',
+            self::DOCUMENT => $transformations ? config('transmorpher.document_default_image_format') : 'document',
             default => throw new Exception('Not available for this media type'),
         };
     }

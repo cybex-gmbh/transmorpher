@@ -34,7 +34,7 @@ return [
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
         'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
-        'pdfDerivatives' =>  env('TRANSMORPHER_DISK_PDF_DERIVATIVES', 'localPdfDerivatives'),
+        'documentDerivatives' =>  env('TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES', 'localDocumentDerivatives'),
         'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 
@@ -71,14 +71,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | PDF Default Image Format
+    | Document Default Image Format
     |--------------------------------------------------------------------------
     |
-    | Defines the default image format for PDFs if no format transformation is specified.
+    | Defines the default image format for Documents if no format transformation is specified.
     | Check the ImageFormat enum for available formats.
     |
     */
-    'pdf_default_image_format' => 'jpg',
+    'document_default_image_format' => 'jpg',
 
     /*
     |--------------------------------------------------------------------------
@@ -179,7 +179,7 @@ return [
     */
     'media_handlers' => [
         'image' => App\Classes\MediaHandler\ImageHandler::class,
-        'pdf' => App\Classes\MediaHandler\PdfHandler::class,
+        'document' => App\Classes\MediaHandler\DocumentHandler::class,
         'video' => App\Classes\MediaHandler\VideoHandler::class
     ],
 

@@ -6,7 +6,7 @@ use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Interfaces\ConvertedImageInterface;
-use App\Exceptions\PdfPageDoesNotExistException;
+use App\Exceptions\DocumentPageDoesNotExistException;
 use App\Interfaces\TransformInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use InterventionImage;
@@ -18,7 +18,7 @@ class Transform implements TransformInterface
     /**
      * Transform image based on specified transformations.
      *
-     * @param string     $pathToOriginalImage
+     * @param string $pathToOriginalImage
      * @param array|null $transformations
      *
      * @return string Binary string of the image.
@@ -39,7 +39,7 @@ class Transform implements TransformInterface
      * @param string $fileData
      * @param array|null $transformations
      * @return string
-     * @throws PdfPageDoesNotExistException
+     * @throws DocumentPageDoesNotExistException
      */
     protected function pdfToImage(string $fileData, ?array $transformations = null): string
     {
@@ -55,12 +55,12 @@ class Transform implements TransformInterface
             $imagick->readImage(sprintf('%s[%d]', $tempFile, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
         } catch (ImagickException) {
             // Assuming an error happened because the requested page does not exist, we throw a custom exception.
-            throw new PdfPageDoesNotExistException($transformations[Transformation::PAGE->value]);
+            throw new DocumentPageDoesNotExistException($transformations[Transformation::PAGE->value]);
         } finally {
             unlink($tempFile);
         }
 
-        $imagick->setImageFormat(ImageFormat::from(config('transmorpher.pdf_default_image_format'))->value);
+        $imagick->setImageFormat(ImageFormat::from(config('transmorpher.document_default_image_format'))->value);
 
         return $this->applyTransformations($imagick->getImageBlob(), $transformations);
     }
