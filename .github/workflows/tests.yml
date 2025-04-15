@@ -23,5 +23,5 @@ jobs:
       PHP_VERSION: ${{ matrix.php }}
       LARAVEL_VERSION: ${{ matrix.laravel }}
       DEPENDENCY_VERSION: ${{ matrix.dependency-version }}
-      MYSQL_DATABASE: transmorpher_test
+      DATABASE_NAME: transmorpher_test
       LINUX_PACKAGES: imagemagick jpegoptim optipng pngquant gifsicle webp ffmpeg
