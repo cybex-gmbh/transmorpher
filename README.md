@@ -1,6 +1,6 @@
 # Transmorpher Media Server
 
-A media server for images, pdfs and videos.
+A media server for images, pdf and videos.
 
 > For a client implementation for Laravel
 > see [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client).
@@ -188,7 +188,7 @@ To use AWS S3 disks set the according `.env` values:
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=s3Originals
 TRANSMORPHER_DISK_IMAGE_DERIVATIVES=s3ImageDerivatives
-TRANSMORPHER_DISK_PDF_DERIVATIVES=s3PdfDerivatives
+TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES=s3DocumentDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=s3VideoDerivatives
 ```
 
@@ -197,7 +197,7 @@ Define the AWS S3 bucket for each disk:
 ```dotenv
 AWS_BUCKET_ORIGINALS=
 AWS_BUCKET_IMAGE_DERIVATIVES=
-AWS_BUCKET_PDF_DERIVATIVES=
+AWS_BUCKET_DOCUMENT_DERIVATIVES=
 AWS_BUCKET_VIDEO_DERIVATIVES=
 ```
 
@@ -266,7 +266,7 @@ Select the following Laravel disks in the `.env`:
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=localOriginals
 TRANSMORPHER_DISK_IMAGE_DERIVATIVES=localImageDerivatives
-TRANSMORPHER_DISK_PDF_DERIVATIVES=localPdfDerivatives
+TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES=localDocumentDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=localVideoDerivatives
 ```
 
@@ -381,15 +381,15 @@ Requesting a PDF file will return the document with removed metadata.
 When transformations are specified, an image of a page will be returned.
 
 All image transformations mentioned in the above section also apply to PDF image derivatives.
-Requesting a PDF also follows the same URL structure as images, just replace `images` with `pdfs`.
+Requesting a PDF also follows the same URL structure as images, just replace `images` with `documents`.
 
 Additionally, the page which should be used as image can be specified with the `p` transformation. Otherwise, the first page will be used.
 
 For example:
 
-PDF document: `https://transmorpher.test/pdfs/catworld/cat-essay`
+Document: `https://transmorpher.test/documents/catworld/cat-essay`
 
-Image of page 5: `https://transmorpher.test/pdfs/catworld/cat-essay/p-5+w-1920+h-1080`
+Image of page 5: `https://transmorpher.test/documents/catworld/cat-essay/p-5+w-1920+h-1080`
 
 ## Video transcoding
 
@@ -551,8 +551,8 @@ We provide a command which will additionally notify clients with a signed reques
 php artisan purge:derivatives
 ```
 
-The command accepts the options `--image`, `--pdf`, `--video` and `--all` (or `-a`) for purging the respective derivatives.
-Image and PDF derivatives will be deleted, for video derivatives we dispatch a new transcoding job for the current version.
+The command accepts the options `--image`, `--document`, `--video` and `--all` (or `-a`) for purging the respective derivatives.
+Image and document derivatives will be deleted, for video derivatives we dispatch a new transcoding job for the current version.
 
 The derivatives revision is available on the route `/api/v*/cacheInvalidator`.
 
@@ -564,7 +564,7 @@ To restore operation of the server, restore the following:
 - the `originals` disk
 - `.env` file*
 - the `image derivatives` disk*
-- the `pdf derivatives` disk*
+- the `document derivatives` disk*
 - the `video derivatives` disk*
 
 > Marked with * are optional, but recommended.
@@ -573,7 +573,7 @@ If the `.env` file is lost follow the setup instructions above, including creati
 
 If video derivatives are lost, use the [purge command](#purging-derivatives) to restore them. 
 
-Lost image and pdf derivatives will automatically be re-generated on demand.
+Lost image and document derivatives will automatically be re-generated on demand.
 
 ## Development
 

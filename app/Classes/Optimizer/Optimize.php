@@ -40,7 +40,7 @@ class Optimize
      * @return string
      * @throws Exception
      */
-    public function removePdfMetadata(string $derivative): string
+    public function removeDocumentMetadata(string $derivative): string
     {
         $tempFile = $this->getTemporaryFile($derivative);
         $pdfMerge = new PdfMerge();

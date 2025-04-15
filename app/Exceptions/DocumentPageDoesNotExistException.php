@@ -5,7 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Throwable;
 
-class PdfPageDoesNotExistException extends Exception
+class DocumentPageDoesNotExistException extends Exception
 {
     /**
      * @param $requestedPage

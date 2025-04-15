@@ -15,7 +15,7 @@ return new class extends Migration
 
         foreach ($tableWithColumn as $tableName => $columnName) {
             Schema::table($tableName, function (Blueprint $table) use ($columnName) {
-                $table->enum($columnName, ['image', 'video', 'pdf'])->change();
+                $table->enum($columnName, ['image', 'video', 'document'])->change();
             });
         }
     }

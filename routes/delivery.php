@@ -2,7 +2,7 @@
 
 use App\Enums\MediaType;
 use App\Http\Controllers\V1\ImageController;
-use App\Http\Controllers\V1\PdfController;
+use App\Http\Controllers\V1\DocumentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,4 +18,4 @@ use Illuminate\Support\Facades\Route;
 Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::IMAGE->prefix()), [ImageController::class, 'get'])->name('getImageDerivative');
 
 // PDF
-Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::PDF->prefix()), [PdfController::class, 'get'])->name('getPdfDerivative');
+Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::DOCUMENT->prefix()), [DocumentController::class, 'get'])->name('getDocumentDerivative');
