@@ -47,7 +47,7 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
             $version->update(['processed' => true]);
             $responseState = $this->versionSetSuccessful;
         } else {
-            $version->update(['number' => $oldVersionNumber]);
+            $version->delete();
             $responseState = $this->versionSetFailed;
         }
 

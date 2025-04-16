@@ -49,7 +49,11 @@ class VersionController extends Controller
         $currentVersionNumber = $media->Versions->max('number');
         $newVersionNumber = $currentVersionNumber + 1;
 
-        $version->update(['number' => $newVersionNumber, 'processed' => 0]);
+        $version = $version->replicate()->fill([
+            'number' => $newVersionNumber,
+            'processed' => 0,
+        ]);
+        $version->save();
 
         [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $version, $oldVersionNumber, $wasProcessed);
 
