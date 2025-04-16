@@ -16,7 +16,6 @@ use App\Models\UploadSlot;
 use App\Models\Version;
 use Artisan;
 use Http;
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
@@ -24,73 +23,26 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Storage;
-use Tests\MediaTest;
+use Tests\OnDemandDerivativeMediaTest;
 
-class ImageTest extends MediaTest
+class ImageTest extends OnDemandDerivativeMediaTest
 {
-    protected const IDENTIFIER = 'testImage';
-    protected const IMAGE_NAME = 'image.jpg';
-    protected Filesystem $imageDerivativesDisk;
+    protected string $identifier = 'testImage';
+    protected string $mediaName = 'image.jpg';
+    protected ResponseState $versionSetSuccessful = ResponseState::IMAGE_VERSION_SET;
+    protected string $reserveUploadSlotRouteName = 'v1.reserveImageUploadSlot';
+
     protected string $uploadToken;
     protected Version $version;
     protected Media $media;
     protected UploadSlot $uploadSlot;
-    protected ResponseState $versionSetSuccessful = ResponseState::IMAGE_VERSION_SET;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->imageDerivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::IMAGE_DERIVATIVES->value)));
-    }
-
-    protected function reserveUploadSlot(): TestResponse
-    {
-        return $this->json('POST', route('v1.reserveImageUploadSlot'), [
-            'identifier' => self::IDENTIFIER
-        ]);
-    }
-
-    #[Test]
-    public function ensureImageUploadSlotCanBeReserved()
-    {
-        $reserveUploadSlotResponse = $this->reserveUploadSlot();
-
-        $reserveUploadSlotResponse->assertOk();
-
-        return $reserveUploadSlotResponse->json()['upload_token'];
-    }
-
-    protected function uploadImage(string $uploadToken): TestResponse
-    {
-        return $this->json('POST', route('v1.upload', [$uploadToken]), [
-            'file' => UploadedFile::fake()->image(self::IMAGE_NAME),
-            'identifier' => self::IDENTIFIER
-        ]);
-    }
-
-    #[Test]
-    #[Depends('ensureImageUploadSlotCanBeReserved')]
-    public function ensureImageCanBeUploaded(string $uploadToken)
-    {
-        $uploadResponse = $this->uploadImage($uploadToken);
-
-        $uploadResponse->assertCreated();
-
-        $media = Media::whereIdentifier(self::IDENTIFIER)->first();
-        $version = $media->Versions()->whereNumber($uploadResponse['version'])->first();
-
-        Storage::disk(config('transmorpher.disks.originals'))->assertExists($version->originalFilePath());
-
-        return $version;
-    }
-
-    #[Test]
-    #[Depends('ensureImageUploadSlotCanBeReserved')]
-    #[Depends('ensureImageCanBeUploaded')]
-    public function ensureUploadTokenIsInvalidatedAfterUpload(string $uploadToken)
-    {
-        $this->uploadImage($uploadToken)->assertNotFound();
+        $this->derivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::IMAGE_DERIVATIVES->value)));
+        $this->mediaFile = UploadedFile::fake()->image($this->mediaName);
     }
 
     protected function createDerivativeForVersion(Version $version): TestResponse
@@ -99,7 +51,7 @@ class ImageTest extends MediaTest
     }
 
     #[Test]
-    #[Depends('ensureImageCanBeUploaded')]
+    #[Depends('ensureMediaCanBeUploaded')]
     public function ensureProcessedFilesAreAvailable(Version $version)
     {
         $this->createDerivativeForVersion($version)->assertOk();
@@ -111,25 +63,10 @@ class ImageTest extends MediaTest
     #[Depends('ensureProcessedFilesAreAvailable')]
     public function ensureUnprocessedFilesAreNotAvailable(Version $version)
     {
-        $version->update(['processed' => 0]);
+        $version->Media->Versions->each->update(['processed' => 0]);
+
         $getDerivativeResponse = $this->get(route('getImageDerivative', [$this->user->name, $version->Media]));
-
         $getDerivativeResponse->assertNotFound();
-    }
-
-    #[Test]
-    #[Depends('ensureImageCanBeUploaded')]
-    public function ensureVersionCanBeSet(Version $version) {
-        $setVersionResponse = $this->patchJson(route('v1.setVersion', [$version->Media, $version]));
-        $setVersionResponse->assertOk();
-        $setVersionResponse->assertJsonFragment(['state' => $this->versionSetSuccessful->getState()->value, 'message' => $this->versionSetSuccessful->getMessage()]);
-
-        $setVersion = $version->Media->Versions()->firstWhere('number', $setVersionResponse->json('version'));
-        $this->assertModelExists($setVersion);
-        $this->assertNotEquals($setVersion, $version);
-        $this->assertEquals($setVersion->filename, $version->filename);
-
-        return $setVersion;
     }
 
     #[Test]
@@ -152,7 +89,7 @@ class ImageTest extends MediaTest
     protected function assertVersionFilesExist(Version $version): void
     {
         $this->originalsDisk->assertExists($version->originalFilePath());
-        $this->imageDerivativesDisk->assertExists($version->onDemandDerivativeFilePath());
+        $this->derivativesDisk->assertExists($version->onDemandDerivativeFilePath());
     }
 
     protected function assertMediaDirectoryExists(Media $media): void
@@ -163,31 +100,31 @@ class ImageTest extends MediaTest
     protected function assertUserDirectoryExists(): void
     {
         $this->originalsDisk->assertExists($this->user->name);
-        $this->imageDerivativesDisk->assertExists($this->user->name);
+        $this->derivativesDisk->assertExists($this->user->name);
     }
 
     protected function assertVersionFilesMissing(Version $version): void
     {
         $this->originalsDisk->assertMissing($version->originalFilePath());
-        $this->imageDerivativesDisk->assertMissing($version->onDemandDerivativeFilePath());
+        $this->derivativesDisk->assertMissing($version->onDemandDerivativeFilePath());
     }
 
     protected function assertMediaDirectoryMissing(Media $media): void
     {
         $this->originalsDisk->assertMissing($media->baseDirectory());
-        $this->imageDerivativesDisk->assertMissing($media->baseDirectory());
+        $this->derivativesDisk->assertMissing($media->baseDirectory());
     }
 
     protected function assertUserDirectoryMissing(): void
     {
         $this->originalsDisk->assertMissing($this->user->name);
-        $this->imageDerivativesDisk->assertMissing($this->user->name);
+        $this->derivativesDisk->assertMissing($this->user->name);
     }
 
     protected function setupMediaAndVersion(): void
     {
         $this->uploadToken = $this->reserveUploadSlot()->json()['upload_token'];
-        $this->version = Media::whereIdentifier(self::IDENTIFIER)->first()->Versions()->whereNumber($this->uploadImage($this->uploadToken)['version'])->first();
+        $this->version = Media::whereIdentifier($this->identifier)->first()->Versions()->whereNumber($this->uploadMedia($this->uploadToken)['version'])->first();
         $this->createDerivativeForVersion($this->version);
         $this->media = $this->version->Media;
         $this->uploadSlot = UploadSlot::whereToken($this->uploadToken)->withoutGlobalScopes()->first();
@@ -249,7 +186,7 @@ class ImageTest extends MediaTest
         });
 
         $this->assertTrue(++$cacheCounterBeforeCommand == $cacheCounterAfterCommand);
-        $this->imageDerivativesDisk->assertMissing($this->version->onDemandDerivativeFilePath());
+        $this->derivativesDisk->assertMissing($this->version->onDemandDerivativeFilePath());
     }
 
     #[Test]
