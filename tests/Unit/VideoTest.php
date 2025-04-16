@@ -13,7 +13,6 @@ use App\Models\UploadSlot;
 use Artisan;
 use File;
 use Http;
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
@@ -28,36 +27,16 @@ class VideoTest extends MediaTest
 {
     use RefreshDatabase;
 
-    protected const IDENTIFIER = 'testVideo';
-    protected const VIDEO_NAME = 'video.mp4';
-    protected Filesystem $videoDerivativesDisk;
+    protected string $identifier = 'testVideo';
+    protected string $mediaName = 'video.mp4';
     protected ResponseState $versionSetSuccessful = ResponseState::VIDEO_VERSION_SET;
+    protected string $reserveUploadSlotRouteName = 'v1.reserveVideoUploadSlot';
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->videoDerivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::VIDEO_DERIVATIVES->value)));
-    }
-
-    /**
-     * @return TestResponse
-     */
-    protected function reserveUploadSlot(): TestResponse
-    {
-        return $this->json('POST', route('v1.reserveVideoUploadSlot'), [
-            'identifier' => self::IDENTIFIER,
-        ]);
-    }
-
-    #[Test]
-    public function ensureVideoUploadSlotCanBeReserved()
-    {
-        $reserveUploadSlotResponse = $this->reserveUploadSlot();
-
-        $reserveUploadSlotResponse->assertOk();
-
-        return $reserveUploadSlotResponse->json('upload_token');
+        $this->derivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::VIDEO_DERIVATIVES->value)));
     }
 
     protected function uploadVideo(): TestResponse
@@ -66,7 +45,7 @@ class VideoTest extends MediaTest
 
         return $this->post(route('v1.upload', [$uploadToken]), [
             'file' => UploadedFile::fake()->createWithContent('video.mp4', File::get(base_path('tests/data/test.mp4'))),
-            'identifier' => self::IDENTIFIER
+            'identifier' => $this->identifier
         ]);
     }
 
@@ -91,10 +70,10 @@ class VideoTest extends MediaTest
     {
         $uploadToken = $this->reserveUploadSlot()->json('upload_token');
         $uploadSlot = UploadSlot::firstWhere('token', $uploadToken);
-        $media = $this->user->Media()->create(['identifier' => self::IDENTIFIER, 'type' => $uploadSlot->media_type]);
+        $media = $this->user->Media()->create(['identifier' => $this->identifier, 'type' => $uploadSlot->media_type]);
 
-        $outdatedVersion = $media->Versions()->create(['number' => 1, 'filename' => sprintf('1-%s', self::VIDEO_NAME)]);
-        $media->Versions()->create(['number' => 2, 'filename' => sprintf('2-%s', self::VIDEO_NAME)]);
+        $outdatedVersion = $media->Versions()->create(['number' => 1, 'filename' => sprintf('1-%s', $this->mediaName)]);
+        $media->Versions()->create(['number' => 2, 'filename' => sprintf('2-%s', $this->mediaName)]);
 
         Http::fake();
 
@@ -130,9 +109,9 @@ class VideoTest extends MediaTest
                 && $decryptedNotification['state'] == ResponseState::TRANSCODING_SUCCESSFUL->getState()->value;
         });
 
-        $this->videoDerivativesDisk->assertExists($media->videoDerivativeFilePath('mp4') . '.mp4');
-        $this->videoDerivativesDisk->assertExists($media->videoDerivativeFilePath('hls') . '.m3u8');
-        $this->videoDerivativesDisk->assertExists($media->videoDerivativeFilePath('dash') . '.mpd');
+        $this->derivativesDisk->assertExists($media->videoDerivativeFilePath('mp4') . '.mp4');
+        $this->derivativesDisk->assertExists($media->videoDerivativeFilePath('hls') . '.m3u8');
+        $this->derivativesDisk->assertExists($media->videoDerivativeFilePath('dash') . '.mpd');
     }
 
     #[Test]

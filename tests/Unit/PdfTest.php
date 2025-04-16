@@ -5,9 +5,7 @@ use App\Enums\ClientNotification;
 use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
-use App\Models\Media;
 use App\Models\Version;
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
@@ -16,69 +14,22 @@ use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Smalot\PdfParser\Config as PdfParserConfig;
 use Smalot\PdfParser\Parser;
-use Tests\MediaTest;
+use Tests\StaticMediaTest;
 
-class PdfTest extends MediaTest
+class PdfTest extends StaticMediaTest
 {
-    protected const IDENTIFIER = 'testPdf';
-    protected const PDF_NAME = 'document.pdf';
-    protected Filesystem $pdfDerivativesDisk;
+    protected string $identifier = 'testPdf';
+    protected string $mediaName = 'document.pdf';
     protected ResponseState $versionSetSuccessful = ResponseState::DOCUMENT_VERSION_SET;
+
+    protected string $reserveUploadSlotRouteName = 'v1.reserveDocumentUploadSlot';
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->pdfDerivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::DOCUMENT_DERIVATIVES->value)));
-    }
-
-    protected function reserveUploadSlot(): TestResponse
-    {
-        return $this->json('POST', route('v1.reserveDocumentUploadSlot'), [
-            'identifier' => self::IDENTIFIER
-        ]);
-    }
-
-    #[Test]
-    public function ensurePdfUploadSlotCanBeReserved()
-    {
-        $reserveUploadSlotResponse = $this->reserveUploadSlot();
-
-        $reserveUploadSlotResponse->assertOk();
-
-        return $reserveUploadSlotResponse->json()['upload_token'];
-    }
-
-    protected function uploadPdf(string $uploadToken): TestResponse
-    {
-        return $this->json('POST', route('v1.upload', [$uploadToken]), [
-            'file' => UploadedFile::fake()->createWithContent(self::PDF_NAME, File::get(base_path('tests/data/test.pdf'))),
-            'identifier' => self::IDENTIFIER
-        ]);
-    }
-
-    #[Test]
-    #[Depends('ensurePdfUploadSlotCanBeReserved')]
-    public function ensurePdfCanBeUploaded(string $uploadToken)
-    {
-        $uploadResponse = $this->uploadPdf($uploadToken);
-
-        $uploadResponse->assertCreated();
-
-        $media = Media::whereIdentifier(self::IDENTIFIER)->first();
-        $version = $media->Versions()->whereNumber($uploadResponse['version'])->first();
-
-        Storage::disk(config('transmorpher.disks.originals'))->assertExists($version->originalFilePath());
-
-        return $version;
-    }
-
-    #[Test]
-    #[Depends('ensurePdfUploadSlotCanBeReserved')]
-    #[Depends('ensurePdfCanBeUploaded')]
-    public function ensureUploadTokenIsInvalidatedAfterUpload(string $uploadToken)
-    {
-        $this->uploadPdf($uploadToken)->assertNotFound();
+        $this->derivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::DOCUMENT_DERIVATIVES->value)));
+        $this->mediaFile = UploadedFile::fake()->createWithContent($this->mediaName, File::get(base_path('tests/data/test.pdf')));
     }
 
     protected function getOriginal(Version $version): TestResponse
@@ -92,7 +43,7 @@ class PdfTest extends MediaTest
     }
 
     #[Test]
-    #[Depends('ensurePdfCanBeUploaded')]
+    #[Depends('ensureMediaCanBeUploaded')]
     public function ensurePdfOriginalCanBeDownloaded(Version $version)
     {
         $response = $this->getOriginal($version);
@@ -204,7 +155,7 @@ class PdfTest extends MediaTest
     }
 
     #[Test]
-    #[Depends('ensurePdfDerivativeCanBeDownloaded')]
+    #[Depends('ensureVersionCanBeSet')]
     public function ensurePdfMetadataIsRemoved(Version $version)
     {
         $config = new PdfParserConfig();
@@ -213,7 +164,7 @@ class PdfTest extends MediaTest
 
         // Empty values are filtered for easier comparison.
         $originalMetadata = array_filter($pdfParser->parseFile($this->originalsDisk->path($version->originalFilePath()))->getDetails());
-        $derivativeMetadata = array_filter($pdfParser->parseFile($this->pdfDerivativesDisk->path($version->nonVideoDerivativeFilePath()))->getDetails());
+        $derivativeMetadata = array_filter($pdfParser->parseFile($this->derivativesDisk->path($version->nonVideoDerivativeFilePath()))->getDetails());
 
         $metadataComparisonKeys = [
             'Creator',
@@ -244,10 +195,10 @@ class PdfTest extends MediaTest
     }
 
     #[Test]
-    #[Depends('ensurePdfDerivativeCanBeDownloaded')]
+    #[Depends('ensureVersionCanBeSet')]
     public function ensurePdfDerivativesArePurged(Version $version)
     {
-        $this->pdfDerivativesDisk->assertExists($version->nonVideoDerivativeFilePath());
+        $this->derivativesDisk->assertExists($version->nonVideoDerivativeFilePath());
 
         $cacheCounterBeforeCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
 
@@ -268,6 +219,6 @@ class PdfTest extends MediaTest
         });
 
         $this->assertTrue(++$cacheCounterBeforeCommand == $cacheCounterAfterCommand);
-        $this->pdfDerivativesDisk->assertMissing($version->nonVideoDerivativeFilePath());
+        $this->derivativesDisk->assertMissing($version->nonVideoDerivativeFilePath());
     }
 }
