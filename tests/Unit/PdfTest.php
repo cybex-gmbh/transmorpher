@@ -3,6 +3,7 @@
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
 use App\Enums\MediaStorage;
+use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
 use App\Models\Media;
 use App\Models\Version;
@@ -22,6 +23,7 @@ class PdfTest extends MediaTest
     protected const IDENTIFIER = 'testPdf';
     protected const PDF_NAME = 'document.pdf';
     protected Filesystem $pdfDerivativesDisk;
+    protected ResponseState $versionSetSuccessful = ResponseState::DOCUMENT_VERSION_SET;
 
     protected function setUp(): void
     {

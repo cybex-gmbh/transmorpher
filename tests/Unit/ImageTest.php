@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
 use App\Enums\MediaStorage;
+use App\Enums\ResponseState;
 use App\Enums\Transformation;
 use App\Exceptions\InvalidTransformationFormatException;
 use App\Exceptions\InvalidTransformationValueException;
@@ -34,6 +35,7 @@ class ImageTest extends MediaTest
     protected Version $version;
     protected Media $media;
     protected UploadSlot $uploadSlot;
+    protected ResponseState $versionSetSuccessful = ResponseState::IMAGE_VERSION_SET;
 
     protected function setUp(): void
     {
@@ -113,6 +115,38 @@ class ImageTest extends MediaTest
         $getDerivativeResponse = $this->get(route('getImageDerivative', [$this->user->name, $version->Media]));
 
         $getDerivativeResponse->assertNotFound();
+    }
+
+    #[Test]
+    #[Depends('ensureImageCanBeUploaded')]
+    public function ensureVersionCanBeSet(Version $version) {
+        $setVersionResponse = $this->patchJson(route('v1.setVersion', [$version->Media, $version]));
+        $setVersionResponse->assertOk();
+        $setVersionResponse->assertJsonFragment(['state' => $this->versionSetSuccessful->getState()->value, 'message' => $this->versionSetSuccessful->getMessage()]);
+
+        $setVersion = $version->Media->Versions()->firstWhere('number', $setVersionResponse->json('version'));
+        $this->assertModelExists($setVersion);
+        $this->assertNotEquals($setVersion, $version);
+        $this->assertEquals($setVersion->filename, $version->filename);
+
+        return $setVersion;
+    }
+
+    #[Test]
+    #[Depends('ensureVersionCanBeSet')]
+    public function ensureDeletingAVersionDoesNotDeleteOriginalFileIfAVersionPointingToThisFileStillExists(Version $version)
+    {
+        $originalVersion = $version->Media->Versions()->where('filename', $version->filename)->oldest()->first();
+
+        $this->assertNotEquals($version->id, $originalVersion->id);
+
+        $this->originalsDisk->assertExists($version->originalFilePath());
+        $this->originalsDisk->assertExists($originalVersion->originalFilePath());
+        $this->assertEquals($this->originalsDisk->path($version->originalFilePath()), $this->originalsDisk->path($originalVersion->originalFilePath()));
+
+        $version->delete();
+
+        $this->originalsDisk->assertExists($originalVersion->originalFilePath());
     }
 
     protected function assertVersionFilesExist(Version $version): void

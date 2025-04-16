@@ -31,6 +31,7 @@ class VideoTest extends MediaTest
     protected const IDENTIFIER = 'testVideo';
     protected const VIDEO_NAME = 'video.mp4';
     protected Filesystem $videoDerivativesDisk;
+    protected ResponseState $versionSetSuccessful = ResponseState::VIDEO_VERSION_SET;
 
     protected function setUp(): void
     {
@@ -132,6 +133,31 @@ class VideoTest extends MediaTest
         $this->videoDerivativesDisk->assertExists($media->videoDerivativeFilePath('mp4') . '.mp4');
         $this->videoDerivativesDisk->assertExists($media->videoDerivativeFilePath('hls') . '.m3u8');
         $this->videoDerivativesDisk->assertExists($media->videoDerivativeFilePath('dash') . '.mpd');
+    }
+
+    #[Test]
+    public function ensureVersionCanBeSet()
+    {
+        Queue::fake();
+        $uploadResponse = $this->uploadVideo();
+        Queue::assertPushed(Transcode::getJobClass());
+
+        $media = Media::whereIdentifier($uploadResponse['identifier'])->first();
+        $version = $media->Versions()->whereNumber($uploadResponse['version'])->first();
+
+        Queue::fake();
+        $setVersionResponse = $this->patchJson(route('v1.setVersion', [$media, $version]));
+        Queue::assertPushed(Transcode::getJobClass());
+
+        $setVersionResponse->assertOk();
+        $setVersionResponse->assertJsonFragment(['state' => $this->versionSetSuccessful->getState()->value, 'message' => $this->versionSetSuccessful->getMessage()]);
+
+        $setVersion = $version->Media->Versions()->firstWhere('number', $setVersionResponse->json('version'));
+        $this->assertModelExists($setVersion);
+        $this->assertNotEquals($setVersion, $version);
+        $this->assertEquals($setVersion->filename, $version->filename);
+
+        return $setVersion;
     }
 
     #[Test]
