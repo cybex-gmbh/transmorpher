@@ -206,23 +206,24 @@ class PdfTest extends MediaTest
         $derivativeMetadata = array_filter($pdfParser->parseFile($this->pdfDerivativesDisk->path($version->nonVideoDerivativeFilePath()))->getDetails());
 
         $metadataComparisonKeys = [
-            'CreationDate',
-            'Subject',
-            'Author',
             'Creator',
-            'Producer',
             'ModDate',
+            'CreationDate',
+            'Producer',
+            'Subject',
+            'CustomMetadata',
+            'Author',
             'Title',
-            'pdf:producer',
-            'xap:creatortool',
-            'xap:modifydate',
-            'xap:createdate',
-            'xap:metadatadate',
-            'dc:title',
-            'dc:creator',
-            'dc:description',
-            'xapmm:documentid',
-            'xapmm:instanceid',
+            "xmp:createdate",
+            "xmp:creatortool",
+            "xmp:modifydate",
+            "xmp:metadatadate",
+            "dc:description",
+            "dc:title",
+            "dc:creator",
+            "pdf:producer",
+            "xmpmm:documentid",
+            "xmpmm:instanceid",
         ];
 
         foreach ($metadataComparisonKeys as $key) {
