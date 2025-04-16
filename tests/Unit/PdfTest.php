@@ -124,7 +124,15 @@ class PdfTest extends MediaTest
     {
         $response = $this->getDerivative($version, $transformations);
 
-        $expectedContentType = (is_callable($expectedContentType) ? $expectedContentType() : $expectedContentType) === 'image/jpg' ? 'image/jpeg' : $expectedContentType;
+        if (is_callable($expectedContentType)) {
+            // The requested image format is taken from the config, where the default is configured.
+            $expectedContentType = $expectedContentType();
+
+            if ($expectedContentType === 'image/jpg') {
+                // Our configuration options and the enum expect 'jpg', but the Content-Type header uses 'jpeg'.
+                $expectedContentType = 'image/jpeg';
+            }
+        }
 
         $response->assertStatus($expectedStatusCode);
         $response->assertHeader('Content-Type', $expectedContentType);
