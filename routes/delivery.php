@@ -17,5 +17,5 @@ use Illuminate\Support\Facades\Route;
 // Image
 Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::IMAGE->prefix()), [ImageController::class, 'get'])->name('getImageDerivative');
 
-// PDF
+// Document
 Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::DOCUMENT->prefix()), [DocumentController::class, 'get'])->name('getDocumentDerivative');
