@@ -83,10 +83,10 @@ enum MediaType: string
      *
      * @throws Exception
      */
-    public function getDefaultExtension(array $transformations = null): string
+    public function getDefaultExtension(string $originalFileExtension, array $transformations = null): string
     {
         return match ($this) {
-            self::DOCUMENT => $transformations ? config('transmorpher.document_default_image_format') : 'document',
+            self::DOCUMENT => $transformations ? config('transmorpher.document_default_image_format') : $originalFileExtension,
             default => throw new Exception('Not available for this media type'),
         };
     }

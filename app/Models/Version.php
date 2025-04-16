@@ -70,7 +70,7 @@ class Version extends Model
 
         if (($derivativesDisk = $this->Media->type->handler()->getDerivativesDisk()) === MediaStorage::VIDEO_DERIVATIVES->getDisk()) {
             // Video derivatives may not be deleted here, otherwise failed jobs would delete the only existing video derivative.
-           return;
+            return;
         }
 
         $derivativesDisk->deleteDirectory($this->nonVideoDerivativeDirectoryPath());
@@ -140,7 +140,8 @@ class Version extends Model
             $transformations[Transformation::QUALITY->value] ?? '',
             $transformations[Transformation::PAGE->value] ?? '',
             $derivativeHash,
-            $transformations[Transformation::FORMAT->value] ?? ($mediaType->usesOriginalFileExtension() ? $originalFileExtension : $mediaType->getDefaultExtension($transformations))
+            $transformations[Transformation::FORMAT->value] ??
+            ($mediaType->usesOriginalFileExtension() ? $originalFileExtension : $mediaType->getDefaultExtension($originalFileExtension, $transformations))
         );
     }
 
