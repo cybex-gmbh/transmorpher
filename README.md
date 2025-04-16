@@ -1,6 +1,6 @@
 # Transmorpher Media Server
 
-A media server for images, pdf and videos.
+A media server for images, pdfs and videos.
 
 > For a client implementation for Laravel
 > see [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client).
