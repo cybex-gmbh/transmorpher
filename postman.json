@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "38e2ce41-6cb8-41ca-934f-e83f47f51d6a",
+		"_postman_id": "0f2e7811-dd7b-49e6-9640-b15de1d929a8",
 		"name": "Transmorpher Server API v1",
 		"description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -2240,7 +2240,7 @@
 			]
 		},
 		{
-			"name": "PDF",
+			"name": "Document",
 			"item": [
 				{
 					"name": "Reserve upload slot: OK",
@@ -2259,7 +2259,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Obtained pdf upload token\", function () {\r",
+									"pm.test(\"Obtained document upload token\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(jsonData.state).to.eql('initializing');\r",
@@ -2268,7 +2268,7 @@
 									"/* {\r",
 									"    \"state\": 'initializing',\r",
 									"    \"message\": \"Successfully created upload slot.\",\r",
-									"    \"identifier\": \"postmanTestPdf\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
 									"    \"upload_token\": \"6464b7e2f0928\"\r",
 									"} */\r",
 									""
@@ -2294,24 +2294,24 @@
 							"formdata": [
 								{
 									"key": "identifier",
-									"value": "{{pdfIdentifier}}",
+									"value": "{{documentIdentifier}}",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{domain}}/api/v1/pdf/reserveUploadSlot",
+							"raw": "{{domain}}/api/v1/document/reserveUploadSlot",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"pdf",
+								"document",
 								"reserveUploadSlot"
 							]
 						},
-						"description": "Providing the auth token, the client reserves an upload slot for an PDF identifier. This action of the client backend secures the transaction, allowing the frontend to upload the PDF to the Transmorpher media server directly."
+						"description": "Providing the auth token, the client reserves an upload slot for a document identifier. This action of the client backend secures the transaction, allowing the frontend to upload the document to the Transmorpher media server directly."
 					},
 					"response": []
 				},
@@ -2322,7 +2322,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"PDF upload rejected: File has wrong mime type\", function () {\r",
+									"pm.test(\"Document upload rejected: File has wrong mime type\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    console.log(jsonData);\r",
 									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
@@ -2374,13 +2374,13 @@
 								},
 								{
 									"key": "identifier",
-									"value": "{{pdfIdentifier}}",
+									"value": "{{documentIdentifier}}",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{domain}}/api/v1/upload/{{pdfUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{documentUploadToken}}",
 							"host": [
 								"{{domain}}"
 							],
@@ -2388,7 +2388,7 @@
 								"api",
 								"v1",
 								"upload",
-								"{{pdfUploadToken}}"
+								"{{documentUploadToken}}"
 							]
 						}
 					},
@@ -2401,19 +2401,19 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"PDF uploaded\", function () {\r",
+									"pm.test(\"Document uploaded\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('success');\r",
 									"    pm.expect(pm.response.code).to.equal(201);\r",
-									"    pm.collectionVariables.set('currentPdfVersion', jsonData.version);\r",
-									"    console.log('set currentPdfVersion to: ' + pm.collectionVariables.get('currentPdfVersion'));\r",
+									"    pm.collectionVariables.set('currentDocumentVersion', jsonData.version);\r",
+									"    console.log('set currentDocumentVersion to: ' + pm.collectionVariables.get('currentDocumentVersion'));\r",
 									"});\r",
 									"/* {\r",
 									"    \"state\": 'success',\r",
-									"    \"message\": \"Successfully uploaded new pdf version.\",\r",
-									"    \"identifier\": \"postmanTestPdf\",\r",
+									"    \"message\": \"Successfully uploaded new document version.\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
 									"    \"version\": 1,\r",
-									"    \"public_path\": \"pdfs/postman/postmanTestPdf\",\r",
+									"    \"public_path\": \"documents/postman/postmanTestDocument\",\r",
 									"    \"upload_token\": \"6464a87163b5a\",\r",
 									"    \"hash\": \"db36a07353dd308635fb54a5443f7277\"\r",
 									"} */\r",
@@ -2455,13 +2455,13 @@
 								},
 								{
 									"key": "identifier",
-									"value": "{{pdfIdentifier}}",
+									"value": "{{documentIdentifier}}",
 									"type": "text"
 								}
 							]
 						},
 						"url": {
-							"raw": "{{domain}}/api/v1/upload/{{pdfUploadToken}}",
+							"raw": "{{domain}}/api/v1/upload/{{documentUploadToken}}",
 							"host": [
 								"{{domain}}"
 							],
@@ -2469,10 +2469,10 @@
 								"api",
 								"v1",
 								"upload",
-								"{{pdfUploadToken}}"
+								"{{documentUploadToken}}"
 							]
 						},
-						"description": "Providing the correct upload slot token for the PDF identifier, the client frontend can upload the PDF to the Transmorpher media server. The answer of this call contains the public URL where the PDF will be available immediatly after upload."
+						"description": "Providing the correct upload slot token for the document identifier, the client frontend can upload the document to the Transmorpher media server. The answer of this call contains the public URL where the document will be available immediatly after upload."
 					},
 					"response": []
 				},
@@ -2483,7 +2483,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Received default PDF derivative\", function() {\r",
+									"pm.test(\"Received default document derivative\", function() {\r",
 									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"embed\");\r",
 									"    pm.expect(pm.response.contentInfo().contentType).to.be.equal(\"application/pdf\");\r",
@@ -2502,17 +2502,17 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{domain}}/pdfs/{{user}}/{{pdfIdentifier}}",
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
-								"pdfs",
+								"documents",
 								"{{user}}",
-								"{{pdfIdentifier}}"
+								"{{documentIdentifier}}"
 							]
 						},
-						"description": "Requesting a PDF without any transformations will return the whole PDF document. Metadata is removed from the document."
+						"description": "Requesting a document without any transformations will return the whole document. Metadata is removed from the document."
 					},
 					"response": []
 				},
@@ -2523,7 +2523,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Received image PDF derivative\", function() {\r",
+									"pm.test(\"Received image document derivative\", function() {\r",
 									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
 									"});\r",
@@ -2541,18 +2541,18 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{domain}}/pdfs/{{user}}/{{pdfIdentifier}}/p-1",
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/p-1",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
-								"pdfs",
+								"documents",
 								"{{user}}",
-								"{{pdfIdentifier}}",
+								"{{documentIdentifier}}",
 								"p-1"
 							]
 						},
-						"description": "Requesting a PDF with transformations will convert the PDF file to an image. By specifiying the 'p' transformation, a specific page can be selected for the generated image."
+						"description": "Requesting a document with transformations will convert the document file to an image. By specifiying the 'p' transformation, a specific page can be selected for the generated image."
 					},
 					"response": []
 				},
@@ -2580,14 +2580,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{domain}}/pdfs/{{user}}/{{pdfIdentifier}}/p-999999",
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/p-999999",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
-								"pdfs",
+								"documents",
 								"{{user}}",
-								"{{pdfIdentifier}}",
+								"{{documentIdentifier}}",
 								"p-999999"
 							]
 						}
@@ -2601,7 +2601,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Received PNG image PDF derivative\", function() {\r",
+									"pm.test(\"Received PNG image document derivative\", function() {\r",
 									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/png\");\r",
 									"});\r",
@@ -2619,18 +2619,18 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{domain}}/pdfs/{{user}}/{{pdfIdentifier}}/q-1+f-png",
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/q-1+f-png",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
-								"pdfs",
+								"documents",
 								"{{user}}",
-								"{{pdfIdentifier}}",
+								"{{documentIdentifier}}",
 								"q-1+f-png"
 							]
 						},
-						"description": "Transformations can be applied to PDF images as usual."
+						"description": "Transformations can be applied to document images as usual."
 					},
 					"response": []
 				},
@@ -2641,7 +2641,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Received original pdf\", function() {\r",
+									"pm.test(\"Received original document\", function() {\r",
 									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"embed\");\r",
 									"    pm.expect(pm.response.contentInfo().contentType).to.be.equal(\"application/pdf\");\r",
@@ -2672,17 +2672,17 @@
 							}
 						],
 						"url": {
-							"raw": "{{domain}}/api/v1/pdf/{{pdfIdentifier}}/version/{{currentPdfVersion}}/original",
+							"raw": "{{domain}}/api/v1/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/original",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"pdf",
-								"{{pdfIdentifier}}",
+								"document",
+								"{{documentIdentifier}}",
 								"version",
-								"{{currentPdfVersion}}",
+								"{{currentDocumentVersion}}",
 								"original"
 							]
 						}
@@ -2726,17 +2726,17 @@
 							}
 						],
 						"url": {
-							"raw": "{{domain}}/api/v1/pdf/{{pdfIdentifier}}/version/{{currentPdfVersion}}/derivative",
+							"raw": "{{domain}}/api/v1/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"pdf",
-								"{{pdfIdentifier}}",
+								"document",
+								"{{documentIdentifier}}",
 								"version",
-								"{{currentPdfVersion}}",
+								"{{currentDocumentVersion}}",
 								"derivative"
 							]
 						}
@@ -2779,17 +2779,17 @@
 							}
 						],
 						"url": {
-							"raw": "{{domain}}/api/v1/pdf/{{pdfIdentifier}}/version/{{currentPdfVersion}}/derivative/p-1",
+							"raw": "{{domain}}/api/v1/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative/p-1",
 							"host": [
 								"{{domain}}"
 							],
 							"path": [
 								"api",
 								"v1",
-								"pdf",
-								"{{pdfIdentifier}}",
+								"document",
+								"{{documentIdentifier}}",
 								"version",
-								"{{currentPdfVersion}}",
+								"{{currentDocumentVersion}}",
 								"derivative",
 								"p-1"
 							]
@@ -2814,7 +2814,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"PDF versions retrieved\", function () {\r",
+									"pm.test(\"Document versions retrieved\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('success');\r",
 									"    pm.expect(pm.response.code).to.equal(200);\r",
@@ -2822,7 +2822,7 @@
 									"/* {\r",
 									"    \"state\": 'success',\r",
 									"    \"message\": \"Successfully retrieved version numbers.\",\r",
-									"    \"identifier\": \"postmanTestPdf\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
 									"    \"currentVersion\": 3,\r",
 									"    \"currentlyProcessedVersion\": 3,\r",
 									"    \"versions\": {\r",
@@ -2847,7 +2847,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{domain}}/api/v1/media/{{pdfIdentifier}}/versions",
+							"raw": "{{domain}}/api/v1/media/{{documentIdentifier}}/versions",
 							"host": [
 								"{{domain}}"
 							],
@@ -2855,7 +2855,7 @@
 								"api",
 								"v1",
 								"media",
-								"{{pdfIdentifier}}",
+								"{{documentIdentifier}}",
 								"versions"
 							]
 						}
@@ -2869,17 +2869,17 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"PDF version set\", function () {\r",
+									"pm.test(\"Document version set\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('success');\r",
 									"    pm.expect(pm.response.code).to.equal(200);\r",
 									"});\r",
 									"/* {\r",
 									"    \"state\": \"success\",\r",
-									"    \"message\": \"Successfully set pdf version.\",\r",
-									"    \"identifier\": \"postmanTestPdf\",\r",
+									"    \"message\": \"Successfully set document version.\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
 									"    \"version\": 2,\r",
-									"    \"public_path\": \"pdf/postman/postmanTestPdf\",\r",
+									"    \"public_path\": \"document/postman/postmanTestDocument\",\r",
 									"    \"upload_token\": \"66885feb496fe\",\r",
 									"    \"hash\": \"021881ce82531c8a30d6db156e49635a\"\r",
 									"} */\r",
@@ -2919,7 +2919,7 @@
 							]
 						},
 						"url": {
-							"raw": "{{domain}}/api/v1/media/{{pdfIdentifier}}/version/{{currentPdfVersion}}",
+							"raw": "{{domain}}/api/v1/media/{{documentIdentifier}}/version/{{currentDocumentVersion}}",
 							"host": [
 								"{{domain}}"
 							],
@@ -2927,9 +2927,9 @@
 								"api",
 								"v1",
 								"media",
-								"{{pdfIdentifier}}",
+								"{{documentIdentifier}}",
 								"version",
-								"{{currentPdfVersion}}"
+								"{{currentDocumentVersion}}"
 							]
 						}
 					},
@@ -2942,7 +2942,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"PDF deleted\", function () {\r",
+									"pm.test(\"Document deleted\", function () {\r",
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.state).to.eql('deleted');\r",
 									"    pm.expect(pm.response.code).to.equal(200);\r",
@@ -2950,12 +2950,12 @@
 									"/* {\r",
 									"    \"state\": 'deleted',\r",
 									"    \"response\": \"Successfully deleted media.\",\r",
-									"    \"identifier\": \"postmanTestPdf\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
 									"} */\r",
-									"pm.test(\"PDF not found after deletion\", function () {\r",
+									"pm.test(\"Document not found after deletion\", function () {\r",
 									"    pm.sendRequest(\r",
 									"        {\r",
-									"            url: pm.collectionVariables.get(\"domain\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"pdfIdentifier\") + \"/versions\",\r",
+									"            url: pm.collectionVariables.get(\"domain\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"documentIdentifier\") + \"/versions\",\r",
 									"            method: \"GET\",\r",
 									"            header: {\r",
 									"                \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -3003,7 +3003,7 @@
 							"formdata": []
 						},
 						"url": {
-							"raw": "{{domain}}/api/v1/media/{{pdfIdentifier}}",
+							"raw": "{{domain}}/api/v1/media/{{documentIdentifier}}",
 							"host": [
 								"{{domain}}"
 							],
@@ -3011,14 +3011,14 @@
 								"api",
 								"v1",
 								"media",
-								"{{pdfIdentifier}}"
+								"{{documentIdentifier}}"
 							]
 						}
 					},
 					"response": []
 				}
 			],
-			"description": "The Transmorpher Media server treats PDFs in realtime. As soon as a PDF is uploaded, it is available for download. PDF transformations are created when they are requested.",
+			"description": "The Transmorpher Media server treats documents in realtime. As soon as a document is uploaded, it is available for download. Document transformations are created when they are requested.",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -3028,7 +3028,7 @@
 						"exec": [
 							"pm.sendRequest(\r",
 							"    {\r",
-							"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/pdf/reserveUploadSlot\",\r",
+							"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/document/reserveUploadSlot\",\r",
 							"        method: \"POST\",\r",
 							"        header: {\r",
 							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
@@ -3039,15 +3039,15 @@
 							"            \"mode\": \"application/json\",\r",
 							"            \"raw\": JSON.stringify(\r",
 							"                {\r",
-							"                    'identifier': pm.collectionVariables.get(\"pdfIdentifier\")\r",
+							"                    'identifier': pm.collectionVariables.get(\"documentIdentifier\")\r",
 							"                }\r",
 							"            )\r",
 							"        }\r",
 							"    }, function (err, response) {\r",
 							"        var jsonData = response.json();\r",
 							"        console.log(jsonData);\r",
-							"        pm.collectionVariables.set('pdfUploadToken', jsonData.upload_token);\r",
-							"        console.log('set pdfUploadToken to: ' + pm.collectionVariables.get('pdfUploadToken'));\r",
+							"        pm.collectionVariables.set('documentUploadToken', jsonData.upload_token);\r",
+							"        console.log('set documentUploadToken to: ' + pm.collectionVariables.get('documentUploadToken'));\r",
 							"        console.log('-------------------------------------------')\r",
 							"    }\r",
 							");\r",
@@ -4505,13 +4505,13 @@
 			"type": "string"
 		},
 		{
-			"key": "pdfUploadToken",
+			"key": "documentUploadToken",
 			"value": "exampleUploadToken",
 			"type": "string"
 		},
 		{
-			"key": "pdfIdentifier",
-			"value": "postmanTestPdf",
+			"key": "documentIdentifier",
+			"value": "postmanTestDocument",
 			"type": "string"
 		},
 		{
@@ -4530,7 +4530,7 @@
 			"type": "string"
 		},
 		{
-			"key": "currentPdfVersion",
+			"key": "currentDocumentVersion",
 			"value": "5",
 			"type": "string"
 		},
