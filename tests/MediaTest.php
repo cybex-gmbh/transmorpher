@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Enums\MediaStorage;
+use App\Enums\ResponseState;
 use App\Models\User;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Laravel\Sanctum\Sanctum;
@@ -12,6 +13,7 @@ class MediaTest extends TestCase
 {
     protected User $user;
     protected Filesystem $originalsDisk;
+    protected ResponseState $versionSetSuccessful;
 
     protected function setUp(): void
     {
