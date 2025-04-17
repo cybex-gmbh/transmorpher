@@ -54,6 +54,7 @@ class Transform implements TransformInterface
 
             $imagick->setResolution($ppi, $ppi);
             $imagick->readImage(sprintf('%s[%d]', $tempFile, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
+            $imagick = $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
         } catch (ImagickException) {
             // Assuming an error happened because the requested page does not exist, we throw a custom exception.
             throw new DocumentPageDoesNotExistException($transformations[Transformation::PAGE->value]);
