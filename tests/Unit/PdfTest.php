@@ -28,6 +28,7 @@ class PdfTest extends MediaTest
         parent::setUp();
 
         $this->pdfDerivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::DOCUMENT_DERIVATIVES->value)));
+        Config::set('transmorpher.document_remove_metadata', true);
     }
 
     protected function reserveUploadSlot(): TestResponse
@@ -224,6 +225,28 @@ class PdfTest extends MediaTest
                 $this->assertArrayNotHasKey($key, $derivativeMetadata);
             }
         }
+    }
+
+    #[Test]
+    #[Depends('ensurePdfMetadataIsRemoved')]
+    public function ensurePdfMetadataIsKept()
+    {
+        Config::set('transmorpher.document_remove_metadata', false);
+
+        $reserveUploadSlotResponse = $this->reserveUploadSlot();
+        $uploadResponse = $this->uploadPdf($reserveUploadSlotResponse->json('upload_token'));
+        $media = Media::whereIdentifier(self::IDENTIFIER)->first();
+        $version = $media->Versions()->whereNumber($uploadResponse['version'])->first();
+        $this->getDerivative($version);
+
+        $config = new PdfParserConfig();
+        $config->setRetainImageContent(false);
+        $pdfParser = new Parser([], $config);
+
+        $originalMetadata = $pdfParser->parseFile($this->originalsDisk->path($version->originalFilePath()))->getDetails();
+        $derivativeMetadata = $pdfParser->parseFile($this->pdfDerivativesDisk->path($version->nonVideoDerivativeFilePath()))->getDetails();
+
+        $this->assertEquals($originalMetadata, $derivativeMetadata);
     }
 
     /**
