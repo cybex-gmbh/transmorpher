@@ -34,6 +34,7 @@ return [
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
         'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
+        'documentDerivatives' =>  env('TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES', 'localDocumentDerivatives'),
         'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 
@@ -70,13 +71,44 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Document Default Image Format
+    |--------------------------------------------------------------------------
+    |
+    | Defines the default image format for Documents if no format transformation is specified.
+    | Check the ImageFormat enum for available formats.
+    |
+    */
+    'document_default_image_format' => 'jpg',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Document Remove Metadata
+    |--------------------------------------------------------------------------
+    |
+    | Defines whether the metadata of documents should be removed.
+    |
+    */
+    'document_remove_metadata' => env('TRANSMORPHER_DOCUMENT_REMOVE_METADATA', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Document Remove Metadata
+    |--------------------------------------------------------------------------
+    |
+    | Defines whether the metadata of documents should be removed.
+    |
+    */
+    'document_default_ppi' => env('TRANSMORPHER_DOCUMENT_DEFAULT_PPI', 300),
+
+    /*
+    |--------------------------------------------------------------------------
     | Transcode Class
     |--------------------------------------------------------------------------
     |
     | The class which is used for transcoding videos.
     |
     | Available Transcode classes:
-    | -  Transcode (uses FFmpeg and Laravel Queue for transcoding)
+    | - Transcode (uses FFmpeg and Laravel Queue for transcoding)
     |
     */
     'transcode_class' => App\Classes\Transcode::class,
@@ -167,6 +199,7 @@ return [
     */
     'media_handlers' => [
         'image' => App\Classes\MediaHandler\ImageHandler::class,
+        'document' => App\Classes\MediaHandler\DocumentHandler::class,
         'video' => App\Classes\MediaHandler\VideoHandler::class
     ],
 

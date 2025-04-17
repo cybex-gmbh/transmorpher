@@ -13,6 +13,8 @@ enum Transformation: string
     case WIDTH = 'w';
     case HEIGHT = 'h';
     case FORMAT = 'f';
+    case PAGE = 'p';
+    case PPI = 'ppi';
     case QUALITY = 'q';
 
     /**
@@ -24,9 +26,11 @@ enum Transformation: string
     {
         $valid = match ($this) {
             self::WIDTH,
-            self::HEIGHT => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]),
+            self::HEIGHT,
+            self::PAGE,
+            self::PPI => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]),
             self::FORMAT => in_array($value, ImageFormat::getFormats(), true),
-            self::QUALITY => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100]])
+            self::QUALITY => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100]]),
         };
 
         if (!$valid) {

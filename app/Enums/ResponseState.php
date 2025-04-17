@@ -8,6 +8,8 @@ enum ResponseState: string
     case DELETION_SUCCESSFUL = 'deletion_successful';
     case IMAGE_UPLOAD_SUCCESSFUL = 'image_upload_successful';
     case IMAGE_VERSION_SET = 'image_version_set';
+    case DOCUMENT_UPLOAD_SUCCESSFUL = 'document_upload_successful';
+    case DOCUMENT_VERSION_SET = 'document_version_set';
     case TRANSCODING_ABORTED = 'transcoding_aborted';
     case TRANSCODING_FAILED = 'transcoding_failed';
     case TRANSCODING_JOB_DISPATCH_FAILED = 'transcoding_job_dispatch_failed';
@@ -25,14 +27,16 @@ enum ResponseState: string
     public function getState(): UploadState
     {
         return match ($this) {
-            ResponseState::DELETION_SUCCESSFUL => UploadState::DELETED,
-            ResponseState::IMAGE_UPLOAD_SUCCESSFUL,
-            ResponseState::TRANSCODING_SUCCESSFUL,
-            ResponseState::VERSIONS_RETRIEVED,
-            ResponseState::IMAGE_VERSION_SET => UploadState::SUCCESS,
-            ResponseState::UPLOAD_SLOT_CREATED => UploadState::INITIALIZING,
-            ResponseState::VIDEO_UPLOAD_SUCCESSFUL,
-            ResponseState::VIDEO_VERSION_SET => UploadState::PROCESSING,
+            self::DELETION_SUCCESSFUL => UploadState::DELETED,
+            self::IMAGE_UPLOAD_SUCCESSFUL,
+            self::IMAGE_VERSION_SET,
+            self::DOCUMENT_UPLOAD_SUCCESSFUL,
+            self::DOCUMENT_VERSION_SET,
+            self::TRANSCODING_SUCCESSFUL,
+            self::VERSIONS_RETRIEVED => UploadState::SUCCESS,
+            self::UPLOAD_SLOT_CREATED => UploadState::INITIALIZING,
+            self::VIDEO_UPLOAD_SUCCESSFUL,
+            self::VIDEO_VERSION_SET => UploadState::PROCESSING,
             default => UploadState::ERROR,
         };
     }

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "50dcf20c-b9c1-4f5c-8fcd-2e161aff5e2e",
+		"_postman_id": "0f2e7811-dd7b-49e6-9640-b15de1d929a8",
 		"name": "Transmorpher Server API v1",
 		"description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -2240,6 +2240,834 @@
 			]
 		},
 		{
+			"name": "Document",
+			"item": [
+				{
+					"name": "Reserve upload slot: OK",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Obtained document upload token\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(jsonData.state).to.eql('initializing');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": 'initializing',\r",
+									"    \"message\": \"Successfully created upload slot.\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
+									"    \"upload_token\": \"6464b7e2f0928\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "identifier",
+									"value": "{{documentIdentifier}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/document/reserveUploadSlot",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"reserveUploadSlot"
+							]
+						},
+						"description": "Providing the auth token, the client reserves an upload slot for a document identifier. This action of the client backend secures the transaction, allowing the frontend to upload the document to the Transmorpher media server directly."
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: Wrong mime type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Document upload rejected: File has wrong mime type\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    console.log(jsonData);\r",
+									"    pm.expect(pm.response.json().errors).to.have.property(\"file\");\r",
+									"    pm.expect(pm.response.code).to.equal(422);\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"The file must be a file of type: application/pdf.\",\r",
+									"    \"errors\": {\r",
+									"        \"file\": [\r",
+									"            \"The file must be a file of type: application/pdf.\"\r",
+									"        ]\r",
+									"    }\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Windows/System32/FeatureToastBulldogImg.png"
+								},
+								{
+									"key": "identifier",
+									"value": "{{documentIdentifier}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{documentUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{documentUploadToken}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Document uploaded\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.state).to.eql('success');\r",
+									"    pm.expect(pm.response.code).to.equal(201);\r",
+									"    pm.collectionVariables.set('currentDocumentVersion', jsonData.version);\r",
+									"    console.log('set currentDocumentVersion to: ' + pm.collectionVariables.get('currentDocumentVersion'));\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": 'success',\r",
+									"    \"message\": \"Successfully uploaded new document version.\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
+									"    \"version\": 1,\r",
+									"    \"public_path\": \"documents/postman/postmanTestDocument\",\r",
+									"    \"upload_token\": \"6464a87163b5a\",\r",
+									"    \"hash\": \"db36a07353dd308635fb54a5443f7277\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "identifier",
+									"value": "{{documentIdentifier}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/upload/{{documentUploadToken}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"upload",
+								"{{documentUploadToken}}"
+							]
+						},
+						"description": "Providing the correct upload slot token for the document identifier, the client frontend can upload the document to the Transmorpher media server. The answer of this call contains the public URL where the document will be available immediatly after upload."
+					},
+					"response": []
+				},
+				{
+					"name": "Download (default): OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received default document derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"embed\");\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.be.equal(\"application/pdf\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"documents",
+								"{{user}}",
+								"{{documentIdentifier}}"
+							]
+						},
+						"description": "Requesting a document without any transformations will return the whole document. Metadata is removed from the document."
+					},
+					"response": []
+				},
+				{
+					"name": "Download page 1: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received image document derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/p-1",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"documents",
+								"{{user}}",
+								"{{documentIdentifier}}",
+								"p-1"
+							]
+						},
+						"description": "Requesting a document with transformations will convert the document file to an image. By specifiying the 'p' transformation, a specific page can be selected for the generated image."
+					},
+					"response": []
+				},
+				{
+					"name": "Download page 999999: nonexistent page",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Retrieving derivative failed: requested page does not exist\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(400);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/p-999999",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"documents",
+								"{{user}}",
+								"{{documentIdentifier}}",
+								"p-999999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download as PNG, low quality: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received PNG image document derivative\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.equal(\"image/png\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/q-1+f-png",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"documents",
+								"{{user}}",
+								"{{documentIdentifier}}",
+								"q-1+f-png"
+							]
+						},
+						"description": "Transformations can be applied to document images as usual."
+					},
+					"response": []
+				},
+				{
+					"name": "Download specific Version original: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received original document\", function() {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"embed\");\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.be.equal(\"application/pdf\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/original",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"{{documentIdentifier}}",
+								"version",
+								"{{currentDocumentVersion}}",
+								"original"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download specific Version derivative: OK",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received derivative for specific version\", function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"embed\");\r",
+									"    pm.expect(pm.response.contentInfo().contentType).to.be.equal(\"application/pdf\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"{{documentIdentifier}}",
+								"version",
+								"{{currentDocumentVersion}}",
+								"derivative"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download specific Version derivative image: OK",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Received derivative for specific version\", function () {\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"    pm.expect(pm.response.contentInfo().mimeType).to.be.equal(\"image\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative/p-1",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"{{documentIdentifier}}",
+								"version",
+								"{{currentDocumentVersion}}",
+								"derivative",
+								"p-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Versions: OK Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Document versions retrieved\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.state).to.eql('success');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": 'success',\r",
+									"    \"message\": \"Successfully retrieved version numbers.\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
+									"    \"currentVersion\": 3,\r",
+									"    \"currentlyProcessedVersion\": 3,\r",
+									"    \"versions\": {\r",
+									"        \"1\": 1720201274,\r",
+									"        \"2\": 1720205610,\r",
+									"        \"3\": 1720208565\r",
+									"    },\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{domain}}/api/v1/media/{{documentIdentifier}}/versions",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"media",
+								"{{documentIdentifier}}",
+								"versions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Restore old Version: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Document version set\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.state).to.eql('success');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": \"success\",\r",
+									"    \"message\": \"Successfully set document version.\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
+									"    \"version\": 2,\r",
+									"    \"public_path\": \"document/postman/postmanTestDocument\",\r",
+									"    \"upload_token\": \"66885feb496fe\",\r",
+									"    \"hash\": \"021881ce82531c8a30d6db156e49635a\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "_method",
+									"value": "patch",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/media/{{documentIdentifier}}/version/{{currentDocumentVersion}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"media",
+								"{{documentIdentifier}}",
+								"version",
+								"{{currentDocumentVersion}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete: OK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Document deleted\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.state).to.eql('deleted');\r",
+									"    pm.expect(pm.response.code).to.equal(200);\r",
+									"});\r",
+									"/* {\r",
+									"    \"state\": 'deleted',\r",
+									"    \"response\": \"Successfully deleted media.\",\r",
+									"    \"identifier\": \"postmanTestDocument\",\r",
+									"} */\r",
+									"pm.test(\"Document not found after deletion\", function () {\r",
+									"    pm.sendRequest(\r",
+									"        {\r",
+									"            url: pm.collectionVariables.get(\"domain\") + \"/api/v1/media/\" + pm.collectionVariables.get(\"documentIdentifier\") + \"/versions\",\r",
+									"            method: \"GET\",\r",
+									"            header: {\r",
+									"                \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+									"                \"Accept\": \"application/json\",\r",
+									"                \"Content-Type\": \"application/json\"\r",
+									"            }\r",
+									"        }, function (err, response) {\r",
+									"            var jsonData = response.json();\r",
+									"            console.log(jsonData);\r",
+									"            pm.expect(response.code).to.eql(404);\r",
+									"            pm.expect(jsonData.message).to.eql(\"Requested Media couldn't be found.\");\r",
+									"        }\r",
+									"    );\r",
+									"});\r",
+									"/* {\r",
+									"    \"message\": \"Requested Media couldn't be found.\"\r",
+									"} */\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{domain}}/api/v1/media/{{documentIdentifier}}",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"media",
+								"{{documentIdentifier}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "The Transmorpher Media server treats documents in realtime. As soon as a document is uploaded, it is available for download. Document transformations are created when they are requested.",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.sendRequest(\r",
+							"    {\r",
+							"        url: pm.collectionVariables.get(\"domain\") + \"/api/v1/document/reserveUploadSlot\",\r",
+							"        method: \"POST\",\r",
+							"        header: {\r",
+							"            \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"authToken\"),\r",
+							"            \"Accept\": \"application/json\",\r",
+							"            \"Content-Type\": \"application/json\"\r",
+							"        },\r",
+							"        body: {\r",
+							"            \"mode\": \"application/json\",\r",
+							"            \"raw\": JSON.stringify(\r",
+							"                {\r",
+							"                    'identifier': pm.collectionVariables.get(\"documentIdentifier\")\r",
+							"                }\r",
+							"            )\r",
+							"        }\r",
+							"    }, function (err, response) {\r",
+							"        var jsonData = response.json();\r",
+							"        console.log(jsonData);\r",
+							"        pm.collectionVariables.set('documentUploadToken', jsonData.upload_token);\r",
+							"        console.log('set documentUploadToken to: ' + pm.collectionVariables.get('documentUploadToken'));\r",
+							"        console.log('-------------------------------------------')\r",
+							"    }\r",
+							");\r",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
 			"name": "Video",
 			"item": [
 				{
@@ -3677,6 +4505,16 @@
 			"type": "string"
 		},
 		{
+			"key": "documentUploadToken",
+			"value": "exampleUploadToken",
+			"type": "string"
+		},
+		{
+			"key": "documentIdentifier",
+			"value": "postmanTestDocument",
+			"type": "string"
+		},
+		{
 			"key": "videoUploadToken",
 			"value": "exampleUploadToken",
 			"type": "string"
@@ -3688,6 +4526,11 @@
 		},
 		{
 			"key": "currentImageVersion",
+			"value": "5",
+			"type": "string"
+		},
+		{
+			"key": "currentDocumentVersion",
 			"value": "5",
 			"type": "string"
 		},
