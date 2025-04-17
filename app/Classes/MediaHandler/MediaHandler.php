@@ -8,6 +8,7 @@ use App\Enums\ResponseState;
 use App\Interfaces\MediaHandlerInterface;
 use CdnHelper;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Log;
 use Throwable;
 
 abstract class MediaHandler implements MediaHandlerInterface
@@ -36,7 +37,8 @@ abstract class MediaHandler implements MediaHandlerInterface
         if (CdnHelper::isConfigured()) {
             try {
                 CdnHelper::invalidateMedia($this->type, $basePath);
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                Log::error(sprintf('CDN invalidation failed for basepath %s: %s', $basePath, $throwable->getMessage()));
                 return false;
             }
         }

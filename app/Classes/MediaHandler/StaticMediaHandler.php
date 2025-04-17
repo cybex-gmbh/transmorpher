@@ -33,23 +33,6 @@ abstract class StaticMediaHandler extends MediaHandler
     }
 
     /**
-     * @param string $basePath
-     * @return bool
-     */
-    public function invalidateCdnCache(string $basePath): bool
-    {
-        if (CdnHelper::isConfigured()) {
-            try {
-                CdnHelper::invalidateMedia($this->type, $basePath);
-            } catch (Throwable) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * @param User $user
      * @param Version $version
      * @param int $oldVersionNumber
