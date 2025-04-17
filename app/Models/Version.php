@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use Arr;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -120,12 +121,12 @@ class Version extends Model
 
     /**
      * Get the path to an (existing) image derivative.
-     * Path structure: {username}/{identifier}/{versionKey}/{width}x_{height}y_{quality}q_{derivativeHash}.{format}
+     * Path structure with all transformations applied: {username}/{identifier}/{versionKey}/{width}w_{height}h_{quality}q_{page}p_{ppi}ppi_{derivativeHash}.{format}
      *
      * @param array|null $transformations
      * @return string
      */
-    public function nonVideoDerivativeFilePath(array $transformations = null): string
+    public function nonVideoDerivativeFilePath(?array $transformations = null): string
     {
         $mediaType = $this->Media->type;
         $originalFileExtension = pathinfo($this->filename, PATHINFO_EXTENSION);
@@ -133,12 +134,13 @@ class Version extends Model
         // Hash of transformation parameters and version number to identify already generated derivatives.
         $derivativeHash = hash('sha256', json_encode($transformations) . $this->getKey());
 
-        return sprintf('%s/%sx_%sy_%sq_%sp_%s.%s',
+        return sprintf('%s/%s_%s.%s',
             $this->nonVideoDerivativeDirectoryPath(),
-            $transformations[Transformation::WIDTH->value] ?? '',
-            $transformations[Transformation::HEIGHT->value] ?? '',
-            $transformations[Transformation::QUALITY->value] ?? '',
-            $transformations[Transformation::PAGE->value] ?? '',
+            implode('_',
+                Arr::mapWithKeys(Arr::except($transformations ?? [], Transformation::FORMAT->value),
+                    function($value, $key) { return [sprintf('%s%s', $value, $key)]; }
+                )
+            ),
             $derivativeHash,
             $transformations[Transformation::FORMAT->value] ??
             ($mediaType->usesOriginalFileExtension() ? $originalFileExtension : $mediaType->getDefaultExtension($originalFileExtension, $transformations))

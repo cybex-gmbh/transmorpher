@@ -50,8 +50,9 @@ class Transform implements TransformInterface
         try {
             $imagick = new Imagick();
 
-            // 300 DPI, might make this a transformation
-            $imagick->setResolution(300, 300);
+            $ppi = $transformations[Transformation::PPI->value] ?? config('transmorpher.document_default_ppi');
+
+            $imagick->setResolution($ppi, $ppi);
             $imagick->readImage(sprintf('%s[%d]', $tempFile, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
         } catch (ImagickException) {
             // Assuming an error happened because the requested page does not exist, we throw a custom exception.
