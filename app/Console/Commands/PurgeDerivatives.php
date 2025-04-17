@@ -41,7 +41,7 @@ class PurgeDerivatives extends Command
 
         foreach (MediaType::cases() as $mediaType) {
             if ($this->option('all') || $this->option($mediaType->value)) {
-                ['success' => $success, 'message' => $message] = $mediaType->handler()->purgeDerivatives();
+                ['success' => $success, 'message' => $message] = $mediaType->handler()->deleteDerivatives();
                 $success ? $this->info($message) : $this->error($message);
             }
         }

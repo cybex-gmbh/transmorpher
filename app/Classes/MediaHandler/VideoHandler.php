@@ -86,7 +86,7 @@ class VideoHandler extends MediaHandler
     /**
      * @return array
      */
-    public function purgeDerivatives(): array
+    public function deleteDerivatives(): array
     {
         $failedMediaIds = [];
 

@@ -78,7 +78,7 @@ abstract class StaticMediaHandler extends MediaHandler
     /**
      * @return array
      */
-    public function purgeDerivatives(): array
+    public function deleteDerivatives(): array
     {
         $success = $this->getDerivativesDisk()->deleteDirectory('');
 

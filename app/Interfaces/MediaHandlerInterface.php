@@ -46,7 +46,7 @@ interface MediaHandlerInterface
     /**
      * @return array
      */
-    public function purgeDerivatives(): array;
+    public function deleteDerivatives(): array;
 
     /**
      * @param Version $version
