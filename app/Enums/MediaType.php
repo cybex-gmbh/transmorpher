@@ -48,14 +48,19 @@ enum MediaType: string
     }
 
     /**
-     * Get whether this media needs exhaustive invalidation for the CDN:
+     * Get whether this media needs multiple paths invalidated:
      * - <identifier>,
      * - <identifier>/,
      * - <identifier>/*
      *
+     * If not, only '<identifier>/*' is invalidated.
+     *
+     * Images and documents may be requested without transformations.
+     * These paths also need to be invalidated.
+     *
      * @return bool
      */
-    public function needsExhaustiveCdnInvalidation(): bool
+    public function needsNonTransformationPathsInvalidated(): bool
     {
         return match ($this) {
             self::IMAGE,
@@ -83,7 +88,7 @@ enum MediaType: string
      *
      * @throws Exception
      */
-    public function getDefaultExtension(string $originalFileExtension, array $transformations = null): string
+    public function getDefaultExtension(string $originalFileExtension, ?array $transformations = null): string
     {
         return match ($this) {
             self::DOCUMENT => $transformations ? config('transmorpher.document_default_image_format') : $originalFileExtension,
