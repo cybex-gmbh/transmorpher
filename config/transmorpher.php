@@ -82,6 +82,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Document Remove Metadata
+    |--------------------------------------------------------------------------
+    |
+    | Defines whether the metadata of documents should be removed.
+    |
+    */
+    'document_remove_metadata' => env('TRANSMORPHER_DOCUMENT_REMOVE_METADATA', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Transcode Class
     |--------------------------------------------------------------------------
     |
