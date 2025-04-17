@@ -209,36 +209,96 @@ class PdfTest extends MediaTest
         $config->setRetainImageContent(false);
         $pdfParser = new Parser([], $config);
 
-        // Empty values are filtered for easier comparison.
-        $originalMetadata = array_filter($pdfParser->parseFile($this->originalsDisk->path($version->originalFilePath()))->getDetails());
-        $derivativeMetadata = array_filter($pdfParser->parseFile($this->pdfDerivativesDisk->path($version->nonVideoDerivativeFilePath()))->getDetails());
+        $originalMetadata = $pdfParser->parseFile($this->originalsDisk->path($version->originalFilePath()))->getDetails();
+        $derivativeMetadata = $pdfParser->parseFile($this->pdfDerivativesDisk->path($version->nonVideoDerivativeFilePath()))->getDetails();
 
-        $metadataComparisonKeys = [
-            'Creator',
-            'ModDate',
-            'CreationDate',
-            'Producer',
-            'Subject',
-            'CustomMetadata',
-            'Author',
-            'Title',
-            "xmp:createdate",
-            "xmp:creatortool",
-            "xmp:modifydate",
-            "xmp:metadatadate",
-            "dc:description",
-            "dc:title",
-            "dc:creator",
-            "pdf:producer",
-            "xmpmm:documentid",
-            "xmpmm:instanceid",
-        ];
+        $metadataExpectationArray = $this->getMetadataExpectationArray();
 
-        foreach ($metadataComparisonKeys as $key) {
-            array_key_exists($key, $originalMetadata)
-            && array_key_exists($key, $derivativeMetadata)
-            && $this->assertNotEquals($originalMetadata[$key], $derivativeMetadata[$key]);
+        foreach ($metadataExpectationArray as $key => $expected) {
+            $this->assertArrayHasKey($key, $originalMetadata);
+
+            if ($expected['isPresent']) {
+                $this->assertNotEquals($derivativeMetadata[$key], $originalMetadata[$key]);
+                $this->assertMatchesRegularExpression($expected['regex'], $derivativeMetadata[$key]);
+            } else {
+                $this->assertArrayNotHasKey($key, $derivativeMetadata);
+            }
         }
+    }
+
+    /**
+     * @return array
+     */
+    protected function getMetadataExpectationArray(): array
+    {
+        return [
+            'Creator' => [
+                'isPresent' => false,
+            ],
+            'ModDate' => [
+                'isPresent' => true,
+                'regex' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/'
+            ],
+            'CreationDate' => [
+                'isPresent' => true,
+                'regex' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/'
+            ],
+            'Producer' => [
+                'isPresent' => true,
+                'regex' => '/^TCPDF/'
+            ],
+            'Subject' => [
+                'isPresent' => false,
+            ],
+            'CustomMetadata' => [
+                'isPresent' => false,
+            ],
+            'Author' => [
+                'isPresent' => false,
+            ],
+            'Title' => [
+                'isPresent' => false,
+            ],
+            "xmp:createdate" => [
+                'isPresent' => true,
+                'regex' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/'
+            ],
+            "xmp:creatortool" => [
+                'isPresent' => false,
+            ],
+            "xmp:modifydate" => [
+                'isPresent' => true,
+                'regex' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/'
+            ],
+            "xmp:metadatadate" => [
+                'isPresent' => true,
+                'regex' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/'
+            ],
+            "dc:description" => [
+                'isPresent' => true,
+                'regex' => '//'
+            ],
+            "dc:title" => [
+                'isPresent' => true,
+                'regex' => '//'
+            ],
+            "dc:creator" => [
+                'isPresent' => true,
+                'regex' => '//'
+            ],
+            "pdf:producer" => [
+                'isPresent' => true,
+                'regex' => '/^TCPDF/'
+            ],
+            "xmpmm:documentid" => [
+                'isPresent' => true,
+                'regex' => '/^uuid:/'
+            ],
+            "xmpmm:instanceid" => [
+                'isPresent' => true,
+                'regex' => '/^uuid:/'
+            ],
+        ];
     }
 
     #[Test]

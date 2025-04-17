@@ -377,7 +377,14 @@ transformations.
 
 ## PDF handling
 
-Requesting a PDF file will return the document with removed metadata.
+Requesting a PDF file will return the document.
+You can optionally remove the PDF metadata, by setting the .env key: 
+
+```dotenv
+TRANSMORPHER_DOCUMENT_REMOVE_METADATA=true
+```
+
+
 When transformations are specified, an image of a page will be returned.
 
 All image transformations mentioned in the above section also apply to PDF image derivatives.

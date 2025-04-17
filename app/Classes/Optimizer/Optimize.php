@@ -42,6 +42,10 @@ class Optimize
      */
     public function removeDocumentMetadata(string $derivative): string
     {
+        if (!config('transmorpher.document_remove_metadata')) {
+            return $derivative;
+        }
+
         $tempFile = $this->getTemporaryFile($derivative);
         $pdfMerge = new PdfMerge();
 
