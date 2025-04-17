@@ -44,7 +44,7 @@ class Delivery
         }
 
         $derivativesDisk = $mediaType->handler()->getDerivativesDisk();
-        $derivativePath = $version->nonVideoDerivativeFilePath($transformationsArray);
+        $derivativePath = $version->onDemandDerivativeFilePath($transformationsArray);
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $derivativesDisk->exists($derivativePath)) {

@@ -11,7 +11,7 @@ use App\Models\Version;
 use Optimize;
 use Transform;
 
-class ImageHandler extends StaticMediaHandler
+class ImageHandler extends OnDemandDerivativeMediaHandler
 {
     protected MediaType $type = MediaType::IMAGE;
     protected MediaStorage $derivativesStorage = MediaStorage::IMAGE_DERIVATIVES;

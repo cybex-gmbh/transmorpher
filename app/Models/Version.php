@@ -74,7 +74,7 @@ class Version extends Model
             return;
         }
 
-        $derivativesDisk->deleteDirectory($this->nonVideoDerivativeDirectoryPath());
+        $derivativesDisk->deleteDirectory($this->onDemandDerivativeDirectoryPath());
     }
 
     /**
@@ -120,13 +120,13 @@ class Version extends Model
     }
 
     /**
-     * Get the path to an (existing) image derivative.
+     * Get the path to an (existing) on demand derivative.
      * Path structure with all transformations applied: {username}/{identifier}/{versionKey}/{width}w_{height}h_{quality}q_{page}p_{ppi}ppi_{derivativeHash}.{format}
      *
      * @param array|null $transformations
      * @return string
      */
-    public function nonVideoDerivativeFilePath(?array $transformations = null): string
+    public function onDemandDerivativeFilePath(?array $transformations = null): string
     {
         $mediaType = $this->Media->type;
         $originalFileExtension = pathinfo($this->filename, PATHINFO_EXTENSION);
@@ -135,7 +135,7 @@ class Version extends Model
         $derivativeHash = hash('sha256', json_encode($transformations) . $this->getKey());
 
         return sprintf('%s/%s_%s.%s',
-            $this->nonVideoDerivativeDirectoryPath(),
+            $this->onDemandDerivativeDirectoryPath(),
             implode('_',
                 Arr::mapWithKeys(Arr::except($transformations ?? [], Transformation::FORMAT->value),
                     function($value, $key) { return [sprintf('%s%s', $value, $key)]; }
@@ -148,12 +148,12 @@ class Version extends Model
     }
 
     /**
-     * Get the path to the directory of an image derivative version.
+     * Get the path to the directory of an on demand derivative version.
      * Path structure: {username}/{identifier}/{versionKey}
      *
      * @return string
      */
-    public function nonVideoDerivativeDirectoryPath(): string
+    public function onDemandDerivativeDirectoryPath(): string
     {
         return sprintf('%s/%s', $this->Media->baseDirectory(), $this->getKey());
     }

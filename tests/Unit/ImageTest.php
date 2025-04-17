@@ -118,7 +118,7 @@ class ImageTest extends MediaTest
     protected function assertVersionFilesExist(Version $version): void
     {
         $this->originalsDisk->assertExists($version->originalFilePath());
-        $this->imageDerivativesDisk->assertExists($version->nonVideoDerivativeFilePath());
+        $this->imageDerivativesDisk->assertExists($version->onDemandDerivativeFilePath());
     }
 
     protected function assertMediaDirectoryExists(Media $media): void
@@ -135,7 +135,7 @@ class ImageTest extends MediaTest
     protected function assertVersionFilesMissing(Version $version): void
     {
         $this->originalsDisk->assertMissing($version->originalFilePath());
-        $this->imageDerivativesDisk->assertMissing($version->nonVideoDerivativeFilePath());
+        $this->imageDerivativesDisk->assertMissing($version->onDemandDerivativeFilePath());
     }
 
     protected function assertMediaDirectoryMissing(Media $media): void
@@ -215,7 +215,7 @@ class ImageTest extends MediaTest
         });
 
         $this->assertTrue(++$cacheCounterBeforeCommand == $cacheCounterAfterCommand);
-        $this->imageDerivativesDisk->assertMissing($this->version->nonVideoDerivativeFilePath());
+        $this->imageDerivativesDisk->assertMissing($this->version->onDemandDerivativeFilePath());
     }
 
     #[Test]
