@@ -384,13 +384,20 @@ You can optionally remove the PDF metadata, by setting the .env key:
 TRANSMORPHER_DOCUMENT_REMOVE_METADATA=true
 ```
 
-
 When transformations are specified, an image of a page will be returned.
 
 All image transformations mentioned in the above section also apply to PDF image derivatives.
 Requesting a PDF also follows the same URL structure as images, just replace `images` with `documents`.
 
-Additionally, the page which should be used as image can be specified with the `p` transformation. Otherwise, the first page will be used.
+The page which should be used as image can be specified with the `p` transformation.
+Otherwise, the first page will be used.
+
+Additionally, the pixels per inch of the generated image can be specified with the `ppi` transformation. By default, 300 ppi is used. Use the .env key to specify another default:
+
+```dotenv
+TRANSMORPHER_DOCUMENT_DEFAULT_PPI=100
+```
+
 
 For example:
 
