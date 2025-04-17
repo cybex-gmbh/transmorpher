@@ -11,7 +11,7 @@ use App\Models\Version;
 use Optimize;
 use Transform;
 
-class DocumentHandler extends StaticMediaHandler
+class DocumentHandler extends OnDemandDerivativeMediaHandler
 {
     protected MediaType $type = MediaType::DOCUMENT;
     protected MediaStorage $derivativesStorage = MediaStorage::DOCUMENT_DERIVATIVES;

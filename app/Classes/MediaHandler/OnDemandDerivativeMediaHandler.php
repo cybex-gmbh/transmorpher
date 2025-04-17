@@ -7,10 +7,8 @@ use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
-use CdnHelper;
-use Throwable;
 
-abstract class StaticMediaHandler extends MediaHandler
+abstract class OnDemandDerivativeMediaHandler extends MediaHandler
 {
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, Version $version): ResponseState
     {
@@ -19,10 +17,10 @@ abstract class StaticMediaHandler extends MediaHandler
              * This prevents CDN cache pollution.
              *
              * Explanation:
-             * 1. new version is uploaded
-             * 2. media is requested and new version is delivered
-             * 3. cache invalidation fails, version gets deleted
-             * 4. now nonexistent version is still in the CDN cache
+             * 1. a new version is uploaded
+             * 2. media is requested and the version is delivered
+             * 3. cache invalidation fails, the version gets deleted
+             * 4. now the non-existent version is still in the CDN cache
              */
             $version->update(['processed' => true]);
 

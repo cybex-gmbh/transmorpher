@@ -216,7 +216,7 @@ class PdfTest extends MediaTest
         $pdfParser = new Parser([], $config);
 
         $originalMetadata = $pdfParser->parseFile($this->originalsDisk->path($version->originalFilePath()))->getDetails();
-        $derivativeMetadata = $pdfParser->parseFile($this->pdfDerivativesDisk->path($version->nonVideoDerivativeFilePath()))->getDetails();
+        $derivativeMetadata = $pdfParser->parseFile($this->pdfDerivativesDisk->path($version->onDemandDerivativeFilePath()))->getDetails();
 
         $metadataExpectationArray = $this->getMetadataExpectationArray();
 
@@ -249,7 +249,7 @@ class PdfTest extends MediaTest
         $pdfParser = new Parser([], $config);
 
         $originalMetadata = $pdfParser->parseFile($this->originalsDisk->path($version->originalFilePath()))->getDetails();
-        $derivativeMetadata = $pdfParser->parseFile($this->pdfDerivativesDisk->path($version->nonVideoDerivativeFilePath()))->getDetails();
+        $derivativeMetadata = $pdfParser->parseFile($this->pdfDerivativesDisk->path($version->onDemandDerivativeFilePath()))->getDetails();
 
         $this->assertEquals($originalMetadata, $derivativeMetadata);
     }
@@ -333,7 +333,7 @@ class PdfTest extends MediaTest
     #[Depends('ensurePdfDerivativeCanBeDownloaded')]
     public function ensurePdfDerivativesArePurged(Version $version)
     {
-        $this->pdfDerivativesDisk->assertExists($version->nonVideoDerivativeFilePath());
+        $this->pdfDerivativesDisk->assertExists($version->onDemandDerivativeFilePath());
 
         $cacheCounterBeforeCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
 
@@ -354,6 +354,6 @@ class PdfTest extends MediaTest
         });
 
         $this->assertTrue(++$cacheCounterBeforeCommand == $cacheCounterAfterCommand);
-        $this->pdfDerivativesDisk->assertMissing($version->nonVideoDerivativeFilePath());
+        $this->pdfDerivativesDisk->assertMissing($version->onDemandDerivativeFilePath());
     }
 }
