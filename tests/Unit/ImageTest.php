@@ -319,14 +319,53 @@ class ImageTest extends MediaTest
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
+            'valid_Page' => [
+                'input' => 'p-1',
+                'expectedException' => null,
+                'expectedArray' => [
+                    'p' => 1,
+                ]
+            ],
+
+            'invalid_PageOutOfLowerBound' => [
+                'input' => 'p--12',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalid_PageNonInteger' => [
+                'input' => 'p-aa',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'valid_Ppi' => [
+                'input' => 'ppi-100',
+                'expectedException' => null,
+                'expectedArray' => [
+                    'ppi' => 100,
+                ]
+            ],
+
+            'invalid_PpiOutOfLowerBound' => [
+                'input' => 'ppi--12',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+            'invalid_PpiNonInteger' => [
+                'input' => 'p-aa',
+                'expectedException' => InvalidTransformationValueException::class,
+            ],
+
+
             'valid_Multiple' => [
-                'input' => 'f-png+w-200+h-150+q-35',
+                'input' => 'f-png+w-200+h-150+q-35+p-1+ppi-100',
                 'expectedException' => null,
                 'expectedArray' => [
                     'f' => 'png',
                     'w' => 200,
                     'h' => 150,
                     'q' => 35,
+                    'p' => 1,
+                    'ppi' => 100,
                 ]
             ],
 

@@ -187,6 +187,11 @@ class PdfTest extends MediaTest
                 200,
                 'image/png',
             ],
+            'ppi' => [
+                'ppi-100',
+                200,
+                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
+            ]
         ];
     }
 
