@@ -16,7 +16,7 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
             /**
              * This prevents CDN cache pollution.
              *
-             * Explanation:
+             * Explanation on how pollution would happen:
              * 1. a new version is uploaded
              * 2. media is requested and the version is delivered
              * 3. cache invalidation fails, the version gets deleted
