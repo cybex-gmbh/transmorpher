@@ -81,10 +81,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Document Remove Metadata
+    | Document Default PPI
     |--------------------------------------------------------------------------
     |
-    | Defines whether the metadata of documents should be removed.
+    | Defines the resolution of the image generated from the PDF.
     |
     */
     'document_default_ppi' => env('TRANSMORPHER_DOCUMENT_DEFAULT_PPI', 300),
