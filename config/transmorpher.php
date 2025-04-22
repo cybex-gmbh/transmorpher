@@ -71,17 +71,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Document Default Image Format
-    |--------------------------------------------------------------------------
-    |
-    | Defines the default image format for Documents if no format transformation is specified.
-    | Check the ImageFormat enum for available formats.
-    |
-    */
-    'document_default_image_format' => 'jpg',
-
-    /*
-    |--------------------------------------------------------------------------
     | Document Remove Metadata
     |--------------------------------------------------------------------------
     |

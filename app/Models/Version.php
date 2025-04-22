@@ -142,8 +142,7 @@ class Version extends Model
                 )
             ),
             $derivativeHash,
-            $transformations[Transformation::FORMAT->value] ??
-            ($mediaType->usesOriginalFileExtension() ? $originalFileExtension : $mediaType->getDefaultExtension($originalFileExtension, $transformations))
+            $transformations[Transformation::FORMAT->value] ?? $originalFileExtension,
         );
     }
 

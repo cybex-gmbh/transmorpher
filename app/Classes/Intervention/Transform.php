@@ -62,7 +62,7 @@ class Transform implements TransformInterface
             unlink($tempFile);
         }
 
-        $imagick->setImageFormat(ImageFormat::from(config('transmorpher.document_default_image_format'))->value);
+        $imagick->setImageFormat($transformations[Transformation::FORMAT->value]);
 
         return $this->applyTransformations($imagick->getImageBlob(), $transformations);
     }

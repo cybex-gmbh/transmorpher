@@ -121,18 +121,13 @@ class PdfTest extends MediaTest
     #[Test]
     #[Depends('ensurePdfDerivativeCanBeDownloaded')]
     #[DataProvider('providePdfTransformationStrings')]
-    public function ensurePdfDerivativeImagesCanBeDownloaded(string $transformations, int $expectedStatusCode, callable|string $expectedContentType, Version $version)
+    public function ensurePdfDerivativeImagesCanBeDownloaded(string $transformations, int $expectedStatusCode, string $expectedContentType, Version $version)
     {
         $response = $this->getDerivative($version, $transformations);
 
-        if (is_callable($expectedContentType)) {
-            // The requested image format is taken from the config, where the default is configured.
-            $expectedContentType = $expectedContentType();
-
-            if ($expectedContentType === 'image/jpg') {
-                // Our configuration options and the enum expect 'jpg', but the Content-Type header uses 'jpeg'.
-                $expectedContentType = 'image/jpeg';
-            }
+        if ($expectedContentType === 'image/jpg') {
+            // Our configuration options and the enum expect 'jpg', but the Content-Type header uses 'jpeg'.
+            $expectedContentType = 'image/jpeg';
         }
 
         $response->assertStatus($expectedStatusCode);
@@ -145,17 +140,17 @@ class PdfTest extends MediaTest
             'width' => [
                 'w-100',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
+                'application/pdf',
             ],
             'height' => [
                 'h-100',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
+                'application/pdf',
             ],
             'width and height' => [
                 'w-100+h-100',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
+                'application/pdf',
             ],
             'format png' => [
                 'f-png',
@@ -180,7 +175,7 @@ class PdfTest extends MediaTest
             'page' => [
                 'p-1',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
+                'application/pdf',
             ],
             'page width height format png' => [
                 'p-1+f-png+w-500+h-1000',
@@ -190,7 +185,7 @@ class PdfTest extends MediaTest
             'ppi' => [
                 'ppi-100',
                 200,
-                fn() => sprintf('image/%s', config('transmorpher.document_default_image_format')),
+                'application/pdf',
             ]
         ];
     }

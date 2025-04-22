@@ -68,32 +68,5 @@ enum MediaType: string
             self::VIDEO => false
         };
     }
-
-    /**
-     * Get whether this media type uses its original file extension for derivatives if no explicit format is specified.
-     *
-     * @throws Exception
-     */
-    public function usesOriginalFileExtension(): bool
-    {
-        return match ($this) {
-            self::IMAGE => true,
-            self::DOCUMENT => false,
-            default => throw new Exception('Not available for this media type'),
-        };
-    }
-
-    /**
-     * Get the default extension for this media type, if applicable.
-     *
-     * @throws Exception
-     */
-    public function getDefaultExtension(string $originalFileExtension, ?array $transformations = null): string
-    {
-        return match ($this) {
-            self::DOCUMENT => $transformations ? config('transmorpher.document_default_image_format') : $originalFileExtension,
-            default => throw new Exception('Not available for this media type'),
-        };
-    }
 }
 

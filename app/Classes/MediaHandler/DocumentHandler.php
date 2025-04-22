@@ -35,7 +35,7 @@ class DocumentHandler extends OnDemandDerivativeMediaHandler
      */
     public function applyTransformations(Version $version, ?array $transformationsArray): string
     {
-        if ($transformationsArray) {
+        if ($transformationsArray[Transformation::FORMAT->value] ?? false) {
             try {
                 $derivative = Transform::transform($version->originalFilePath(), $transformationsArray);
             } catch (DocumentPageDoesNotExistException $exception) {
