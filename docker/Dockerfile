@@ -3,7 +3,7 @@ FROM webdevops/php-nginx:8.2
 
 WORKDIR /var/www/html
 
-ENV WEB_DOCUMENT_ROOT /var/www/html/public
+ENV WEB_DOCUMENT_ROOT=/var/www/html/public
 
 # Timeout for the post update script in minutes.
 LABEL com.centurylinklabs.watchtower.lifecycle.post-update-timeout="1440"
@@ -28,13 +28,14 @@ RUN apt update && \
 # Remove imagemagick policy preventing PDF conversion (security issue is fixed with the installed ghostscript version 10)
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 
-## ffmpeg 6 - https://www.deb-multimedia.org/dists/stable/non-free/binary-amd64/
-RUN printf "\ndeb https://www.deb-multimedia.org bookworm main non-free" >> /etc/apt/sources.list \
-    && apt-get update -oAcquire::AllowInsecureRepositories=true \
-    && apt-get -y --allow-unauthenticated install deb-multimedia-keyring \
-    && wget https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2016.8.1_all.deb \
-    && dpkg -i deb-multimedia-keyring_2016.8.1_all.deb \
-    && apt-get -y --allow-unauthenticated install ffmpeg
+## ffmpeg 6 - https://deb-multimedia.org/dists/stable/main/binary-amd64/package/ffmpeg
+RUN echo "Types: deb\nURIs: https://www.deb-multimedia.org\nSuites: bookworm\nComponents: main\nSigned-By: /usr/share/keyrings/deb-multimedia-keyring.pgp\nEnabled: yes" >> /etc/apt/sources.list.d/dmo.sources
+ADD --checksum=sha256:8dc6cbb266c701cfe58bd1d2eb9fe2245a1d6341c7110cfbfe3a5a975dcf97ca \
+ https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2024.9.1_all.deb \
+    deb-multimedia-keyring_2024.9.1_all.deb
+RUN dpkg -i deb-multimedia-keyring_2024.9.1_all.deb \
+    && apt update \
+    && apt -y install ffmpeg
 
 COPY \
     --exclude=./storage \
