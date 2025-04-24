@@ -28,7 +28,7 @@ RUN apt update && \
 # Remove imagemagick policy preventing PDF conversion (security issue is fixed with the installed ghostscript version 10)
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 
-## ffmpeg 6 - https://deb-multimedia.org/dists/stable/main/binary-amd64/package/ffmpeg
+## ffmpeg - https://deb-multimedia.org/dists/stable/main/binary-amd64/package/ffmpeg
 RUN echo "Types: deb\nURIs: https://www.deb-multimedia.org\nSuites: bookworm\nComponents: main\nSigned-By: /usr/share/keyrings/deb-multimedia-keyring.pgp\nEnabled: yes" >> /etc/apt/sources.list.d/dmo.sources
 ADD --checksum=sha256:8dc6cbb266c701cfe58bd1d2eb9fe2245a1d6341c7110cfbfe3a5a975dcf97ca \
  https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2024.9.1_all.deb \
