@@ -16,7 +16,7 @@ enum MediaType: string
      */
     public function handler(): MediaHandlerInterface
     {
-        return app(config(sprintf('transmorpher.media_handlers.%s', $this->value)));
+        return app(sprintf('media-handler.%s', $this->value));
     }
 
     /**

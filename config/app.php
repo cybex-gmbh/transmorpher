@@ -178,6 +178,7 @@ return [
         App\Providers\SqsFifoServiceProvider::class,
         App\Providers\TranscodeServiceProvider::class,
         App\Providers\TransformServiceProvider::class,
+        App\Providers\MediaHandlerServiceProvider::class,
     ])->toArray(),
 
     /*
