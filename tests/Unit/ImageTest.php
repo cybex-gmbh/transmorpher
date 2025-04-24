@@ -82,6 +82,7 @@ class ImageTest extends OnDemandDerivativeMediaTest
         $this->assertEquals($this->originalsDisk->path($version->originalFilePath()), $this->originalsDisk->path($originalVersion->originalFilePath()));
 
         $version->delete();
+        $this->assertModelMissing($version);
 
         $this->originalsDisk->assertExists($originalVersion->originalFilePath());
     }
