@@ -24,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton('optimize', fn(): Optimize => new Optimize());
-        $this->app->singleton('delivery', fn(): Delivery => new Delivery());
+        $this->app->singleton('optimize', Optimize::class);
+        $this->app->singleton('delivery', Delivery::class);
     }
 
     /**
