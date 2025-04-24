@@ -388,26 +388,26 @@ TRANSMORPHER_DOCUMENT_REMOVE_METADATA=true
 
 When an image format transformation is specified, an image of a page will be returned.
 
+By using the `p` transformation, you can specify the page to be exported.
+By default, the first page will be used.
+
 All available image transformations can also be applied to PDF image derivatives.
 Requesting a PDF also follows the same URL structure as images, just replace `images` with `documents`.
 
-The page which should be used as image can be specified with the `p` transformation.
-Otherwise, the first page will be used.
-
 Additionally, the pixels per inch can be specified with the `ppi` transformation.
-This will define the resolution of the image generated from the PDF.
+The ppi will be multiplied with the document dimensions, which results in the image resolution.
 By default, 300 ppi is used.
 Use the `.env` key to specify another default:
 
 ```dotenv
-TRANSMORPHER_DOCUMENT_DEFAULT_PPI=100
+TRANSMORPHER_DOCUMENT_DEFAULT_PPI=600
 ```
 
-For example:
+Example:
 
 Document: `https://transmorpher.test/documents/catworld/cat-essay`
 
-Image of page 5: `https://transmorpher.test/documents/catworld/cat-essay/p-5+w-1920+h-1080`
+Image of page 5: `https://transmorpher.test/documents/catworld/cat-essay/f-jpg+p-5+w-1920+h-1080`
 
 ## Video transcoding
 
