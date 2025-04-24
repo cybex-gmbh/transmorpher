@@ -84,7 +84,7 @@ return [
     | Document Default PPI
     |--------------------------------------------------------------------------
     |
-    | Defines the resolution of the image generated from the PDF.
+    | The PPI will be multiplied with the document dimensions, which results in the image resolution.
     |
     */
     'document_default_ppi' => env('TRANSMORPHER_DOCUMENT_DEFAULT_PPI', 300),
