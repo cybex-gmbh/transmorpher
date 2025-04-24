@@ -25,16 +25,16 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Media $Media
  * @property-read string $hash
- * @method static Builder|Version newModelQuery()
- * @method static Builder|Version newQuery()
- * @method static Builder|Version query()
- * @method static Builder|Version whereCreatedAt($value)
- * @method static Builder|Version whereFilename($value)
- * @method static Builder|Version whereId($value)
- * @method static Builder|Version whereMediaId($value)
- * @method static Builder|Version whereNumber($value)
- * @method static Builder|Version whereProcessed($value)
- * @method static Builder|Version whereUpdatedAt($value)
+ * @method static Builder<static>|Version newModelQuery()
+ * @method static Builder<static>|Version newQuery()
+ * @method static Builder<static>|Version query()
+ * @method static Builder<static>|Version whereCreatedAt($value)
+ * @method static Builder<static>|Version whereFilename($value)
+ * @method static Builder<static>|Version whereId($value)
+ * @method static Builder<static>|Version whereMediaId($value)
+ * @method static Builder<static>|Version whereNumber($value)
+ * @method static Builder<static>|Version whereProcessed($value)
+ * @method static Builder<static>|Version whereUpdatedAt($value)
  * @mixin Eloquent
  */
 class Version extends Model
