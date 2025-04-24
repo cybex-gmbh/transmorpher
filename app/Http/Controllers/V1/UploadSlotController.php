@@ -105,9 +105,15 @@ class UploadSlotController extends Controller
         ], 201);
     }
 
+    /**
+     * This will create a new upload slot, so ongoing uploads/processings are aborted.
+     *
+     * @param User $user
+     * @param array $requestData
+     * @return JsonResponse
+     */
     protected function updateOrCreateUploadSlot(User $user, array $requestData): JsonResponse
     {
-        // Token and valid_until will be set in the 'saving' event.
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $requestData['identifier']], $requestData);
 
         return response()->json([

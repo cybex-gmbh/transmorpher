@@ -47,6 +47,8 @@ class VideoHandler extends MediaHandler
     }
 
     /**
+     * This will create a new upload slot, so ongoing uploads/processings are aborted.
+     *
      * @param User $user
      * @param Version $version
      * @param int $oldVersionNumber
@@ -55,8 +57,6 @@ class VideoHandler extends MediaHandler
      */
     public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array
     {
-        // Token and valid_until will be set in the 'saving' event.
-        // By creating an upload slot, currently active uploading or transcoding will be canceled.
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => MediaType::VIDEO]);
 
         $success = Transcode::createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed);

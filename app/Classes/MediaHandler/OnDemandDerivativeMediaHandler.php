@@ -31,6 +31,8 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
     }
 
     /**
+     * This will create a new upload slot, so ongoing uploads/processings are aborted.
+     *
      * @param User $user
      * @param Version $version
      * @param int $oldVersionNumber
@@ -39,8 +41,6 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
      */
     public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array
     {
-        // Token and valid_until will be set in the 'saving' event.
-        // By creating an upload slot, a currently active upload will be canceled.
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => $this->type]);
 
         if ($this->invalidateCdnCache($version->Media->baseDirectory())) {
