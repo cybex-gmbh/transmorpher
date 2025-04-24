@@ -6,7 +6,6 @@ use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\Transformation;
-use App\Exceptions\DocumentPageDoesNotExistException;
 use App\Models\Version;
 use Optimize;
 use Transform;
@@ -36,11 +35,7 @@ class DocumentHandler extends OnDemandDerivativeMediaHandler
     public function applyTransformations(Version $version, ?array $transformationsArray): string
     {
         if ($transformationsArray[Transformation::FORMAT->value] ?? false) {
-            try {
-                $derivative = Transform::transform($version->originalFilePath(), $transformationsArray);
-            } catch (DocumentPageDoesNotExistException $exception) {
-                abort(400, $exception->getMessage());
-            }
+            $derivative = Transform::transform($version->originalFilePath(), $transformationsArray);
 
             return Optimize::optimize($derivative, $transformationsArray[Transformation::QUALITY->value] ?? null);
         }

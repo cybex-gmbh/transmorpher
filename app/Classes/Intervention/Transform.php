@@ -12,6 +12,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use InterventionImage;
 use Imagick;
 use ImagickException;
+use Log;
 
 class Transform implements TransformInterface
 {
@@ -47,21 +48,22 @@ class Transform implements TransformInterface
         $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
         file_put_contents($tempFile, $fileData);
 
+        $ppi = $transformations[Transformation::PPI->value] ?? config('transmorpher.document_default_ppi');
+        $imagick = new Imagick();
+        $imagick->setResolution($ppi, $ppi);
+
         try {
-            $imagick = new Imagick();
-
-            $ppi = $transformations[Transformation::PPI->value] ?? config('transmorpher.document_default_ppi');
-
-            $imagick->setResolution($ppi, $ppi);
             $imagick->readImage(sprintf('%s[%d]', $tempFile, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
-            $imagick = $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
-        } catch (ImagickException) {
+        } catch (ImagickException $exception) {
+            Log::error($exception->getMessage());
+
             // Assuming an error happened because the requested page does not exist, we throw a custom exception.
             throw new DocumentPageDoesNotExistException($transformations[Transformation::PAGE->value]);
         } finally {
             unlink($tempFile);
         }
 
+        $imagick = $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
         $imagick->setImageFormat($transformations[Transformation::FORMAT->value]);
 
         return $this->applyTransformations($imagick->getImageBlob(), $transformations);
