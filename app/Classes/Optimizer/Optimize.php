@@ -5,6 +5,7 @@ namespace App\Classes\Optimizer;
 use App\Enums\ImageFormat;
 use Exception;
 use Karriere\PdfMerge\PdfMerge;
+use Log;
 
 class Optimize
 {
@@ -21,14 +22,19 @@ class Optimize
     {
         $tempFile = $this->getTemporaryFile($fileData);
 
-        // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
-        ImageFormat::fromMimeType(mime_content_type($tempFile))->getOptimizer()->optimize($tempFile, $quality);
+        try {
+            // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
+            ImageFormat::fromMimeType(mime_content_type($tempFile))->getOptimizer()->optimize($tempFile, $quality);
+            $fileData = file_get_contents($tempFile);
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage());
 
-        $fileData = file_get_contents($tempFile);
+            throw $exception;
+        } finally {
+            unlink($tempFile);
+        }
 
         if ($fileData === false) {
-            unlink($tempFile);
-
             throw new Exception('Failed to read the optimized image.');
         }
 
