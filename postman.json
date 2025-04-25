@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "07be8241-6c02-4758-b8ed-f0e867c7c50b",
+		"_postman_id": "81f57155-db51-4ac7-b8bb-cf4dc5335fce",
 		"name": "Transmorpher Server API v1",
-		"description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
+		"description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n    \n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n    \n- use the provided auth token and adjust the \"authToken\" variable\n    \n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n- to run the document queries, set a local PDF file in the \"Upload: OK\" call.\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "24082093"
+		"_exporter_id": "25831362"
 	},
 	"item": [
 		{
@@ -2512,7 +2512,7 @@
 								"{{documentIdentifier}}"
 							]
 						},
-						"description": "Requesting a document without any transformations will return the whole document. Depending on the media server configuration metadata might be removed from the document."
+						"description": "Requesting a document without any transformations will return the whole document. Depending on the media server configuration, the document metadata can be removed from the document."
 					},
 					"response": []
 				},
@@ -2798,7 +2798,7 @@
 					"response": []
 				},
 				{
-					"name": "List Versions: OK Copy",
+					"name": "List Versions: OK",
 					"event": [
 						{
 							"listen": "prerequest",
