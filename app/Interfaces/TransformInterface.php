@@ -5,7 +5,7 @@ namespace App\Interfaces;
 interface TransformInterface
 {
     /**
-     * Transmorph image based on specified transformations.
+     * Transform image based on specified transformations.
      *
      * @param string $pathToOriginalImage
      * @param array|null $transformations

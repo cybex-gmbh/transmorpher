@@ -35,9 +35,9 @@ class DocumentHandler extends OnDemandDerivativeMediaHandler
     public function applyTransformations(Version $version, ?array $transformationsArray): string
     {
         if ($transformationsArray[Transformation::FORMAT->value] ?? false) {
-            $derivative = Transform::transform($version->originalFilePath(), $transformationsArray);
+            $derivativeFileData = Transform::transform($version->originalFilePath(), $transformationsArray);
 
-            return Optimize::optimize($derivative, $transformationsArray[Transformation::QUALITY->value] ?? null);
+            return Optimize::optimize($derivativeFileData, $transformationsArray[Transformation::QUALITY->value] ?? null);
         }
 
         return Optimize::removeDocumentMetadata(MediaStorage::ORIGINALS->getDisk()->get($version->originalFilePath()));

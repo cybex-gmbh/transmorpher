@@ -141,12 +141,4 @@ class Transform implements TransformInterface
     {
         return ImageFormat::from($format)->getConverter()->encode($image, $format, $quality);
     }
-
-    /**
-     * @return string[]
-     */
-    public function getSupportedFormats(): array
-    {
-        return ImageFormat::getFormats();
-    }
 }

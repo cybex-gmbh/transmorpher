@@ -12,41 +12,41 @@ class Optimize
      * Optimize an image derivative.
      * Creates a temporary file since image optimizers only work locally.
      *
-     * @param string $derivative
+     * @param string $fileData
      * @param int|null $quality
      * @return string
      * @throws Exception
      */
-    public function optimize(string $derivative, int $quality = null): string
+    public function optimize(string $fileData, int $quality = null): string
     {
-        $tempFile = $this->getTemporaryFile($derivative);
+        $tempFile = $this->getTemporaryFile($fileData);
 
         // Optimizes the image based on optimizers configured in 'config/image-optimizer.php'.
         ImageFormat::fromMimeType(mime_content_type($tempFile))->getOptimizer()->optimize($tempFile, $quality);
 
-        $derivative = file_get_contents($tempFile);
+        $fileData = file_get_contents($tempFile);
 
-        if ($derivative === false) {
+        if ($fileData === false) {
             unlink($tempFile);
 
             throw new Exception('Failed to read the optimized image.');
         }
 
-        return $derivative;
+        return $fileData;
     }
 
     /**
-     * @param string $derivative
+     * @param string $fileData
      * @return string
      * @throws Exception
      */
-    public function removeDocumentMetadata(string $derivative): string
+    public function removeDocumentMetadata(string $fileData): string
     {
         if (!config('transmorpher.document_remove_metadata')) {
-            return $derivative;
+            return $fileData;
         }
 
-        $tempFile = $this->getTemporaryFile($derivative);
+        $tempFile = $this->getTemporaryFile($fileData);
         $pdfMerge = new PdfMerge();
 
         try {
@@ -62,13 +62,13 @@ class Optimize
     }
 
     /**
-     * @param string $derivative
+     * @param string $fileData
      * @return false|string
      */
-    protected function getTemporaryFile(string $derivative): string|false
+    protected function getTemporaryFile(string $fileData): string|false
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
-        file_put_contents($tempFile, $derivative);
+        file_put_contents($tempFile, $fileData);
 
         return $tempFile;
     }
