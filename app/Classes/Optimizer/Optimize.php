@@ -53,9 +53,9 @@ class Optimize
             $pdfMerge->add($tempFile);
             $pdfData = $pdfMerge->merge('', 'S');
         } catch (Exception $exception) {
-            unlink($tempFile);
-
             throw $exception;
+        } finally {
+            unlink($tempFile);
         }
 
         return $pdfData;
