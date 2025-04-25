@@ -30,6 +30,10 @@ class Transform implements TransformInterface
         $mimeType = mime_content_type($fileHandle);
         $fileData = stream_get_contents($fileHandle);
 
+        if (!$transformations) {
+            return $fileData;
+        }
+
         return match ($mimeType) {
             'application/pdf' => $this->pdfToImage($fileData, $transformations),
             default => $this->applyTransformations($fileData, $transformations),
@@ -92,10 +96,6 @@ class Transform implements TransformInterface
      */
     protected function applyTransformations(string $imageData, ?array $transformations = null): string
     {
-        if (!$transformations) {
-            return $imageData;
-        }
-
         $image = InterventionImage::make($imageData);
 
         $width   = $transformations[Transformation::WIDTH->value] ?? $image->getWidth();
