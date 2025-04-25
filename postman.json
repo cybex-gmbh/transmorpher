@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0f2e7811-dd7b-49e6-9640-b15de1d929a8",
+		"_postman_id": "07be8241-6c02-4758-b8ed-f0e867c7c50b",
 		"name": "Transmorpher Server API v1",
 		"description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n- use the provided auth token and adjust the \"authToken\" variable\n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -2512,12 +2512,12 @@
 								"{{documentIdentifier}}"
 							]
 						},
-						"description": "Requesting a document without any transformations will return the whole document. Metadata is removed from the document."
+						"description": "Requesting a document without any transformations will return the whole document. Depending on the media server configuration metadata might be removed from the document."
 					},
 					"response": []
 				},
 				{
-					"name": "Download page 1: OK",
+					"name": "Download as JPG page 1: Ok",
 					"event": [
 						{
 							"listen": "test",
@@ -2541,7 +2541,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/p-1",
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/f-jpg+p-1",
 							"host": [
 								"{{domain}}"
 							],
@@ -2549,10 +2549,10 @@
 								"documents",
 								"{{user}}",
 								"{{documentIdentifier}}",
-								"p-1"
+								"f-jpg+p-1"
 							]
 						},
-						"description": "Requesting a document with transformations will convert the document file to an image. By specifiying the 'p' transformation, a specific page can be selected for the generated image."
+						"description": "Requesting a document with an image transformation will convert the document file to an image. By specifiying the 'p' transformation, a specific page can be selected for the generated image."
 					},
 					"response": []
 				},
@@ -2580,7 +2580,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/p-999999",
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/f-jpg+p-999999",
 							"host": [
 								"{{domain}}"
 							],
@@ -2588,7 +2588,7 @@
 								"documents",
 								"{{user}}",
 								"{{documentIdentifier}}",
-								"p-999999"
+								"f-jpg+p-999999"
 							]
 						}
 					},
@@ -2619,7 +2619,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/q-1+f-png",
+							"raw": "{{domain}}/documents/{{user}}/{{documentIdentifier}}/f-png+q-1",
 							"host": [
 								"{{domain}}"
 							],
@@ -2627,7 +2627,7 @@
 								"documents",
 								"{{user}}",
 								"{{documentIdentifier}}",
-								"q-1+f-png"
+								"f-png+q-1"
 							]
 						},
 						"description": "Transformations can be applied to document images as usual."
@@ -2779,7 +2779,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{domain}}/api/v1/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative/p-1",
+							"raw": "{{domain}}/api/v1/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative/f-jpg+p-1",
 							"host": [
 								"{{domain}}"
 							],
@@ -2791,7 +2791,7 @@
 								"version",
 								"{{currentDocumentVersion}}",
 								"derivative",
-								"p-1"
+								"f-jpg+p-1"
 							]
 						}
 					},
