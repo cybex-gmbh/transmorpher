@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
 use App\Enums\MediaStorage;
+use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\Transformation;
 use App\Exceptions\InvalidTransformationFormatException;
@@ -30,7 +31,7 @@ class ImageTest extends OnDemandDerivativeMediaTest
     protected string $identifier = 'testImage';
     protected string $mediaName = 'image.jpg';
     protected ResponseState $versionSetSuccessful = ResponseState::IMAGE_VERSION_SET;
-    protected string $reserveUploadSlotRouteName = 'v1.reserveImageUploadSlot';
+    protected MediaType $mediaType = MediaType::IMAGE;
 
     protected string $uploadToken;
     protected Version $version;
@@ -41,7 +42,7 @@ class ImageTest extends OnDemandDerivativeMediaTest
     {
         parent::setUp();
 
-        $this->derivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::IMAGE_DERIVATIVES->value)));
+        $this->derivativesDisk ??= Storage::persistentFake(MediaStorage::IMAGE_DERIVATIVES->getDiskName());
         $this->mediaFile = UploadedFile::fake()->image($this->mediaName);
     }
 

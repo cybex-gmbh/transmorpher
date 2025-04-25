@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
 use App\Enums\MediaStorage;
+use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
 use App\Jobs\ClientPurgeNotification;
@@ -30,13 +31,13 @@ class VideoTest extends MediaTest
     protected string $identifier = 'testVideo';
     protected string $mediaName = 'video.mp4';
     protected ResponseState $versionSetSuccessful = ResponseState::VIDEO_VERSION_SET;
-    protected string $reserveUploadSlotRouteName = 'v1.reserveVideoUploadSlot';
+    protected MediaType $mediaType = MediaType::VIDEO;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->derivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::VIDEO_DERIVATIVES->value)));
+        $this->derivativesDisk ??= Storage::persistentFake(MediaStorage::VIDEO_DERIVATIVES->getDiskName());
     }
 
     protected function uploadVideo(): TestResponse

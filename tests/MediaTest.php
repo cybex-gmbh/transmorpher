@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Enums\MediaStorage;
+use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Models\User;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -19,13 +20,13 @@ abstract class MediaTest extends TestCase
     protected ResponseState $versionSetSuccessful;
     protected string $identifier;
     protected string $mediaName;
-    protected string $reserveUploadSlotRouteName;
+    protected MediaType $mediaType;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->originalsDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::ORIGINALS->value)));
+        $this->originalsDisk ??= Storage::persistentFake(MediaStorage::ORIGINALS->getDiskName());
 
         Sanctum::actingAs(
             $this->user ??= User::first() ?: User::factory()->create(),
@@ -35,7 +36,7 @@ abstract class MediaTest extends TestCase
 
     protected function reserveUploadSlot(): TestResponse
     {
-        return $this->json('POST', route($this->reserveUploadSlotRouteName), [
+        return $this->json('POST', route('v1.reserveUploadSlot', $this->mediaType), [
             'identifier' => $this->identifier
         ]);
     }

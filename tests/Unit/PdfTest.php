@@ -3,6 +3,7 @@
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
 use App\Enums\MediaStorage;
+use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
 use App\Models\Media;
@@ -22,14 +23,13 @@ class PdfTest extends OnDemandDerivativeMediaTest
     protected string $identifier = 'testPdf';
     protected string $mediaName = 'document.pdf';
     protected ResponseState $versionSetSuccessful = ResponseState::DOCUMENT_VERSION_SET;
-
-    protected string $reserveUploadSlotRouteName = 'v1.reserveDocumentUploadSlot';
+    protected MediaType $mediaType = MediaType::DOCUMENT;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->derivativesDisk ??= Storage::persistentFake(config(sprintf('transmorpher.disks.%s', MediaStorage::DOCUMENT_DERIVATIVES->value)));
+        $this->derivativesDisk ??= Storage::persistentFake(MediaStorage::DOCUMENT_DERIVATIVES->getDiskName());
         $this->mediaFile = UploadedFile::fake()->createWithContent($this->mediaName, File::get(base_path('tests/data/test.pdf')));
 
         Config::set('transmorpher.document_remove_metadata', true);
