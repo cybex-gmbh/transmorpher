@@ -34,7 +34,7 @@ interface MediaHandlerInterface
      * @param Version $version
      * @return array
      */
-    public function setVersion(User $user, Version $version): array;
+    public function processVersion(User $user, Version $version): array;
 
     /**
      * @return Filesystem

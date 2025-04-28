@@ -53,7 +53,7 @@ class VideoHandler extends MediaHandler
      * @param Version $version
      * @return array
      */
-    public function setVersion(User $user, Version $version): array
+    public function processVersion(User $user, Version $version): array
     {
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => MediaType::VIDEO]);
 
@@ -94,6 +94,7 @@ class VideoHandler extends MediaHandler
 
             $version->update(['number' => $media->latestVersion->number + 1, 'processed' => 0]);
             [$responseState, $uploadToken] = $this->setVersion($media->User, $version);
+            [$responseState] = $this->processVersion($media->User, $version);
 
             if ($responseState->getState() === UploadState::ERROR) {
                 $failedMediaIds[] = $media->getKey();

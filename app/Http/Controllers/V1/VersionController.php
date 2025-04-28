@@ -41,7 +41,7 @@ class VersionController extends Controller
      * @param Version $version
      * @return JsonResponse
      */
-    public function setVersion(SetVersionRequest $request, Media $media, Version $version): JsonResponse
+    public function processVersion(SetVersionRequest $request, Media $media, Version $version): JsonResponse
     {
         $user = $request->user();
         $currentlyProcessedVersionNumber = $media->Versions->where('processed', true)->max('number');
@@ -53,7 +53,7 @@ class VersionController extends Controller
         ]);
         $version->save();
 
-        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $version);
+        [$responseState, $uploadToken] = $media->type->handler()->processVersion($user, $version);
 
         return response()->json([
             'state' => $responseState->getState()->value,
