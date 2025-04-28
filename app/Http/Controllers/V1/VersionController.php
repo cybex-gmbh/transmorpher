@@ -44,10 +44,8 @@ class VersionController extends Controller
     public function setVersion(SetVersionRequest $request, Media $media, Version $version): JsonResponse
     {
         $user = $request->user();
-        $wasProcessed = $version->processed;
-        $oldVersionNumber = $version->number;
-        $currentVersionNumber = $media->Versions->max('number');
-        $newVersionNumber = $currentVersionNumber + 1;
+        $currentlyProcessedVersionNumber = $media->Versions->where('processed', true)->max('number');
+        $newVersionNumber = $media->Versions->max('number') + 1;
 
         $version = $version->replicate()->fill([
             'number' => $newVersionNumber,
@@ -55,13 +53,13 @@ class VersionController extends Controller
         ]);
         $version->save();
 
-        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $version, $oldVersionNumber, $wasProcessed);
+        [$responseState, $uploadToken] = $media->type->handler()->setVersion($user, $version);
 
         return response()->json([
             'state' => $responseState->getState()->value,
             'message' => $responseState->getMessage(),
             'identifier' => $media->identifier,
-            'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentVersionNumber,
+            'version' => $responseState->getState() !== UploadState::ERROR ? $newVersionNumber : $currentlyProcessedVersionNumber,
             // Base path is only passed for images since the video is not available at this path yet.
             'public_path' => $media->type->isInstantlyAvailable() ?
                 implode(DIRECTORY_SEPARATOR, array_filter([$media->type->prefix(), $media->baseDirectory()]))
