@@ -92,8 +92,12 @@ class VideoHandler extends MediaHandler
             // Restore latest version to (re-)generate derivatives.
             $version = $media->latestVersion;
 
-            $version->update(['number' => $media->latestVersion->number + 1, 'processed' => 0]);
-            [$responseState, $uploadToken] = $this->setVersion($media->User, $version);
+            $version = $version->replicate()->fill([
+                'number' => $media->latestVersion->number + 1,
+                'processed' => 0,
+            ]);
+            $version->save();
+
             [$responseState] = $this->processVersion($media->User, $version);
 
             if ($responseState->getState() === UploadState::ERROR) {
