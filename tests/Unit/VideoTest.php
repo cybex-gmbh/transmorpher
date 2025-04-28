@@ -157,7 +157,7 @@ class VideoTest extends MediaTest
 
         Artisan::call(PurgeDerivatives::class, ['--video' => true]);
 
-        $this->assertTrue($versionNumberBeforePurging + 1 == $version->refresh()->number);
+        $this->assertTrue($versionNumberBeforePurging + 1 == $media->latestVersion->number);
         Queue::assertPushed(Transcode::getJobClass());
         Queue::assertPushed(ClientPurgeNotification::class);
     }
