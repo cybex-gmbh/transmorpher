@@ -46,7 +46,7 @@ services:
       retries: 3
       timeout: 5s
   amigor:
-    image: 'cybexwebdev/transmorpher-amigor:feature-pdf'
+    image: 'cybexwebdev/transmorpher-amigor'
     container_name: ${AMIGOR_CONTAINER_NAME:-amigor}
     networks:
       - traefik
