@@ -32,11 +32,9 @@ interface MediaHandlerInterface
     /**
      * @param User $user
      * @param Version $version
-     * @param int $oldVersionNumber
-     * @param bool $wasProcessed
      * @return array
      */
-    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array;
+    public function processVersion(User $user, Version $version): array;
 
     /**
      * @return Filesystem
@@ -46,5 +44,12 @@ interface MediaHandlerInterface
     /**
      * @return array
      */
-    public function purgeDerivatives(): array;
+    public function deleteDerivatives(): array;
+
+    /**
+     * @param Version $version
+     * @param array|null $transformationsArray
+     * @return false|string
+     */
+    public function applyTransformations(Version $version, ?array $transformationsArray): false|string;
 }

@@ -12,9 +12,9 @@ class CdnHelperServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
-        $this->app->singleton('cdn', fn(): CdnHelperInterface => new (config('transmorpher.cdn_helper')));
+        $this->app->singleton('cdn', fn(): CdnHelperInterface => app()->make(config('transmorpher.cdn_helper')));
     }
 
     /**

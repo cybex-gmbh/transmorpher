@@ -12,9 +12,9 @@ class TransformServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
-        $this->app->singleton('transform', fn(): TransformInterface => new (config('transmorpher.transform_class')));
+        $this->app->singleton('transform', fn(): TransformInterface => app()->make(config('transmorpher.transform_class')));
     }
 
     /**

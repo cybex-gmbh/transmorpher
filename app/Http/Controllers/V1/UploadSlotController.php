@@ -50,31 +50,7 @@ class UploadSlotController extends Controller
         ]);
     }
 
-    /**
-     * Handle the incoming request.
-     *
-     * @param UploadSlotRequest $request
-     *
-     * @return JsonResponse
-     */
-    public function reserveImageUploadSlot(UploadSlotRequest $request): JsonResponse
-    {
-        return $this->reserveUploadSlot($request, MediaType::IMAGE);
-    }
-
-    /**
-     * Handle the incoming request.
-     *
-     * @param UploadSlotRequest $request
-     *
-     * @return JsonResponse
-     */
-    public function reserveVideoUploadSlot(UploadSlotRequest $request): JsonResponse
-    {
-        return $this->reserveUploadSlot($request, MediaType::VIDEO);
-    }
-
-    protected function reserveUploadSlot(UploadSlotRequest $request, MediaType $mediaType): JsonResponse
+    public function reserveUploadSlot(UploadSlotRequest $request, MediaType $mediaType): JsonResponse
     {
         return $this->updateOrCreateUploadSlot($request->user(), $request->merge(['media_type' => $mediaType->value])->all());
     }
@@ -129,9 +105,15 @@ class UploadSlotController extends Controller
         ], 201);
     }
 
+    /**
+     * This will create a new upload slot, so ongoing uploads/processings are aborted.
+     *
+     * @param User $user
+     * @param array $requestData
+     * @return JsonResponse
+     */
     protected function updateOrCreateUploadSlot(User $user, array $requestData): JsonResponse
     {
-        // Token and valid_until will be set in the 'saving' event.
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $requestData['identifier']], $requestData);
 
         return response()->json([

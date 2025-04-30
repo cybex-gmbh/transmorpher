@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V1;
 
 use App\Enums\MediaType;
+use App\Exceptions\DocumentPageDoesNotExistException;
 use App\Http\Controllers\Controller;
 use App\Models\Media;
 use App\Models\User;
@@ -13,7 +14,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class ImageController extends Controller
+class DocumentController extends Controller
 {
     /**
      * Handles incoming image derivative requests.
@@ -63,6 +64,10 @@ class ImageController extends Controller
      */
     protected function getDerivative(string $transformations, Version $version): ResponseFactory|Application|Response
     {
-        return Delivery::getDerivative($transformations, $version, MediaType::IMAGE);
+        try {
+            return Delivery::getDerivative($transformations, $version, MediaType::DOCUMENT);
+        } catch (DocumentPageDoesNotExistException $exception) {
+            abort(400, $exception->getMessage());
+        }
     }
 }

@@ -3,18 +3,20 @@
 namespace App\Enums;
 
 use App\Interfaces\MediaHandlerInterface;
+use Exception;
 
 enum MediaType: string
 {
     case IMAGE = 'image';
     case VIDEO = 'video';
+    case DOCUMENT = 'document';
 
     /**
      * @return MediaHandlerInterface
      */
     public function handler(): MediaHandlerInterface
     {
-        return app(config(sprintf('transmorpher.media_handlers.%s', $this->value)));
+        return app(sprintf('media-handler.%s', $this->value));
     }
 
     /**
@@ -26,7 +28,8 @@ enum MediaType: string
     {
         return match ($this) {
             self::IMAGE => 'images',
-            self::VIDEO => 'videos'
+            self::VIDEO => 'videos',
+            self::DOCUMENT => 'documents'
         };
     }
 
@@ -38,21 +41,32 @@ enum MediaType: string
     public function isInstantlyAvailable(): bool
     {
         return match ($this) {
-            self::IMAGE => true,
+            self::IMAGE,
+            self::DOCUMENT => true,
             self::VIDEO => false
         };
     }
 
     /**
-     * Get whether this media needs a short invalidation path for the CDN.
+     * Get whether this media needs multiple paths invalidated:
+     * - <identifier>,
+     * - <identifier>/,
+     * - <identifier>/*
+     *
+     * If not, only '<identifier>/*' is invalidated.
+     *
+     * Images and documents may be requested without transformations.
+     * These paths also need to be invalidated.
      *
      * @return bool
      */
-    public function needsShortPathInvalidation(): bool
+    public function needsNonTransformationPathsInvalidated(): bool
     {
         return match ($this) {
-            self::IMAGE => true,
+            self::IMAGE,
+            self::DOCUMENT => true,
             self::VIDEO => false
         };
     }
 }
+

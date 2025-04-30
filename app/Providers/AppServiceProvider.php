@@ -2,15 +2,17 @@
 
 namespace App\Providers;
 
+use App\Classes\Delivery;
+use App\Classes\Optimizer\Optimize;
 use App\Models\Media;
 use App\Models\User;
 use App\Models\Version;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,7 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton('optimize', Optimize::class);
+        $this->app->singleton('delivery', Delivery::class);
     }
 
     /**

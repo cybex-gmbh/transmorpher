@@ -12,7 +12,7 @@ class SqsFifoServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->app->afterResolving('queue', function ($manager) {
             $manager->addConnector('sqs-fifo', function () {

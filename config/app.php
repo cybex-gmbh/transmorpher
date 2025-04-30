@@ -178,6 +178,7 @@ return [
         App\Providers\SqsFifoServiceProvider::class,
         App\Providers\TranscodeServiceProvider::class,
         App\Providers\TransformServiceProvider::class,
+        App\Providers\MediaHandlerServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -193,7 +194,9 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'CdnHelper' => App\Facades\CdnHelperFacade::class,
+        'Delivery' => App\Facades\DeliveryFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
+        'Optimize' => App\Facades\OptimizeFacade::class,
         'Transcode' => App\Facades\TranscodeFacade::class,
         'Transform' => App\Facades\TransformFacade::class,
     ])->toArray(),

@@ -4,6 +4,7 @@ use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Helpers\SodiumHelper;
 use App\Http\Controllers\V1\ImageController;
+use App\Http\Controllers\V1\DocumentController;
 use App\Http\Controllers\V1\UploadSlotController;
 use App\Http\Controllers\V1\VersionController;
 use Illuminate\Support\Facades\Route;
@@ -26,12 +27,15 @@ Route::prefix('v1')->name('v1.')->group(function () {
             Route::patch('/media/{media}/version/{version}', [VersionController::class, 'setVersion'])->name('setVersion');
 
             // Image
-            Route::get(sprintf('/%s/{media}/version/{version}/original', MediaType::IMAGE->value), [ImageController::class, 'getOriginal'])->name('getOriginal');
-            Route::get(sprintf('/%s/{media}/version/{version}/derivative/{transformations?}', MediaType::IMAGE->value), [ImageController::class, 'getDerivativeForVersion'])->name('getDerivativeForVersion');
-            Route::post(sprintf('/%s/reserveUploadSlot', MediaType::IMAGE->value), [UploadSlotController::class, 'reserveImageUploadSlot'])->name('reserveImageUploadSlot');
+            Route::get(sprintf('/%s/{media}/version/{version}/original', MediaType::IMAGE->value), [ImageController::class, 'getOriginal'])->name('getImageOriginal');
+            Route::get(sprintf('/%s/{media}/version/{version}/derivative/{transformations?}', MediaType::IMAGE->value), [ImageController::class, 'getDerivativeForVersion'])->name('getImageDerivativeForVersion');
 
-            // Video
-            Route::post(sprintf('/%s/reserveUploadSlot', MediaType::VIDEO->value), [UploadSlotController::class, 'reserveVideoUploadSlot'])->name('reserveVideoUploadSlot');
+            // Document
+            Route::get(sprintf('/%s/{media}/version/{version}/original', MediaType::DOCUMENT->value), [DocumentController::class, 'getOriginal'])->name('getDocumentOriginal');
+            Route::get(sprintf('/%s/{media}/version/{version}/derivative/{transformations?}', MediaType::DOCUMENT->value), [DocumentController::class, 'getDerivativeForVersion'])->name('getDocumentDerivativeForVersion');
+
+            // UploadSlot
+            Route::post('/{mediaType}/reserveUploadSlot', [UploadSlotController::class, 'reserveUploadSlot'])->name('reserveUploadSlot');
         }
     );
 
