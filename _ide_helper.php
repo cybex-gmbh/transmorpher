@@ -22543,30 +22543,30 @@ namespace App\Facades {
          * 
          * Creates a temporary file since image optimizers only work locally.
          *
-         * @param string $derivative
+         * @param string $fileData
          * @param int|null $quality
          * @return string 
          * @throws Exception
          * @static 
          */
-        public static function optimize($derivative, $quality = null)
+        public static function optimize($fileData, $quality = null)
         {
             /** @var \App\Classes\Optimizer\Optimize $instance */
-            return $instance->optimize($derivative, $quality);
+            return $instance->optimize($fileData, $quality);
         }
 
         /**
          * 
          *
-         * @param string $derivative
+         * @param string $fileData
          * @return string 
          * @throws Exception
          * @static 
          */
-        public static function removeDocumentMetadata($derivative)
+        public static function removeDocumentMetadata($fileData)
         {
             /** @var \App\Classes\Optimizer\Optimize $instance */
-            return $instance->removeDocumentMetadata($derivative);
+            return $instance->removeDocumentMetadata($fileData);
         }
 
             }
@@ -22599,22 +22599,6 @@ namespace App\Facades {
         {
             /** @var \App\Classes\Transcode $instance */
             return $instance->createJob($version, $uploadSlot);
-        }
-
-        /**
-         * Creates a job which handles the transcoding of a video when a version number is updated.
-         *
-         * @param \App\Models\Version $version
-         * @param \App\Models\UploadSlot $uploadSlot
-         * @param int $oldVersionNumber
-         * @param bool $wasProcessed
-         * @return bool 
-         * @static 
-         */
-        public static function createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed)
-        {
-            /** @var \App\Classes\Transcode $instance */
-            return $instance->createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed);
         }
 
         /**
@@ -22682,18 +22666,6 @@ namespace App\Facades {
         {
             /** @var \App\Classes\Intervention\Transform $instance */
             return $instance->format($image, $format, $quality);
-        }
-
-        /**
-         * 
-         *
-         * @return string[] 
-         * @static 
-         */
-        public static function getSupportedFormats()
-        {
-            /** @var \App\Classes\Intervention\Transform $instance */
-            return $instance->getSupportedFormats();
         }
 
             }

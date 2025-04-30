@@ -35,11 +35,9 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
      *
      * @param User $user
      * @param Version $version
-     * @param int $oldVersionNumber
-     * @param bool $wasProcessed
      * @return array
      */
-    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array
+    public function processVersion(User $user, Version $version): array
     {
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => $this->type]);
 
@@ -47,7 +45,7 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
             $version->update(['processed' => true]);
             $responseState = $this->versionSetSuccessful;
         } else {
-            $version->update(['number' => $oldVersionNumber]);
+            $version->delete();
             $responseState = $this->versionSetFailed;
         }
 

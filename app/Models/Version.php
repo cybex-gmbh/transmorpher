@@ -67,7 +67,10 @@ class Version extends Model
 
     protected function deleteFiles(): void
     {
-        MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath());
+        // Only delete the original file if no other versions are pointing to it.
+        if ($this->Media->Versions()->where('filename', $this->filename)->count() === 1) {
+            MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath());
+        }
 
         if (($derivativesDisk = $this->Media->type->handler()->getDerivativesDisk()) === MediaStorage::VIDEO_DERIVATIVES->getDisk()) {
             // Video derivatives may not be deleted here, otherwise failed jobs would delete the only existing video derivative.

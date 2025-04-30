@@ -63,8 +63,6 @@ class TranscodeVideo implements ShouldQueue
     public function __construct(
         protected Version $version,
         protected UploadSlot $uploadSlot,
-        protected ?int $oldVersionNumber = null,
-        protected ?bool $wasProcessed = null
     )
     {
         $this->onQueue('video-transcoding');
@@ -122,15 +120,8 @@ class TranscodeVideo implements ShouldQueue
         // This directory stores local temp derivatives in case cloud storage is used.
         $localDisk->deleteDirectory($this->getTempDerivativesDirectoryPath());
 
-        if (!$this->oldVersionNumber) {
-            // A failed upload must not create a version.
-            $this->version->delete();
-            $versionNumber = $this->version->number - 1;
-        } else {
-            // Restoring an old version has failed, therefore we restore its previous state.
-            $this->version->update(['number' => $this->oldVersionNumber, 'processed' => $this->wasProcessed]);
-            $versionNumber = $this->oldVersionNumber;
-        }
+        $this->version->delete();
+        $versionNumber = $this->version->Media->Versions->where('processed', true)->max('number') ?? 0;
 
         Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_FAILED, $this->uploadToken, $this->version->Media, $versionNumber);
     }

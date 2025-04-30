@@ -2786,9 +2786,8 @@ namespace PHPSTORM_META {
         registerArgumentsSet('routes', 
 'protectorDumpEndpointRoute','sanctum.csrf-cookie','ignition.healthCheck','ignition.executeSolution','ignition.updateConfig',
 'v1.getVersions','v1.delete','v1.setVersion','v1.getImageOriginal','v1.getImageDerivativeForVersion',
-'v1.reserveImageUploadSlot','v1.getDocumentOriginal','v1.getDocumentDerivativeForVersion','v1.reserveDocumentUploadSlot','v1.reserveVideoUploadSlot',
-'v1.upload','v1.getPublicKey','v1.getCacheInvalidator','v1.',
-'getImageDerivative','getDocumentDerivative',);
+'v1.getDocumentOriginal','v1.getDocumentDerivativeForVersion','v1.reserveUploadSlot','v1.upload','v1.getPublicKey',
+'v1.getCacheInvalidator','v1.','getImageDerivative','getDocumentDerivative',);
         registerArgumentsSet('views', 
 'errors.400','welcome','laravel-exceptions-renderer::components.card','laravel-exceptions-renderer::components.context','laravel-exceptions-renderer::components.editor',
 'laravel-exceptions-renderer::components.header','laravel-exceptions-renderer::components.icons.chevron-down','laravel-exceptions-renderer::components.icons.chevron-up','laravel-exceptions-renderer::components.icons.computer-desktop','laravel-exceptions-renderer::components.icons.moon',

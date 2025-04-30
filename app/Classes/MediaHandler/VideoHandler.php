@@ -51,15 +51,13 @@ class VideoHandler extends MediaHandler
      *
      * @param User $user
      * @param Version $version
-     * @param int $oldVersionNumber
-     * @param bool $wasProcessed
      * @return array
      */
-    public function setVersion(User $user, Version $version, int $oldVersionNumber, bool $wasProcessed): array
+    public function processVersion(User $user, Version $version): array
     {
         $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(['identifier' => $version->Media->identifier], ['media_type' => MediaType::VIDEO]);
 
-        $success = Transcode::createJobForVersionUpdate($version, $uploadSlot, $oldVersionNumber, $wasProcessed);
+        $success = Transcode::createJob($version, $uploadSlot);
         $responseState = $success ? $this->versionSetSuccessful : $this->versionSetFailed;
 
         return [
@@ -94,11 +92,13 @@ class VideoHandler extends MediaHandler
             // Restore latest version to (re-)generate derivatives.
             $version = $media->latestVersion;
 
-            $oldVersionNumber = $version->number;
-            $wasProcessed = $version->processed;
+            $version = $version->replicate()->fill([
+                'number' => $media->latestVersion->number + 1,
+                'processed' => 0,
+            ]);
+            $version->save();
 
-            $version->update(['number' => $media->latestVersion->number + 1, 'processed' => 0]);
-            [$responseState, $uploadToken] = $this->setVersion($media->User, $version, $oldVersionNumber, $wasProcessed);
+            [$responseState] = $this->processVersion($media->User, $version);
 
             if ($responseState->getState() === UploadState::ERROR) {
                 $failedMediaIds[] = $media->getKey();
