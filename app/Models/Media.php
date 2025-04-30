@@ -29,15 +29,15 @@ use Validator;
  * @property-read int|null $versions_count
  * @property-read \App\Models\Version $current_version
  * @property-read \App\Models\Version|null $latest_version
- * @method static \Illuminate\Database\Eloquent\Builder|Media newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Media newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Media query()
- * @method static \Illuminate\Database\Eloquent\Builder|Media whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Media whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Media whereIdentifier($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Media whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Media whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Media whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media whereIdentifier($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media whereUserId($value)
  * @mixin \Eloquent
  */
 class Media extends Model

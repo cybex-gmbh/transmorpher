@@ -34,6 +34,7 @@ return [
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
         'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
+        'documentDerivatives' =>  env('TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES', 'localDocumentDerivatives'),
         'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 
@@ -70,13 +71,33 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Document Remove Metadata
+    |--------------------------------------------------------------------------
+    |
+    | Defines whether the metadata of documents should be removed.
+    |
+    */
+    'document_remove_metadata' => env('TRANSMORPHER_DOCUMENT_REMOVE_METADATA', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Document Default PPI
+    |--------------------------------------------------------------------------
+    |
+    | The PPI will be multiplied with the document dimensions, which results in the image resolution.
+    |
+    */
+    'document_default_ppi' => env('TRANSMORPHER_DOCUMENT_DEFAULT_PPI', 300),
+
+    /*
+    |--------------------------------------------------------------------------
     | Transcode Class
     |--------------------------------------------------------------------------
     |
     | The class which is used for transcoding videos.
     |
     | Available Transcode classes:
-    | -  Transcode (uses FFmpeg and Laravel Queue for transcoding)
+    | - Transcode (uses FFmpeg and Laravel Queue for transcoding)
     |
     */
     'transcode_class' => App\Classes\Transcode::class,
@@ -167,6 +188,7 @@ return [
     */
     'media_handlers' => [
         'image' => App\Classes\MediaHandler\ImageHandler::class,
+        'document' => App\Classes\MediaHandler\DocumentHandler::class,
         'video' => App\Classes\MediaHandler\VideoHandler::class
     ],
 

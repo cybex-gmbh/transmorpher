@@ -24,18 +24,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\User $User
  * @property-read mixed $is_valid
- * @method static Builder|UploadSlot newModelQuery()
- * @method static Builder|UploadSlot newQuery()
- * @method static Builder|UploadSlot query()
- * @method static Builder|UploadSlot whereCreatedAt($value)
- * @method static Builder|UploadSlot whereId($value)
- * @method static Builder|UploadSlot whereIdentifier($value)
- * @method static Builder|UploadSlot whereMediaType($value)
- * @method static Builder|UploadSlot whereToken($value)
- * @method static Builder|UploadSlot whereUpdatedAt($value)
- * @method static Builder|UploadSlot whereUserId($value)
- * @method static Builder|UploadSlot whereValidUntil($value)
- * @method static Builder|UploadSlot whereValidationRules($value)
+ * @method static Builder<static>|UploadSlot newModelQuery()
+ * @method static Builder<static>|UploadSlot newQuery()
+ * @method static Builder<static>|UploadSlot query()
+ * @method static Builder<static>|UploadSlot whereCreatedAt($value)
+ * @method static Builder<static>|UploadSlot whereId($value)
+ * @method static Builder<static>|UploadSlot whereIdentifier($value)
+ * @method static Builder<static>|UploadSlot whereMediaType($value)
+ * @method static Builder<static>|UploadSlot whereToken($value)
+ * @method static Builder<static>|UploadSlot whereUpdatedAt($value)
+ * @method static Builder<static>|UploadSlot whereUserId($value)
+ * @method static Builder<static>|UploadSlot whereValidUntil($value)
+ * @method static Builder<static>|UploadSlot whereValidationRules($value)
  * @mixin \Eloquent
  */
 class UploadSlot extends Model

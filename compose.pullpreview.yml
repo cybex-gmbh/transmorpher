@@ -16,18 +16,15 @@ services:
       PULLPREVIEW: true
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
       VIDEO_TRANSCODING_WORKERS_AMOUNT: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-      APP_URL: ${PULLPREVIEW_URL}/transmorpherServer
+      APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
       CLIENT_CONTAINER_NAME: ${AMIGOR_CONTAINER_NAME:-amigor}
     volumes:
       - 'app-storage:/var/www/html/storage'
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`) && PathPrefix(`/transmorpherServer`)'
-      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.middlewares=strip-path-prefix@docker'
-      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.priority=2'
+      - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.rule=Host(`transmorpher.${PULLPREVIEW_PUBLIC_DNS}`)'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.tls=true'
       - 'traefik.http.routers.${APP_CONTAINER_NAME:-transmorpher}.tls.certresolver=production'
-      - "traefik.http.middlewares.strip-path-prefix.stripprefix.prefixes=/transmorpherServer"
   mysql:
     image: 'mysql/mysql-server:8.0'
     container_name: ${MYSQL_CONTAINER_NAME:-transmorpher-mysql-1}
@@ -49,7 +46,7 @@ services:
       retries: 3
       timeout: 5s
   amigor:
-    image: 'cybexwebdev/transmorpher-amigor'
+    image: 'cybexwebdev/transmorpher-amigor:feature-pdf'
     container_name: ${AMIGOR_CONTAINER_NAME:-amigor}
     networks:
       - traefik
@@ -62,9 +59,9 @@ services:
     environment:
       PULLPREVIEW: true
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
-      TRANSMORPHER_WEB_DELIVERY_BASE_URL: https://${PULLPREVIEW_PUBLIC_DNS}/transmorpherServer
-      TRANSMORPHER_WEB_API_BASE_URL: https://${PULLPREVIEW_PUBLIC_DNS}/transmorpherServer/api
-      APP_URL: ${PULLPREVIEW_URL}
+      TRANSMORPHER_WEB_DELIVERY_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
+      TRANSMORPHER_WEB_API_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}/api
+      APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
     volumes:
       - 'amigor-storage:/var/www/html/amigor/storage'
       - '.env.amigor:/var/www/html/amigor/.env'
@@ -78,7 +75,7 @@ services:
       - 'traefik.http.routers.amigor-root.middlewares=htpasswd'
       - 'traefik.http.routers.amigor-root.tls=true'
       - 'traefik.http.routers.amigor-root.tls.certresolver=production'
-      - 'traefik.http.routers.amigor-root.priority=3'
+      - 'traefik.http.routers.amigor-root.priority=2'
       - 'traefik.http.middlewares.htpasswd.basicauth.usersfile=/.htpasswd'
   mysql-amigor:
     image: 'mysql/mysql-server:8.0'

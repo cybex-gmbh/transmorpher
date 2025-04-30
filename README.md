@@ -1,6 +1,6 @@
 # Transmorpher Media Server
 
-A media server for images and videos.
+A media server for images, pdfs and videos.
 
 > For a client implementation for Laravel
 > see [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client).
@@ -11,6 +11,9 @@ A media server for images and videos.
 
 - [Intervention Image](https://github.com/Intervention/image)
 - [Laravel Image Optimizer](https://github.com/spatie/laravel-image-optimizer)
+
+#### PDF metadata removal
+- [PDF Merge](https://github.com/karriereat/pdf-merge)
 
 #### Video transcoding
 
@@ -185,6 +188,7 @@ To use AWS S3 disks set the according `.env` values:
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=s3Originals
 TRANSMORPHER_DISK_IMAGE_DERIVATIVES=s3ImageDerivatives
+TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES=s3DocumentDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=s3VideoDerivatives
 ```
 
@@ -193,6 +197,7 @@ Define the AWS S3 bucket for each disk:
 ```dotenv
 AWS_BUCKET_ORIGINALS=
 AWS_BUCKET_IMAGE_DERIVATIVES=
+AWS_BUCKET_DOCUMENT_DERIVATIVES=
 AWS_BUCKET_VIDEO_DERIVATIVES=
 ```
 
@@ -261,6 +266,7 @@ Select the following Laravel disks in the `.env`:
 ```dotenv
 TRANSMORPHER_DISK_ORIGINALS=localOriginals
 TRANSMORPHER_DISK_IMAGE_DERIVATIVES=localImageDerivatives
+TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES=localDocumentDerivatives
 TRANSMORPHER_DISK_VIDEO_DERIVATIVES=localVideoDerivatives
 ```
 
@@ -339,7 +345,7 @@ The media server provides the following features for media:
 - set version
 - delete
 
-> Marked with * only applies to images.
+> Marked with * does not apply to videos.
 
 ## Image transformation
 
@@ -368,6 +374,40 @@ For example:
 
 The [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client) will receive this information and store it. It can also create URLs with
 transformations.
+
+## PDF handling
+
+Requesting a PDF file will return the document.
+Metadata can be removed optionally by setting the `.env` key: 
+
+```dotenv
+TRANSMORPHER_DOCUMENT_REMOVE_METADATA=true
+```
+
+### Images
+
+When an image format transformation is specified, an image of a page will be returned.
+
+By using the `p` transformation, you can specify the page to be exported.
+By default, the first page will be used.
+
+All available image transformations can also be applied to PDF image derivatives.
+Requesting a PDF also follows the same URL structure as images, just replace `images` with `documents`.
+
+Additionally, the pixels per inch can be specified with the `ppi` transformation.
+The ppi will be multiplied with the document dimensions, which results in the image resolution.
+By default, 300 ppi is used.
+Use the `.env` key to specify another default:
+
+```dotenv
+TRANSMORPHER_DOCUMENT_DEFAULT_PPI=600
+```
+
+Example:
+
+Document: `https://transmorpher.test/documents/catworld/cat-essay`
+
+Image of page 5: `https://transmorpher.test/documents/catworld/cat-essay/f-jpg+p-5+w-1920+h-1080`
 
 ## Video transcoding
 
@@ -529,8 +569,8 @@ We provide a command which will additionally notify clients with a signed reques
 php artisan purge:derivatives
 ```
 
-The command accepts the options `--image`, `--video` and `--all` (or `-a`) for purging the respective derivatives.
-Image derivatives will be deleted, for video derivatives we dispatch a new transcoding job for the current version.
+The command accepts the options `--image`, `--document`, `--video` and `--all` (or `-a`) for purging the respective derivatives.
+Image and document derivatives will be deleted, for video derivatives we dispatch a new transcoding job for the current version.
 
 The derivatives revision is available on the route `/api/v*/cacheInvalidator`.
 
@@ -542,6 +582,7 @@ To restore operation of the server, restore the following:
 - the `originals` disk
 - `.env` file*
 - the `image derivatives` disk*
+- the `document derivatives` disk*
 - the `video derivatives` disk*
 
 > Marked with * are optional, but recommended.
@@ -550,7 +591,7 @@ If the `.env` file is lost follow the setup instructions above, including creati
 
 If video derivatives are lost, use the [purge command](#purging-derivatives) to restore them. 
 
-Lost image derivatives will automatically be re-generated on demand.
+Lost image and document derivatives will automatically be re-generated on demand.
 
 ## Development
 
@@ -569,7 +610,7 @@ App-specific GitHub Secrets:
 
 #### Companion App
 
-A demonstration app, which implements the client package, is booted with PullPreview and available at the PullPreview root URL. The Transmorpher media server runs under `/transmorpherServer`. 
+A demonstration app, which implements the client package, is booted with PullPreview and available at the PullPreview root URL. The Transmorpher media server runs under the `transmorpher.` subdomain. 
 
 #### Auth Token Hash
 
