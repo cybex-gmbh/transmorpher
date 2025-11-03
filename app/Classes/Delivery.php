@@ -9,6 +9,7 @@ use App\Exceptions\InvalidTransformationFormatException;
 use App\Exceptions\InvalidTransformationValueException;
 use App\Exceptions\TransformationNotFoundException;
 use App\Models\Version;
+use finfo;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Response;
@@ -45,6 +46,7 @@ class Delivery
 
         $derivativesDisk = $mediaType->handler()->getDerivativesDisk();
         $derivativePath = $version->onDemandDerivativeFilePath($transformationsArray);
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
 
         // Check if derivative already exists and return if so.
         if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $derivativesDisk->exists($derivativePath)) {
@@ -58,6 +60,6 @@ class Delivery
             }
         }
 
-        return response($derivative, 200, ['Content-Type' => mime_content_type($derivativesDisk->readStream($derivativePath))]);
+        return response($derivative, 200, ['Content-Type' => $finfo->buffer($derivative)]);
     }
 }
