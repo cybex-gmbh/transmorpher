@@ -17,7 +17,7 @@ class Convert implements ConvertInterface
      *
      * @return ConvertedImageInterface
      */
-    public function encode(string|InterventionImage $image, string $format, int $quality = null): ConvertedImageInterface
+    public function encode(string|InterventionImage $image, string $format, ?int $quality = null): ConvertedImageInterface
     {
         $convertedImage = InterventionImage::make($image)->encode($format, $quality);
 
