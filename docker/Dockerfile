@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1-labs
-FROM webdevops/php-nginx:8.2
+FROM webdevops/php-nginx:8.4
 
 WORKDIR /var/www/html
 

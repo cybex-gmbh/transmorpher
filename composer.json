@@ -8,7 +8,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "8.2.*|8.3.*",
+        "php": "8.4.*",
         "ext-fileinfo": "*",
         "ext-sodium": "*",
         "ext-imagick": "*",
@@ -16,8 +16,8 @@
         "cybex/laravel-protector": "^3.0",
         "intervention/image": "^2.7",
         "karriere/pdf-merge": "^3.2",
-        "laravel/framework": "^11.0",
-        "laravel/tinker": "^2.9",
+        "laravel/framework": "^12.0",
+        "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "^3.12",
         "pion/laravel-chunk-upload": "^1.5",
         "spatie/laravel-image-optimizer": "^1.7"
@@ -25,11 +25,11 @@
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.0",
         "fakerphp/faker": "^1.23",
-        "laravel/pint": "^1.13",
-        "laravel/sail": "^1.26",
+        "laravel/pint": "^1.24",
+        "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
-        "nunomaduro/collision": "^8.1",
-        "phpunit/phpunit": "^11.0.1",
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^11.5.3",
         "smalot/pdfparser": "^2.11",
         "spatie/laravel-ignition": "^2.4"
     },
@@ -46,6 +46,16 @@
         }
     },
     "scripts": {
+        "setup": [
+            "composer install",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate",
+            "@php artisan migrate --force"
+        ],
+        "test": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test"
+        ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
@@ -58,6 +68,9 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "pre-package-uninstall": [
+            "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
         ]
     },
     "extra": {
