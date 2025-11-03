@@ -28,7 +28,6 @@ use Validator;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Version> $Versions
  * @property-read int|null $versions_count
  * @property-read \App\Models\Version $current_version
- * @property-read \App\Models\TFactory|null $use_factory
  * @property-read \App\Models\Version|null $latest_version
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Media newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Media newQuery()
