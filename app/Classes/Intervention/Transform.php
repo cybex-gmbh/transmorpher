@@ -6,6 +6,7 @@ use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Exceptions\DocumentPageDoesNotExistException;
+use App\Exceptions\ImagickPolicyException;
 use App\Interfaces\TransformInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Imagick;
@@ -44,7 +45,6 @@ class Transform implements TransformInterface
      * @param string $fileData
      * @param array|null $transformations
      * @return string
-     * @throws DocumentPageDoesNotExistException
      */
     protected function pdfToImage(string $fileData, ?array $transformations = null): string
     {
@@ -59,10 +59,7 @@ class Transform implements TransformInterface
         try {
             $imagick->readImage(sprintf('%s[%d]', $tempFile, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
         } catch (ImagickException $exception) {
-            Log::error($exception->getMessage());
-
-            // Assuming an error happened because the requested page does not exist, we throw a custom exception.
-            throw new DocumentPageDoesNotExistException($transformations[Transformation::PAGE->value]);
+            $this->handleImagickException($exception, $transformations);
         } finally {
             unlink($tempFile);
         }
@@ -110,5 +107,27 @@ class Transform implements TransformInterface
         }
 
         return $image->encode(new AutoEncoder(quality: $quality))->toString();
+    }
+
+    /**
+     * See https://imagemagick.org/script/exception.php for error code reference.
+     * @throws ImagickPolicyException|DocumentPageDoesNotExistException|ImagickException
+     */
+    protected function handleImagickException(ImagickException $exception, ?array $transformations): void
+    {
+        Log::error($exception->getMessage(), ['code' => $exception->getCode()]);
+
+        // A policy denies access to a delegate, coder, filter, path, or resource.
+        if ($exception->getCode() === 499) {
+            throw new ImagickPolicyException($exception->getMessage(), $exception->getCode(), $exception);
+        }
+
+        $requestedPage = $transformations[Transformation::PAGE->value] ?? false;
+        if ($exception->getCode() === 1 && $requestedPage) {
+            // Assuming an error happened because the requested page does not exist, we throw a custom exception.
+            throw new DocumentPageDoesNotExistException($requestedPage);
+        }
+
+        throw $exception;
     }
 }
