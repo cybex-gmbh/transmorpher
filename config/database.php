@@ -9,13 +9,14 @@ return [
     | Default Database Connection Name
     |--------------------------------------------------------------------------
     |
+    | Here you may specify which of the database connections below you wish
     | to use as your default connection for database operations. This is
     | the connection which will be utilized unless another connection
     | is explicitly specified when you execute a query / statement.
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'sqlite'),
 
     /*
     |--------------------------------------------------------------------------
@@ -41,6 +42,7 @@ return [
             'synchronous' => null,
             'transaction_mode' => 'DEFERRED',
         ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
@@ -147,6 +149,7 @@ return [
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
             'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
         'default' => [

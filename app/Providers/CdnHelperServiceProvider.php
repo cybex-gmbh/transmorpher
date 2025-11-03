@@ -3,10 +3,13 @@
 namespace App\Providers;
 
 use App\Interfaces\CdnHelperInterface;
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
-class CdnHelperServiceProvider extends ServiceProvider
+class CdnHelperServiceProvider extends ServiceProvider implements DeferrableProvider
 {
+    const SERVICE_NAME = 'cdn';
+
     /**
      * Register services.
      *
@@ -14,16 +17,16 @@ class CdnHelperServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton('cdn', fn(): CdnHelperInterface => app()->make(config('transmorpher.cdn_helper')));
+        $this->app->singleton(static::SERVICE_NAME, fn(): CdnHelperInterface => app()->make(config('transmorpher.cdn_helper')));
     }
 
     /**
-     * Bootstrap services.
+     * Get the services provided by the provider.
      *
-     * @return void
+     * @return array<int, string>
      */
-    public function boot()
+    public function provides(): array
     {
-        //
+        return [static::SERVICE_NAME];
     }
 }
