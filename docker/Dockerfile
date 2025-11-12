@@ -42,7 +42,7 @@ ENV FFMPEG_KEYRING_CHECKSUM=sha256:8dc6cbb266c701cfe58bd1d2eb9fe2245a1d6341c7110
 RUN apt update
 RUN apt install -y --no-install-recommends default-mysql-client
 RUN apt install -y --no-install-recommends jpegoptim optipng pngquant gifsicle webp
-RUN apt install -y --no-install-recommends libjpeg-dev libpng-dev libwebp-dev libxml2-dev
+RUN apt install -y --no-install-recommends libjpeg-dev libpng-dev libwebp-dev
 RUN rm -rf /var/lib/apt/lists/*
 
 # Install ImageMagick from source - https://github.com/ImageMagick/ImageMagick

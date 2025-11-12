@@ -69,8 +69,9 @@ RUN apt-get update && apt-get upgrade -y \
 # Install ImageMagick from source
 WORKDIR /ImageMagick-$IMAGEMAGICK_VERSION
 
-RUN apt update \
-    && apt install -y libjpeg-dev libpng-dev libwebp-dev libxml2-dev
+RUN apt update
+RUN apt install -y libjpeg-dev libpng-dev libwebp-dev
+RUN rm -rf /var/lib/apt/lists/*
 
 RUN git clone --depth 1 --branch $IMAGEMAGICK_VERSION https://github.com/ImageMagick/ImageMagick.git .
 RUN ./configure
