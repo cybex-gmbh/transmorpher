@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1-labs
-FROM webdevops/php-nginx:8.4
+FROM webdevops/php-nginx:8.4 as base
 
 WORKDIR /var/www/html
 
@@ -21,22 +21,6 @@ COPY --chmod=755 ./docker/entryfile.sh /var/www/html/docker/entryfile.sh
 COPY --chmod=755 ./docker/watchtower.post-update.sh /var/www/html/docker/watchtower.post-update.sh
 COPY --chmod=755 --chown=application:application ./storage /var/www/html/storage
 
-RUN apt update && \
-    apt install -y --no-install-recommends default-mysql-client imagemagick jpegoptim optipng pngquant gifsicle webp && \
-    rm -rf /var/lib/apt/lists/*
-
-# Remove imagemagick policy preventing PDF conversion (security issue is fixed with the installed ghostscript version 10)
-RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
-
-## ffmpeg - https://deb-multimedia.org/dists/stable/main/binary-amd64/package/ffmpeg
-RUN echo "Types: deb\nURIs: https://www.deb-multimedia.org\nSuites: bookworm\nComponents: main\nSigned-By: /usr/share/keyrings/deb-multimedia-keyring.pgp\nEnabled: yes" >> /etc/apt/sources.list.d/dmo.sources
-ADD --checksum=sha256:8dc6cbb266c701cfe58bd1d2eb9fe2245a1d6341c7110cfbfe3a5a975dcf97ca \
- https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/deb-multimedia-keyring_2024.9.1_all.deb \
-    deb-multimedia-keyring_2024.9.1_all.deb
-RUN dpkg -i deb-multimedia-keyring_2024.9.1_all.deb \
-    && apt update \
-    && apt -y install ffmpeg
-
 COPY \
     --exclude=./storage \
     --exclude=./docker/workers.conf \
@@ -47,3 +31,46 @@ COPY \
 RUN php /var/www/html/artisan storage:link
 
 ENTRYPOINT ["/var/www/html/docker/entryfile.sh"]
+
+FROM base as binaries
+
+ENV IMAGEMAGICK_VERSION="7.1.2-8"
+ENV IMAGICK_VERSION="3.8.0"
+ENV FFMPEG_KEYRING=deb-multimedia-keyring_2024.9.1_all.deb
+ENV FFMPEG_KEYRING_CHECKSUM=sha256:8dc6cbb266c701cfe58bd1d2eb9fe2245a1d6341c7110cfbfe3a5a975dcf97ca
+
+RUN apt update
+RUN apt install -y --no-install-recommends default-mysql-client
+RUN apt install -y --no-install-recommends jpegoptim optipng pngquant gifsicle webp
+RUN apt install -y --no-install-recommends libjpeg-dev libpng-dev libwebp-dev libxml2-dev
+RUN rm -rf /var/lib/apt/lists/*
+
+# Install ImageMagick from source - https://github.com/ImageMagick/ImageMagick
+WORKDIR /ImageMagick-$IMAGEMAGICK_VERSION
+
+RUN git clone --depth 1 --branch $IMAGEMAGICK_VERSION https://github.com/ImageMagick/ImageMagick.git .
+RUN ./configure
+RUN make
+RUN make install
+RUN ldconfig /usr/local/lib
+
+# Install Imagick from source - https://github.com/Imagick/imagick
+WORKDIR /Imagick-$IMAGICK_VERSION
+
+RUN git clone --depth 1 --branch $IMAGICK_VERSION https://github.com/Imagick/imagick .
+RUN phpize && ./configure
+RUN make
+RUN make install
+
+# Install FFmpeg - https://deb-multimedia.org/dists/stable/main/binary-amd64/package/ffmpeg
+WORKDIR /ffmpeg
+
+RUN echo "Types: deb\nURIs: https://www.deb-multimedia.org\nSuites: bookworm\nComponents: main\nSigned-By: /usr/share/keyrings/deb-multimedia-keyring.pgp\nEnabled: yes" >> /etc/apt/sources.list.d/dmo.sources
+ADD --checksum=$FFMPEG_CHECKSUM \
+ https://www.deb-multimedia.org/pool/main/d/deb-multimedia-keyring/$FFMPEG_KEYRING \
+    $FFMPEG_KEYRING
+RUN dpkg -i $FFMPEG_KEYRING \
+    && apt update \
+    && apt -y install ffmpeg
+
+WORKDIR /var/www/html
