@@ -652,14 +652,14 @@ You may use the `CLIENT_NOTIFICATION_ROUTE` env variable if you have a custom no
 To test video transcoding for chunked uploads, you need to cut a video file into at least two pieces. 
 There is no additional change to the files. It is important that both chunks
 have the same filename, else they cannot be joined on the other side.
-Place a file called `test.mp4` in the `storage/app` folder.
+Place a file called `test.mp4` in the `storage/app/private` folder.
 
 ```php
 $chunkSize = <chunkSize in bytes>;
-$fh = fopen(Storage::path('test.mp4'), 'r');
+$fh = fopen(Storage::disk('local')->path('test.mp4'), 'r');
 
-Storage::put('chunk1/chunkedVideo.mp4', fread($fh, $chunkSize));
-Storage::put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
+Storage::disk('local')->put('chunk1/chunkedVideo.mp4', fread($fh, $chunkSize));
+Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 ```
 
 ## Upgrade Guide
