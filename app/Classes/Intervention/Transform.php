@@ -6,14 +6,15 @@ use App\Enums\ImageFormat;
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use App\Exceptions\DocumentPageDoesNotExistException;
+use App\Exceptions\ImageTransformationException;
 use App\Exceptions\ImagickPolicyException;
 use App\Interfaces\TransformInterface;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Imagick;
 use ImagickException;
 use Intervention\Image\Encoders\AutoEncoder;
+use Intervention\Image\Exceptions\DecoderException;
 use Intervention\Image\Laravel\Facades\Image as ImageManager;
-use Log;
 
 class Transform implements TransformInterface
 {
@@ -45,6 +46,7 @@ class Transform implements TransformInterface
      * @param string $fileData
      * @param array|null $transformations
      * @return string
+     * @throws ImageTransformationException
      */
     protected function pdfToImage(string $fileData, ?array $transformations = null): string
     {
@@ -59,13 +61,21 @@ class Transform implements TransformInterface
         try {
             $imagick->readImage(sprintf('%s[%d]', $tempFile, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
         } catch (ImagickException $exception) {
-            $this->handleImagickException($exception, $transformations);
+            $this->handleReadImagickExceptions($exception, $transformations);
         } finally {
             unlink($tempFile);
         }
 
         $imagick = $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
-        $imagick->setImageFormat($transformations[Transformation::FORMAT->value]);
+
+        try {
+            $imagick->setImageFormat($transformations[Transformation::FORMAT->value]);
+        } catch (ImagickException $exception) {
+            $customException = new ImageTransformationException($exception->getMessage(), $exception->getCode(), previous: $exception);
+
+            report($customException);
+            throw $customException;
+        }
 
         return $this->applyTransformations($imagick->getImageBlob(), $transformations);
     }
@@ -90,10 +100,18 @@ class Transform implements TransformInterface
      * @param string $imageData
      * @param array|null $transformations
      * @return string
+     * @throws ImageTransformationException
      */
     protected function applyTransformations(string $imageData, ?array $transformations = null): string
     {
-        $image = ImageManager::read($imageData);
+        try {
+            $image = ImageManager::read($imageData);
+        } catch (DecoderException $exception) {
+            $customException = new ImageTransformationException($exception->getMessage(), 420, previous: $exception);
+
+            report($customException);
+            throw $customException;
+        }
 
         $width = $transformations[Transformation::WIDTH->value] ?? $image->width();
         $height = $transformations[Transformation::HEIGHT->value] ?? $image->height();
@@ -111,23 +129,22 @@ class Transform implements TransformInterface
 
     /**
      * See https://imagemagick.org/script/exception.php for error code reference.
-     * @throws ImagickPolicyException|DocumentPageDoesNotExistException|ImagickException
+     * @throws ImagickPolicyException|DocumentPageDoesNotExistException|ImagickException|ImageTransformationException
      */
-    protected function handleImagickException(ImagickException $exception, ?array $transformations): void
+    protected function handleReadImagickExceptions(ImagickException $exception, ?array $transformations = null): void
     {
-        Log::error($exception->getMessage(), ['code' => $exception->getCode()]);
-
         // A policy denies access to a delegate, coder, filter, path, or resource.
         if ($exception->getCode() === 499) {
-            throw new ImagickPolicyException($exception->getMessage(), $exception->getCode(), $exception);
+            $customException = new ImagickPolicyException($exception->getMessage(), $exception->getCode(), previous: $exception);
         }
 
         $requestedPage = $transformations[Transformation::PAGE->value] ?? false;
         if ($exception->getCode() === 1 && $requestedPage) {
-            // Assuming an error happened because the requested page does not exist, we throw a custom exception.
-            throw new DocumentPageDoesNotExistException($requestedPage);
+            // We assume an error happened because the requested page does not exist. In case this is not applicable, check the error logs.
+            $customException = new DocumentPageDoesNotExistException($requestedPage, $exception->getCode(), previous: $exception);
         }
 
-        throw $exception;
+        report($customException ?? $exception);
+        throw $customException ?? $exception;
     }
 }
