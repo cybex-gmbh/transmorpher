@@ -612,6 +612,26 @@ Lost image and document derivatives will automatically be re-generated on demand
 
 ## Development
 
+### Docker image information
+
+#### ImageMagick
+
+Due to issues with `ImageMagick 6` in combination with `Intervention Image v3` it is necessary to install `ImageMagick 7`. 
+This needs to be compiled from source, as our currently used distribution versions (Ubuntu 24.04, Debian trixie) do not provide it yet.
+
+#### FFmpeg
+
+The production base image comes with an old FFmpeg version, therefore we add the source manually and install it from there.
+
+#### NVIDIA toolkit
+
+The production base image comes with the NVIDIA container toolkit pre-installed to enable GPU acceleration for video transcoding.
+
+The development base image does not include it by default.
+There is an additional build stage which takes care of installing the toolkit.
+
+There is a development compose file `compose-nvidia.yml`, which targets this build stage.
+
 ### [Pullpreview](https://github.com/pullpreview/action)
 
 For more information, take a look at the PullPreview section of the [github-workflow repository](https://github.com/cybex-gmbh/github-workflows#pullpreview).
@@ -627,7 +647,7 @@ App-specific GitHub Secrets:
 
 #### Companion App
 
-A demonstration app, which implements the client package, is booted with PullPreview and available at the PullPreview root URL.
+A demonstration app, which implements the [client package](https://github.com/cybex-gmbh/laravel-transmorpher-clien), is booted with PullPreview and available at the PullPreview root URL.
 The Transmorpher media server runs under the `transmorpher.` subdomain.
 
 #### Auth Token Hash
