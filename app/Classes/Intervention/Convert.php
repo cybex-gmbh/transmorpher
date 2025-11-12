@@ -15,13 +15,13 @@ class Convert implements ConvertInterface
      *
      * @param string|Image $image
      * @param string $format
-     * @param int|null $quality
+     * @param int $quality
      *
      * @return ConvertedImageInterface
      */
-    public function encode(string|Image $image, string $format, ?int $quality = null): ConvertedImageInterface
+    public function encode(string|Image $image, string $format, int $quality = 100): ConvertedImageInterface
     {
-        $convertedImage = ImageManager::read($image)->encodeByExtension(FileExtension::from($format), quality: $quality ?? 100);
+        $convertedImage = ImageManager::read($image)->encodeByExtension(FileExtension::from($format), quality: $quality);
 
         return ConvertedImage::createFromString($convertedImage);
     }

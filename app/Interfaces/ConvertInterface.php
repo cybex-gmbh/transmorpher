@@ -9,9 +9,9 @@ interface ConvertInterface
      *
      * @param string   $image Binary string of the image.
      * @param string   $format
-     * @param int|null $quality
+     * @param int $quality
      *
      * @return ConvertedImageInterface
      */
-    public function encode(string $image, string $format, ?int $quality = null): ConvertedImageInterface;
+    public function encode(string $image, string $format, int $quality = 100): ConvertedImageInterface;
 }

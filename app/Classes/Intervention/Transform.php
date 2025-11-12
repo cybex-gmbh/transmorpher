@@ -98,7 +98,7 @@ class Transform implements TransformInterface
         $width = $transformations[Transformation::WIDTH->value] ?? $image->width();
         $height = $transformations[Transformation::HEIGHT->value] ?? $image->height();
         $format = $transformations[Transformation::FORMAT->value] ?? null;
-        $quality = $transformations[Transformation::QUALITY->value] ?? null;
+        $quality = $transformations[Transformation::QUALITY->value] ?? 100;
 
         $image = $image->scaleDown($width, $height);
 
