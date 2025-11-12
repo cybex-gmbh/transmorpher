@@ -4,12 +4,12 @@ services:
       file: compose.yml
       service: app
     build:
-      context: ./docker/${DOCKER_PHP_VERSION:-8.2}
+      context: ./docker/${DOCKER_PHP_VERSION:-8.4}
       dockerfile: Dockerfile
       target: transmorpher_nvidia
       args:
         WWWGROUP: '${WWWGROUP}'
-    image: transmorpher-sail-${DOCKER_PHP_VERSION:-8.2}/app-nvidia
+    image: transmorpher-sail-${DOCKER_PHP_VERSION:-8.4}/app-nvidia
     deploy:
       resources:
         reservations:
