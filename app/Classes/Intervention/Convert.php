@@ -11,7 +11,7 @@ use Intervention\Image\Laravel\Facades\Image as ImageManager;
 class Convert implements ConvertInterface
 {
     /**
-     * Encode to specified format and if possible, set quality.
+     * Encode to specified format and, if possible, set quality.
      *
      * @param string|Image $image
      * @param string $format
