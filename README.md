@@ -134,8 +134,8 @@ Use the provided `.env` keys to select the according disks in the `filesystems.p
 > [!NOTE]
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
-> 1. If this prefix would be changed after initially launching your media server, 
-> clients would no longer be able to retrieve their previously uploaded media.
+> 1. If this prefix would be changed after initially launching your media server,
+     > clients would no longer be able to retrieve their previously uploaded media.
 
 #### Sodium Keypair
 
@@ -616,7 +616,7 @@ Lost image and document derivatives will automatically be re-generated on demand
 
 #### ImageMagick
 
-Due to issues with `ImageMagick 6` in combination with `Intervention Image v3` it is necessary to install `ImageMagick 7`. 
+Due to issues with `ImageMagick 6` in combination with `Intervention Image v3` it is necessary to install `ImageMagick 7`.
 This needs to be compiled from source, as our currently used distribution versions (Ubuntu 24.04, Debian trixie) do not provide it yet.
 
 #### FFmpeg
@@ -647,7 +647,8 @@ App-specific GitHub Secrets:
 
 #### Companion App
 
-A demonstration app, which implements the [client package](https://github.com/cybex-gmbh/laravel-transmorpher-clien), is booted with PullPreview and available at the PullPreview root URL.
+A demonstration app, which implements the [client package](https://github.com/cybex-gmbh/laravel-transmorpher-clien), is booted with PullPreview and available at the PullPreview
+root URL.
 The Transmorpher media server runs under the `transmorpher.` subdomain.
 
 #### Auth Token Hash
@@ -669,7 +670,7 @@ You may use the `CLIENT_NOTIFICATION_ROUTE` env variable if you have a custom no
 
 ### Chunk a file in Artisan Tinker
 
-To test video transcoding for chunked uploads, you need to cut a video file into at least two pieces. 
+To test video transcoding for chunked uploads, you need to cut a video file into at least two pieces.
 There is no additional change to the files. It is important that both chunks
 have the same filename, else they cannot be joined on the other side.
 Place a file called `test.mp4` in the `storage/app/private` folder.
@@ -688,6 +689,9 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 
 - If not using the docker image:
     - PHP was upgraded from 8.2 to 8.4. Upgrade your server accordingly.
+    - The `Intervention Image` package was upgraded from v2 to v3.
+        - `ImageMagick` v6 may cause artifacts to appear in images when combined with `Intervention Image` v3.
+          Therefore, you must upgrade `ImageMagick` to v7 and use a v7 compatible `Imagick` version.
 - Laravel was upgraded from v11 to v12.
   It is recommended to replace your .env with the new .env.example.
   Most noteworthy changes:
