@@ -9,6 +9,7 @@
   - session driver is now set to `database` by default in the .env.example
   - cache store is now set to `database` by default in the .env.example
   - migrations for the session and cache database tables have been published
+- a worker for emails has been added to the docker image. Available notifications have been documented, see ["Email notifications README"](README.md#email-notifications)
 
 ### Development
 
