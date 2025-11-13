@@ -647,8 +647,8 @@ App-specific GitHub Secrets:
 
 #### Companion App
 
-A demonstration app, which implements the [client package](https://github.com/cybex-gmbh/laravel-transmorpher-clien), is booted with PullPreview and available at the PullPreview
-root URL.
+A demonstration app, which implements the [client package](https://github.com/cybex-gmbh/laravel-transmorpher-client),
+is booted with PullPreview and available at the PullPreview root URL.
 The Transmorpher media server runs under the `transmorpher.` subdomain.
 
 #### Auth Token Hash
