@@ -168,8 +168,8 @@ For more information, check the [Laravel Mail documentation](https://laravel.com
 
 Available email notifications:
 
-- New Api Version Notice: `php artisan mail:new-api-version-notice<apiVersion>`
-- Api Version Deprecation Notice `php artisan mail:deprecation-notice <apiVersion>`
+- New Api Version Notice: `php artisan mail:new-api-version-notice <newApiVersion>`
+- Api Version Deprecation Notice `php artisan mail:deprecation-notice <deprecatedApiVersion>`
 
 These will be sent to all users. 
 
