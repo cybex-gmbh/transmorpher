@@ -1,7 +1,10 @@
 <?php
 
+namespace Tests\Unit;
+
 use FFMpeg\FFMpeg;
 use PHPUnit\Framework\Attributes\Test;
+use Process;
 use Tests\TestCase;
 
 class BinaryAvailabilityTest extends TestCase

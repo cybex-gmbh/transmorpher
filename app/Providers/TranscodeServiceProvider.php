@@ -3,10 +3,13 @@
 namespace App\Providers;
 
 use App\Interfaces\TranscodeInterface;
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
-class TranscodeServiceProvider extends ServiceProvider
+class TranscodeServiceProvider extends ServiceProvider implements DeferrableProvider
 {
+    const SERVICE_NAME = 'transcode';
+
     /**
      * Register services.
      *
@@ -14,16 +17,16 @@ class TranscodeServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton('transcode', fn(): TranscodeInterface => app()->make(config('transmorpher.transcode_class')));
+        $this->app->singleton(static::SERVICE_NAME, fn(): TranscodeInterface => app()->make(config('transmorpher.transcode_class')));
     }
 
     /**
-     * Bootstrap services.
+     * Get the services provided by the provider.
      *
-     * @return void
+     * @return array<int, string>
      */
-    public function boot()
+    public function provides(): array
     {
-        //
+        return [static::SERVICE_NAME];
     }
 }

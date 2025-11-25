@@ -16,8 +16,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [ 8.2, 8.3 ]
-        laravel: [ 11.* ]
+        php: [ 8.4 ]
+        laravel: [ 12.* ]
         dependency-version: [ prefer-stable ]
     with:
       PHP_VERSION: ${{ matrix.php }}

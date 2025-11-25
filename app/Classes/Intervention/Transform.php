@@ -137,7 +137,7 @@ class Transform implements TransformInterface
      *
      * @return ConvertedImageInterface
      */
-    public function format($image, string $format, int $quality = null): ConvertedImageInterface
+    public function format($image, string $format, ?int $quality = null): ConvertedImageInterface
     {
         return ImageFormat::from($format)->getConverter()->encode($image, $format, $quality);
     }

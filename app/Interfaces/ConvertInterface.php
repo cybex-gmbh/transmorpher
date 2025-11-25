@@ -13,5 +13,5 @@ interface ConvertInterface
      *
      * @return ConvertedImageInterface
      */
-    public function encode(string $image, string $format, int $quality = null): ConvertedImageInterface;
+    public function encode(string $image, string $format, ?int $quality = null): ConvertedImageInterface;
 }

@@ -7,7 +7,7 @@ use Spatie\ImageOptimizer\Optimizers\Pngquant;
 
 class PngOptimizer extends FormatOptimizer
 {
-    public function optimize(string $pathToImage, int $quality = null): void
+    public function optimize(string $pathToImage, ?int $quality = null): void
     {
         if ($quality) {
             Config::set(

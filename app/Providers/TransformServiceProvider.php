@@ -3,10 +3,13 @@
 namespace App\Providers;
 
 use App\Interfaces\TransformInterface;
+use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
-class TransformServiceProvider extends ServiceProvider
+class TransformServiceProvider extends ServiceProvider implements DeferrableProvider
 {
+    const SERVICE_NAME = 'transform';
+
     /**
      * Register services.
      *
@@ -14,16 +17,16 @@ class TransformServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton('transform', fn(): TransformInterface => app()->make(config('transmorpher.transform_class')));
+        $this->app->singleton(static::SERVICE_NAME, fn(): TransformInterface => app()->make(config('transmorpher.transform_class')));
     }
 
     /**
-     * Bootstrap services.
+     * Get the services provided by the provider.
      *
-     * @return void
+     * @return array<int, string>
      */
-    public function boot()
+    public function provides(): array
     {
-        //
+        return [static::SERVICE_NAME];
     }
 }

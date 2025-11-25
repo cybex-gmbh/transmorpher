@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\MediaStorage;
 use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,12 +50,14 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+    use HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'api_url',
@@ -66,7 +69,7 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
         'password',

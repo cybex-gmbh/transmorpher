@@ -45,15 +45,16 @@ return [
     | utilizes the Monolog PHP logging library, which includes a variety
     | of powerful log handlers and formatters that you're free to use.
     |
-    | Available Drivers: "single", "daily", "slack", "syslog",
+    | Available drivers: "single", "daily", "slack", "syslog",
     |                    "errorlog", "monolog", "custom", "stack"
     |
     */
 
     'channels' => [
+
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', env('LOG_STACK', 'single')),
+            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
         ],
 
@@ -97,10 +98,10 @@ return [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
             'handler' => StreamHandler::class,
-            'formatter' => env('LOG_STDERR_FORMATTER'),
-            'with' => [
+            'handler_with' => [
                 'stream' => 'php://stderr',
             ],
+            'formatter' => env('LOG_STDERR_FORMATTER'),
             'processors' => [PsrLogMessageProcessor::class],
         ],
 
@@ -125,6 +126,7 @@ return [
         'emergency' => [
             'path' => storage_path(sprintf('logs/%s/laravel.log', env('LOG_FOLDER'))),
         ],
+
     ],
 
 ];

@@ -20,10 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/delivery.php'));
         },
     )
-    ->withMiddleware(function (Middleware $middleware) {
+    ->withMiddleware(function (Middleware $middleware): void {
         //
     })
-    ->withExceptions(function (Exceptions $exceptions) {
+    ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (NotFoundHttpException $e, \Illuminate\Http\Request $request) {
             if ($request->wantsJson() && $e->getPrevious() instanceof ModelNotFoundException) {
                 return response()->json([
