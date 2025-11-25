@@ -617,7 +617,7 @@ Lost image and document derivatives will automatically be re-generated on demand
 #### ImageMagick
 
 Due to issues with `ImageMagick 6` in combination with `Intervention Image v3` it is necessary to install `ImageMagick 7`.
-This needs to be compiled from source, as our currently used distribution versions (Ubuntu 24.04, Debian trixie) do not provide it yet.
+This needs to be compiled from source, as our currently used distribution versions (Ubuntu 24.04, Debian bookworm) do not provide it yet.
 
 #### FFmpeg
 
