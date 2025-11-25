@@ -91,7 +91,12 @@ To use video transcoding:
 
 #### Generic workers
 
-Client notifications will be pushed on the queue `client-notifications`. You will need to set up 1 worker for this queue.
+Client notifications will be pushed onto the queue `client-notifications`.
+You must set up 1 worker for this queue.
+
+Email notifications will be pushed onto the queue `email`. 
+You may set up 1 worker for this queue, if you want to send emails. 
+See [Email notifications](#email-notifications) for more information.
 
 #### Scheduling
 
@@ -106,7 +111,7 @@ To run the scheduler, you will need to add a cron job that runs the `schedule:ru
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-For more information about scheduling, check the [Laravel Docs](https://laravel.com/docs/11.x/scheduling).
+For more information about scheduling, check the [Laravel Docs](https://laravel.com/docs/12.x/scheduling).
 
 ## General configuration
 
@@ -155,6 +160,18 @@ TRANSMORPHER_SIGNING_KEYPAIR=
 ```
 
 The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested by any client.
+
+#### Email notifications
+
+If you want to send emails, you will need to configure a mail provider via the `MAIL_` `.env` keys.
+For more information, check the [Laravel Mail documentation](https://laravel.com/docs/12.x/mail).
+
+Available email notifications:
+
+- New Api Version Notice: `php artisan mail:new-api-version-notice <newApiVersion>`
+- Api Version Deprecation Notice `php artisan mail:deprecation-notice <deprecatedApiVersion>`
+
+These will be sent to all users. 
 
 ### Cloud Setup
 
@@ -242,7 +259,7 @@ which is the video derivatives S3 bucket.
 
 Transcoding jobs are dispatched onto the "video-transcoding" queue.
 You can have these jobs processed on the main server or dedicated workers.
-For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/11.x/queues).
+For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
 
 > [!NOTE]
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
@@ -289,7 +306,7 @@ php artisan storage:link
 
 Transcoding jobs are dispatched onto the "video-transcoding" queue.
 You can have these jobs processed on the main server or dedicated workers.
-For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/11.x/queues).
+For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
 
 You can define your queue connection in the `.env` file:
 
@@ -327,7 +344,7 @@ php artisan create:user <name> <email> <api_url>
 The server sends notifications to the api url, for example, video transcoding information.
 For our standard laravel client implementation, this is: `https://example.com/transmorpher/notifications`.
 
-This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/11.x/sanctum) token, which has to be
+This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/12.x/sanctum) token, which has to be
 written in the `.env` file of a client system.
 > The token will be passed for all API requests for authorization and is connected to the corresponding user.
 
@@ -692,6 +709,7 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
     - The `Intervention Image` package was upgraded from v2 to v3.
         - `ImageMagick` v6 may cause artifacts to appear in images when combined with `Intervention Image` v3.
           Therefore, you must upgrade `ImageMagick` to v7 and use a v7 compatible `Imagick` version.
+    - If you want to send emails, set up a worker for the `email` queue.
 - Laravel was upgraded from v11 to v12.
   It is recommended to replace your .env with the new .env.example.
   Most noteworthy changes:
