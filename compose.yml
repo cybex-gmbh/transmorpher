@@ -5,6 +5,7 @@ services:
     build:
       context: ./docker/${DOCKER_PHP_VERSION:-8.4}
       dockerfile: Dockerfile
+      target: transmorpher_base
       args:
         WWWGROUP: '${WWWGROUP}'
     image: transmorpher-sail-${DOCKER_PHP_VERSION:-8.4}/app

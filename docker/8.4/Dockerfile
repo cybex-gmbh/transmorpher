@@ -15,6 +15,9 @@ ENV SUPERVISOR_PHP_COMMAND="/usr/bin/php -d variables_order=EGPCS /var/www/html/
 ENV SUPERVISOR_PHP_USER="sail"
 ENV PLAYWRIGHT_BROWSERS_PATH=0
 
+ENV IMAGEMAGICK_VERSION="7.1.2-8"
+ENV IMAGICK_VERSION="3.8.0"
+
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN echo "Acquire::http::Pipeline-Depth 0;" > /etc/apt/apt.conf.d/99custom && \
@@ -53,8 +56,6 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get install -y yarn \
     && apt-get install -y $MYSQL_CLIENT \
     && apt-get install -y postgresql-client-$POSTGRES_VERSION \
-    && apt-get install -y imagemagick \
-    && apt-get install -y php8.4-imagick \
     && apt-get install -y jpegoptim \
     && apt-get install -y optipng \
     && apt-get install -y pngquant \
@@ -64,6 +65,29 @@ RUN apt-get update && apt-get upgrade -y \
     && apt-get -y autoremove \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install ImageMagick from source
+WORKDIR /ImageMagick-$IMAGEMAGICK_VERSION
+
+RUN apt update
+RUN apt install -y libjpeg-dev libpng-dev libwebp-dev
+RUN rm -rf /var/lib/apt/lists/*
+
+RUN git clone --depth 1 --branch $IMAGEMAGICK_VERSION https://github.com/ImageMagick/ImageMagick.git .
+RUN ./configure
+RUN make
+RUN make install
+RUN ldconfig /usr/local/lib
+
+# Install Imagick from source
+WORKDIR /Imagick-$IMAGICK_VERSION
+
+RUN git clone --depth 1 --branch $IMAGICK_VERSION https://github.com/Imagick/imagick .
+RUN phpize && ./configure
+RUN make
+RUN make install
+
+WORKDIR /var/www/html
 
 RUN setcap "cap_net_bind_service=+ep" /usr/bin/php8.4
 

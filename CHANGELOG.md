@@ -10,6 +10,11 @@
   - cache store is now set to `database` by default in the .env.example
   - migrations for the session and cache database tables have been published
 
+### Development
+
+- the `Intervention Image` package has been updated to v3, since v2 is EOL. 
+- `ImageMagick` v6 caused artifacts to appear in images when combined with `Intervention Image` v3, therefore we needed to update `ImageMagick` to v7. 
+
 ## [v0.7.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.6.0...v0.7.0)
 
 ### Features

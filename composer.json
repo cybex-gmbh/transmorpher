@@ -17,11 +17,11 @@
     "require": {
         "php": "8.4.*",
         "ext-fileinfo": "*",
-        "ext-sodium": "*",
         "ext-imagick": "*",
+        "ext-sodium": "*",
         "aminyazdanpanah/php-ffmpeg-video-streaming": "^1.2.17",
         "cybex/laravel-protector": "^3.0",
-        "intervention/image": "^2.7",
+        "intervention/image-laravel": "^1.5",
         "karriere/pdf-merge": "^3.2",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",

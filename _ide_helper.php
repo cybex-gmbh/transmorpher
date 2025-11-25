@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 12.36.1.
+ * Generated for Laravel 12.37.0.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -7695,7 +7695,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Register a database query listener with the connection.
          *
-         * @param \Closure $callback
+         * @param \Closure(\Illuminate\Database\Events\QueryExecuted) $callback
          * @return void
          * @static
          */
@@ -9317,10 +9317,10 @@ namespace Illuminate\Support\Facades {
          * @return \Symfony\Component\Finder\SplFileInfo[]
          * @static
          */
-        public static function files($directory, $hidden = false)
+        public static function files($directory, $hidden = false, $depth = 0)
         {
             /** @var \Illuminate\Filesystem\Filesystem $instance */
-            return $instance->files($directory, $hidden);
+            return $instance->files($directory, $hidden, $depth);
         }
 
         /**
@@ -9344,10 +9344,10 @@ namespace Illuminate\Support\Facades {
          * @return array
          * @static
          */
-        public static function directories($directory)
+        public static function directories($directory, $depth = 0)
         {
             /** @var \Illuminate\Filesystem\Filesystem $instance */
-            return $instance->directories($directory);
+            return $instance->directories($directory, $depth);
         }
 
         /**
@@ -23163,162 +23163,6 @@ namespace App\Facades {
             return $instance->transform($pathToOriginalImage, $transformations);
         }
 
-        /**
-         * Resize an image based on specified width and height.
-         * 
-         * Keeps the aspect ratio and prevents upsizing.
-         *
-         * @param $image
-         * @param int $width
-         * @param int $height
-         * @static
-         */
-        public static function resize($image, $width, $height)
-        {
-            /** @var \App\Classes\Intervention\Transform $instance */
-            return $instance->resize($image, $width, $height);
-        }
-
-        /**
-         * Use a converter class to encode the image to given format and quality.
-         *
-         * @param $image
-         * @param string $format
-         * @param int|null $quality
-         * @return \App\Interfaces\ConvertedImageInterface
-         * @static
-         */
-        public static function format($image, $format, $quality = null)
-        {
-            /** @var \App\Classes\Intervention\Transform $instance */
-            return $instance->format($image, $format, $quality);
-        }
-
-            }
-    }
-
-namespace Intervention\Image\Facades {
-    /**
-     */
-    class Image {
-        /**
-         * Overrides configuration settings
-         *
-         * @param array $config
-         * @return self
-         * @static
-         */
-        public static function configure($config = [])
-        {
-            /** @var \Intervention\Image\ImageManager $instance */
-            return $instance->configure($config);
-        }
-
-        /**
-         * Initiates an Image instance from different input types
-         *
-         * @param mixed $data
-         * @return \Intervention\Image\Image
-         * @static
-         */
-        public static function make($data)
-        {
-            /** @var \Intervention\Image\ImageManager $instance */
-            return $instance->make($data);
-        }
-
-        /**
-         * Creates an empty image canvas
-         *
-         * @param int $width
-         * @param int $height
-         * @param mixed $background
-         * @return \Intervention\Image\Image
-         * @static
-         */
-        public static function canvas($width, $height, $background = null)
-        {
-            /** @var \Intervention\Image\ImageManager $instance */
-            return $instance->canvas($width, $height, $background);
-        }
-
-        /**
-         * Create new cached image and run callback
-         * (requires additional package intervention/imagecache)
-         *
-         * @param \Closure $callback
-         * @param int $lifetime
-         * @param boolean $returnObj
-         * @return \Image
-         * @static
-         */
-        public static function cache($callback, $lifetime = null, $returnObj = false)
-        {
-            /** @var \Intervention\Image\ImageManager $instance */
-            return $instance->cache($callback, $lifetime, $returnObj);
-        }
-
-            }
-    /**
-     */
-    class Image {
-        /**
-         * Overrides configuration settings
-         *
-         * @param array $config
-         * @return self
-         * @static
-         */
-        public static function configure($config = [])
-        {
-            /** @var \Intervention\Image\ImageManager $instance */
-            return $instance->configure($config);
-        }
-
-        /**
-         * Initiates an Image instance from different input types
-         *
-         * @param mixed $data
-         * @return \Intervention\Image\Image
-         * @static
-         */
-        public static function make($data)
-        {
-            /** @var \Intervention\Image\ImageManager $instance */
-            return $instance->make($data);
-        }
-
-        /**
-         * Creates an empty image canvas
-         *
-         * @param int $width
-         * @param int $height
-         * @param mixed $background
-         * @return \Intervention\Image\Image
-         * @static
-         */
-        public static function canvas($width, $height, $background = null)
-        {
-            /** @var \Intervention\Image\ImageManager $instance */
-            return $instance->canvas($width, $height, $background);
-        }
-
-        /**
-         * Create new cached image and run callback
-         * (requires additional package intervention/imagecache)
-         *
-         * @param \Closure $callback
-         * @param int $lifetime
-         * @param boolean $returnObj
-         * @return \Image
-         * @static
-         */
-        public static function cache($callback, $lifetime = null, $returnObj = false)
-        {
-            /** @var \Intervention\Image\ImageManager $instance */
-            return $instance->cache($callback, $lifetime, $returnObj);
-        }
-
             }
     }
 
@@ -23876,6 +23720,127 @@ namespace Cybex\Protector {
         {
             /** @var \Cybex\Protector\Protector $instance */
             return $instance->shouldUseTablespaces();
+        }
+
+            }
+    }
+
+namespace Intervention\Image\Laravel\Facades {
+    /**
+     */
+    class Image {
+        /**
+         * Create image manager with given driver
+         *
+         * @link https://image.intervention.io/v3/basics/configuration-drivers#static-constructor
+         * @throws DriverException
+         * @throws InputException
+         * @static
+         */
+        public static function withDriver($driver, ...$options)
+        {
+            return \Intervention\Image\ImageManager::withDriver($driver, ...$options);
+        }
+
+        /**
+         * Create image manager with GD driver
+         *
+         * @link https://image.intervention.io/v3/basics/configuration-drivers#static-gd-driver-constructor
+         * @throws DriverException
+         * @throws InputException
+         * @static
+         */
+        public static function gd(...$options)
+        {
+            return \Intervention\Image\ImageManager::gd(...$options);
+        }
+
+        /**
+         * Create image manager with Imagick driver
+         *
+         * @link https://image.intervention.io/v3/basics/configuration-drivers#static-imagick-driver-constructor
+         * @throws DriverException
+         * @throws InputException
+         * @static
+         */
+        public static function imagick(...$options)
+        {
+            return \Intervention\Image\ImageManager::imagick(...$options);
+        }
+
+        /**
+         * Create new image instance with given width & height
+         *
+         * @see ImageManagerInterface::create()
+         * @link https://image.intervention.io/v3/basics/instantiation#create-new-images
+         * @throws RuntimeException
+         * @static
+         */
+        public static function create($width, $height)
+        {
+            /** @var \Intervention\Image\ImageManager $instance */
+            return $instance->create($width, $height);
+        }
+
+        /**
+         * Create new image instance from given input which can be one of the following
+         * 
+         * - Path in filesystem
+         * - File Pointer resource
+         * - SplFileInfo object
+         * - Raw binary image data
+         * - Base64 encoded image data
+         * - Data Uri
+         * - Intervention\Image\Image Instance
+         * 
+         * To decode the raw input data, you can optionally specify a decoding strategy
+         * with the second parameter. This can be an array of class names or objects
+         * of decoders to be processed in sequence. In this case, the input must be
+         * decodedable with one of the decoders passed. It is also possible to pass
+         * a single object or class name of a decoder.
+         * 
+         * All decoders that implement the `DecoderInterface::class` can be passed. Usually
+         * a selection of classes of the namespace `Intervention\Image\Decoders`
+         * 
+         * If the second parameter is not set, an attempt to decode the input is made
+         * with all available decoders of the driver.
+         *
+         * @see ImageManagerInterface::read()
+         * @link https://image.intervention.io/v3/basics/instantiation#read-image-sources
+         * @param string|array<string|DecoderInterface>|\Intervention\Image\Interfaces\DecoderInterface $decoders
+         * @throws RuntimeException
+         * @static
+         */
+        public static function read($input, $decoders = [])
+        {
+            /** @var \Intervention\Image\ImageManager $instance */
+            return $instance->read($input, $decoders);
+        }
+
+        /**
+         * Create new animated image by given callback
+         *
+         * @see ImageManagerInterface::animate()
+         * @link https://image.intervention.io/v3/basics/instantiation#create-animations
+         * @throws RuntimeException
+         * @static
+         */
+        public static function animate($init)
+        {
+            /** @var \Intervention\Image\ImageManager $instance */
+            return $instance->animate($init);
+        }
+
+        /**
+         * Return currently used driver
+         *
+         * @see ImageManagerInterface::driver()
+         * @static
+         */
+        public static function driver()
+        {
+            /** @var \Intervention\Image\ImageManager $instance */
+            return $instance->driver();
         }
 
             }
@@ -29274,12 +29239,11 @@ namespace  {
     class Vite extends \Illuminate\Support\Facades\Vite {}
     class CdnHelper extends \App\Facades\CdnHelperFacade {}
     class Delivery extends \App\Facades\DeliveryFacade {}
-    class InterventionImage extends \Intervention\Image\Facades\Image {}
     class Optimize extends \App\Facades\OptimizeFacade {}
     class Transcode extends \App\Facades\TranscodeFacade {}
     class Transform extends \App\Facades\TransformFacade {}
     class Protector extends \Cybex\Protector\ProtectorFacade {}
-    class Image extends \Intervention\Image\Facades\Image {}
+    class Image extends \Intervention\Image\Laravel\Facades\Image {}
     class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}
     class ImageOptimizer extends \Spatie\LaravelImageOptimizer\Facades\ImageOptimizer {}
 }
