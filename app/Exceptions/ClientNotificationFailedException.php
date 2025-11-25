@@ -15,7 +15,7 @@ class ClientNotificationFailedException extends Exception
      * @param int $code
      * @param Throwable|null $previous
      */
-    public function __construct(string $userName, string $notificationType, int $httpCode, string $reason, int $code = 0, Throwable $previous = null)
+    public function __construct(string $userName, string $notificationType, int $httpCode, string $reason, int $code = 0, ?Throwable $previous = null)
     {
         parent::__construct(
             sprintf(

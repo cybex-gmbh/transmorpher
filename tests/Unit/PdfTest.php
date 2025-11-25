@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Unit;
+
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
 use App\Enums\MediaStorage;
@@ -8,6 +10,10 @@ use App\Enums\ResponseState;
 use App\Helpers\SodiumHelper;
 use App\Models\Media;
 use App\Models\Version;
+use Artisan;
+use Config;
+use File;
+use Http;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
@@ -16,6 +22,7 @@ use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Smalot\PdfParser\Config as PdfParserConfig;
 use Smalot\PdfParser\Parser;
+use Storage;
 use Tests\OnDemandDerivativeMediaTest;
 
 class PdfTest extends OnDemandDerivativeMediaTest

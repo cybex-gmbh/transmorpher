@@ -13,6 +13,7 @@ A media server for images, pdfs and videos.
 - [Laravel Image Optimizer](https://github.com/spatie/laravel-image-optimizer)
 
 #### PDF metadata removal
+
 - [PDF Merge](https://github.com/karriereat/pdf-merge)
 
 #### Video transcoding
@@ -90,7 +91,12 @@ To use video transcoding:
 
 #### Generic workers
 
-Client notifications will be pushed on the queue `client-notifications`. You will need to set up 1 worker for this queue.
+Client notifications will be pushed onto the queue `client-notifications`.
+You must set up 1 worker for this queue.
+
+Email notifications will be pushed onto the queue `email`. 
+You may set up 1 worker for this queue, if you want to send emails. 
+See [Email notifications](#email-notifications) for more information.
 
 #### Scheduling
 
@@ -105,7 +111,7 @@ To run the scheduler, you will need to add a cron job that runs the `schedule:ru
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-For more information about scheduling, check the [Laravel Docs](https://laravel.com/docs/11.x/scheduling).
+For more information about scheduling, check the [Laravel Docs](https://laravel.com/docs/12.x/scheduling).
 
 ## General configuration
 
@@ -133,7 +139,8 @@ Use the provided `.env` keys to select the according disks in the `filesystems.p
 > [!NOTE]
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
-> 1. If this prefix would be changed after initially launching your media server, clients would no longer be able to retrieve their previously uploaded media.
+> 1. If this prefix would be changed after initially launching your media server,
+     > clients would no longer be able to retrieve their previously uploaded media.
 
 #### Sodium Keypair
 
@@ -154,9 +161,22 @@ TRANSMORPHER_SIGNING_KEYPAIR=
 
 The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested by any client.
 
+#### Email notifications
+
+If you want to send emails, you will need to configure a mail provider via the `MAIL_` `.env` keys.
+For more information, check the [Laravel Mail documentation](https://laravel.com/docs/12.x/mail).
+
+Available email notifications:
+
+- New Api Version Notice: `php artisan mail:new-api-version-notice <newApiVersion>`
+- Api Version Deprecation Notice `php artisan mail:deprecation-notice <deprecatedApiVersion>`
+
+These will be sent to all users. 
+
 ### Cloud Setup
 
-The Transmorpher media server is not dependent on a specific cloud service provider, but only provides classes for AWS services out of the box.
+The Transmorpher media server is not dependent on a specific cloud service provider,
+but only provides classes for AWS services out of the box.
 
 #### Prerequisites for video functionality
 
@@ -201,7 +221,8 @@ AWS_BUCKET_DOCUMENT_DERIVATIVES=
 AWS_BUCKET_VIDEO_DERIVATIVES=
 ```
 
-It is technically possible to use the same bucket for all 3, but it is recommended to split it up to help manage and secure the files.
+It is technically possible to use the same bucket for all 3,
+but it is recommended to split it up to help manage and secure the files.
 
 Privacy settings:
 
@@ -231,13 +252,14 @@ To properly use the API, you need to either:
 
 *Content Delivery Network*
 
-In the CDN routing create a new behavior which points requests starting with "/videos/*" to a new origin, which is the video derivatives S3 bucket.
+In the CDN routing create a new behavior which points requests starting with "/videos/*" to a new origin,
+which is the video derivatives S3 bucket.
 
 *Queue*
 
 Transcoding jobs are dispatched onto the "video-transcoding" queue.
 You can have these jobs processed on the main server or dedicated workers.
-For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/11.x/queues).
+For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
 
 > [!NOTE]
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
@@ -253,6 +275,11 @@ QUEUE_CONNECTION=sqs-fifo
 To configure an AWS SQS queue, see the according keys in the `.env`.
 
 ### Local disk setup
+
+> [!WARNING]
+> For the docker setup, to be able to deliver videos, the `Access-Control-Allow-Origin` header is currently set to '*'. This means every website can embed your videos.
+> 
+> If you want to restrict this, you can mount your own configuration at `/opt/docker/etc/nginx/vhost.common.d/10-location-root.conf`. The current config can be found at `docker/location-root.conf`. 
 
 #### Prerequisites for video functionality
 
@@ -284,7 +311,7 @@ php artisan storage:link
 
 Transcoding jobs are dispatched onto the "video-transcoding" queue.
 You can have these jobs processed on the main server or dedicated workers.
-For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/11.x/queues).
+For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
 
 You can define your queue connection in the `.env` file:
 
@@ -294,13 +321,14 @@ QUEUE_CONNECTION=database
 
 > [!CAUTION]
 >
-> The database connection does neither guarantee FIFO nor prevent duplicate runs. It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
+> The database connection does neither guarantee FIFO nor prevent duplicate runs.
+> It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
 > To prevent duplicate runs with database, use only one worker process.
 
 ### Additional options
 
-By default, the media server stores image derivatives on the image derivatives disk. This can be turned off, so they will always be re-generated on
-demand instead:
+By default, the media server stores image derivatives on the image derivatives disk.
+This can be turned off, so they will always be re-generated on demand instead:
 
 ```dotenv
 TRANSMORPHER_STORE_DERIVATIVES=true
@@ -318,10 +346,10 @@ Media always belongs to a user. To easily create one, use the provided command:
 php artisan create:user <name> <email> <api_url>
 ```
 
-The server sends notifications to the api url, for example, video transcoding information. 
+The server sends notifications to the api url, for example, video transcoding information.
 For our standard laravel client implementation, this is: `https://example.com/transmorpher/notifications`.
 
-This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/11.x/sanctum) token, which has to be
+This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/12.x/sanctum) token, which has to be
 written in the `.env` file of a client system.
 > The token will be passed for all API requests for authorization and is connected to the corresponding user.
 
@@ -378,7 +406,7 @@ transformations.
 ## PDF handling
 
 Requesting a PDF file will return the document.
-Metadata can be removed optionally by setting the `.env` key: 
+Metadata can be removed optionally by setting the `.env` key:
 
 ```dotenv
 TRANSMORPHER_DOCUMENT_REMOVE_METADATA=true
@@ -417,7 +445,8 @@ information about the transcoded video as soon as it completes. For this, a sign
 Since video transcoding is a complex task, it may take some time to complete.
 The client will also be notified about failed attempts.
 
-To publicly access a video, the client name, the identifier and a format have to be specified. There are different formats available:
+To publicly access a video, the client name, the identifier and a format have to be specified.
+There are different formats available:
 
 - HLS (.m3u8) `https://transmorpher.test/videos/<clientname>/<identifier>/hls/video.m3u8`
 - DASH (.mpd) `https://transmorpher.test/videos/<clientname>/<identifier>/dash/video.mpd`
@@ -443,27 +472,32 @@ To encode the DASH and HLS formats with either HEVC or h264, set the following e
 ```dotenv
 TRANSMORPHER_VIDEO_ENCODER=cpu-hevc
 ```
+
 or
+
 ```dotenv
 TRANSMORPHER_VIDEO_ENCODER=cpu-h264
 ```
 
 For the MP4 fallback file, h264 is always used because
+
 - FFmpeg doesn't support HEVC in MP4 files when encoding with a CPU.
 - h264 is the most widely supported codec, and this file is to be used when a client does not support HLS or DASH.
 
 ### GPU Acceleration
 
-Videos may be transcoded using a machine's nVidia GPU.
+Videos may be transcoded using a machine's NVIDIA GPU.
 This requires the according hardware and driver setup on the host machine.
+
 - https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
 - https://docs.nvidia.com/video-technologies/video-codec-sdk/pdf/Using_FFmpeg_with_NVIDIA_GPU_Hardware_Acceleration.pdf
 
 The following steps are necessary on a docker host:
-- Install nvidia drivers
-- Install nvidia container toolkit
-- Configure the docker nvidia runtime (note difference for rootless docker)
-- Add gpu capabilities and nvidia runtime to according compose.yml files 
+
+- Install NVIDIA drivers
+- Install NVIDIA container toolkit
+- Configure the docker NVIDIA runtime (note difference for rootless docker)
+- Add gpu capabilities and NVIDIA runtime to according compose.yml files
 - Restart docker and according containers
 
 To use GPU encoding with HEVC or h264, set the following environment variable.
@@ -472,14 +506,16 @@ This controls the codec used when transcoding videos to HLS and DASH, as well as
 ```dotenv
 TRANSMORPHER_VIDEO_ENCODER=nvidia-hevc
 ```
+
 or
+
 ```dotenv
 TRANSMORPHER_VIDEO_ENCODER=nvidia-h264
 ```
 
-The nVidia encoders have different presets available. 
-Higher preset numbers are higher quality and slower. 
-For encoder specific lists of presets see: 
+The NVIDIA encoders have different presets available.
+Higher preset numbers are higher quality and slower.
+For encoder specific lists of presets see:
 
 ```bash
 ffmpeg -h encoder=h264_nvenc
@@ -492,9 +528,9 @@ The default preset is `p4`. To set the high quality preset, use the following en
 TRANSMORPHER_VIDEO_ENCODER_NVIDIA_PRESET=p6
 ```
 
-Each encoder has its own configuration file in the `config/encoder` folder, containing FFmpeg parameters.  
+Each encoder has its own configuration file in the `config/encoder` folder, containing FFmpeg parameters.
 
-Note that the optional GPU video decoding setting is experimental and unstable. 
+Note that the optional GPU video decoding setting is experimental and unstable.
 By default, videos are decoded using the CPU.
 
 ## Interchangeability
@@ -540,7 +576,8 @@ You will also have to adjust the configuration values:
 
 ### Image Optimization
 
-The `image-optimizer.php` configuration file specifies which optimizers should be used. Here you can configure options for each optimizer and add new or remove optimizers.
+The `image-optimizer.php` configuration file specifies which optimizers should be used.
+Here you can configure options for each optimizer and add new or remove optimizers.
 
 For more information on adding custom optimizers, check the documentation of
 the [Laravel Image Optimizer](https://github.com/spatie/laravel-image-optimizer#adding-your-own-optimizers) package.
@@ -561,9 +598,11 @@ You will also have to adjust the configuration value:
 
 ## Purging derivatives
 
-Adjusting the way derivatives are generated will not be reflected on already existing derivatives. Therefore, you might want to delete all existing derivatives or re-generate them.
+Adjusting the way derivatives are generated will not be reflected on already existing derivatives.
+Therefore, you might want to delete all existing derivatives or re-generate them.
 
-We provide a command which will additionally notify clients with a signed request about a new derivatives revision, so they can react accordingly (e.g. update cache buster).
+We provide a command which will additionally notify clients with a signed request about a new derivatives revision,
+so they can react accordingly (e.g. update cache buster).
 
 ```bash
 php artisan purge:derivatives
@@ -589,11 +628,31 @@ To restore operation of the server, restore the following:
 
 If the `.env` file is lost follow the setup instructions above, including creating a new signing keypair.
 
-If video derivatives are lost, use the [purge command](#purging-derivatives) to restore them. 
+If video derivatives are lost, use the [purge command](#purging-derivatives) to restore them.
 
 Lost image and document derivatives will automatically be re-generated on demand.
 
 ## Development
+
+### Docker image information
+
+#### ImageMagick
+
+Due to issues with `ImageMagick 6` in combination with `Intervention Image v3` it is necessary to install `ImageMagick 7`.
+This needs to be compiled from source, as our currently used distribution versions (Ubuntu 24.04, Debian bookworm) do not provide it yet.
+
+#### FFmpeg
+
+The production base image comes with an old FFmpeg version, therefore we add the source manually and install it from there.
+
+#### NVIDIA toolkit
+
+The production base image comes with the NVIDIA container toolkit pre-installed to enable GPU acceleration for video transcoding.
+
+The development base image does not include it by default.
+There is an additional build stage which takes care of installing the toolkit.
+
+There is a development compose file `compose-nvidia.yml`, which targets this build stage.
 
 ### [Pullpreview](https://github.com/pullpreview/action)
 
@@ -610,7 +669,9 @@ App-specific GitHub Secrets:
 
 #### Companion App
 
-A demonstration app, which implements the client package, is booted with PullPreview and available at the PullPreview root URL. The Transmorpher media server runs under the `transmorpher.` subdomain. 
+A demonstration app, which implements the [client package](https://github.com/cybex-gmbh/laravel-transmorpher-client),
+is booted with PullPreview and available at the PullPreview root URL.
+The Transmorpher media server runs under the `transmorpher.` subdomain.
 
 #### Auth Token Hash
 
@@ -625,22 +686,44 @@ securely to use in client systems.
 
 #### Using your custom PullPreview environment
 
-In addition to the GitHub Secrets, you'll need to set the `CLIENT_CONTAINER_NAME` env variable for the Transmorpher server. 
+In addition to the GitHub Secrets, you'll need to set the `CLIENT_CONTAINER_NAME` env variable for the Transmorpher server.
 
-You may use the `CLIENT_NOTIFICATION_ROUTE` env variable if you have a custom notifications url, which differs from the default client implementation.  
+You may use the `CLIENT_NOTIFICATION_ROUTE` env variable if you have a custom notifications url, which differs from the default client implementation.
 
 ### Chunk a file in Artisan Tinker
 
-To test video transcoding for chunked uploads, you need to cut a videofile into at least two pieces. There is no additional change to the files. It is important that both chunks have the same filename, else they cannot be joined on the other side.
-Place a file called `test.mp4` in the `storage/app` folder.
+To test video transcoding for chunked uploads, you need to cut a video file into at least two pieces.
+There is no additional change to the files. It is important that both chunks
+have the same filename, else they cannot be joined on the other side.
+Place a file called `test.mp4` in the `storage/app/private` folder.
 
 ```php
 $chunkSize = <chunkSize in bytes>;
-$fh = fopen(Storage::path('test.mp4'), 'r');
+$fh = fopen(Storage::disk('local')->path('test.mp4'), 'r');
 
-Storage::put('chunk1/chunkedVideo.mp4', fread($fh, $chunkSize));
-Storage::put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
+Storage::disk('local')->put('chunk1/chunkedVideo.mp4', fread($fh, $chunkSize));
+Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 ```
+
+## Upgrade Guide
+
+### v0.7.0 to v0.8.0
+
+- If not using the docker image:
+    - PHP was upgraded from 8.2 to 8.4. Upgrade your server accordingly.
+    - The `Intervention Image` package was upgraded from v2 to v3.
+        - `ImageMagick` v6 may cause artifacts to appear in images when combined with `Intervention Image` v3.
+          Therefore, you must upgrade `ImageMagick` to v7 and use a v7 compatible `Imagick` version.
+    - If you want to send emails, set up a worker for the `email` queue.
+- Laravel was upgraded from v11 to v12.
+  It is recommended to replace your .env with the new .env.example.
+  Most noteworthy changes:
+    - `SESSION_DRIVER` is now set to `database` by default.
+    - `CACHE_DRIVER` is now `CACHE_STORE` and set to `database` by default.
+- Run database migrations.
+- The temporary files folder moved to `storage/app/private` as per the new `local` disk default.
+  The folders `chunks` and `ffmpeg-temp` in the `storage/app` folder are no longer used.
+  You can delete them.
 
 ## License
 

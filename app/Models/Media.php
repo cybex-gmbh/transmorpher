@@ -194,7 +194,7 @@ class Media extends Model
      *
      * @return string
      */
-    public function videoDerivativeFilePath(string $format, string $fileName = null): string
+    public function videoDerivativeFilePath(string $format, ?string $fileName = null): string
     {
         return sprintf('%s/%s/%s', $this->baseDirectory(), $format, $fileName ?? 'video');
     }
