@@ -17,6 +17,7 @@ COPY composer.json composer.lock /var/www/html/
 RUN composer install --no-interaction --no-dev --no-scripts
 
 COPY ./docker/workers.conf /opt/docker/etc/supervisor.d/
+COPY ./docker/location-root.conf /opt/docker/etc/nginx/vhost.common.d/10-location-root.conf
 COPY --chmod=755 ./docker/entryfile.sh /var/www/html/docker/entryfile.sh
 COPY --chmod=755 ./docker/watchtower.post-update.sh /var/www/html/docker/watchtower.post-update.sh
 COPY --chmod=755 --chown=application:application ./storage /var/www/html/storage
@@ -24,6 +25,7 @@ COPY --chmod=755 --chown=application:application ./storage /var/www/html/storage
 COPY \
     --exclude=./storage \
     --exclude=./docker/workers.conf \
+    --exclude=./docker/location-root.conf \
     --exclude=./docker/entryfile.sh \
     --exclude=./docker/watchtower.post-update.sh \
     . /var/www/html
