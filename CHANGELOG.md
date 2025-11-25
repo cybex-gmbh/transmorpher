@@ -13,7 +13,7 @@
 
 ### Bug Fixes
 
-- fix an issue for the local disk setup where videos could not be delivered
+- fix an issue for the local disk setup where videos could not be delivered due to CORS
 
 ### Development
 
