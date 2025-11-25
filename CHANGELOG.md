@@ -11,6 +11,10 @@
   - migrations for the session and cache database tables have been published
 - a worker for emails has been added to the docker image. Available notifications have been documented, see ["Email notifications README"](README.md#email-notifications)
 
+### Bug Fixes
+
+- fix an issue for the local disk setup where videos could not be delivered
+
 ### Development
 
 - the `Intervention Image` package has been updated to v3, since v2 is EOL. 
