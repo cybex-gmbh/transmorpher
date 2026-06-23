@@ -58,11 +58,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get branch name
+        run: echo "BRANCH_NAME=$(echo ${{ github.head_ref }} | tr / -)" >> $GITHUB_ENV
+
       - name: Delete docker images which were created
-        env:
-          BRANCH: ${{ github.head_ref }}
         run: |
-          MODIFIED_BRANCH_NAME=${BRANCH/\//-}
           TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${{ secrets.DOCKERHUB_USERNAME }}'", "password": "'${{ secrets.DOCKERHUB_TOKEN }}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
-          curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://hub.docker.com/v2/repositories/${{ env.DOCKER_REPOSITORY }}/tags/${MODIFIED_BRANCH_NAME}-app/
-          curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://hub.docker.com/v2/repositories/${{ env.DOCKER_REPOSITORY }}/tags/${MODIFIED_BRANCH_NAME}-transcoder/
+          curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://hub.docker.com/v2/repositories/${{ env.DOCKER_REPOSITORY }}/tags/${{ env.BRANCH }}-app/
+          curl -s -X DELETE -H "Authorization: Bearer ${TOKEN}" https://hub.docker.com/v2/repositories/${{ env.DOCKER_REPOSITORY }}/tags/${{ env.BRANCH }}-transcoder/
