@@ -52,8 +52,6 @@ jobs:
             cwd://${{ steps.meta-branch.outputs.bake-file }}
           targets: default
           push: true
-          sbom: true
-          provenance: true
 
   delete-branch-images:
     if: ${{ github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'preview/') }}
