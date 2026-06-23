@@ -19,7 +19,7 @@ RUN php /var/www/artisan storage:link
 
 #########################
 
-FROM cybexwebdev/php-laravel:8.4-alpine as prod
+FROM cybexwebdev/php-laravel:8.4-alpine as app
 
 # Timeout for the post update script in minutes.
 LABEL com.centurylinklabs.watchtower.lifecycle.post-update-timeout="1440"
@@ -33,7 +33,7 @@ RUN set -ex; \
       pngquant \
       gifsicle \
       libwebp \
-      libwebp-tools; \
+      libwebp-tools;
 
 RUN set -ex; \
     apk update; \
@@ -43,3 +43,7 @@ RUN set -ex; \
 COPY --from=build /var/www /var/www
 
 #COPY ./docker/location-root.conf /opt/docker/etc/nginx/vhost.common.d/10-location-root.conf
+
+FROM cybexwebdev/php-laravel:8.4-transcoder as transcoder
+
+COPY --from=build /var/www /var/www
