@@ -1,4 +1,3 @@
-variable "REPO" { default = "cybexwebdev/transmorpher" }
 variable "CACHE_TAG" {}
 
 group "default" {
@@ -12,7 +11,7 @@ target "app" {
     context = "."
     dockerfile = "docker/prod/Dockerfile"
     target = "app"
-    tags = [for TAG in target.docker-metadata-action.tags : "${REPO}:${TAG}-app"]
+    tags = [for TAG in target.docker-metadata-action.tags : "${TAG}-app"]
 }
 
 target "transcoder" {
@@ -20,5 +19,5 @@ target "transcoder" {
     context = "."
     dockerfile = "docker/prod/Dockerfile"
     target = "transcoder"
-    tags = [for TAG in target.docker-metadata-action.tags : "${REPO}/service1:${TAG}-transcoder"]
+    tags = [for TAG in target.docker-metadata-action.tags : "${TAG}-transcoder"]
 }
