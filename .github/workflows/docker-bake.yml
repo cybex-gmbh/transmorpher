@@ -42,10 +42,11 @@ jobs:
             latest=false
           tags: |
             type=raw,value=${{ env.BRANCH_NAME }}
-            type=sha
 
       - name: Build
         uses: docker/bake-action@v7
+        env:
+          CACHE_KEY: ${{ env.BRANCH_NAME }}
         with:
           files: |
             docker-bake.hcl
