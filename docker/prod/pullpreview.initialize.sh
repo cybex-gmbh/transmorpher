@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/local/bin/shell
 
 if ${PULLPREVIEW:-false}; then
     php /var/www/html/artisan migrate --force
@@ -7,5 +7,3 @@ if ${PULLPREVIEW:-false}; then
         php /var/www/html/artisan db:seed --class=PullpreviewSeeder --force
     fi
 fi
-
-exec /entrypoint supervisord "$@"

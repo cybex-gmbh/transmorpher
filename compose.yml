@@ -1,28 +1,29 @@
 x-common: &common
-    volumes:
-        - '.:/var/www'
-    depends_on:
-        - mariadb
-    networks:
-        - shared
-        - internal
+  volumes:
+    - '.:/var/www'
+  depends_on:
+    - mariadb
+  networks:
+    - shared
+    - internal
 
 x-local: &common-env
-    APP_ENV: local
+  APP_ENV: local
 
 services:
   app:
     container_name: ${COMPOSE_PROJECT_NAME}
     <<: *common
     build:
-        context: ./docker/dev
-        dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/dev/Dockerfile
     image: transmorpher-dev-8.4/app
     environment:
+      <<: *common-env
       CONTAINER_ROLE: web
     volumes:
-        - '.:/var/www'
-        - 'home:/home/www'
+      - '.:/var/www'
+      - 'home:/home/www'
     networks:
       - shared
       - internal
@@ -33,44 +34,46 @@ services:
 
   testing:
     build:
-        context: ./docker/dev
-        dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/dev/Dockerfile
     image: transmorpher-dev-8.4/app
     environment:
       APP_ENV: testing
       CONTAINER_ROLE: app
     volumes:
-        - '.:/var/www'
-        - 'home:/home/www'
+      - '.:/var/www'
+      - 'home:/home/www'
+    networks:
+      - internal
     depends_on:
-        - mariadb_testing
+      - mariadb_testing
 
   transcoding-worker:
-      <<: *common
-      image: cybexwebdev/php-laravel:8.4-transcoder
-      environment:
-          <<: *common-env
-          CONTAINER_ROLE: worker
-          SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-          QUEUE: video-transcoding
+    <<: *common
+    image: cybexwebdev/php-laravel:8.4-transcoder
+    environment:
+      <<: *common-env
+      CONTAINER_ROLE: worker
+      SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
+      QUEUE: video-transcoding
 
   client-notification-worker:
-      <<: *common
-      image: cybexwebdev/php-laravel:8.4-alpine
-      environment:
-          <<: *common-env
-          CONTAINER_ROLE: worker
-          SERVICE_INSTANCES: 1
-          QUEUE: client-notifications
+    <<: *common
+    image: cybexwebdev/php-laravel:8.4-alpine
+    environment:
+      <<: *common-env
+      CONTAINER_ROLE: worker
+      SERVICE_INSTANCES: 1
+      QUEUE: client-notifications
 
   scheduler:
-      <<: *common
-      image: cybexwebdev/php-laravel:8.4-alpine
-      environment:
-          <<: *common-env
-          CONTAINER_ROLE: scheduler
-      networks:
-          - internal
+    <<: *common
+    image: cybexwebdev/php-laravel:8.4-alpine
+    environment:
+      <<: *common-env
+      CONTAINER_ROLE: scheduler
+    networks:
+      - internal
 
   mariadb:
     image: 'mariadb:lts-noble'
@@ -96,11 +99,11 @@ services:
       MARIADB_PASSWORD: 'transmorpher_test'
       MARIADB_ROOT_PASSWORD: 'transmorpher_test'
     networks:
-        - internal
+      - internal
     healthcheck:
-        test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
-        retries: 3
-        timeout: 5s
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      retries: 3
+      timeout: 5s
 
 networks:
   internal:

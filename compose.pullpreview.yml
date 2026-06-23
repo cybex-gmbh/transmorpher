@@ -3,7 +3,8 @@ services:
     container_name: ${APP_CONTAINER_NAME:-transmorpher}
     build:
       context: .
-      dockerfile: ./docker/Dockerfile
+      dockerfile: docker/prod/Dockerfile
+    image: transmorpher-prod-8.4/app
     networks:
       - traefik
       - internal
