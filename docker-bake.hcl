@@ -1,4 +1,5 @@
 variable "CACHE_KEY" {}
+variable "DOCKER_REPOSITORY" { default = "cybexwebdev/transmorpher" }
 
 group "default" {
     targets = ["app", "transcoder"]
@@ -18,14 +19,14 @@ target "app" {
     cache-from = [
         "type=gha,scope=${CACHE_KEY}-app",
         # Registry cache to speed up multi-run, multi-runner
-        "type=registry,ref=cybexwebdev/transmorpher:${CACHE_KEY}-app",
-        "type=registry,ref=cybexwebdev/transmorpher:cache-${CACHE_KEY}-app",
+        "type=registry,ref=${DOCKER_REPOSITORY}:${CACHE_KEY}-app",
+        "type=registry,ref=${DOCKER_REPOSITORY}:cache-${CACHE_KEY}-app",
     ]
     cache-to = [
         "type=gha,mode=max,scope=${CACHE_KEY}-app",
         # Persist intermediate layers in the registry so they can be reused across runners
         # and events (faster cold-starts than GHA cache alone).
-        "type=registry,ref=cybexwebdev/transmorpher:cache-${CACHE_KEY}-app",
+        "type=registry,ref=${DOCKER_REPOSITORY}:cache-${CACHE_KEY}-app",
     ]
 }
 
@@ -41,13 +42,13 @@ target "transcoder" {
     cache-from = [
         "type=gha,scope=${CACHE_KEY}-transcoder",
         # Registry cache to speed up multi-run, multi-runner
-        "type=registry,ref=cybexwebdev/transmorpher:${CACHE_KEY}-transcoder",
-        "type=registry,ref=cybexwebdev/transmorpher:cache-${CACHE_KEY}-transcoder",
+        "type=registry,ref=${DOCKER_REPOSITORY}:${CACHE_KEY}-transcoder",
+        "type=registry,ref=${DOCKER_REPOSITORY}:cache-${CACHE_KEY}-transcoder",
     ]
     cache-to = [
         "type=gha,mode=max,scope=${CACHE_KEY}-transcoder",
         # Persist intermediate layers in the registry so they can be reused across runners
         # and events (faster cold-starts than GHA cache alone).
-        "type=registry,ref=cybexwebdev/transmorpher:cache-${CACHE_KEY}-transcoder",
+        "type=registry,ref=${DOCKER_REPOSITORY}:cache-${CACHE_KEY}-transcoder",
     ]
 }
