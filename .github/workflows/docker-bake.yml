@@ -35,7 +35,7 @@ jobs:
       - name: Specify docker image tags
         id: meta-branch
         # https://github.com/docker/metadata-action
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             cybexwebdev/transmorpher
@@ -49,7 +49,7 @@ jobs:
         with:
           files: |
             docker-bake.hcl
-            ${{ steps.meta-branch.outputs.bake-file }}
+            cwd://${{ steps.meta-branch.outputs.bake-file }}
           targets: default
           push: true
           sbom: true
