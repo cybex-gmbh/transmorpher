@@ -18,6 +18,7 @@ target "app" {
     cache-from = [
         "type=gha,scope=${CACHE_KEY}-app",
         # Registry cache to speed up multi-run, multi-runner
+        "type=registry,ref=cybexwebdev/transmorpher:${CACHE_KEY}-app",
         "type=registry,ref=cybexwebdev/transmorpher:cache-${CACHE_KEY}-app",
     ]
     cache-to = [
@@ -40,6 +41,7 @@ target "transcoder" {
     cache-from = [
         "type=gha,scope=${CACHE_KEY}-transcoder",
         # Registry cache to speed up multi-run, multi-runner
+        "type=registry,ref=cybexwebdev/transmorpher:${CACHE_KEY}-transcoder",
         "type=registry,ref=cybexwebdev/transmorpher:cache-${CACHE_KEY}-transcoder",
     ]
     cache-to = [

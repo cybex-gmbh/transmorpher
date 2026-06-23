@@ -8,7 +8,6 @@ on:
 
 jobs:
   branch-images:
-    if: ${{ startsWith(github.ref_name, 'preview/')}}
     runs-on: ubuntu-latest
 
     steps:
@@ -37,7 +36,7 @@ jobs:
           | jq -r .tag_name)" >> $GITHUB_ENV
 
       - name: Specify docker image tags
-        id: meta-branch
+        id: meta
         # https://github.com/docker/metadata-action
         uses: docker/metadata-action@v6
         with:
@@ -48,16 +47,18 @@ jobs:
           tags: |
             type=raw,value=${{ env.BRANCH_NAME }}
 
-      - name: Build
+      - name: Build and push
         uses: docker/bake-action@v7
         env:
           CACHE_KEY: ${{ env.BRANCH_NAME }}
         with:
           files: |
             docker-bake.hcl
-            cwd://${{ steps.meta-branch.outputs.bake-file }}
+            cwd://${{ steps.meta.outputs.bake-file }}
           targets: default
           push: true
+          sbom: true
+          provenance: true
 
   delete-branch-images:
     if: ${{ github.event_name == 'delete' && github.event.ref_type == 'branch' && startsWith(github.event.ref, 'preview/') }}
