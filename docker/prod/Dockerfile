@@ -33,7 +33,7 @@ RUN set -ex; \
       pngquant \
       gifsicle \
       libwebp \
-      libwebp-tools; \
+      libwebp-tools;
 
 RUN set -ex; \
     apk update; \
