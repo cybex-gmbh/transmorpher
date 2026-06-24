@@ -289,9 +289,12 @@ To configure an AWS SQS queue, see the according keys in the `.env`.
 ### Local disk setup
 
 > [!WARNING]
-> For the docker setup, to be able to deliver videos, the `Access-Control-Allow-Origin` header is currently set to '*'. This means every website can embed your videos.
+> For the docker setup, to be able to deliver videos, the `Access-Control-Allow-Origin` header is currently set to '*'.
+> This means every website can embed your videos.
 > 
-> If you want to restrict this, you can mount your own configuration at `/opt/docker/etc/nginx/vhost.common.d/10-location-root.conf`. The current config can be found at `docker/location-root.conf`. 
+> This applies to files in your /public/videos folder ending with .m3u8, .ts, .mpd, .m4s and .mp4.
+> If you want to restrict this, you can mount your own configuration at `/etc/nginx/conf.d/default.conf.template`.
+> The current config can be found at `docker/common/nginx.default.conf`. 
 
 #### Prerequisites for video functionality
 

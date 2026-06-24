@@ -26,6 +26,8 @@ LABEL com.centurylinklabs.watchtower.lifecycle.post-update-timeout="1440"
 # Watchtower will run this script after restarting the updated container.
 LABEL com.centurylinklabs.watchtower.lifecycle.post-update="/var/www/docker/watchtower.post-update.sh"
 
+COPY --chown=www-data:www-data docker/common/nginx.default.conf /etc/nginx/conf.d/default.conf.template
+
 RUN set -ex; \
     apk add \
       jpegoptim \
@@ -42,8 +44,7 @@ RUN set -ex; \
 
 COPY --from=build /var/www /var/www
 
-#COPY ./docker/location-root.conf /opt/docker/etc/nginx/vhost.common.d/10-location-root.conf
-
 FROM cybexwebdev/php-laravel:8.4-transcoder as transcoder
 
+COPY --chown=www-data:www-data docker/common/nginx.default.conf /etc/nginx/conf.d/default.conf.template
 COPY --from=build /var/www /var/www
