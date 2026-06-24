@@ -24,9 +24,6 @@ services:
     volumes:
       - '.:/var/www'
       - 'home:/home/www'
-    networks:
-      - shared
-      - internal
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_PROJECT_NAME}.test`)'
@@ -44,6 +41,7 @@ services:
       - '.:/var/www'
       - 'home:/home/www'
     networks:
+      - shared
       - internal
     depends_on:
       - mariadb_testing

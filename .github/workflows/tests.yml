@@ -24,4 +24,9 @@ jobs:
       LARAVEL_VERSION: ${{ matrix.laravel }}
       DEPENDENCY_VERSION: ${{ matrix.dependency-version }}
       DATABASE_NAME: transmorpher_test
-      LINUX_PACKAGES: imagemagick jpegoptim optipng pngquant gifsicle webp ffmpeg
+      DATABASE_IMAGE: mariadb:lts-noble
+      DATABASE_PORT: 3306
+      DATABASE_USERNAME: root
+      DATABASE_CONNECTION: mariadb
+      DATABASE_OPTIONS: "--health-cmd=\"healthcheck.sh --connect --innodb_initialized\" --health-interval=10s --health-timeout=5s --health-retries=3"
+      LINUX_PACKAGES: imagemagick jpegoptim optipng pngquant gifsicle webp ffmpeg mariadb-server
