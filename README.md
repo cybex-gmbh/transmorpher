@@ -387,6 +387,17 @@ The media server provides the following features for media:
 
 > Marked with * does not apply to videos.
 
+### Browser cache busting
+
+When a media version has been processed, the response or client notification will include a `hash` for this version.
+Use this hash in combination with the `cacheInvalidationCounter` (see [Purging derivates](#purging-derivatives)),
+and add both to the public URL.
+
+For example:
+
+`https://transmorpher.test/images/<clientname>/<identifier>?v=<cacheInvalidationCounter>_<hash>`
+`https://transmorpher.test/images/<clientname>/<identifier>/<transformations>?v=<cacheInvalidationCounter>_<hash>`
+
 ## Image transformation
 
 Images will always be optimized and transformed on the Transmorpher media server.

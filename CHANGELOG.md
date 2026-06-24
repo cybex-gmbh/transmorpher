@@ -7,7 +7,11 @@
 >
 > For more information, see the [upgrade guide](README.md#v080-to-v090).
 
-### For docker image users
+### General
+
+- Added a README section about [browser cache busting](README.md#browser-cache-busting)
+
+#### For docker image users
 
 - The Transmorpher base images have changed, which leads to several structural changes. Refer to the [compose.pullpreview.yml](compose.pullpreview.yml) for an example production
   setup
