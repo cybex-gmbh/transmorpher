@@ -1,5 +1,5 @@
 services:
-  transcoding-worker:
+  worker-transcoding:
     extends:
       file: compose.yml
       service: transcoding-worker

@@ -19,6 +19,13 @@ RUN php /var/www/artisan storage:link
 
 #########################
 
+FROM cybexwebdev/php-laravel:8.4-transcoder as transcoder
+
+COPY --chown=www-data:www-data docker/common/nginx.default.conf /etc/nginx/conf.d/default.conf.template
+COPY --from=build /var/www /var/www
+
+#########################
+
 FROM cybexwebdev/php-laravel:8.4-alpine as app
 
 # Timeout for the post update script in minutes.
@@ -42,9 +49,4 @@ RUN set -ex; \
     apk upgrade; \
     rm -rf /var/cache/apk/*
 
-COPY --from=build /var/www /var/www
-
-FROM cybexwebdev/php-laravel:8.4-transcoder as transcoder
-
-COPY --chown=www-data:www-data docker/common/nginx.default.conf /etc/nginx/conf.d/default.conf.template
 COPY --from=build /var/www /var/www

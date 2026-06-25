@@ -46,7 +46,7 @@ services:
     depends_on:
       - mariadb_testing
 
-  transcoding-worker:
+  worker-transcoding:
     <<: *common
     image: cybexwebdev/php-laravel:8.4-transcoder
     environment:
@@ -55,7 +55,7 @@ services:
       SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
       QUEUE: video-transcoding
 
-  client-notification-worker:
+  worker-client-notifications:
     <<: *common
     image: cybexwebdev/php-laravel:8.4-alpine
     environment:
