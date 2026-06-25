@@ -1,3 +1,5 @@
-#!/usr/local/bin/shell
+#!/bin/sh
 
-php /var/www/html/artisan migrate --force
+# All commands need to be executed with "shell" to preserve www-data permissions!
+
+shell php /var/www/artisan migrate --force

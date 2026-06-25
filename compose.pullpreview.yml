@@ -5,7 +5,7 @@ x-common: &common
     traefik:
       condition: service_started
   volumes: &storage-volume
-    - 'storage:/var/www/html/storage'
+    - 'storage:/var/www/storage'
   networks: &common-networks
     - traefik
     - internal
@@ -30,9 +30,7 @@ services:
     image: *app-image
     environment:
       <<: *app-url
-      PULLPREVIEW: true
-      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
-      CLIENT_CONTAINER_NAME: ${COMPOSE_PROJECT_NAME}-amigor
+      CONTAINER_ROLE: web
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`transmorpher.${PULLPREVIEW_PUBLIC_DNS}`)'
@@ -78,6 +76,20 @@ services:
     networks:
       - internal
 
+  initialize:
+    command: [ '/var/www/docker/prod/pullpreview.initialize.sh' ]
+    image: *app-image
+    restart: 'no'
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      CLIENT_CONTAINER_NAME: ${COMPOSE_PROJECT_NAME}-amigor
+      PULLPREVIEW: true
+      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
+    networks:
+      - internal
+
   mariadb:
     image: 'mariadb:lts-noble'
     environment:
@@ -105,11 +117,11 @@ services:
       traefik:
         condition: service_started
     environment:
+      APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
       PULLPREVIEW: true
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
       TRANSMORPHER_WEB_DELIVERY_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
       TRANSMORPHER_WEB_API_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}/api
-      APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
     volumes:
       - 'amigor-storage:/var/www/html/amigor/storage'
       - '.env.amigor:/var/www/html/amigor/.env'
