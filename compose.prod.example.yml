@@ -1,0 +1,72 @@
+services:
+  app:
+    image: cybexwebdev/transmorpher:x.x-app
+    restart: unless-stopped
+    volumes:
+      # If you are using local disks, persist the storage across container restarts.
+      - 'storage:/var/www/storage'
+      - './.env:/var/www/.env:ro'
+    networks:
+      - external
+    # If you are using Traefik.
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.transmorpher.rule=Host(`${TRAEFIK_HOST}`)'
+      - 'traefik.http.routers.transmorpher.tls=true'
+      - 'traefik.http.routers.transmorpher.tls.certresolver=${TRAEFIK_CERT_RESOLVER}'
+
+  worker-transcoding:
+    image: cybexwebdev/transmorpher:x.x-transcoder
+    restart: unless-stopped
+    environment:
+      CONTAINER_ROLE: worker
+      SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
+      QUEUE: video-transcoding
+    volumes:
+      # If you are using local disks, persist the storage across container restarts.
+      - 'storage:/var/www/storage'
+      - './.env:/var/www/.env:ro'
+    networks:
+      - external
+
+  worker-client-notifications:
+    image: cybexwebdev/transmorpher:x.x-app
+    restart: unless-stopped
+    environment:
+      CONTAINER_ROLE: worker
+      SERVICE_INSTANCES: 1
+      QUEUE: client-notifications
+    volumes:
+      - './.env:/var/www/.env:ro'
+    networks:
+      - external
+
+  worker-email:
+    image: cybexwebdev/transmorpher:x.x-app
+    restart: unless-stopped
+    environment:
+      CONTAINER_ROLE: worker
+      SERVICE_INSTANCES: 1
+      QUEUE: email
+    volumes:
+      - './.env:/var/www/.env:ro'
+    networks:
+      - external
+
+  scheduler:
+    image: cybexwebdev/transmorpher:x.x-app
+    restart: unless-stopped
+    environment:
+      CONTAINER_ROLE: scheduler
+    volumes:
+      # Needs storage for cleaning up chunk files.
+      - 'storage:/var/www/storage'
+      - './.env:/var/www/.env:ro'
+
+networks:
+  external:
+    name: external
+
+volumes:
+  storage:
+    driver: local

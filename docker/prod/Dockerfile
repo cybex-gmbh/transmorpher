@@ -21,7 +21,6 @@ RUN php /var/www/artisan storage:link
 
 FROM cybexwebdev/php-laravel:8.4-transcoder as transcoder
 
-COPY --chown=www-data:www-data docker/common/nginx.default.conf /etc/nginx/conf.d/default.conf.template
 COPY --from=build /var/www /var/www
 
 #########################

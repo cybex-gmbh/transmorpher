@@ -32,7 +32,7 @@ The Transmorpher Media Server comes with two images:
 - `app`: The main application, which handles image and document processing.
 - `transcoder`: The transcoding worker, which handles video processing.
 
-Please check the [compose.pullpreview.yml](compose.pullpreview.yml) file for an example of a production configuration.
+Please check the [compose.prod.example.yml](compose.prod.example.yml) file for an example of a production configuration.
 
 To not accidentally upgrade to a new breaking version, attach the version you want to use to the image name:
 
@@ -774,7 +774,7 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
   - The main application image was split into separate images for the application and the transcoding worker.
   - The application image no longer automatically starts workers or creates a cron for the scheduler.
     - This will now need to be set up in the compose.yml file.
-    - Please refer to the [compose.pullpreview.yml](compose.pullpreview.yml) file for an example production setup
+    - Please refer to the [compose.prod.example.yml](compose.prod.example.yml) file for an example production setup
 
 ### v0.7.0 to v0.8.0
 

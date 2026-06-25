@@ -13,7 +13,7 @@
 
 #### For docker image users
 
-- The Transmorpher base images have changed, which leads to several structural changes. Refer to the [compose.pullpreview.yml](compose.pullpreview.yml) for an example production
+- The Transmorpher base images have changed, which leads to several structural changes. Refer to the [compose.prod.example.yml](compose.prod.example.yml) for an example production
   setup
     - Workers are now running in separate containers
     - Transcoding workers have their own image and run in a separate container

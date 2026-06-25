@@ -1,25 +1,38 @@
+x-common: &common
+  depends_on:
+    mariadb:
+      condition: service_healthy
+    traefik:
+      condition: service_started
+  volumes: &storage-volume
+    - 'storage:/var/www/html/storage'
+  networks: &common-networks
+    - traefik
+    - internal
+
+x-common-build: &common-build
+  context: .
+  dockerfile: docker/prod/Dockerfile
+
+x-app-url: &app-url
+  APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
+
+x-app-image: &app-image transmorpher-prod-8.4/app
+
+x-transcoder-image: &transcoder-image transmorpher-prod-8.4/transcoder
+
 services:
   app:
+    <<: *common
     build:
-      context: .
-      dockerfile: docker/prod/Dockerfile
+      <<: *common-build
       target: app
-    image: transmorpher-prod-8.4/app
-    networks:
-      - traefik
-      - internal
-    depends_on:
-      mariadb:
-        condition: service_healthy
-      traefik:
-        condition: service_started
+    image: *app-image
     environment:
+      <<: *app-url
       PULLPREVIEW: true
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
-      APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
       CLIENT_CONTAINER_NAME: ${COMPOSE_PROJECT_NAME}-amigor
-    volumes:
-      - 'storage:/var/www/html/storage'
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`transmorpher.${PULLPREVIEW_PUBLIC_DNS}`)'
@@ -27,72 +40,43 @@ services:
       - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certresolver=production'
 
   worker-transcoding:
+    <<: *common
     build:
-      context: .
-      dockerfile: docker/prod/Dockerfile
+      <<: *common-build
       target: transcoder
-    image: transmorpher-prod-8.4/transcoder
-    networks:
-      - traefik
-      - internal
-    depends_on:
-      mariadb:
-        condition: service_healthy
-      traefik:
-        condition: service_started
+    image: *transcoder-image
     environment:
-      APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
+      <<: *app-url
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
       QUEUE: video-transcoding
-    volumes:
-      - 'storage:/var/www/html/storage'
 
   worker-client-notifications:
-    image: transmorpher-prod-8.4/app
-    networks:
-      - traefik
-      - internal
-    depends_on:
-      mariadb:
-        condition: service_healthy
-      traefik:
-        condition: service_started
+    <<: *common
+    image: *app-image
     environment:
-      APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
+      <<: *app-url
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: 1
       QUEUE: client-notifications
-    volumes:
-      - 'storage:/var/www/html/storage'
 
   worker-email:
-    image: transmorpher-prod-8.4/app
-    networks:
-      - traefik
-      - internal
-    depends_on:
-      mariadb:
-        condition: service_healthy
-      traefik:
-        condition: service_started
+    <<: *common
+    image: *app-image
     environment:
-      APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
+      <<: *app-url
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: 1
       QUEUE: email
-    volumes:
-      - 'storage:/var/www/html/storage'
 
   scheduler:
-    image: transmorpher-prod-8.4/app
+    image: *app-image
     environment:
-      APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
+      <<: *app-url
       CONTAINER_ROLE: scheduler
+    volumes: *storage-volume
     networks:
       - internal
-    volumes:
-      - 'storage:/var/www/html/storage'
 
   mariadb:
     image: 'mariadb:lts-noble'
@@ -110,14 +94,11 @@ services:
       retries: 3
       timeout: 5s
 
-########################################################################## Amigor ##########################################################################
+  ########################################################################## Amigor ##########################################################################
 
   amigor:
     container_name: ${COMPOSE_PROJECT_NAME}-amigor
     image: 'cybexwebdev/transmorpher-amigor'
-    networks:
-      - traefik
-      - internal
     depends_on:
       amigor-mysql:
         condition: service_healthy
@@ -132,6 +113,7 @@ services:
     volumes:
       - 'amigor-storage:/var/www/html/amigor/storage'
       - '.env.amigor:/var/www/html/amigor/.env'
+    networks: *common-networks
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'
@@ -164,7 +146,7 @@ services:
       retries: 3
       timeout: 5s
 
-########################################################################## Traefik ##########################################################################
+  ########################################################################## Traefik ##########################################################################
 
   traefik:
     image: traefik:mimolette
