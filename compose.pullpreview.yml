@@ -1,10 +1,14 @@
+x-app-image: &app-image transmorpher-prod-8.4/app
+x-transcoder-image: &transcoder-image transmorpher-prod-8.4/transcoder
+
 x-common: &common
+  image: *app-image
   depends_on:
     mariadb:
       condition: service_healthy
     traefik:
       condition: service_started
-  volumes: &storage-volume
+  volumes:
     - 'storage:/var/www/storage'
   networks: &common-networks
     - traefik
@@ -17,17 +21,12 @@ x-common-build: &common-build
 x-app-url: &app-url
   APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
 
-x-app-image: &app-image transmorpher-prod-8.4/app
-
-x-transcoder-image: &transcoder-image transmorpher-prod-8.4/transcoder
-
 services:
   app:
     <<: *common
     build:
       <<: *common-build
       target: app
-    image: *app-image
     environment:
       <<: *app-url
       CONTAINER_ROLE: web
@@ -51,7 +50,6 @@ services:
 
   worker-client-notifications:
     <<: *common
-    image: *app-image
     environment:
       <<: *app-url
       CONTAINER_ROLE: worker
@@ -60,7 +58,6 @@ services:
 
   worker-email:
     <<: *common
-    image: *app-image
     environment:
       <<: *app-url
       CONTAINER_ROLE: worker
@@ -68,22 +65,17 @@ services:
       QUEUE: email
 
   scheduler:
-    image: *app-image
+    <<: *common
     environment:
       <<: *app-url
       CONTAINER_ROLE: scheduler
-    volumes: *storage-volume
-    networks:
-      - internal
 
   initialize:
+    <<: *common
     command: [ '/var/www/docker/prod/pullpreview.initialize.sh' ]
-    image: *app-image
     restart: 'on-failure'
-    depends_on:
-      mariadb:
-        condition: service_healthy
     environment:
+      <<: *app-url
       CLIENT_CONTAINER_NAME: ${COMPOSE_PROJECT_NAME}-amigor
       PULLPREVIEW: true
       PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
