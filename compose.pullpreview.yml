@@ -79,7 +79,7 @@ services:
   initialize:
     command: [ '/var/www/docker/prod/pullpreview.initialize.sh' ]
     image: *app-image
-    restart: 'no'
+    restart: 'on-failure'
     depends_on:
       mariadb:
         condition: service_healthy
