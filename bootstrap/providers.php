@@ -12,8 +12,9 @@ return [
      * Application Service Providers...
      */
     App\Providers\CdnHelperServiceProvider::class,
+    App\Providers\MediaHandlerServiceProvider::class,
     App\Providers\SqsFifoServiceProvider::class,
     App\Providers\TranscodeServiceProvider::class,
     App\Providers\TransformServiceProvider::class,
-    App\Providers\MediaHandlerServiceProvider::class,
+    App\Providers\UploaderServiceProvider::class,
 ];

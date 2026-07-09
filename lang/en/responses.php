@@ -20,6 +20,7 @@ return [
     'transcoding_failed' => 'Video transcoding failed, version has been removed.',
     'transcoding_job_dispatch_failed' => 'There was an error when trying to dispatch the transcoding job.',
     'transcoding_successful' => 'Successfully transcoded video.',
+    'upload_aborted' => 'Upload aborted.',
     'upload_slot_created' => 'Successfully created upload slot.',
     'versions_retrieved' => 'Successfully retrieved version numbers.',
     'video_version_set' => 'Successfully set video version, transcoding job has been dispatched.',
