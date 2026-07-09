@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\Mime\MimeTypes;
 use Validator;
 
 /**
@@ -152,6 +153,41 @@ class Media extends Model
                 File::delete($file);
             }
         });
+    }
+
+    /**
+     * Validates a content-type string against the given validation rule string.
+     * Supports 'mimes:ext1,ext2' and 'mimetypes:type1,type2' rule formats.
+     *
+     * @param string $contentType
+     * @param string $validationRules
+     * @return void
+     * @throws ValidationException
+     */
+    public static function validateMimeType(string $contentType, string $validationRules): void
+    {
+        if (str_starts_with($validationRules, 'mimetypes:')) {
+            $allowedTypes = explode(',', substr($validationRules, strlen('mimetypes:')));
+        } elseif (str_starts_with($validationRules, 'mimes:')) {
+            $extensions = explode(',', substr($validationRules, strlen('mimes:')));
+            $mimeTypeResolver = MimeTypes::getDefault();
+            $allowedTypes = [];
+
+            foreach ($extensions as $ext) {
+                $allowedTypes = array_merge($allowedTypes, $mimeTypeResolver->getMimeTypes(trim($ext)));
+            }
+        } else {
+            throw new \InvalidArgumentException(sprintf('Unsupported validation rule format: %s', $validationRules));
+        }
+
+        // Strip parameters like '; charset=utf-8' for comparison.
+        $normalizedContentType = strtolower(trim(explode(';', $contentType)[0]));
+
+        if (!in_array($normalizedContentType, $allowedTypes)) {
+            throw ValidationException::withMessages([
+                'file' => [sprintf('The file content type "%s" is not allowed.', $contentType)],
+            ]);
+        }
     }
 
     public function currentVersion(): Attribute

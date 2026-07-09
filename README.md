@@ -236,6 +236,12 @@ AWS_BUCKET_VIDEO_DERIVATIVES=
 It is technically possible to use the same bucket for all 3,
 but it is recommended to split it up to help manage and secure the files.
 
+> [!IMPORTANT]
+> When using direct S3 multipart uploads for originals, configure an S3 lifecycle rule
+> on the originals bucket to automatically abort incomplete multipart uploads after
+> **24 hours**. This mirrors the upload slot expiry and prevents abandoned multipart
+> uploads from accumulating storage costs.
+
 Privacy settings:
 
 - all file storages should be private

@@ -201,4 +201,19 @@ return [
     |
     */
     'cache_invalidation_counter_file_path' => env('CACHE_INVALIDATION_COUNTER_FILE_PATH', 'cacheInvalidationCounter'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Uploader
+    |--------------------------------------------------------------------------
+    |
+    | The uploader class used for the v2 upload flow.
+    | The class must implement UploaderContract.
+    |
+    | Available Uploader classes:
+    | - App\Classes\Uploader\LocalUploader (default, uses pion/laravel-chunk-upload)
+    | - App\Classes\Uploader\S3Uploader   (S3 multipart uploads via signed URLs)
+    |
+    */
+    'uploader' => App\Classes\Uploader\LocalUploader::class,
 ];
