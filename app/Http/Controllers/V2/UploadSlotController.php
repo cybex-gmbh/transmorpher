@@ -23,8 +23,7 @@ use Upload;
 class UploadSlotController extends Controller
 {
     /**
-     * Reserves an upload slot for the given media type.
-     * Calls initiateUpload on the configured uploader.
+     * Reserves an upload slot for the given media type and initiates the upload.
      *
      * @param UploadSlotRequest $request
      * @param MediaType $mediaType
@@ -41,7 +40,7 @@ class UploadSlotController extends Controller
         );
 
         try {
-            Upload::initiateUpload($uploadSlot);
+            Upload::initiate($uploadSlot);
         } catch (\Throwable $throwable) {
             report($throwable);
         }
@@ -137,7 +136,7 @@ class UploadSlotController extends Controller
      */
     public function abortUpload(UploadSlot $uploadSlot): JsonResponse
     {
-        Upload::abortUpload($uploadSlot);
+        Upload::abort($uploadSlot);
         $uploadSlot->invalidate();
 
         return response()->json([
@@ -176,7 +175,7 @@ class UploadSlotController extends Controller
                 'validation_rules' => $type->handler()->getValidationRules(),
             ];
 
-            Upload::completeUpload($uploadSlot, array_merge($completionData, $completionContext));
+            Upload::complete($uploadSlot, array_merge($completionData, $completionContext));
 
             $writeSuccess = true;
 

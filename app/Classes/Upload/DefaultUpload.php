@@ -16,7 +16,7 @@ class DefaultUpload implements UploadContract
      *
      * @return void
      */
-    public function ensurePrerequisites(): void
+    public function ensurePrerequisitesMet(): void
     {
     }
 
@@ -26,7 +26,7 @@ class DefaultUpload implements UploadContract
      * @param UploadSlot $uploadSlot
      * @return void
      */
-    public function initiateUpload(UploadSlot $uploadSlot): void
+    public function initiate(UploadSlot $uploadSlot): void
     {
         // No initiation needed for local uploads.
     }
@@ -51,7 +51,7 @@ class DefaultUpload implements UploadContract
      * @return void
      * @throws Throwable
      */
-    public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
+    public function complete(UploadSlot $uploadSlot, array $completionData): void
     {
         $validationRules = $completionData['validation_rules'] ?? null;
         $targetKey = $uploadSlot->originalFilePath;
@@ -82,7 +82,7 @@ class DefaultUpload implements UploadContract
      * @param UploadSlot $uploadSlot
      * @return void
      */
-    public function abortUpload(UploadSlot $uploadSlot): void
+    public function abort(UploadSlot $uploadSlot): void
     {
         MediaStorage::ORIGINALS->getDisk()->delete($uploadSlot->originalFilePath);
     }

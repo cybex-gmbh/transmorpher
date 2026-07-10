@@ -23612,7 +23612,19 @@ namespace App\Facades {
             }
     /**
      */
-    class UploaderFacade {
+    class UploadFacade {
+        /**
+         * Local uploader has no external prerequisites.
+         *
+         * @return void
+         * @static
+         */
+        public static function ensurePrerequisitesMet()
+        {
+            /** @var \App\Classes\Upload\DefaultUpload $instance */
+            $instance->ensurePrerequisitesMet();
+        }
+
         /**
          * No-op for local uploads.
          *
@@ -23620,10 +23632,10 @@ namespace App\Facades {
          * @return void
          * @static
          */
-        public static function initiateUpload($uploadSlot)
+        public static function initiate($uploadSlot)
         {
-            /** @var \App\Classes\Uploader\LocalUploader $instance */
-            $instance->initiateUpload($uploadSlot);
+            /** @var \App\Classes\Upload\DefaultUpload $instance */
+            $instance->initiate($uploadSlot);
         }
 
         /**
@@ -23636,47 +23648,48 @@ namespace App\Facades {
          */
         public static function getChunkUploadUrl($uploadSlot, $chunkNumber)
         {
-            /** @var \App\Classes\Uploader\LocalUploader $instance */
+            /** @var \App\Classes\Upload\DefaultUpload $instance */
             return $instance->getChunkUploadUrl($uploadSlot, $chunkNumber);
         }
 
         /**
-         * Retrieves the assembled file from cache and returns it as an UploadedFile.
+         * Completes local upload by validating the file already stored at its reserved destination.
          *
          * @param \App\Models\UploadSlot $uploadSlot
-         * @param array $completionData Ignored for local uploads.
-         * @return \Illuminate\Http\UploadedFile
+         * @param array $completionData
+         * @return void
+         * @throws Throwable
          * @static
          */
-        public static function completeUpload($uploadSlot, $completionData)
+        public static function complete($uploadSlot, $completionData)
         {
-            /** @var \App\Classes\Uploader\LocalUploader $instance */
-            return $instance->completeUpload($uploadSlot, $completionData);
+            /** @var \App\Classes\Upload\DefaultUpload $instance */
+            $instance->complete($uploadSlot, $completionData);
         }
 
         /**
-         * Cleans up any cached assembled file for the given upload slot.
+         * Cleans up any already-stored local upload for the given upload slot.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @return void
          * @static
          */
-        public static function abortUpload($uploadSlot)
+        public static function abort($uploadSlot)
         {
-            /** @var \App\Classes\Uploader\LocalUploader $instance */
-            $instance->abortUpload($uploadSlot);
+            /** @var \App\Classes\Upload\DefaultUpload $instance */
+            $instance->abort($uploadSlot);
         }
 
         /**
          * Local uploads do not use an upload ID.
          *
          * @param \App\Models\UploadSlot $uploadSlot
-         * @return null
+         * @return string|null
          * @static
          */
         public static function getUploadId($uploadSlot)
         {
-            /** @var \App\Classes\Uploader\LocalUploader $instance */
+            /** @var \App\Classes\Upload\DefaultUpload $instance */
             return $instance->getUploadId($uploadSlot);
         }
 
@@ -23688,7 +23701,7 @@ namespace App\Facades {
          */
         public static function needsUploadId()
         {
-            /** @var \App\Classes\Uploader\LocalUploader $instance */
+            /** @var \App\Classes\Upload\DefaultUpload $instance */
             return $instance->needsUploadId();
         }
 
@@ -23700,7 +23713,7 @@ namespace App\Facades {
          */
         public static function getCompletionValidationRules()
         {
-            /** @var \App\Classes\Uploader\LocalUploader $instance */
+            /** @var \App\Classes\Upload\DefaultUpload $instance */
             return $instance->getCompletionValidationRules();
         }
 
@@ -29995,7 +30008,7 @@ namespace  {
     class Optimize extends \App\Facades\OptimizeFacade {}
     class Transcode extends \App\Facades\TranscodeFacade {}
     class Transform extends \App\Facades\TransformFacade {}
-    class Uploader extends \App\Facades\UploaderFacade {}
+    class Upload extends \App\Facades\UploadFacade {}
     class Protector extends \Cybex\Protector\ProtectorFacade {}
     class Image extends \Intervention\Image\Laravel\Facades\Image {}
     class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}

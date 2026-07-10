@@ -11,7 +11,7 @@ interface UploadContract
      *
      * @return void
      */
-    public function ensurePrerequisites(): void;
+    public function ensurePrerequisitesMet(): void;
 
     /**
      * Initiates the upload process (e.g. S3 multipart upload).
@@ -20,7 +20,7 @@ interface UploadContract
      * @param UploadSlot $uploadSlot
      * @return void
      */
-    public function initiateUpload(UploadSlot $uploadSlot): void;
+    public function initiate(UploadSlot $uploadSlot): void;
 
     /**
      * Returns a (signed) URL for uploading a single chunk.
@@ -41,7 +41,7 @@ interface UploadContract
      * @param array $completionData Validated payload from the complete endpoint.
      * @return void
      */
-    public function completeUpload(UploadSlot $uploadSlot, array $completionData): void;
+    public function complete(UploadSlot $uploadSlot, array $completionData): void;
 
     /**
      * Aborts the upload process for the given upload slot.
@@ -49,7 +49,7 @@ interface UploadContract
      * @param UploadSlot $uploadSlot
      * @return void
      */
-    public function abortUpload(UploadSlot $uploadSlot): void;
+    public function abort(UploadSlot $uploadSlot): void;
 
     /**
      * Returns the upload ID for the given upload slot if any.

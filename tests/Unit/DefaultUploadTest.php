@@ -39,7 +39,7 @@ class DefaultUploadTest extends TestCase
     public function initiateUploadIsNoOp(): void
     {
         // Should not throw.
-        $this->upload->initiateUpload($this->uploadSlot);
+        $this->upload->initiate($this->uploadSlot);
         $this->assertTrue(true);
     }
 
@@ -57,7 +57,7 @@ class DefaultUploadTest extends TestCase
     {
         MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'test-image-content');
 
-        $this->upload->completeUpload($this->uploadSlot, [
+        $this->upload->complete($this->uploadSlot, [
             'validation_rules' => 'mimetypes:text/plain,image/jpeg',
         ]);
 
@@ -69,7 +69,7 @@ class DefaultUploadTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
 
-        $this->upload->completeUpload($this->uploadSlot, [
+        $this->upload->complete($this->uploadSlot, [
             'validation_rules' => 'mimetypes:text/plain',
         ]);
     }
@@ -81,7 +81,7 @@ class DefaultUploadTest extends TestCase
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
 
-        $this->upload->completeUpload($this->uploadSlot, [
+        $this->upload->complete($this->uploadSlot, [
             'validation_rules' => 'mimetypes:application/pdf',
         ]);
     }
@@ -92,7 +92,7 @@ class DefaultUploadTest extends TestCase
         MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
 
         try {
-            $this->upload->completeUpload($this->uploadSlot, [
+            $this->upload->complete($this->uploadSlot, [
                 'validation_rules' => 'mimetypes:application/pdf',
             ]);
         } catch (\Throwable) {
@@ -109,7 +109,7 @@ class DefaultUploadTest extends TestCase
 
         $this->expectException(RuntimeException::class);
 
-        $this->upload->completeUpload($this->uploadSlot, []);
+        $this->upload->complete($this->uploadSlot, []);
     }
 
     #[Test]
@@ -117,7 +117,7 @@ class DefaultUploadTest extends TestCase
     {
         MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
 
-        $this->upload->abortUpload($this->uploadSlot);
+        $this->upload->abort($this->uploadSlot);
 
         MediaStorage::ORIGINALS->getDisk()->assertMissing($this->targetKey);
     }
@@ -126,7 +126,7 @@ class DefaultUploadTest extends TestCase
     public function abortUploadIsNoOpWhenNoStoredFileExists(): void
     {
         // Should not throw when no stored file exists.
-        $this->upload->abortUpload($this->uploadSlot);
+        $this->upload->abort($this->uploadSlot);
         $this->assertTrue(true);
     }
 

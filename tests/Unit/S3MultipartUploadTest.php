@@ -78,7 +78,7 @@ class S3MultipartUploadTest extends TestCase
             ))
             ->andReturn(new Result(['UploadId' => $uploadId]));
 
-        $this->upload->initiateUpload($this->uploadSlot);
+        $this->upload->initiate($this->uploadSlot);
 
         $this->assertEquals($uploadId, Cache::get(sprintf('upload_id_%s', $this->token)));
     }
@@ -102,7 +102,7 @@ class S3MultipartUploadTest extends TestCase
             ->shouldReceive('createMultipartUpload')
             ->andReturn(new Result(['UploadId' => $uploadId]));
 
-        $this->upload->initiateUpload($this->uploadSlot);
+        $this->upload->initiate($this->uploadSlot);
     }
 
     #[Test]
@@ -174,7 +174,7 @@ class S3MultipartUploadTest extends TestCase
 
         $this->s3Client->shouldNotReceive('copyObject');
 
-        $this->upload->completeUpload($this->uploadSlot, ['parts' => $parts]);
+        $this->upload->complete($this->uploadSlot, ['parts' => $parts]);
     }
 
     #[Test]
@@ -201,7 +201,7 @@ class S3MultipartUploadTest extends TestCase
             ->once()
             ->andReturn(new Result(['ContentType' => 'image/jpeg']));
 
-        $this->upload->completeUpload($this->uploadSlot, [
+        $this->upload->complete($this->uploadSlot, [
             'parts' => $parts,
             'target_key' => 'different/key.jpg',
         ]);
@@ -235,7 +235,7 @@ class S3MultipartUploadTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->upload->completeUpload($this->uploadSlot, ['parts' => $parts]);
+        $this->upload->complete($this->uploadSlot, ['parts' => $parts]);
     }
 
     #[Test]
@@ -254,7 +254,7 @@ class S3MultipartUploadTest extends TestCase
                 $args['UploadId'] === $uploadId
             ));
 
-        $this->upload->abortUpload($this->uploadSlot);
+        $this->upload->abort($this->uploadSlot);
 
         $this->assertNull(Cache::get(sprintf('upload_id_%s', $this->token)));
     }
@@ -264,7 +264,7 @@ class S3MultipartUploadTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
 
-        $this->upload->abortUpload($this->uploadSlot);
+        $this->upload->abort($this->uploadSlot);
     }
 
     #[Test]
