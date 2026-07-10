@@ -17,7 +17,13 @@ class UploaderServiceProvider extends ServiceProvider implements DeferrableProvi
      */
     public function register(): void
     {
-        $this->app->singleton(static::SERVICE_NAME, fn(): UploaderContract => app()->make(config('transmorpher.uploader')));
+        $this->app->singleton(static::SERVICE_NAME, function () : UploaderContract {
+            $uploader = app()->make(config('transmorpher.uploader'));
+
+            $uploader->ensurePrerequisites();
+
+            return $uploader;
+        });
     }
 
     /**
