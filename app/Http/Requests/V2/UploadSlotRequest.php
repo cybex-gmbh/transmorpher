@@ -33,13 +33,12 @@ class UploadSlotRequest extends FormRequest
                 function ($attribute, $value, $fail) {
                     // Using these characters might cause file system problems.
                     $disallowedCharacters = ['\'', '/', '\\', ':', '?', '"', '<', '>', '|', '*'];
-                    $fileName = pathinfo($value, PATHINFO_FILENAME);
 
-                    if (preg_match(sprintf('/[%s]/', preg_quote(implode($disallowedCharacters), '/')), $fileName)) {
+                    if (preg_match(sprintf('/[%s]/', preg_quote(implode($disallowedCharacters), '/')), $value)) {
                         $fail(trans('responses.file_name_invalid', ['disallowedCharacters' => implode(', ', $disallowedCharacters)]));
                     }
 
-                    if (!trim($fileName)) {
+                    if (!trim($value)) {
                         $fail(trans('responses.file_name_invalid_only_spaces'));
                     }
                 },
