@@ -16,5 +16,5 @@ return [
     App\Providers\SqsFifoServiceProvider::class,
     App\Providers\TranscodeServiceProvider::class,
     App\Providers\TransformServiceProvider::class,
-    App\Providers\UploaderServiceProvider::class,
+    App\Providers\UploadServiceProvider::class,
 ];

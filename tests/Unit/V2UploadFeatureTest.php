@@ -24,10 +24,10 @@ class V2UploadFeatureTest extends TestCase
 
     protected function useUploaderForTest(object $uploader): void
     {
-        // Ensure deferred uploader provider is loaded before overriding the service.
-        app('uploader');
-        $this->app->instance('uploader', $uploader);
-        Facade::clearResolvedInstance('uploader');
+        // Ensure deferred upload provider is loaded before overriding the service.
+        app('upload');
+        $this->app->instance('upload', $uploader);
+        Facade::clearResolvedInstance('upload');
     }
 
     #[Test]

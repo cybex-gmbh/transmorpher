@@ -27,7 +27,7 @@ class V2UploadSlotControllerTest extends TestCase
             'validation_rules' => null,
         ]);
 
-        $this->app->bind('uploader', fn() => new class {
+        $this->app->bind('upload', fn() => new class {
             public function initiateUpload(UploadSlot $uploadSlot): void
             {
             }
@@ -62,7 +62,7 @@ class V2UploadSlotControllerTest extends TestCase
             }
         });
 
-        Facade::clearResolvedInstance('uploader');
+        Facade::clearResolvedInstance('upload');
 
         $controller = app(UploadSlotController::class);
         $reflection = new ReflectionClass($controller);

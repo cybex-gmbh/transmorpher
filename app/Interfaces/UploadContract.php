@@ -4,7 +4,7 @@ namespace App\Interfaces;
 
 use App\Models\UploadSlot;
 
-interface UploaderContract
+interface UploadContract
 {
     /**
      * Ensures uploader-specific runtime prerequisites are met.
@@ -75,4 +75,5 @@ interface UploaderContract
      */
     public function getCompletionValidationRules(): array;
 }
+
 

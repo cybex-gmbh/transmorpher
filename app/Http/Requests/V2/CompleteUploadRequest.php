@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\V2;
 
-use App\Facades\UploaderFacade as Uploader;
 use Illuminate\Foundation\Http\FormRequest;
+use Upload;
 
 class CompleteUploadRequest extends FormRequest
 {
@@ -26,7 +26,7 @@ class CompleteUploadRequest extends FormRequest
      */
     public function rules(): array
     {
-        return Uploader::getCompletionValidationRules();
+        return Upload::getCompletionValidationRules();
     }
 }
 

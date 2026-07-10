@@ -2,23 +2,23 @@
 
 namespace Tests\Unit;
 
-use App\Classes\Uploader\LocalUploader;
-use App\Classes\Uploader\S3Uploader;
+use App\Classes\Upload\DefaultUpload;
+use App\Classes\Upload\S3MultipartUpload;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\Media;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Validation\ValidationException;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CompleteUploadRequestTest extends TestCase
 {
     #[Test]
-    public function rulesAreEmptyForLocalUploader(): void
+    public function rulesAreEmptyForDefaultUpload(): void
     {
-        $this->app->bind('uploader', fn() => new LocalUploader());
-        Facade::clearResolvedInstance('uploader');
+        $this->app->bind('upload', fn() => new DefaultUpload());
+        Facade::clearResolvedInstance('upload');
 
         $request = new CompleteUploadRequest();
         $request->setContainer($this->app);
@@ -27,10 +27,13 @@ class CompleteUploadRequestTest extends TestCase
     }
 
     #[Test]
-    public function rulesIncludePartsForS3Uploader(): void
+    public function rulesIncludePartsForS3MultipartUpload(): void
     {
-        $this->app->bind('uploader', fn() => new S3Uploader());
-        Facade::clearResolvedInstance('uploader');
+        Config::set('transmorpher.disks.originals', 's3Originals');
+        Config::set('filesystems.disks.s3Originals.bucket', 'test-bucket');
+
+        $this->app->bind('upload', fn() => new S3MultipartUpload());
+        Facade::clearResolvedInstance('upload');
 
         $request = new CompleteUploadRequest();
         $request->setContainer($this->app);
