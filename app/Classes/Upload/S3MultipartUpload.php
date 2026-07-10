@@ -32,7 +32,7 @@ class S3MultipartUpload implements UploadContract
      *
      * @return void
      */
-    public function ensurePrerequisites(): void
+    public function ensurePrerequisitesMet(): void
     {
         $diskName = MediaStorage::ORIGINALS->getDiskName();
         $diskDriver = config(sprintf('filesystems.disks.%s.driver', $diskName));
@@ -48,7 +48,7 @@ class S3MultipartUpload implements UploadContract
      * @param UploadSlot $uploadSlot
      * @return void
      */
-    public function initiateUpload(UploadSlot $uploadSlot): void
+    public function initiate(UploadSlot $uploadSlot): void
     {
         $key = $this->getObjectKey($uploadSlot);
 
@@ -95,7 +95,7 @@ class S3MultipartUpload implements UploadContract
      * @param array $completionData
      * @return void
      */
-    public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
+    public function complete(UploadSlot $uploadSlot, array $completionData): void
     {
         $sourceKey = $this->getObjectKey($uploadSlot);
         $uploadId = $this->getUploadId($uploadSlot);
@@ -136,7 +136,7 @@ class S3MultipartUpload implements UploadContract
      * @param UploadSlot $uploadSlot
      * @return void
      */
-    public function abortUpload(UploadSlot $uploadSlot): void
+    public function abort(UploadSlot $uploadSlot): void
     {
         $key = $this->getObjectKey($uploadSlot);
         $uploadId = $this->getUploadId($uploadSlot);

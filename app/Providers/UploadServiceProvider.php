@@ -20,7 +20,7 @@ class UploadServiceProvider extends ServiceProvider implements DeferrableProvide
         $this->app->singleton(static::SERVICE_NAME, function (): UploadContract {
             $upload = app()->make(config('transmorpher.upload'));
 
-            $upload->ensurePrerequisites();
+            $upload->ensurePrerequisitesMet();
 
             return $upload;
         });

@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\UploadSlot
  *
  * @property int $id
- * @property string|null $filename
  * @property string|null $token
  * @property string $identifier
+ * @property string|null $filename
  * @property string|null $validation_rules
  * @property string|null $valid_until
  * @property MediaType $media_type
