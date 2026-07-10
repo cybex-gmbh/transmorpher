@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -90,8 +91,11 @@ class UploadSlot extends Model
         });
 
         static::saving(function (UploadSlot $uploadSlot) {
-            $uploadSlot->token = uniqid();
-            // TODO check if token+filename already exists (maybe method)
+            if ($uploadSlot->exists()) {
+                $uploadSlot->deleteFileRemnants();
+            }
+
+            $uploadSlot->setUniqueToken();
             $uploadSlot->valid_until = Carbon::now()->addHours(24);
         });
     }
@@ -135,5 +139,23 @@ class UploadSlot extends Model
         return Attribute::make(
             get: fn() => Carbon::now()->isBefore($this->valid_until)
         );
+    }
+
+    protected function deleteFileRemnants(): void
+    {
+        $uploadHasBeenCompleted = $this->User->Media()->firstWhere('identifier', $this->identifier)?->Versions()->firstWhere('filename', $this->originalFilename);
+
+        // We don't want remnants of uncompleted uploads to remain on the disk.
+        // This happens when an UploadSlot was invalidated, before an upload was completed (which will create a version).
+        if (!$uploadHasBeenCompleted) {
+            MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
+        }
+    }
+
+    protected function setUniqueToken(): void
+    {
+        do {
+            $this->token = uniqid();
+        } while (MediaStorage::ORIGINALS->getDisk()->exists($this->originalFilePath));
     }
 }
