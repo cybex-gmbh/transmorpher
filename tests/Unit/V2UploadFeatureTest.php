@@ -6,9 +6,7 @@ use App\Enums\MediaType;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\Sanctum;
@@ -49,7 +47,7 @@ class V2UploadFeatureTest extends TestCase
 
         $uploadSlot = UploadSlot::withoutGlobalScopes()->firstWhere('identifier', $identifier);
         $this->assertNotNull($uploadSlot);
-        $this->assertSame('sample-image.jpg', Cache::get(sprintf('filename_%s', $uploadSlot->token)));
+        $this->assertSame('sample-image.jpg', $uploadSlot->filename);
     }
 
     #[Test]
@@ -72,9 +70,8 @@ class V2UploadFeatureTest extends TestCase
                 return sprintf('https://example.com/chunks/%d', $chunkNumber);
             }
 
-            public function completeUpload(UploadSlot $uploadSlot, array $completionData): ?UploadedFile
+            public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
             {
-                return null;
             }
 
             public function abortUpload(UploadSlot $uploadSlot): void
@@ -124,7 +121,7 @@ class V2UploadFeatureTest extends TestCase
                 return 'https://example.com/chunk-url';
             }
 
-            public function completeUpload(UploadSlot $uploadSlot, array $completionData): ?UploadedFile
+            public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
             {
                 throw ValidationException::withMessages(['file' => ['Invalid mime type.']]);
             }

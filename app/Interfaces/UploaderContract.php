@@ -3,7 +3,6 @@
 namespace App\Interfaces;
 
 use App\Models\UploadSlot;
-use Illuminate\Http\UploadedFile;
 
 interface UploaderContract
 {
@@ -33,9 +32,9 @@ interface UploaderContract
      *
      * @param UploadSlot $uploadSlot
      * @param array $completionData Validated payload from the complete endpoint.
-     * @return UploadedFile|null
+     * @return void
      */
-    public function completeUpload(UploadSlot $uploadSlot, array $completionData): ?UploadedFile;
+    public function completeUpload(UploadSlot $uploadSlot, array $completionData): void;
 
     /**
      * Aborts the upload process for the given upload slot.

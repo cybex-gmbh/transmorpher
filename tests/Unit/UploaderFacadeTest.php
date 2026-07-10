@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Models\UploadSlot;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Facade;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -23,9 +22,8 @@ class UploaderFacadeTest extends TestCase
                 return sprintf('https://example.com/%d', $chunkNumber);
             }
 
-            public function completeUpload(UploadSlot $uploadSlot, array $completionData): ?UploadedFile
+            public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
             {
-                return null;
             }
 
             public function abortUpload(UploadSlot $uploadSlot): void

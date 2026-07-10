@@ -50,6 +50,16 @@ class UploadRequest extends FormRequest
                     }
                 },
             ],
+            'identifier' => [
+                'required',
+                'string',
+                sprintf('regex:%s', ValidationRegex::IDENTIFIER->get()),
+                function ($attribute, $value, $fail) {
+                    if (strtolower($this->uploadSlot->identifier) !== strtolower($value)) {
+                        $fail(trans('responses.non_matching_identifier'));
+                    }
+                }
+            ]
         ];
     }
 }

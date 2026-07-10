@@ -5,8 +5,8 @@ namespace Tests\Unit;
 use App\Classes\Uploader\LocalUploader;
 use App\Enums\MediaStorage;
 use App\Models\UploadSlot;
+use App\Models\User;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
@@ -18,16 +18,6 @@ class LocalUploaderTest extends TestCase
     protected UploadSlot $uploadSlot;
     protected string $targetKey;
 
-    protected function createJpegTempFile(): string
-    {
-        $tempFile = tempnam(sys_get_temp_dir(), 'test');
-
-        // Minimal JPEG header/footer bytes for finfo mime detection.
-        file_put_contents($tempFile, hex2bin('FFD8FFE000104A46494600010100000100010000FFDB004300') . 'jpeg-test' . hex2bin('FFD9'));
-
-        return $tempFile;
-    }
-
     protected function setUp(): void
     {
         parent::setUp();
@@ -36,8 +26,11 @@ class LocalUploaderTest extends TestCase
 
         $this->uploader = new LocalUploader();
         $this->uploadSlot = new UploadSlot();
-        $this->uploadSlot->token = 'test-token-local-123';
-        $this->targetKey = 'test-user/test-media/1-test-file.jpg';
+        $this->uploadSlot->token = 'test-token-local-' . uniqid();
+        $this->uploadSlot->identifier = 'local-uploader-test-' . uniqid();
+        $this->uploadSlot->filename = 'test-file.jpg';
+        $this->uploadSlot->setRelation('User', User::factory()->make(['name' => 'local-user']));
+        $this->targetKey = $this->uploadSlot->originalFilePath;
 
         Storage::persistentFake(MediaStorage::ORIGINALS->getDiskName());
     }
@@ -60,64 +53,59 @@ class LocalUploaderTest extends TestCase
     }
 
     #[Test]
-    public function completeUploadMovesFileToOriginalsDisk(): void
+    public function completeUploadValidatesStoredFile(): void
     {
-        $tempFile = $this->createJpegTempFile();
+        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'test-image-content');
 
-        Cache::put(sprintf('assembled_file_%s', $this->uploadSlot->token), [
-            'path' => $tempFile,
-            'original_name' => 'test-file.jpg',
-            'mime_type' => 'image/jpeg',
-        ], now()->addHours(1));
-
-        $result = $this->uploader->completeUpload($this->uploadSlot, [
-            'target_key' => $this->targetKey,
-            'validation_rules' => 'mimetypes:image/jpeg',
+        $this->uploader->completeUpload($this->uploadSlot, [
+            'validation_rules' => 'mimetypes:text/plain,image/jpeg',
         ]);
 
-        $this->assertNull($result);
         MediaStorage::ORIGINALS->getDisk()->assertExists($this->targetKey);
-        $this->assertNull(Cache::get(sprintf('assembled_file_%s', $this->uploadSlot->token)));
     }
 
     #[Test]
-    public function completeUploadThrowsWhenNoAssembledFileInCache(): void
+    public function completeUploadThrowsWhenNoStoredFileExists(): void
     {
         $this->expectException(RuntimeException::class);
 
-        $this->uploader->completeUpload($this->uploadSlot, []);
+        $this->uploader->completeUpload($this->uploadSlot, [
+            'validation_rules' => 'mimetypes:text/plain',
+        ]);
     }
 
     #[Test]
-    public function completeUploadClearsAssembledFileFromCache(): void
+    public function completeUploadDeletesStoredFileWhenMimeValidationFails(): void
     {
-        $tempFile = $this->createJpegTempFile();
+        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
 
-        Cache::put(sprintf('assembled_file_%s', $this->uploadSlot->token), [
-            'path' => $tempFile,
-            'original_name' => 'test-file.jpg',
-            'mime_type' => 'image/jpeg',
-        ], now()->addHours(1));
+        $this->expectException(\Illuminate\Validation\ValidationException::class);
 
         $this->uploader->completeUpload($this->uploadSlot, [
-            'target_key' => $this->targetKey,
-            'validation_rules' => 'mimetypes:image/jpeg',
+            'validation_rules' => 'mimetypes:application/pdf',
         ]);
+    }
 
-        $this->assertNull(Cache::get(sprintf('assembled_file_%s', $this->uploadSlot->token)));
+    #[Test]
+    public function completeUploadValidationFailureRemovesStoredFile(): void
+    {
+        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
+
+        try {
+            $this->uploader->completeUpload($this->uploadSlot, [
+                'validation_rules' => 'mimetypes:application/pdf',
+            ]);
+        } catch (\Throwable) {
+            // Assertion is below.
+        }
+
+        MediaStorage::ORIGINALS->getDisk()->assertMissing($this->targetKey);
     }
 
     #[Test]
     public function completeUploadThrowsWhenCompletionMetadataIsMissing(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), 'test');
-        file_put_contents($tempFile, 'test content');
-
-        Cache::put(sprintf('assembled_file_%s', $this->uploadSlot->token), [
-            'path' => $tempFile,
-            'original_name' => 'test-file.jpg',
-            'mime_type' => 'image/jpeg',
-        ], now()->addHours(1));
+        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
 
         $this->expectException(RuntimeException::class);
 
@@ -125,27 +113,19 @@ class LocalUploaderTest extends TestCase
     }
 
     #[Test]
-    public function abortUploadDeletesAssembledFileAndClearsCacheWhenPresent(): void
+    public function abortUploadDeletesStoredFileWhenPresent(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), 'test');
-        file_put_contents($tempFile, 'test content');
-
-        Cache::put(sprintf('assembled_file_%s', $this->uploadSlot->token), [
-            'path' => $tempFile,
-            'original_name' => 'test-file.jpg',
-            'mime_type' => 'image/jpeg',
-        ], now()->addHours(1));
+        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
 
         $this->uploader->abortUpload($this->uploadSlot);
 
-        $this->assertNull(Cache::get(sprintf('assembled_file_%s', $this->uploadSlot->token)));
-        $this->assertFileDoesNotExist($tempFile);
+        MediaStorage::ORIGINALS->getDisk()->assertMissing($this->targetKey);
     }
 
     #[Test]
-    public function abortUploadIsNoOpWhenNoAssembledFile(): void
+    public function abortUploadIsNoOpWhenNoStoredFileExists(): void
     {
-        // Should not throw when no cached file exists.
+        // Should not throw when no stored file exists.
         $this->uploader->abortUpload($this->uploadSlot);
         $this->assertTrue(true);
     }

@@ -6,10 +6,8 @@ use App\Enums\MediaStorage;
 use App\Interfaces\UploaderContract;
 use App\Models\Media;
 use App\Models\UploadSlot;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\File;
 use RuntimeException;
+use Throwable;
 
 class LocalUploader implements UploaderContract
 {
@@ -37,83 +35,54 @@ class LocalUploader implements UploaderContract
     }
 
     /**
-     * Completes local upload by validating the assembled file and moving it to the target key.
+     * Completes local upload by validating the file already stored at its reserved destination.
      *
      * @param UploadSlot $uploadSlot
      * @param array $completionData
-     * @return null
+     * @return void
+     * @throws Throwable
      */
-    public function completeUpload(UploadSlot $uploadSlot, array $completionData): ?UploadedFile
+    public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
     {
-        $cacheKey = sprintf('assembled_file_%s', $uploadSlot->token);
-        $fileData = Cache::get($cacheKey);
-
-        if ($fileData === null) {
-            throw new RuntimeException('No assembled file found for this upload slot. Ensure all chunks have been uploaded.');
-        }
-
-        $targetKey = $completionData['target_key'] ?? null;
         $validationRules = $completionData['validation_rules'] ?? null;
+        $targetKey = $uploadSlot->originalFilePath;
+        $disk = MediaStorage::ORIGINALS->getDisk();
 
-        if ($targetKey === null || $validationRules === null) {
-            throw new RuntimeException('Missing local completion metadata: target_key and validation_rules are required.');
+        if ($validationRules === null) {
+            throw new RuntimeException('Missing local completion metadata: validation_rules is required.');
         }
 
-        $uploadedFile = new UploadedFile(
-            $fileData['path'],
-            $fileData['original_name'],
-            $fileData['mime_type'],
-            null,
-            true
-        );
+        if (!$disk->exists($targetKey)) {
+            throw new RuntimeException('No stored file found for this upload slot. Ensure the chunk upload completed.');
+        }
+
+        $mimeType = $disk->mimeType($targetKey) ?: 'application/octet-stream';
 
         try {
-            Media::validateMimeType($uploadedFile->getMimeType() ?? 'application/octet-stream', $validationRules);
-        } catch (\Throwable $throwable) {
-            File::delete($uploadedFile->getRealPath());
-            Cache::forget($cacheKey);
+            Media::validateMimeType($mimeType, $validationRules);
+        } catch (Throwable $throwable) {
+            $disk->delete($targetKey);
             throw $throwable;
         }
 
-        $directory = pathinfo($targetKey, PATHINFO_DIRNAME);
-        $filename = pathinfo($targetKey, PATHINFO_BASENAME);
-
-        $writeSuccess = MediaStorage::ORIGINALS->getDisk()->putFileAs($directory, $uploadedFile, $filename);
-
-        if (!$writeSuccess) {
-            File::delete($uploadedFile->getRealPath());
-            Cache::forget($cacheKey);
-            throw new RuntimeException('Could not write assembled local upload to originals storage.');
-        }
-
-        File::delete($uploadedFile->getRealPath());
-        Cache::forget($cacheKey);
-
-        return null;
     }
 
     /**
-     * Cleans up any cached assembled file for the given upload slot.
+     * Cleans up any already-stored local upload for the given upload slot.
      *
      * @param UploadSlot $uploadSlot
      * @return void
      */
     public function abortUpload(UploadSlot $uploadSlot): void
     {
-        $cacheKey = sprintf('assembled_file_%s', $uploadSlot->token);
-        $fileData = Cache::get($cacheKey);
-
-        if ($fileData !== null) {
-            \File::delete($fileData['path']);
-            Cache::forget($cacheKey);
-        }
+        MediaStorage::ORIGINALS->getDisk()->delete($uploadSlot->originalFilePath);
     }
 
     /**
      * Local uploads do not use an upload ID.
      *
      * @param UploadSlot $uploadSlot
-     * @return null
+     * @return string|null
      */
     public function getUploadId(UploadSlot $uploadSlot): ?string
     {
