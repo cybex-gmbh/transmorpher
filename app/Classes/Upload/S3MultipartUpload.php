@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Classes\Uploader;
+namespace App\Classes\Upload;
 
 use App\Enums\MediaStorage;
-use App\Interfaces\UploaderContract;
+use App\Interfaces\UploadContract;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use Aws\S3\S3Client;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
-class S3Uploader implements UploaderContract
+class S3MultipartUpload implements UploadContract
 {
     protected S3Client $client;
     protected string $bucket;
@@ -255,5 +255,6 @@ class S3Uploader implements UploaderContract
         return config(sprintf('filesystems.disks.%s.bucket', $diskName));
     }
 }
+
 
 

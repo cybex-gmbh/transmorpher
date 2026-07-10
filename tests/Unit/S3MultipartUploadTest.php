@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Classes\Uploader\S3Uploader;
+use App\Classes\Upload\S3MultipartUpload;
 use App\Enums\MediaType;
 use App\Models\UploadSlot;
 use App\Models\User;
@@ -17,9 +17,9 @@ use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 use Tests\TestCase;
 
-class S3UploaderTest extends TestCase
+class S3MultipartUploadTest extends TestCase
 {
-    protected S3Uploader $uploader;
+    protected S3MultipartUpload $upload;
     protected UploadSlot $uploadSlot;
     protected S3Client $s3Client;
     protected string $bucket = 'test-bucket';
@@ -40,7 +40,7 @@ class S3UploaderTest extends TestCase
         $this->uploadSlot->setRelation('User', User::factory()->make(['name' => 's3user']));
 
         $this->s3Client = Mockery::mock(S3Client::class);
-        $this->uploader = new class($this->s3Client, $this->bucket) extends S3Uploader {
+        $this->upload = new class($this->s3Client, $this->bucket) extends S3MultipartUpload {
             protected S3Client $testClient;
             protected string $testBucket;
 
@@ -78,7 +78,7 @@ class S3UploaderTest extends TestCase
             ))
             ->andReturn(new Result(['UploadId' => $uploadId]));
 
-        $this->uploader->initiateUpload($this->uploadSlot);
+        $this->upload->initiateUpload($this->uploadSlot);
 
         $this->assertEquals($uploadId, Cache::get(sprintf('upload_id_%s', $this->token)));
     }
@@ -102,7 +102,7 @@ class S3UploaderTest extends TestCase
             ->shouldReceive('createMultipartUpload')
             ->andReturn(new Result(['UploadId' => $uploadId]));
 
-        $this->uploader->initiateUpload($this->uploadSlot);
+        $this->upload->initiateUpload($this->uploadSlot);
     }
 
     #[Test]
@@ -136,7 +136,7 @@ class S3UploaderTest extends TestCase
             ->with($mockCommand, '+24 hours')
             ->andReturn($mockRequest);
 
-        $url = $this->uploader->getChunkUploadUrl($this->uploadSlot, 1);
+        $url = $this->upload->getChunkUploadUrl($this->uploadSlot, 1);
 
         $this->assertEquals($presignedUrl, $url);
     }
@@ -174,7 +174,7 @@ class S3UploaderTest extends TestCase
 
         $this->s3Client->shouldNotReceive('copyObject');
 
-        $this->uploader->completeUpload($this->uploadSlot, ['parts' => $parts]);
+        $this->upload->completeUpload($this->uploadSlot, ['parts' => $parts]);
     }
 
     #[Test]
@@ -201,7 +201,7 @@ class S3UploaderTest extends TestCase
             ->once()
             ->andReturn(new Result(['ContentType' => 'image/jpeg']));
 
-        $this->uploader->completeUpload($this->uploadSlot, [
+        $this->upload->completeUpload($this->uploadSlot, [
             'parts' => $parts,
             'target_key' => 'different/key.jpg',
         ]);
@@ -235,7 +235,7 @@ class S3UploaderTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->uploader->completeUpload($this->uploadSlot, ['parts' => $parts]);
+        $this->upload->completeUpload($this->uploadSlot, ['parts' => $parts]);
     }
 
     #[Test]
@@ -254,7 +254,7 @@ class S3UploaderTest extends TestCase
                 $args['UploadId'] === $uploadId
             ));
 
-        $this->uploader->abortUpload($this->uploadSlot);
+        $this->upload->abortUpload($this->uploadSlot);
 
         $this->assertNull(Cache::get(sprintf('upload_id_%s', $this->token)));
     }
@@ -264,7 +264,7 @@ class S3UploaderTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
 
-        $this->uploader->abortUpload($this->uploadSlot);
+        $this->upload->abortUpload($this->uploadSlot);
     }
 
     #[Test]
@@ -273,7 +273,7 @@ class S3UploaderTest extends TestCase
         $uploadId = 'test-upload-id-get';
         Cache::put(sprintf('upload_id_%s', $this->token), $uploadId, now()->addHours(24));
 
-        $this->assertEquals($uploadId, $this->uploader->getUploadId($this->uploadSlot));
+        $this->assertEquals($uploadId, $this->upload->getUploadId($this->uploadSlot));
     }
 
     #[Test]
@@ -281,19 +281,19 @@ class S3UploaderTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
 
-        $this->uploader->getUploadId($this->uploadSlot);
+        $this->upload->getUploadId($this->uploadSlot);
     }
 
     #[Test]
     public function needsUploadIdReturnsTrue(): void
     {
-        $this->assertTrue($this->uploader->needsUploadId());
+        $this->assertTrue($this->upload->needsUploadId());
     }
 
     #[Test]
     public function getCompletionValidationRulesReturnsPartsRules(): void
     {
-        $rules = $this->uploader->getCompletionValidationRules();
+        $rules = $this->upload->getCompletionValidationRules();
 
         $this->assertArrayHasKey('parts', $rules);
         $this->assertArrayHasKey('parts.*.PartNumber', $rules);
@@ -305,9 +305,10 @@ class S3UploaderTest extends TestCase
     {
         $expected = sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token);
 
-        $this->assertEquals($expected, $this->uploader->getObjectKey($this->uploadSlot));
+        $this->assertEquals($expected, $this->upload->getObjectKey($this->uploadSlot));
     }
 }
+
 
 
 

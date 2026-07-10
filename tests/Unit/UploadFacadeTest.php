@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Facade;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class UploaderFacadeTest extends TestCase
+class UploadFacadeTest extends TestCase
 {
     #[Test]
-    public function facadeResolvesUploaderContractAndForwardsCalls(): void
+    public function facadeResolvesUploadContractAndForwardsCalls(): void
     {
-        $this->app->bind('uploader', fn() => new class {
+        $this->app->bind('upload', fn() => new class {
             public function initiateUpload(UploadSlot $uploadSlot): void
             {
             }
@@ -46,16 +46,17 @@ class UploaderFacadeTest extends TestCase
             }
         });
 
-        Facade::clearResolvedInstance('uploader');
+        Facade::clearResolvedInstance('upload');
 
         $uploadSlot = new UploadSlot();
         $uploadSlot->token = 'facade-token';
 
-        $this->assertTrue(\Uploader::needsUploadId());
-        $this->assertSame('upload-id', \Uploader::getUploadId($uploadSlot));
-        $this->assertSame('https://example.com/5', \Uploader::getChunkUploadUrl($uploadSlot, 5));
-        $this->assertSame(['parts' => 'required|array'], \Uploader::getCompletionValidationRules());
+        $this->assertTrue(\Upload::needsUploadId());
+        $this->assertSame('upload-id', \Upload::getUploadId($uploadSlot));
+        $this->assertSame('https://example.com/5', \Upload::getChunkUploadUrl($uploadSlot, 5));
+        $this->assertSame(['parts' => 'required|array'], \Upload::getCompletionValidationRules());
     }
 }
+
 
 

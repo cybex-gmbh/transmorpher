@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Classes\Uploader\LocalUploader;
+use App\Classes\Upload\DefaultUpload;
 use App\Enums\MediaStorage;
 use App\Models\UploadSlot;
 use App\Models\User;
@@ -12,9 +12,9 @@ use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 use Tests\TestCase;
 
-class LocalUploaderTest extends TestCase
+class DefaultUploadTest extends TestCase
 {
-    protected LocalUploader $uploader;
+    protected DefaultUpload $upload;
     protected UploadSlot $uploadSlot;
     protected string $targetKey;
 
@@ -24,7 +24,7 @@ class LocalUploaderTest extends TestCase
 
         Config::set('cache.default', 'array');
 
-        $this->uploader = new LocalUploader();
+        $this->upload = new DefaultUpload();
         $this->uploadSlot = new UploadSlot();
         $this->uploadSlot->token = 'test-token-local-' . uniqid();
         $this->uploadSlot->identifier = 'local-uploader-test-' . uniqid();
@@ -39,14 +39,14 @@ class LocalUploaderTest extends TestCase
     public function initiateUploadIsNoOp(): void
     {
         // Should not throw.
-        $this->uploader->initiateUpload($this->uploadSlot);
+        $this->upload->initiateUpload($this->uploadSlot);
         $this->assertTrue(true);
     }
 
     #[Test]
     public function getChunkUploadUrlReturnsV2UploadRoute(): void
     {
-        $url = $this->uploader->getChunkUploadUrl($this->uploadSlot, 1);
+        $url = $this->upload->getChunkUploadUrl($this->uploadSlot, 1);
 
         $this->assertStringContainsString($this->uploadSlot->token, $url);
         $this->assertEquals(route('v2.upload', $this->uploadSlot->token), $url);
@@ -57,7 +57,7 @@ class LocalUploaderTest extends TestCase
     {
         MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'test-image-content');
 
-        $this->uploader->completeUpload($this->uploadSlot, [
+        $this->upload->completeUpload($this->uploadSlot, [
             'validation_rules' => 'mimetypes:text/plain,image/jpeg',
         ]);
 
@@ -69,7 +69,7 @@ class LocalUploaderTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
 
-        $this->uploader->completeUpload($this->uploadSlot, [
+        $this->upload->completeUpload($this->uploadSlot, [
             'validation_rules' => 'mimetypes:text/plain',
         ]);
     }
@@ -81,7 +81,7 @@ class LocalUploaderTest extends TestCase
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
 
-        $this->uploader->completeUpload($this->uploadSlot, [
+        $this->upload->completeUpload($this->uploadSlot, [
             'validation_rules' => 'mimetypes:application/pdf',
         ]);
     }
@@ -92,7 +92,7 @@ class LocalUploaderTest extends TestCase
         MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
 
         try {
-            $this->uploader->completeUpload($this->uploadSlot, [
+            $this->upload->completeUpload($this->uploadSlot, [
                 'validation_rules' => 'mimetypes:application/pdf',
             ]);
         } catch (\Throwable) {
@@ -109,7 +109,7 @@ class LocalUploaderTest extends TestCase
 
         $this->expectException(RuntimeException::class);
 
-        $this->uploader->completeUpload($this->uploadSlot, []);
+        $this->upload->completeUpload($this->uploadSlot, []);
     }
 
     #[Test]
@@ -117,7 +117,7 @@ class LocalUploaderTest extends TestCase
     {
         MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
 
-        $this->uploader->abortUpload($this->uploadSlot);
+        $this->upload->abortUpload($this->uploadSlot);
 
         MediaStorage::ORIGINALS->getDisk()->assertMissing($this->targetKey);
     }
@@ -126,28 +126,29 @@ class LocalUploaderTest extends TestCase
     public function abortUploadIsNoOpWhenNoStoredFileExists(): void
     {
         // Should not throw when no stored file exists.
-        $this->uploader->abortUpload($this->uploadSlot);
+        $this->upload->abortUpload($this->uploadSlot);
         $this->assertTrue(true);
     }
 
     #[Test]
     public function getUploadIdReturnsNull(): void
     {
-        $this->assertNull($this->uploader->getUploadId($this->uploadSlot));
+        $this->assertNull($this->upload->getUploadId($this->uploadSlot));
     }
 
     #[Test]
     public function needsUploadIdReturnsFalse(): void
     {
-        $this->assertFalse($this->uploader->needsUploadId());
+        $this->assertFalse($this->upload->needsUploadId());
     }
 
     #[Test]
     public function getCompletionValidationRulesReturnsEmptyArray(): void
     {
-        $this->assertEquals([], $this->uploader->getCompletionValidationRules());
+        $this->assertEquals([], $this->upload->getCompletionValidationRules());
     }
 }
+
 
 
 

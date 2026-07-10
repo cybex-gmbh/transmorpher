@@ -6,7 +6,6 @@ use App\Enums\MediaType;
 use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
-use App\Facades\UploaderFacade as Uploader;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Http\Requests\V2\UploadRequest;
@@ -19,6 +18,7 @@ use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
+use Upload;
 
 class UploadSlotController extends Controller
 {
@@ -41,7 +41,7 @@ class UploadSlotController extends Controller
         );
 
         try {
-            Uploader::initiateUpload($uploadSlot);
+            Upload::initiateUpload($uploadSlot);
         } catch (\Throwable $throwable) {
             report($throwable);
         }
@@ -113,7 +113,7 @@ class UploadSlotController extends Controller
     public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): JsonResponse
     {
         return response()->json([
-            'url' => Uploader::getChunkUploadUrl($uploadSlot, $chunkNumber),
+            'url' => Upload::getChunkUploadUrl($uploadSlot, $chunkNumber),
         ]);
     }
 
@@ -137,7 +137,7 @@ class UploadSlotController extends Controller
      */
     public function abortUpload(UploadSlot $uploadSlot): JsonResponse
     {
-        Uploader::abortUpload($uploadSlot);
+        Upload::abortUpload($uploadSlot);
         $uploadSlot->invalidate();
 
         return response()->json([
@@ -176,7 +176,7 @@ class UploadSlotController extends Controller
                 'validation_rules' => $type->handler()->getValidationRules(),
             ];
 
-            Uploader::completeUpload($uploadSlot, array_merge($completionData, $completionContext));
+            Upload::completeUpload($uploadSlot, array_merge($completionData, $completionContext));
 
             $writeSuccess = true;
 

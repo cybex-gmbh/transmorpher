@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use App\Interfaces\UploaderContract;
+use App\Interfaces\UploadContract;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
-class UploaderServiceProvider extends ServiceProvider implements DeferrableProvider
+class UploadServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    const string SERVICE_NAME = 'uploader';
+    const string SERVICE_NAME = 'upload';
 
     /**
      * Register services.
@@ -17,12 +17,12 @@ class UploaderServiceProvider extends ServiceProvider implements DeferrableProvi
      */
     public function register(): void
     {
-        $this->app->singleton(static::SERVICE_NAME, function () : UploaderContract {
-            $uploader = app()->make(config('transmorpher.uploader'));
+        $this->app->singleton(static::SERVICE_NAME, function (): UploadContract {
+            $upload = app()->make(config('transmorpher.upload'));
 
-            $uploader->ensurePrerequisites();
+            $upload->ensurePrerequisites();
 
-            return $uploader;
+            return $upload;
         });
     }
 
@@ -36,4 +36,5 @@ class UploaderServiceProvider extends ServiceProvider implements DeferrableProvi
         return [static::SERVICE_NAME];
     }
 }
+
 

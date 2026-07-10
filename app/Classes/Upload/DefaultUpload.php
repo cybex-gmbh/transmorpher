@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Classes\Uploader;
+namespace App\Classes\Upload;
 
 use App\Enums\MediaStorage;
-use App\Interfaces\UploaderContract;
+use App\Interfaces\UploadContract;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use RuntimeException;
 use Throwable;
 
-class LocalUploader implements UploaderContract
+class DefaultUpload implements UploadContract
 {
     /**
      * Local uploader has no external prerequisites.
@@ -118,4 +118,5 @@ class LocalUploader implements UploaderContract
         return [];
     }
 }
+
 

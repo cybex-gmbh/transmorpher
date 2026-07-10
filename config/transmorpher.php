@@ -204,16 +204,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Uploader
+    | Upload
     |--------------------------------------------------------------------------
     |
-    | The uploader class used for the v2 upload flow.
-    | The class must implement UploaderContract.
+    | The upload class used for the v2 upload flow.
+    | The class must implement UploadContract.
     |
-    | Available Uploader classes:
-    | - App\Classes\Uploader\LocalUploader (default, uses pion/laravel-chunk-upload)
-    | - App\Classes\Uploader\S3Uploader   (S3 multipart uploads via signed URLs)
+    | Available Upload classes:
+    | - App\Classes\Upload\DefaultUpload      (default, uses pion/laravel-chunk-upload)
+    | - App\Classes\Upload\S3MultipartUpload  (S3 multipart uploads via signed URLs)
     |
     */
-    'uploader' => App\Classes\Uploader\LocalUploader::class,
+    'upload' => App\Classes\Upload\DefaultUpload::class,
 ];
