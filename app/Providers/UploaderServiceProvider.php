@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 
 class UploaderServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    const SERVICE_NAME = 'uploader';
+    const string SERVICE_NAME = 'uploader';
 
     /**
      * Register services.
@@ -17,7 +17,7 @@ class UploaderServiceProvider extends ServiceProvider implements DeferrableProvi
      */
     public function register(): void
     {
-        $this->app->bind(static::SERVICE_NAME, fn(): UploaderContract => app()->make(config('transmorpher.uploader')));
+        $this->app->singleton(static::SERVICE_NAME, fn(): UploaderContract => app()->make(config('transmorpher.uploader')));
     }
 
     /**

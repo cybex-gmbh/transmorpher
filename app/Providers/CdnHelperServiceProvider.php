@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 
 class CdnHelperServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    const SERVICE_NAME = 'cdn';
+    const string SERVICE_NAME = 'cdn';
 
     /**
      * Register services.

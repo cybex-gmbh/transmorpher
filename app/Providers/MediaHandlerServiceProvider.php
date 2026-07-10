@@ -8,9 +8,9 @@ use Illuminate\Support\ServiceProvider;
 
 class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    const DOCUMENT_SERVICE_NAME = 'media-handler.document';
-    const IMAGE_SERVICE_NAME = 'media-handler.image';
-    const VIDEO_SERVICE_NAME = 'media-handler.video';
+    const string DOCUMENT_SERVICE_NAME = 'media-handler.document';
+    const string IMAGE_SERVICE_NAME = 'media-handler.image';
+    const string VIDEO_SERVICE_NAME = 'media-handler.video';
 
     /**
      * Register services.

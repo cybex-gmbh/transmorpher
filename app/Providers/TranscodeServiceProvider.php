@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 
 class TranscodeServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    const SERVICE_NAME = 'transcode';
+    const string SERVICE_NAME = 'transcode';
 
     /**
      * Register services.
