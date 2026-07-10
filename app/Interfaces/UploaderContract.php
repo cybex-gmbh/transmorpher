@@ -7,6 +7,13 @@ use App\Models\UploadSlot;
 interface UploaderContract
 {
     /**
+     * Ensures uploader-specific runtime prerequisites are met.
+     *
+     * @return void
+     */
+    public function ensurePrerequisites(): void;
+
+    /**
      * Initiates the upload process (e.g. S3 multipart upload).
      * UploadSlot creation is NOT handled here.
      *

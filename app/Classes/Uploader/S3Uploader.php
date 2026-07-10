@@ -28,6 +28,21 @@ class S3Uploader implements UploaderContract
     }
 
     /**
+     * Ensure the configured originals disk is an S3 disk.
+     *
+     * @return void
+     */
+    public function ensurePrerequisites(): void
+    {
+        $diskName = MediaStorage::ORIGINALS->getDiskName();
+        $diskDriver = config(sprintf('filesystems.disks.%s.driver', $diskName));
+
+        if ($diskDriver !== 's3') {
+            throw new RuntimeException('Originals disk is not configured as an S3 disk.');
+        }
+    }
+
+    /**
      * Initiates an S3 multipart upload and stores the upload ID in cache.
      *
      * @param UploadSlot $uploadSlot
@@ -207,8 +222,8 @@ class S3Uploader implements UploaderContract
         $diskName = MediaStorage::ORIGINALS->getDiskName();
         $diskConfig = config(sprintf('filesystems.disks.%s', $diskName));
 
-        if (!is_array($diskConfig) || ($diskConfig['driver'] ?? null) !== 's3') {
-            throw new RuntimeException('Originals disk is not configured as an S3 disk.');
+        if (!is_array($diskConfig)) {
+            throw new RuntimeException('Originals disk configuration is invalid.');
         }
 
         $clientConfig = [

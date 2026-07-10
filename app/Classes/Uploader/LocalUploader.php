@@ -12,6 +12,15 @@ use Throwable;
 class LocalUploader implements UploaderContract
 {
     /**
+     * Local uploader has no external prerequisites.
+     *
+     * @return void
+     */
+    public function ensurePrerequisites(): void
+    {
+    }
+
+    /**
      * No-op for local uploads.
      *
      * @param UploadSlot $uploadSlot
