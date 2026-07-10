@@ -28,27 +28,7 @@ class UploadRequest extends FormRequest
         return [
             'file' => [
                 'required',
-                // Check file name for disallowed characters and reject if present.
-                function ($attribute, $value, $fail) {
-                    // Custom rules are evaluated first, so we can't use Laravel's existing file validation.
-                    if (!$this->hasFile($attribute)) {
-                        $fail(trans('validation.file', ['attribute' => $attribute]));
-                        return;
-                    }
-
-                    // Using these characters might cause file system problems.
-                    $disallowedCharacters = ['\'', '/', '\\', ':', '?', '"', '<', '>', '|', '*'];
-                    $fileName = pathinfo($this->file->getClientOriginalName(), PATHINFO_FILENAME);
-
-                    if (preg_match(sprintf('/[%s]/', preg_quote(implode($disallowedCharacters), '/')), $fileName)) {
-                        $fail(trans('responses.file_name_invalid', ['disallowedCharacters' => implode(', ', $disallowedCharacters)]));
-                    }
-
-                    // Check if file name only consists of spaces.
-                    if (!trim($fileName)) {
-                        $fail(trans('responses.file_name_invalid_only_spaces'));
-                    }
-                },
+                'file',
             ],
             'identifier' => [
                 'required',
