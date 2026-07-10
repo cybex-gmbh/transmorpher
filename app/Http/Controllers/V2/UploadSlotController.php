@@ -39,6 +39,7 @@ class UploadSlotController extends Controller
             $requestData
         );
 
+        // TODO Create migration for UploadSlot and add filename, which will consist of uploadToken + passed filename.
         // Store filename in cache for later use during file saving.
         Cache::put(
             sprintf('filename_%s', $uploadSlot->token),
@@ -82,6 +83,7 @@ class UploadSlotController extends Controller
 
         $save = $receiver->receive();
 
+        // TODO: Save the file here to the correct location.
         // When all chunks are assembled, cache the file info for the complete endpoint.
         if ($save->isFinished()) {
             $assembledFile = $save->getFile();

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\UploadSlot
  *
  * @property int $id
+ * @property string|null $filename
  * @property string|null $token
  * @property string $identifier
  * @property string|null $validation_rules
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder<static>|UploadSlot newQuery()
  * @method static Builder<static>|UploadSlot query()
  * @method static Builder<static>|UploadSlot whereCreatedAt($value)
+ * @method static Builder<static>|UploadSlot whereFilename($value)
  * @method static Builder<static>|UploadSlot whereId($value)
  * @method static Builder<static>|UploadSlot whereIdentifier($value)
  * @method static Builder<static>|UploadSlot whereMediaType($value)
@@ -42,12 +44,25 @@ class UploadSlot extends Model
 {
     use HasFactory;
 
+    public string $originalFilename {
+        get => sprintf('%s-%s', $this->token, $this->filename);
+    }
+
+    public string $baseDirectory {
+        get => sprintf('%s/%s', $this->User->name, $this->identifier);
+    }
+
+    public string $originalFilePath {
+        get => sprintf('%s/%s', $this->baseDirectory, $this->originalFilename);
+    }
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
     protected $fillable = [
+        'filename',
         'identifier',
         'media_type',
         'validation_rules',
@@ -76,6 +91,7 @@ class UploadSlot extends Model
 
         static::saving(function (UploadSlot $uploadSlot) {
             $uploadSlot->token = uniqid();
+            // TODO check if token+filename already exists (maybe method)
             $uploadSlot->valid_until = Carbon::now()->addHours(24);
         });
     }

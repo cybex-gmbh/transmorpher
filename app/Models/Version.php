@@ -116,6 +116,8 @@ class Version extends Model
      * @param string $filename
      *
      * @return string
+     * @deprecated Will be removed once v1 has been discontinued.
+     *             Original file names are now managed via UploadSlots, since we need to know the file destination before creating a version.
      */
     public function createOriginalFileName(string $filename): string
     {
@@ -131,7 +133,6 @@ class Version extends Model
      */
     public function onDemandDerivativeFilePath(?array $transformations = null): string
     {
-        $mediaType = $this->Media->type;
         $originalFileExtension = pathinfo($this->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and version number to identify already generated derivatives.
@@ -141,7 +142,9 @@ class Version extends Model
             $this->onDemandDerivativeDirectoryPath(),
             implode('_',
                 Arr::mapWithKeys(Arr::except($transformations ?? [], Transformation::FORMAT->value),
-                    function($value, $key) { return [sprintf('%s%s', $value, $key)]; }
+                    function ($value, $key) {
+                        return [sprintf('%s%s', $value, $key)];
+                    }
                 )
             ),
             $derivativeHash,
