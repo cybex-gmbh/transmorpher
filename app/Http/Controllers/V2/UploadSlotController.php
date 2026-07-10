@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\V2;
 
 use App\Enums\MediaType;
+use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
 use App\Facades\UploaderFacade as Uploader;
@@ -11,8 +12,8 @@ use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Http\Requests\V2\UploadRequest;
 use App\Http\Requests\V2\UploadSlotRequest;
 use App\Models\UploadSlot;
+use File;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
@@ -39,14 +40,6 @@ class UploadSlotController extends Controller
             $requestData
         );
 
-        // TODO Create migration for UploadSlot and add filename, which will consist of uploadToken + passed filename.
-        // Store filename in cache for later use during file saving.
-        Cache::put(
-            sprintf('filename_%s', $uploadSlot->token),
-            $request->input('filename'),
-            now()->addHours(24)
-        );
-
         try {
             Uploader::initiateUpload($uploadSlot);
         } catch (\Throwable $throwable) {
@@ -63,8 +56,7 @@ class UploadSlotController extends Controller
 
     /**
      * Receives a file chunk for a local upload.
-     * When pion signals the upload is complete, caches the assembled file path
-     * for retrieval by the complete endpoint.
+     * Saves the file to the destination file path when all chunks have been received.
      *
      * @param UploadRequest $request
      * @param UploadSlot $uploadSlot
@@ -83,20 +75,21 @@ class UploadSlotController extends Controller
 
         $save = $receiver->receive();
 
-        // TODO: Save the file here to the correct location.
-        // When all chunks are assembled, cache the file info for the complete endpoint.
         if ($save->isFinished()) {
             $assembledFile = $save->getFile();
 
-            Cache::put(
-                sprintf('assembled_file_%s', $uploadSlot->token),
-                [
-                    'path' => $assembledFile->getRealPath(),
-                    'original_name' => $assembledFile->getClientOriginalName(),
-                    'mime_type' => $assembledFile->getMimeType(),
-                ],
-                now()->addHours(24)
+            $writeSuccess = MediaStorage::ORIGINALS->getDisk()->putFileAs(
+                $uploadSlot->baseDirectory,
+                $assembledFile,
+                $uploadSlot->originalFilename
             );
+
+            // Remove temporary UploadedFile.
+            File::delete($assembledFile->getRealPath());
+
+            if (!$writeSuccess) {
+                throw new \RuntimeException('Could not write assembled local upload to originals storage.');
+            }
 
             return response()->json([
                 'done' => 100,
@@ -177,19 +170,11 @@ class UploadSlotController extends Controller
             $version = $media->Versions()->create(['number' => $versionNumber]);
             $basePath = $media->baseDirectory();
 
-            // Retrieve original filename stored in cache during reserveUploadSlot.
-            $cachedFilename = Cache::get(sprintf('filename_%s', $uploadSlot->token));
-            $originalFilename = $cachedFilename
-                ?? sprintf('%s.bin', $uploadSlot->identifier);
-            $version->update(['filename' => $version->createOriginalFileName($originalFilename)]);
+            $version->update(['filename' => $uploadSlot->originalFilename]);
 
             $completionContext = [
                 'validation_rules' => $type->handler()->getValidationRules(),
             ];
-
-            if (!Uploader::needsUploadId()) {
-                $completionContext['target_key'] = sprintf('%s/%s', $basePath, $version->filename);
-            }
 
             Uploader::completeUpload($uploadSlot, array_merge($completionData, $completionContext));
 
@@ -211,7 +196,6 @@ class UploadSlotController extends Controller
             return [$media, $version, $versionNumber, $responseState];
         });
 
-        Cache::forget(sprintf('filename_%s', $uploadSlot->token));
 
 
         $basePath = $media->baseDirectory();

@@ -7,25 +7,24 @@ use App\Interfaces\UploaderContract;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use Aws\S3\S3Client;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 class S3Uploader implements UploaderContract
 {
-    protected ?S3Client $client;
-    protected ?string $bucket;
+    protected S3Client $client;
+    protected string $bucket;
 
     /**
      * The cache TTL for the upload ID, matching UploadSlot::valid_until (24 hours).
      */
     protected const int CACHE_TTL_HOURS = 24;
 
-    public function __construct(?S3Client $client = null, ?string $bucket = null)
+    public function __construct()
     {
-        $this->client = $client;
-        $this->bucket = $bucket;
+        $this->client = $this->createS3ClientFromConfig();
+        $this->bucket = $this->resolveBucketFromConfig();
     }
 
     /**
@@ -36,12 +35,10 @@ class S3Uploader implements UploaderContract
      */
     public function initiateUpload(UploadSlot $uploadSlot): void
     {
-        $client = $this->getS3Client();
-        $bucket = $this->getBucket();
         $key = $this->getObjectKey($uploadSlot);
 
-        $result = $client->createMultipartUpload([
-            'Bucket' => $bucket,
+        $result = $this->client->createMultipartUpload([
+            'Bucket' => $this->bucket,
             'Key' => $key,
         ]);
 
@@ -61,19 +58,17 @@ class S3Uploader implements UploaderContract
      */
     public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string
     {
-        $client = $this->getS3Client();
-        $bucket = $this->getBucket();
         $key = $this->getObjectKey($uploadSlot);
         $uploadId = $this->getUploadId($uploadSlot);
 
-        $command = $client->getCommand('UploadPart', [
-            'Bucket' => $bucket,
+        $command = $this->client->getCommand('UploadPart', [
+            'Bucket' => $this->bucket,
             'Key' => $key,
             'UploadId' => $uploadId,
             'PartNumber' => $chunkNumber,
         ]);
 
-        return (string) $client->createPresignedRequest($command, '+24 hours')->getUri();
+        return (string) $this->client->createPresignedRequest($command, '+24 hours')->getUri();
     }
 
     /**
@@ -83,17 +78,15 @@ class S3Uploader implements UploaderContract
      *
      * @param UploadSlot $uploadSlot
      * @param array $completionData
-     * @return null
+     * @return void
      */
-    public function completeUpload(UploadSlot $uploadSlot, array $completionData): ?UploadedFile
+    public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
     {
-        $client = $this->getS3Client();
-        $bucket = $this->getBucket();
         $sourceKey = $this->getObjectKey($uploadSlot);
         $uploadId = $this->getUploadId($uploadSlot);
 
-        $client->completeMultipartUpload([
-            'Bucket' => $bucket,
+        $this->client->completeMultipartUpload([
+            'Bucket' => $this->bucket,
             'Key' => $sourceKey,
             'UploadId' => $uploadId,
             'MultipartUpload' => [
@@ -101,8 +94,8 @@ class S3Uploader implements UploaderContract
             ],
         ]);
 
-        $headResult = $client->headObject([
-            'Bucket' => $bucket,
+        $headResult = $this->client->headObject([
+            'Bucket' => $this->bucket,
             'Key' => $sourceKey,
         ]);
 
@@ -112,21 +105,14 @@ class S3Uploader implements UploaderContract
         try {
             Media::validateMimeType($contentType, $mediaType->handler()->getValidationRules());
         } catch (ValidationException $e) {
-            $client->deleteObject([
-                'Bucket' => $bucket,
+            $this->client->deleteObject([
+                'Bucket' => $this->bucket,
                 'Key' => $sourceKey,
             ]);
 
             throw $e;
         }
 
-        $targetKey = $completionData['target_key'] ?? $sourceKey;
-
-        if ($targetKey !== $sourceKey) {
-            throw new RuntimeException('S3 completion target_key must match the reserved final object key.');
-        }
-
-        return null;
     }
 
     /**
@@ -137,8 +123,6 @@ class S3Uploader implements UploaderContract
      */
     public function abortUpload(UploadSlot $uploadSlot): void
     {
-        $client = $this->getS3Client();
-        $bucket = $this->getBucket();
         $key = $this->getObjectKey($uploadSlot);
         $uploadId = $this->getUploadId($uploadSlot);
 
@@ -146,8 +130,8 @@ class S3Uploader implements UploaderContract
             return;
         }
 
-        $client->abortMultipartUpload([
-            'Bucket' => $bucket,
+        $this->client->abortMultipartUpload([
+            'Bucket' => $this->bucket,
             'Key' => $key,
             'UploadId' => $uploadId,
         ]);
@@ -203,23 +187,14 @@ class S3Uploader implements UploaderContract
     /**
      * Returns the S3 object key for the given upload slot.
      *
-     * The key uses the filename provided while reserving the upload slot.
+     * The key is resolved through the configured originals disk path, so disk root is respected.
      *
      * @param UploadSlot $uploadSlot
      * @return string
      */
     public function getObjectKey(UploadSlot $uploadSlot): string
     {
-        $filename = Cache::get(sprintf('filename_%s', $uploadSlot->token));
-
-        if ($filename === null) {
-            throw new RuntimeException(sprintf(
-                'No filename found in cache for token "%s". The upload may have expired or was not reserved with a filename.',
-                $uploadSlot->token
-            ));
-        }
-
-        return sprintf('%s/%s/%s', $uploadSlot->User->name, $uploadSlot->identifier, trim($filename));
+        return MediaStorage::ORIGINALS->getDisk()->path($uploadSlot->originalFilePath);
     }
 
     /**
@@ -227,12 +202,8 @@ class S3Uploader implements UploaderContract
      *
      * @return S3Client
      */
-    protected function getS3Client(): S3Client
+    protected function createS3ClientFromConfig(): S3Client
     {
-        if ($this->client !== null) {
-            return $this->client;
-        }
-
         $diskName = MediaStorage::ORIGINALS->getDiskName();
         $diskConfig = config(sprintf('filesystems.disks.%s', $diskName));
 
@@ -253,14 +224,6 @@ class S3Uploader implements UploaderContract
             ];
         }
 
-        if (!empty($diskConfig['endpoint'])) {
-            $clientConfig['endpoint'] = $diskConfig['endpoint'];
-        }
-
-        if (!empty($diskConfig['use_path_style_endpoint'])) {
-            $clientConfig['use_path_style_endpoint'] = true;
-        }
-
         return new S3Client($clientConfig);
     }
 
@@ -269,11 +232,8 @@ class S3Uploader implements UploaderContract
      *
      * @return string
      */
-    protected function getBucket(): string
+    protected function resolveBucketFromConfig(): string
     {
-        if ($this->bucket !== null) {
-            return $this->bucket;
-        }
 
         $diskName = MediaStorage::ORIGINALS->getDiskName();
 

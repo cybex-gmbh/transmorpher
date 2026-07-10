@@ -30,17 +30,38 @@ class S3UploaderTest extends TestCase
         parent::setUp();
 
         Config::set('cache.default', 'array');
+        Config::set('transmorpher.disks.originals', 's3Originals');
 
         $this->uploadSlot = new UploadSlot();
         $this->uploadSlot->token = $this->token;
         $this->uploadSlot->identifier = 's3-uploader-test';
+        $this->uploadSlot->filename = 'source-file.jpg';
         $this->uploadSlot->media_type = MediaType::IMAGE;
         $this->uploadSlot->setRelation('User', User::factory()->make(['name' => 's3user']));
 
-        Cache::put(sprintf('filename_%s', $this->token), 'source-file.jpg', now()->addHours(24));
-
         $this->s3Client = Mockery::mock(S3Client::class);
-        $this->uploader = new S3Uploader($this->s3Client, $this->bucket);
+        $this->uploader = new class($this->s3Client, $this->bucket) extends S3Uploader {
+            protected S3Client $testClient;
+            protected string $testBucket;
+
+            public function __construct(S3Client $testClient, string $testBucket)
+            {
+                $this->testClient = $testClient;
+                $this->testBucket = $testBucket;
+
+                parent::__construct();
+            }
+
+            protected function createS3ClientFromConfig(): S3Client
+            {
+                return $this->testClient;
+            }
+
+            protected function resolveBucketFromConfig(): string
+            {
+                return $this->testBucket;
+            }
+        };
     }
 
     #[Test]
@@ -53,7 +74,7 @@ class S3UploaderTest extends TestCase
             ->once()
             ->with(Mockery::on(fn($args) =>
                 $args['Bucket'] === $this->bucket &&
-                $args['Key'] === 's3user/s3-uploader-test/source-file.jpg'
+                $args['Key'] === sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token)
             ))
             ->andReturn(new Result(['UploadId' => $uploadId]));
 
@@ -66,11 +87,6 @@ class S3UploaderTest extends TestCase
     public function initiateUploadCacheTtlIs24Hours(): void
     {
         $uploadId = 'test-upload-id-ttl';
-
-        Cache::shouldReceive('get')
-            ->once()
-            ->with(sprintf('filename_%s', $this->token))
-            ->andReturn('source-file.jpg');
 
         Cache::shouldReceive('put')
             ->once()
@@ -108,7 +124,7 @@ class S3UploaderTest extends TestCase
             ->once()
             ->with('UploadPart', Mockery::on(fn($args) =>
                 $args['Bucket'] === $this->bucket &&
-                $args['Key'] === 's3user/s3-uploader-test/source-file.jpg' &&
+                $args['Key'] === sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token) &&
                 $args['UploadId'] === $uploadId &&
                 $args['PartNumber'] === 1
             ))
@@ -126,7 +142,7 @@ class S3UploaderTest extends TestCase
     }
 
     #[Test]
-    public function completeUploadCallsCompleteMultipartUploadAndReturnsNull(): void
+    public function completeUploadCallsCompleteMultipartUpload(): void
     {
         $uploadId = 'test-upload-id-complete';
         $parts = [
@@ -141,7 +157,7 @@ class S3UploaderTest extends TestCase
             ->once()
             ->with(Mockery::on(fn($args) =>
                 $args['Bucket'] === $this->bucket &&
-                $args['Key'] === 's3user/s3-uploader-test/source-file.jpg' &&
+                $args['Key'] === sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token) &&
                 $args['UploadId'] === $uploadId &&
                 $args['MultipartUpload']['Parts'] === $parts
             ))
@@ -152,19 +168,17 @@ class S3UploaderTest extends TestCase
             ->once()
             ->with(Mockery::on(fn($args) =>
                 $args['Bucket'] === $this->bucket &&
-                $args['Key'] === 's3user/s3-uploader-test/source-file.jpg'
+                $args['Key'] === sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token)
             ))
             ->andReturn(new Result(['ContentType' => 'image/jpeg']));
 
         $this->s3Client->shouldNotReceive('copyObject');
 
-        $result = $this->uploader->completeUpload($this->uploadSlot, ['parts' => $parts]);
-
-        $this->assertNull($result);
+        $this->uploader->completeUpload($this->uploadSlot, ['parts' => $parts]);
     }
 
     #[Test]
-    public function completeUploadThrowsWhenTargetKeyDoesNotMatchReservedObjectKey(): void
+    public function completeUploadIgnoresTargetKeyAndUsesReservedObjectKey(): void
     {
         $uploadId = 'test-upload-id-complete-mismatch';
         $parts = [
@@ -176,16 +190,16 @@ class S3UploaderTest extends TestCase
         $this->s3Client
             ->shouldReceive('completeMultipartUpload')
             ->once()
+            ->with(Mockery::on(fn($args) =>
+                $args['Bucket'] === $this->bucket &&
+                $args['Key'] === sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token)
+            ))
             ->andReturn(new Result([]));
 
         $this->s3Client
             ->shouldReceive('headObject')
             ->once()
             ->andReturn(new Result(['ContentType' => 'image/jpeg']));
-
-        $this->s3Client->shouldNotReceive('copyObject');
-
-        $this->expectException(RuntimeException::class);
 
         $this->uploader->completeUpload($this->uploadSlot, [
             'parts' => $parts,
@@ -216,7 +230,7 @@ class S3UploaderTest extends TestCase
             ->once()
             ->with(Mockery::on(fn($args) =>
                 $args['Bucket'] === $this->bucket &&
-                $args['Key'] === 's3user/s3-uploader-test/source-file.jpg'
+                $args['Key'] === sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token)
             ));
 
         $this->expectException(ValidationException::class);
@@ -236,7 +250,7 @@ class S3UploaderTest extends TestCase
             ->once()
             ->with(Mockery::on(fn($args) =>
                 $args['Bucket'] === $this->bucket &&
-                $args['Key'] === 's3user/s3-uploader-test/source-file.jpg' &&
+                $args['Key'] === sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token) &&
                 $args['UploadId'] === $uploadId
             ));
 
@@ -289,10 +303,9 @@ class S3UploaderTest extends TestCase
     #[Test]
     public function getObjectKeyReturnsFilenameBasedKey(): void
     {
-        $uploader = new S3Uploader($this->s3Client, $this->bucket);
-        $expected = 's3user/s3-uploader-test/source-file.jpg';
+        $expected = sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token);
 
-        $this->assertEquals($expected, $uploader->getObjectKey($this->uploadSlot));
+        $this->assertEquals($expected, $this->uploader->getObjectKey($this->uploadSlot));
     }
 }
 
