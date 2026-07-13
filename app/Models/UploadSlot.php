@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Throwable;
+use Upload;
 
 /**
  * App\Models\UploadSlot
@@ -93,7 +95,7 @@ class UploadSlot extends Model
         static::saving(function (UploadSlot $uploadSlot) {
             // Will only be executed before updating.
             if ($uploadSlot->exists()) {
-                $uploadSlot->deleteFileRemnants();
+                $uploadSlot->abortOngoingUploads();
             }
 
             $uploadSlot->setUniqueToken();
@@ -142,15 +144,17 @@ class UploadSlot extends Model
         );
     }
 
-    protected function deleteFileRemnants(): void
+    protected function abortOngoingUploads(): void
     {
         $uploadHasBeenCompleted = $this->User->Media()->firstWhere('identifier', $this->identifier)?->Versions()->firstWhere('filename', $this->originalFilename);
 
-        // For local uploads:
-        // We don't want remnants of uncompleted uploads to remain on the disk.
-        // This happens when an UploadSlot was invalidated, before an upload was completed (which will create a version).
         if (!$uploadHasBeenCompleted) {
-            MediaStorage::ORIGINALS->getDisk()->delete($this->originalFilePath);
+            try {
+                Upload::abort($this);
+            } catch (Throwable $throwable) {
+                // Abort is best-effort; remnant cleanup must not block slot updates.
+                report($throwable);
+            }
         }
     }
 
