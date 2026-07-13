@@ -4,22 +4,23 @@ namespace App\Enums;
 
 enum ResponseState: string
 {
-    case CDN_INVALIDATION_FAILED = 'cdn_invalidation_failed';
-    case DELETION_SUCCESSFUL = 'deletion_successful';
-    case DOCUMENT_UPLOAD_SUCCESSFUL = 'document_upload_successful';
-    case DOCUMENT_VERSION_SET = 'document_version_set';
-    case IMAGE_UPLOAD_SUCCESSFUL = 'image_upload_successful';
-    case IMAGE_VERSION_SET = 'image_version_set';
-    case TRANSCODING_ABORTED = 'transcoding_aborted';
-    case TRANSCODING_FAILED = 'transcoding_failed';
-    case TRANSCODING_JOB_DISPATCH_FAILED = 'transcoding_job_dispatch_failed';
-    case TRANSCODING_SUCCESSFUL = 'transcoding_successful';
-    case UPLOAD_ABORTED = 'upload_aborted';
-    case UPLOAD_SLOT_CREATED = 'upload_slot_created';
-    case VERSIONS_RETRIEVED = 'versions_retrieved';
-    case VIDEO_UPLOAD_SUCCESSFUL = 'video_upload_successful';
-    case VIDEO_VERSION_SET = 'video_version_set';
-    case WRITE_FAILED = 'write_failed';
+    case CDN_INVALIDATION_FAILED = 'cdn.invalidation.failed';
+    case DELETION_SUCCESSFUL = 'media.deletion.success';
+    case DOCUMENT_UPLOAD_SUCCESSFUL = 'upload.document.success';
+    case DOCUMENT_VERSION_SET = 'document.version.set.success';
+    case IMAGE_UPLOAD_SUCCESSFUL = 'upload.image.success';
+    case IMAGE_VERSION_SET = 'image.version.set.success';
+    case TRANSCODING_ABORTED = 'video.transcoding.aborted';
+    case TRANSCODING_FAILED = 'video.transcoding.failed';
+    case TRANSCODING_JOB_DISPATCH_FAILED = 'video.transcoding.job_dispatch_failed';
+    case TRANSCODING_SUCCESSFUL = 'video.transcoding.success';
+    case UPLOAD_ABORTED = 'upload.aborted';
+    case UPLOAD_SLOT_CREATED = 'upload.slot.created';
+    case UPLOAD_SLOT_CREATION_FAILED = 'upload.slot.failed';
+    case VERSIONS_RETRIEVED = 'media.versions.retrieved';
+    case VIDEO_UPLOAD_SUCCESSFUL = 'upload.video.success';
+    case VIDEO_VERSION_SET = 'video.version.set.success';
+    case WRITE_FAILED = 'disk.write.failed';
 
 
     /**

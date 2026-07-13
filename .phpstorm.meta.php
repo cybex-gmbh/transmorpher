@@ -3009,11 +3009,11 @@ namespace PHPSTORM_META {
 'validation.size.string','validation.starts_with','validation.string','validation.timezone','validation.unique',
 'validation.uploaded','validation.uppercase','validation.url','validation.ulid','validation.uuid',
 'validation.custom.attribute-name.rule-name','new-version-notice.subject','new-version-notice.title','new-version-notice.new_api_version_released','new-version-notice.update_client_implementations',
-'new-version-notice.check_out_on_github','responses.cdn_invalidation_failed','responses.deletion_successful','responses.image_upload_successful','responses.image_version_set',
-'responses.document_upload_successful','responses.document_version_set','responses.transcoding_aborted','responses.transcoding_failed','responses.transcoding_job_dispatch_failed',
-'responses.transcoding_successful','responses.upload_aborted','responses.upload_slot_created','responses.versions_retrieved','responses.video_version_set',
-'responses.video_upload_successful','responses.write_failed','responses.file_name_invalid','responses.file_name_invalid_only_spaces','responses.non_matching_identifier',
-'version-deprecation-notice.subject','version-deprecation-notice.title','version-deprecation-notice.version_soon_deprecated','version-deprecation-notice.update_client_implementations',);
+'new-version-notice.check_out_on_github','responses.cdn.invalidation.failed','responses.validation.file.name.invalid','responses.validation.file.name.invalid_only_spaces','responses.validation.identifier.non_matching',
+'responses.upload.aborted','responses.upload.slot_created','responses.upload.slot_creation_failed','responses.upload.image.success','responses.upload.video.success',
+'responses.upload.document.success','responses.image.version.set.success','responses.video.transcoding.success','responses.video.transcoding.aborted','responses.video.transcoding.failed',
+'responses.video.transcoding.job_dispatch_failed','responses.video.version.set.success','responses.document.version.set.success','responses.media.versions.retrieved','responses.media.deletion.success',
+'responses.disk.write.failed','version-deprecation-notice.subject','version-deprecation-notice.title','version-deprecation-notice.version_soon_deprecated','version-deprecation-notice.update_client_implementations',);
         registerArgumentsSet('env', 
 'APP_NAME','APP_ENV','APP_KEY','APP_DEBUG','APP_URL',
 'APP_SERVICE','APP_LOCALE','APP_FALLBACK_LOCALE','APP_FAKER_LOCALE','APP_MAINTENANCE_DRIVER',

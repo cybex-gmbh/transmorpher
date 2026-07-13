@@ -11,13 +11,18 @@ use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Http\Requests\V2\UploadRequest;
 use App\Http\Requests\V2\UploadSlotRequest;
 use App\Models\UploadSlot;
+use App\Models\User;
 use File;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Log;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
+use RuntimeException;
+use Throwable;
 use Upload;
 
 class UploadSlotController extends Controller
@@ -25,29 +30,38 @@ class UploadSlotController extends Controller
     /**
      * Reserves an upload slot for the given media type and initiates the upload.
      *
+     * @param User $user
      * @param UploadSlotRequest $request
      * @param MediaType $mediaType
      * @return JsonResponse
      */
-    public function reserveUploadSlot(UploadSlotRequest $request, MediaType $mediaType): JsonResponse
+    public function reserveUploadSlot(#[CurrentUser] User $user, UploadSlotRequest $request, MediaType $mediaType): JsonResponse
     {
-        $user = $request->user();
-        $requestData = $request->merge(['media_type' => $mediaType->value])->all();
-
-        $uploadSlot = $user->UploadSlots()->withoutGlobalScopes()->updateOrCreate(
-            ['identifier' => $requestData['identifier']],
-            $requestData
+        $requestData = array_merge(
+            $request->validated(),
+            ['media_type' => $mediaType->value],
         );
+
+        Log::info(sprintf('Reserving upload slot: User %s, Identifier %s, MediaType %s', $user->id, $requestData['identifier'], $mediaType->value));
+
+        $uploadSlot = $user->UploadSlots()
+            ->withoutGlobalScopes()
+            ->updateOrCreate(
+                ['identifier' => $requestData['identifier']],
+                $requestData,
+            );
 
         try {
             Upload::initiate($uploadSlot);
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             report($throwable);
+
+            $responseState = ResponseState::UPLOAD_SLOT_CREATION_FAILED;
         }
 
         return response()->json([
-            'state' => ResponseState::UPLOAD_SLOT_CREATED->getState()->value,
-            'message' => ResponseState::UPLOAD_SLOT_CREATED->getMessage(),
+            'state' => ($responseState ?? ResponseState::UPLOAD_SLOT_CREATED)->getState()->value,
+            'message' => ($responseState ?? ResponseState::UPLOAD_SLOT_CREATED)->getMessage(),
             'identifier' => $uploadSlot->identifier,
             'upload_token' => $uploadSlot->token,
         ]);
@@ -87,7 +101,7 @@ class UploadSlotController extends Controller
             File::delete($assembledFile->getRealPath());
 
             if (!$writeSuccess) {
-                throw new \RuntimeException('Could not write assembled local upload to originals storage.');
+                throw new RuntimeException('Could not write assembled local upload to originals storage.');
             }
 
             return response()->json([
@@ -180,10 +194,10 @@ class UploadSlotController extends Controller
             $writeSuccess = true;
 
             if ($writeSuccess) {
-                \Log::info(sprintf('File for media %s and version %s saved successfully.', $media->identifier, $version->number));
+                Log::info(sprintf('File for media %s and version %s saved successfully.', $media->identifier, $version->number));
                 $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $version);
             } else {
-                \Log::error(sprintf('Could not write file for media %s and version %s.', $media->identifier, $version->number));
+                Log::error(sprintf('Could not write file for media %s and version %s.', $media->identifier, $version->number));
                 $responseState = ResponseState::WRITE_FAILED;
             }
 
@@ -194,7 +208,6 @@ class UploadSlotController extends Controller
 
             return [$media, $version, $versionNumber, $responseState];
         });
-
 
 
         $basePath = $media->baseDirectory();

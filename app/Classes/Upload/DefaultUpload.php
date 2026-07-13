@@ -6,6 +6,7 @@ use App\Enums\MediaStorage;
 use App\Interfaces\UploadContract;
 use App\Models\Media;
 use App\Models\UploadSlot;
+use Exception;
 use RuntimeException;
 use Throwable;
 

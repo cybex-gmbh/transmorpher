@@ -207,7 +207,7 @@ class S3MultipartUpload implements UploadContract
      * @param UploadSlot $uploadSlot
      * @return string
      */
-    public function getObjectKey(UploadSlot $uploadSlot): string
+    protected function getObjectKey(UploadSlot $uploadSlot): string
     {
         return MediaStorage::ORIGINALS->getDisk()->path($uploadSlot->originalFilePath);
     }
