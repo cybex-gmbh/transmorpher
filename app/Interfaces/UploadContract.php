@@ -2,7 +2,10 @@
 
 namespace App\Interfaces;
 
+use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\UploadSlot;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 interface UploadContract
 {
@@ -34,14 +37,20 @@ interface UploadContract
 
     /**
      * Completes the upload process.
-     * Implementations are responsible for validating and moving/storing the uploaded file
-     * into its final destination.
+     * Implementations are responsible for validating and moving/storing the uploaded file into its final destination.
      *
+     * Should throw on failure.
+     * Should throw a {@link ValidationException} when validation fails, such as when the mime type is not allowed.
+     *
+     * @param CompleteUploadRequest $request Validated payload from the complete endpoint.
      * @param UploadSlot $uploadSlot
-     * @param array $completionData Validated payload from the complete endpoint.
+     *
      * @return void
+     *
+     * @throws Throwable
+     * @throws ValidationException
      */
-    public function complete(UploadSlot $uploadSlot, array $completionData): void;
+    public function complete(CompleteUploadRequest $request, UploadSlot $uploadSlot): void;
 
     /**
      * Aborts the upload process for the given upload slot.

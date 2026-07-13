@@ -10,13 +10,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Http\Requests\V2\UploadRequest;
 use App\Http\Requests\V2\UploadSlotRequest;
+use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
+use App\Models\Version;
 use File;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Log;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
@@ -34,6 +36,7 @@ class UploadSlotController extends Controller
      * @param User $user
      * @param UploadSlotRequest $request
      * @param MediaType $mediaType
+     *
      * @return JsonResponse
      */
     public function reserveUploadSlot(#[CurrentUser] User $user, UploadSlotRequest $request, MediaType $mediaType): JsonResponse
@@ -76,10 +79,11 @@ class UploadSlotController extends Controller
      * The assembled file is persisted as a temporary .finished.part file in the chunk storage,
      * because later on we will not have access to the correct FileReceiver instance mapping to the chunks.
      *
-     *
      * @param UploadRequest $request
      * @param UploadSlot $uploadSlot
+     *
      * @return JsonResponse
+     *
      * @throws UploadFailedException
      * @throws UploadMissingFileException
      */
@@ -123,7 +127,7 @@ class UploadSlotController extends Controller
     }
 
     /**
-     * Returns a (signed) chunk upload URL for the given chunk number.
+     * Returns a chunk upload URL for the given chunk number.
      *
      * @param UploadSlot $uploadSlot
      * @param int $chunkNumber
@@ -138,27 +142,60 @@ class UploadSlotController extends Controller
     }
 
     /**
-     * Completes the upload process and saves the file.
+     * Completes the upload process by saving the file and creating a new version.
      *
      * @param CompleteUploadRequest $request
      * @param UploadSlot $uploadSlot
+     *
      * @return JsonResponse
      */
     public function completeUpload(CompleteUploadRequest $request, UploadSlot $uploadSlot): JsonResponse
     {
-        return $this->saveFile($uploadSlot, $request->validated());
+        // Invalidate this upload slot so no other uploads can be done with this token.
+        $uploadSlot->invalidate();
+
+        $responseState = $this->completeFileOperations($request, $uploadSlot);
+
+        $version = null;
+        if ($responseState?->getState() !== UploadState::ERROR) {
+            $version = $this->createVersion($uploadSlot);
+            $media = $version->Media;
+
+            $responseState = $media->type->handler()->handleSavedFile($media->baseDirectory(), $uploadSlot, $version);
+
+            if ($responseState->getState() === UploadState::ERROR) {
+                // Deleting the version will delete previously stored files.
+                $version->delete();
+
+                if (!$media->Versions()->exists()) {
+                    $media->delete();
+                }
+            }
+        }
+
+        return response()->json([
+            'state' => $responseState->getState()->value,
+            'message' => $responseState->getMessage(),
+            'identifier' => $uploadSlot->identifier,
+            'version' => $version?->exists ? $version->number : Media::firstWhere('identifier', $uploadSlot->identifier)?->latestVersion?->number ?? 0,
+            // Public path is only available for on-demand media, since videos are not available at this path yet.
+            'public_path' => $uploadSlot->media_type->isInstantlyAvailable() ? implode(DIRECTORY_SEPARATOR, array_filter([$uploadSlot->media_type->prefix(), $uploadSlot->baseDirectory])) : null,
+            'upload_token' => $uploadSlot->token,
+            'hash' => $uploadSlot->media_type->isInstantlyAvailable() && $version?->exists ? $version?->hash : null,
+        ], 201);
     }
 
     /**
-     * Aborts the upload process and invalidates the upload slot.
+     * Invalidates the upload slot and aborts the upload process.
      *
      * @param UploadSlot $uploadSlot
+     *
      * @return JsonResponse
      */
     public function abortUpload(UploadSlot $uploadSlot): JsonResponse
     {
-        Upload::abort($uploadSlot);
         $uploadSlot->invalidate();
+        $this->abort($uploadSlot);
 
         return response()->json([
             'state' => ResponseState::UPLOAD_ABORTED->getState()->value,
@@ -167,68 +204,46 @@ class UploadSlotController extends Controller
         ]);
     }
 
-    /**
-     * Completes the upload and persists the media and version records.
-     *
-     * @param UploadSlot $uploadSlot
-     * @param array $completionData
-     * @return JsonResponse
-     */
-    protected function saveFile(UploadSlot $uploadSlot, array $completionData): JsonResponse
+    protected function abort(UploadSlot $uploadSlot) {
+        try {
+            Upload::abort($uploadSlot);
+        } catch (Throwable $throwable) {
+            report($throwable);
+        }
+    }
+
+    protected function completeFileOperations(CompleteUploadRequest $request, UploadSlot $uploadSlot): ?ResponseState {
+        try {
+            Upload::complete($request, $uploadSlot);
+        } catch (Throwable $throwable) {
+            $this->abort($uploadSlot);
+
+            // If the validation failed, we want to show it to the user directly.
+            if ($throwable instanceof ValidationException) {
+                throw $throwable;
+            }
+
+            report($throwable);
+            $responseState = ResponseState::WRITE_FAILED;
+        }
+
+        return $responseState ?? null;
+    }
+
+    protected function createVersion(UploadSlot $uploadSlot): Version
     {
         $type = $uploadSlot->media_type;
 
-        // Invalidate this upload slot so no other uploads can be done with this token.
-        $uploadSlot->invalidate();
+        $media = $uploadSlot->User->Media()->firstOrNew(['identifier' => $uploadSlot->identifier, 'type' => $type]);
+        $media->save();
 
-        [$media, $version, $versionNumber, $responseState] = DB::transaction(function () use ($uploadSlot, $type, $completionData) {
-            $media = $uploadSlot->User->Media()->firstOrNew(['identifier' => $uploadSlot->identifier, 'type' => $type]);
+        $versionNumber = $media->latestVersion?->number + 1;
+        $version = $media->Versions()->create(['number' => $versionNumber]);
+        $version->update(['filename' => $uploadSlot->originalFilename]);
 
-            $media->save();
+        Log::info(sprintf('Version %s for Media %s created successfully.', $media->identifier, $version->number));
 
-            $versionNumber = $media->latestVersion?->number + 1;
-            $version = $media->Versions()->create(['number' => $versionNumber]);
-            $basePath = $media->baseDirectory();
-
-            $version->update(['filename' => $uploadSlot->originalFilename]);
-
-            $completionContext = [
-                'validation_rules' => $type->handler()->getValidationRules(),
-            ];
-
-            Upload::complete($uploadSlot, array_merge($completionData, $completionContext));
-
-            $writeSuccess = true;
-
-            if ($writeSuccess) {
-                Log::info(sprintf('File for media %s and version %s saved successfully.', $media->identifier, $version->number));
-                $responseState = $type->handler()->handleSavedFile($basePath, $uploadSlot, $version);
-            } else {
-                Log::error(sprintf('Could not write file for media %s and version %s.', $media->identifier, $version->number));
-                $responseState = ResponseState::WRITE_FAILED;
-            }
-
-            if ($responseState->getState() === UploadState::ERROR) {
-                $versionNumber -= 1;
-                $version->delete();
-            }
-
-            return [$media, $version, $versionNumber, $responseState];
-        });
-
-
-        $basePath = $media->baseDirectory();
-
-        return response()->json([
-            'state' => $responseState->getState()->value,
-            'message' => $responseState->getMessage(),
-            'identifier' => $media->identifier,
-            'version' => $versionNumber,
-            // Base path is only passed for images since the video is not available at this path yet.
-            'public_path' => $type->isInstantlyAvailable() ? implode(DIRECTORY_SEPARATOR, array_filter([$type->prefix(), $basePath])) : null,
-            'upload_token' => $uploadSlot->token,
-            'hash' => $type->isInstantlyAvailable() ? $version?->hash : null,
-        ], 201);
+        return $version;
     }
 }
 

@@ -3,6 +3,7 @@
 namespace App\Classes\Upload;
 
 use App\Enums\MediaStorage;
+use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Interfaces\UploadContract;
 use App\Models\Media;
 use App\Models\UploadSlot;
@@ -91,11 +92,12 @@ class S3MultipartUpload implements UploadContract
      * and returns null (file is already stored on S3).
      * Throws on validation failure and deletes the S3 object.
      *
+     * @param CompleteUploadRequest $request
      * @param UploadSlot $uploadSlot
-     * @param array $completionData
+     *
      * @return void
      */
-    public function complete(UploadSlot $uploadSlot, array $completionData): void
+    public function complete(CompleteUploadRequest $request, UploadSlot $uploadSlot): void
     {
         $sourceKey = $this->getObjectKey($uploadSlot);
         $uploadId = $this->getUploadId($uploadSlot);
@@ -105,7 +107,7 @@ class S3MultipartUpload implements UploadContract
             'Key' => $sourceKey,
             'UploadId' => $uploadId,
             'MultipartUpload' => [
-                'Parts' => $completionData['parts'],
+                'Parts' => $request->validated('parts'),
             ],
         ]);
 

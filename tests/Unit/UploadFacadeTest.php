@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\UploadSlot;
 use Illuminate\Support\Facades\Facade;
 use PHPUnit\Framework\Attributes\Test;
@@ -22,7 +23,7 @@ class UploadFacadeTest extends TestCase
                 return sprintf('https://example.com/%d', $chunkNumber);
             }
 
-            public function complete(UploadSlot $uploadSlot, array $completionData): void
+            public function complete(UploadSlot $uploadSlot, CompleteUploadRequest $request): void
             {
             }
 

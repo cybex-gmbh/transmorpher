@@ -20,8 +20,11 @@ interface MediaHandlerInterface
 
     /**
      * @return string
+     * @deprecated Should be renamed after v1 is removed. A more suitable name would be getAllowedMimetypes()
      */
     public function getValidationRules(): string;
+
+    public function isMimeTypeValid(string $mimeType): bool;
 
     /**
      * @param string $basePath

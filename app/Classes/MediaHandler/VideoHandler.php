@@ -40,6 +40,7 @@ class VideoHandler extends MediaHandler
 
     /**
      * @return string
+     * @deprecated Should be renamed after v1 is removed. A more suitable name would be getAllowedMimetypes()
      */
     public function getValidationRules(): string
     {
