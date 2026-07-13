@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Classes\Upload\S3MultipartUpload;
 use App\Enums\MediaType;
+use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\UploadSlot;
 use App\Models\User;
 use Aws\Result;
@@ -146,6 +147,14 @@ class S3MultipartUploadTest extends TestCase
         $this->assertEquals($presignedUrl, $url);
     }
 
+    protected function makeCompleteRequest(array $parts): CompleteUploadRequest
+    {
+        $request = Mockery::mock(CompleteUploadRequest::class)->makePartial();
+        $request->shouldReceive('validated')->with('parts')->andReturn($parts);
+
+        return $request;
+    }
+
     #[Test]
     public function completeUploadCallsCompleteMultipartUpload(): void
     {
@@ -179,7 +188,7 @@ class S3MultipartUploadTest extends TestCase
 
         $this->s3Client->shouldNotReceive('copyObject');
 
-        $this->upload->complete($this->uploadSlot, ['parts' => $parts]);
+        $this->upload->complete($this->makeCompleteRequest($parts), $this->uploadSlot);
     }
 
     #[Test]
@@ -206,10 +215,7 @@ class S3MultipartUploadTest extends TestCase
             ->once()
             ->andReturn(new Result(['ContentType' => 'image/jpeg']));
 
-        $this->upload->complete($this->uploadSlot, [
-            'parts' => $parts,
-            'target_key' => 'different/key.jpg',
-        ]);
+        $this->upload->complete($this->makeCompleteRequest($parts), $this->uploadSlot);
     }
 
     #[Test]
@@ -240,7 +246,7 @@ class S3MultipartUploadTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->upload->complete($this->uploadSlot, ['parts' => $parts]);
+        $this->upload->complete($this->makeCompleteRequest($parts), $this->uploadSlot);
     }
 
     #[Test]
@@ -313,7 +319,3 @@ class S3MultipartUploadTest extends TestCase
         $this->assertEquals($expected, $this->upload->objectKeyForTesting($this->uploadSlot));
     }
 }
-
-
-
-

@@ -51,6 +51,23 @@ enum ImageFormat: string
     }
 
     /**
+     * Get an enum case from a mime type or null.
+     *
+     * @param $mimeType
+     * @return ImageFormat|null
+     */
+    public static function tryFromMimeType($mimeType): self|null
+    {
+        return match ($mimeType) {
+            'image/jpeg' => self::JPG,
+            'image/png' => self::PNG,
+            'image/gif' => self::GIF,
+            'image/webp' => self::WEBP,
+            default => null
+        };
+    }
+
+    /**
      * Get the optimizer for a case.
      *
      * @return FormatOptimizerInterface

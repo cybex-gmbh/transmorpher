@@ -3,10 +3,11 @@
 namespace App\Classes\Upload;
 
 use App\Enums\MediaStorage;
+use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Interfaces\UploadContract;
-use App\Models\Media;
 use App\Models\UploadSlot;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 class DefaultUpload implements UploadContract
@@ -51,18 +52,12 @@ class DefaultUpload implements UploadContract
     /**
      * Completes local upload by validating the file already stored at its reserved destination.
      *
+     * @param CompleteUploadRequest $request
      * @param UploadSlot $uploadSlot
-     * @param array $completionData
      * @return void
      */
-    public function complete(UploadSlot $uploadSlot, array $completionData): void
+    public function complete(CompleteUploadRequest $request, UploadSlot $uploadSlot): void
     {
-        $validationRules = $completionData['validation_rules'] ?? null;
-
-        if ($validationRules === null) {
-            throw new RuntimeException('Missing local completion metadata: validation_rules is required.');
-        }
-
         $chunkDisk = Storage::disk(config('chunk-upload.storage.disk'));
         $temporaryPath = implode(DIRECTORY_SEPARATOR, [config('chunk-upload.storage.chunks'), static::createTempFilename($uploadSlot)]);
 
@@ -71,14 +66,25 @@ class DefaultUpload implements UploadContract
         }
 
         $mimeType = mime_content_type($chunkDisk->path($temporaryPath));
+
+        $typeHandler = $uploadSlot->media_type->handler();
+        if (!$typeHandler->isMimeTypeValid($mimeType)) {
+            throw ValidationException::withMessages([
+                'file' => [
+                    trans('validation.mimetypes', ['attribute' => 'file', 'values' => $typeHandler->getValidationRules()])
+                ]
+            ]);
+        }
+
         $stream = $chunkDisk->readStream($temporaryPath);
 
-        try {
-            Media::validateMimeType($mimeType, $validationRules);
-            MediaStorage::ORIGINALS->getDisk()->writeStream($uploadSlot->originalFilePath, $stream);
-        } finally {
-            fclose($stream);
-            $chunkDisk->delete($temporaryPath);
+        $writeSuccess = MediaStorage::ORIGINALS->getDisk()->writeStream($uploadSlot->originalFilePath, $stream);
+
+        fclose($stream);
+        $chunkDisk->delete($temporaryPath);
+
+        if (!$writeSuccess) {
+            throw new RuntimeException('Could not write assembled upload to final storage.');
         }
     }
 
@@ -90,7 +96,6 @@ class DefaultUpload implements UploadContract
      */
     public function abort(UploadSlot $uploadSlot): void
     {
-        MediaStorage::ORIGINALS->getDisk()->delete($uploadSlot->originalFilePath);
         Storage::disk(config('chunk-upload.storage.disk'))
             ->delete(
                 implode(DIRECTORY_SEPARATOR, [

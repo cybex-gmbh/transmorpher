@@ -22,10 +22,19 @@ class ImageHandler extends OnDemandDerivativeMediaHandler
 
     /**
      * @return string
+     * @deprecated Should be renamed after v1 is removed. A more suitable name would be getAllowedMimetypes()
      */
     public function getValidationRules(): string
     {
         return sprintf('mimes:%s', implode(',', ImageFormat::getFormats()));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isMimeTypeValid(string $mimeType): bool
+    {
+        return parent::isMimeTypeValid(ImageFormat::tryFromMimeType($mimeType)?->value ?? '');
     }
 
     /**

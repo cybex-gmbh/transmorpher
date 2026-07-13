@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Enums\MediaType;
+use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
@@ -70,7 +71,7 @@ class V2UploadFeatureTest extends TestCase
                 return sprintf('https://example.com/chunks/%d', $chunkNumber);
             }
 
-            public function complete(UploadSlot $uploadSlot, array $completionData): void
+            public function complete(UploadSlot $uploadSlot, CompleteUploadRequest $request): void
             {
             }
 
@@ -94,7 +95,7 @@ class V2UploadFeatureTest extends TestCase
             }
         });
 
-        $response = $this->getJson(route('v2.chunkUrl', [$uploadSlot, 3]));
+        $response = $this->getJson(route('v2.chunkUploadUrl', [$uploadSlot, 3]));
 
         $response->assertOk();
         $response->assertJsonFragment(['url' => 'https://example.com/chunks/3']);
@@ -121,7 +122,7 @@ class V2UploadFeatureTest extends TestCase
                 return 'https://example.com/chunk-url';
             }
 
-            public function complete(UploadSlot $uploadSlot, array $completionData): void
+            public function complete(CompleteUploadRequest $request, UploadSlot $uploadSlot): void
             {
                 throw ValidationException::withMessages(['file' => ['Invalid mime type.']]);
             }
@@ -153,6 +154,3 @@ class V2UploadFeatureTest extends TestCase
         $this->assertFalse($uploadSlot->fresh()->is_valid);
     }
 }
-
-
-

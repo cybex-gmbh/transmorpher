@@ -23614,6 +23614,14 @@ namespace App\Facades {
      */
     class UploadFacade {
         /**
+         * @static
+         */
+        public static function createTempFilename($uploadSlot)
+        {
+            return \App\Classes\Upload\DefaultUpload::createTempFilename($uploadSlot);
+        }
+
+        /**
          * Local uploader has no external prerequisites.
          *
          * @return void
@@ -23655,16 +23663,15 @@ namespace App\Facades {
         /**
          * Completes local upload by validating the file already stored at its reserved destination.
          *
+         * @param \App\Http\Requests\V2\CompleteUploadRequest $request
          * @param \App\Models\UploadSlot $uploadSlot
-         * @param array $completionData
          * @return void
-         * @throws Throwable
          * @static
          */
-        public static function complete($uploadSlot, $completionData)
+        public static function complete($request, $uploadSlot)
         {
             /** @var \App\Classes\Upload\DefaultUpload $instance */
-            $instance->complete($uploadSlot, $completionData);
+            $instance->complete($request, $uploadSlot);
         }
 
         /**

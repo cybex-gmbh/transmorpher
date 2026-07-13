@@ -2963,7 +2963,7 @@ namespace PHPSTORM_META {
 'v1.getDocumentOriginal','v1.getDocumentDerivativeForVersion','v1.reserveUploadSlot','v1.upload','v1.getPublicKey',
 'v1.getCacheInvalidator','v2.getVersions','v2.delete','v2.setVersion','v2.getImageOriginal',
 'v2.getImageDerivativeForVersion','v2.getDocumentOriginal','v2.getDocumentDerivativeForVersion','v2.reserveUploadSlot','v2.upload',
-'v2.chunkUrl','v2.completeUpload','v2.abortUpload','v2.getPublicKey','v2.getCacheInvalidator','getImageDerivative','getDocumentDerivative','storage.local','storage.local.upload',);
+'v2.chunkUploadUrl','v2.completeUpload','v2.abortUpload','v2.getPublicKey','v2.getCacheInvalidator','getImageDerivative','getDocumentDerivative','storage.local','storage.local.upload',);
         registerArgumentsSet('views', 
 'errors.400','welcome','laravel-exceptions-renderer::components.badge','laravel-exceptions-renderer::components.empty-state','laravel-exceptions-renderer::components.file-with-line',
 'laravel-exceptions-renderer::components.formatted-source','laravel-exceptions-renderer::components.frame','laravel-exceptions-renderer::components.frame-code','laravel-exceptions-renderer::components.header','laravel-exceptions-renderer::components.http-method',
@@ -3010,7 +3010,7 @@ namespace PHPSTORM_META {
 'validation.uploaded','validation.uppercase','validation.url','validation.ulid','validation.uuid',
 'validation.custom.attribute-name.rule-name','new-version-notice.subject','new-version-notice.title','new-version-notice.new_api_version_released','new-version-notice.update_client_implementations',
 'new-version-notice.check_out_on_github','responses.cdn.invalidation.failed','responses.validation.file.name.invalid','responses.validation.file.name.invalid_only_spaces','responses.validation.identifier.non_matching',
-'responses.upload.aborted','responses.upload.slot_created','responses.upload.slot_creation_failed','responses.upload.image.success','responses.upload.video.success',
+'responses.upload.aborted','responses.upload.slot.created','responses.upload.slot.failed','responses.upload.image.success','responses.upload.video.success',
 'responses.upload.document.success','responses.image.version.set.success','responses.video.transcoding.success','responses.video.transcoding.aborted','responses.video.transcoding.failed',
 'responses.video.transcoding.job_dispatch_failed','responses.video.version.set.success','responses.document.version.set.success','responses.media.versions.retrieved','responses.media.deletion.success',
 'responses.disk.write.failed','version-deprecation-notice.subject','version-deprecation-notice.title','version-deprecation-notice.version_soon_deprecated','version-deprecation-notice.update_client_implementations',);

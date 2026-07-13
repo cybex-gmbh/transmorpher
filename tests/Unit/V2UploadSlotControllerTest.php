@@ -4,11 +4,13 @@ namespace Tests\Unit;
 
 use App\Enums\MediaType;
 use App\Http\Controllers\V2\UploadSlotController;
+use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Validation\ValidationException;
+use Mockery;
 use PHPUnit\Framework\Attributes\Test;
 use ReflectionClass;
 use Tests\TestCase;
@@ -37,7 +39,7 @@ class V2UploadSlotControllerTest extends TestCase
                 return 'https://example.com/chunk';
             }
 
-            public function complete(UploadSlot $uploadSlot, array $completionData): void
+            public function complete(CompleteUploadRequest $request, UploadSlot $uploadSlot): void
             {
                 throw ValidationException::withMessages(['file' => ['Invalid mime type.']]);
             }
@@ -66,17 +68,15 @@ class V2UploadSlotControllerTest extends TestCase
 
         $controller = app(UploadSlotController::class);
         $reflection = new ReflectionClass($controller);
-        $saveFileMethod = $reflection->getMethod('saveFile');
+        $saveFileMethod = $reflection->getMethod('completeFileOperations');
         $saveFileMethod->setAccessible(true);
 
         try {
-            $saveFileMethod->invoke($controller, $uploadSlot, []);
+            $request = Mockery::mock(CompleteUploadRequest::class)->makePartial();
+            $saveFileMethod->invoke($controller, $request, $uploadSlot);
             $this->fail('Expected ValidationException was not thrown.');
         } catch (ValidationException) {
             $this->assertNull(Media::query()->where('identifier', $identifier)->first());
         }
     }
 }
-
-
-
