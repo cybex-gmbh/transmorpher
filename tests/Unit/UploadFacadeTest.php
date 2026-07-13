@@ -13,7 +13,7 @@ class UploadFacadeTest extends TestCase
     public function facadeResolvesUploadContractAndForwardsCalls(): void
     {
         $this->app->bind('upload', fn() => new class {
-            public function initiateUpload(UploadSlot $uploadSlot): void
+            public function initiate(UploadSlot $uploadSlot): void
             {
             }
 
@@ -22,11 +22,11 @@ class UploadFacadeTest extends TestCase
                 return sprintf('https://example.com/%d', $chunkNumber);
             }
 
-            public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
+            public function complete(UploadSlot $uploadSlot, array $completionData): void
             {
             }
 
-            public function abortUpload(UploadSlot $uploadSlot): void
+            public function abort(UploadSlot $uploadSlot): void
             {
             }
 

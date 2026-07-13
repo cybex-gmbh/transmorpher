@@ -61,7 +61,7 @@ class V2UploadFeatureTest extends TestCase
         ]);
 
         $this->useUploaderForTest(new class {
-            public function initiateUpload(UploadSlot $uploadSlot): void
+            public function initiate(UploadSlot $uploadSlot): void
             {
             }
 
@@ -70,11 +70,11 @@ class V2UploadFeatureTest extends TestCase
                 return sprintf('https://example.com/chunks/%d', $chunkNumber);
             }
 
-            public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
+            public function complete(UploadSlot $uploadSlot, array $completionData): void
             {
             }
 
-            public function abortUpload(UploadSlot $uploadSlot): void
+            public function abort(UploadSlot $uploadSlot): void
             {
             }
 
@@ -112,7 +112,7 @@ class V2UploadFeatureTest extends TestCase
         ]);
 
         $this->useUploaderForTest(new class {
-            public function initiateUpload(UploadSlot $uploadSlot): void
+            public function initiate(UploadSlot $uploadSlot): void
             {
             }
 
@@ -121,12 +121,12 @@ class V2UploadFeatureTest extends TestCase
                 return 'https://example.com/chunk-url';
             }
 
-            public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
+            public function complete(UploadSlot $uploadSlot, array $completionData): void
             {
                 throw ValidationException::withMessages(['file' => ['Invalid mime type.']]);
             }
 
-            public function abortUpload(UploadSlot $uploadSlot): void
+            public function abort(UploadSlot $uploadSlot): void
             {
             }
 

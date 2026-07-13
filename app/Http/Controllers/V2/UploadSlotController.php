@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\V2;
 
+use App\Classes\Upload\DefaultUpload;
 use App\Enums\MediaType;
-use App\Enums\MediaStorage;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
 use App\Http\Controllers\Controller;
@@ -16,6 +16,7 @@ use File;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Log;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
@@ -68,8 +69,13 @@ class UploadSlotController extends Controller
     }
 
     /**
-     * Receives a file chunk for a local upload.
-     * Saves the file to the destination file path when all chunks have been received.
+     * Used by the {@link DefaultUpload} handler.
+     *
+     * Receives a file chunk.
+     *
+     * The assembled file is persisted as a temporary .finished.part file in the chunk storage,
+     * because later on we will not have access to the correct FileReceiver instance mapping to the chunks.
+     *
      *
      * @param UploadRequest $request
      * @param UploadSlot $uploadSlot
@@ -88,31 +94,32 @@ class UploadSlotController extends Controller
 
         $save = $receiver->receive();
 
-        if ($save->isFinished()) {
-            $assembledFile = $save->getFile();
-
-            $writeSuccess = MediaStorage::ORIGINALS->getDisk()->putFileAs(
-                $uploadSlot->baseDirectory,
-                $assembledFile,
-                $uploadSlot->originalFilename
-            );
-
-            // Remove temporary UploadedFile.
-            File::delete($assembledFile->getRealPath());
-
-            if (!$writeSuccess) {
-                throw new RuntimeException('Could not write assembled local upload to originals storage.');
-            }
-
+        if (!$save->isFinished()) {
+            // Full file is not yet uploaded, send the current progress.
             return response()->json([
-                'done' => 100,
+                'done' => $save->handler()->getPercentageDone(),
             ]);
         }
 
-        // Full file is not yet uploaded, send the current progress.
+        // All chunks have been received.
+        $assembledFile = $save->getFile();
+
+        $writeSuccess = Storage::disk(config('chunk-upload.storage.disk'))->putFileAs(
+            config('chunk-upload.storage.chunks'),
+            $assembledFile,
+            DefaultUpload::createTempFilename($uploadSlot),
+        );
+
+        File::delete($assembledFile->getRealPath());
+
+        if (!$writeSuccess) {
+            throw new RuntimeException('Could not write assembled upload to chunk temporary storage.');
+        }
+
         return response()->json([
-            'done' => $save->handler()->getPercentageDone(),
+            'done' => 100,
         ]);
+
     }
 
     /**

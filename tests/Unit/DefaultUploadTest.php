@@ -16,7 +16,8 @@ class DefaultUploadTest extends TestCase
 {
     protected DefaultUpload $upload;
     protected UploadSlot $uploadSlot;
-    protected string $targetKey;
+    protected string $originalTargetKey;
+    protected string $temporaryChunkKey;
 
     protected function setUp(): void
     {
@@ -30,9 +31,10 @@ class DefaultUploadTest extends TestCase
         $this->uploadSlot->identifier = 'local-uploader-test-' . uniqid();
         $this->uploadSlot->filename = 'test-file.jpg';
         $this->uploadSlot->setRelation('User', User::factory()->make(['name' => 'local-user']));
-        $this->targetKey = $this->uploadSlot->originalFilePath;
-
+        $this->originalTargetKey = $this->uploadSlot->originalFilePath;
+        $this->temporaryChunkKey = config('chunk-upload.storage.chunks') . '/' . DefaultUpload::createTempFilename($this->uploadSlot);
         Storage::persistentFake(MediaStorage::ORIGINALS->getDiskName());
+        Storage::persistentFake((string)config('chunk-upload.storage.disk'));
     }
 
     #[Test]
@@ -55,13 +57,14 @@ class DefaultUploadTest extends TestCase
     #[Test]
     public function completeUploadValidatesStoredFile(): void
     {
-        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'test-image-content');
+        Storage::disk(config('chunk-upload.storage.disk'))->put($this->temporaryChunkKey, file_get_contents(base_path('tests/data/test.png')));
 
         $this->upload->complete($this->uploadSlot, [
-            'validation_rules' => 'mimetypes:text/plain,image/jpeg',
+            'validation_rules' => 'mimetypes:image/png',
         ]);
 
-        MediaStorage::ORIGINALS->getDisk()->assertExists($this->targetKey);
+        MediaStorage::ORIGINALS->getDisk()->assertExists($this->originalTargetKey);
+        Storage::disk(config('chunk-upload.storage.disk'))->assertMissing($this->temporaryChunkKey);
     }
 
     #[Test]
@@ -77,7 +80,7 @@ class DefaultUploadTest extends TestCase
     #[Test]
     public function completeUploadDeletesStoredFileWhenMimeValidationFails(): void
     {
-        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
+        Storage::disk((string)config('chunk-upload.storage.disk'))->put($this->temporaryChunkKey, 'plain text content');
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
 
@@ -89,7 +92,7 @@ class DefaultUploadTest extends TestCase
     #[Test]
     public function completeUploadValidationFailureRemovesStoredFile(): void
     {
-        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
+        Storage::disk((string)config('chunk-upload.storage.disk'))->put($this->temporaryChunkKey, 'plain text content');
 
         try {
             $this->upload->complete($this->uploadSlot, [
@@ -99,13 +102,14 @@ class DefaultUploadTest extends TestCase
             // Assertion is below.
         }
 
-        MediaStorage::ORIGINALS->getDisk()->assertMissing($this->targetKey);
+        MediaStorage::ORIGINALS->getDisk()->assertMissing($this->originalTargetKey);
+        Storage::disk((string)config('chunk-upload.storage.disk'))->assertMissing($this->temporaryChunkKey);
     }
 
     #[Test]
     public function completeUploadThrowsWhenCompletionMetadataIsMissing(): void
     {
-        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
+        Storage::disk((string)config('chunk-upload.storage.disk'))->put($this->temporaryChunkKey, 'plain text content');
 
         $this->expectException(RuntimeException::class);
 
@@ -115,11 +119,13 @@ class DefaultUploadTest extends TestCase
     #[Test]
     public function abortUploadDeletesStoredFileWhenPresent(): void
     {
-        MediaStorage::ORIGINALS->getDisk()->put($this->targetKey, 'plain text content');
+        MediaStorage::ORIGINALS->getDisk()->put($this->originalTargetKey, 'plain text content');
+        Storage::disk((string)config('chunk-upload.storage.disk'))->put($this->temporaryChunkKey, 'plain text content');
 
         $this->upload->abort($this->uploadSlot);
 
-        MediaStorage::ORIGINALS->getDisk()->assertMissing($this->targetKey);
+        MediaStorage::ORIGINALS->getDisk()->assertMissing($this->originalTargetKey);
+        Storage::disk((string)config('chunk-upload.storage.disk'))->assertMissing($this->temporaryChunkKey);
     }
 
     #[Test]

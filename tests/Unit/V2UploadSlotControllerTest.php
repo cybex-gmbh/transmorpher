@@ -28,7 +28,7 @@ class V2UploadSlotControllerTest extends TestCase
         ]);
 
         $this->app->bind('upload', fn() => new class {
-            public function initiateUpload(UploadSlot $uploadSlot): void
+            public function initiate(UploadSlot $uploadSlot): void
             {
             }
 
@@ -37,12 +37,12 @@ class V2UploadSlotControllerTest extends TestCase
                 return 'https://example.com/chunk';
             }
 
-            public function completeUpload(UploadSlot $uploadSlot, array $completionData): void
+            public function complete(UploadSlot $uploadSlot, array $completionData): void
             {
                 throw ValidationException::withMessages(['file' => ['Invalid mime type.']]);
             }
 
-            public function abortUpload(UploadSlot $uploadSlot): void
+            public function abort(UploadSlot $uploadSlot): void
             {
             }
 
