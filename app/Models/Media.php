@@ -93,6 +93,11 @@ class Media extends Model
         MediaStorage::ORIGINALS->getDisk()->deleteDirectory($fileBasePath);
     }
 
+    public static function getBaseDirectoryFor(User $user, string $identifier): string
+    {
+        return sprintf('%s/%s', $user->name, $identifier);
+    }
+
     /**
      * Returns the user that owns the media.
      */
@@ -218,7 +223,7 @@ class Media extends Model
      */
     public function baseDirectory(): string
     {
-        return sprintf('%s/%s', $this->User->name, $this->identifier);
+        return static::getBaseDirectoryFor($this->User, $this->identifier);
     }
 
     /**
