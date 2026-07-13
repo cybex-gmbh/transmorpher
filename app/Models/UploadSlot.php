@@ -50,7 +50,7 @@ class UploadSlot extends Model
     }
 
     public string $baseDirectory {
-        get => sprintf('%s/%s', $this->User->name, $this->identifier);
+        get => Media::getBaseDirectoryFor($this->User, $this->identifier);
     }
 
     public string $originalFilePath {
