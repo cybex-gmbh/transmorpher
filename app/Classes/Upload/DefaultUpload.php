@@ -91,9 +91,13 @@ class DefaultUpload implements UploadContract
     public function abort(UploadSlot $uploadSlot): void
     {
         MediaStorage::ORIGINALS->getDisk()->delete($uploadSlot->originalFilePath);
-        Storage::disk(config('chunk-upload.storage.disk'))->delete(
-            config('chunk-upload.storage.chunks') . '/' . static::createTempFilename($uploadSlot)
-        );
+        Storage::disk(config('chunk-upload.storage.disk'))
+            ->delete(
+                implode(DIRECTORY_SEPARATOR, [
+                    config('chunk-upload.storage.chunks'),
+                    static::createTempFilename($uploadSlot)
+                ])
+            );
     }
 
     /**

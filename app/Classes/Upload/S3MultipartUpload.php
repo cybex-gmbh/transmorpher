@@ -159,7 +159,7 @@ class S3MultipartUpload implements UploadContract
      * Throws if the upload ID is not found.
      *
      * @param UploadSlot $uploadSlot
-     * @return string
+     * @return string|null
      */
     public function getUploadId(UploadSlot $uploadSlot): ?string
     {
