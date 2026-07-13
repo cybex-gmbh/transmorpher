@@ -6,12 +6,16 @@ use App\Enums\MediaStorage;
 use App\Interfaces\UploadContract;
 use App\Models\Media;
 use App\Models\UploadSlot;
-use Exception;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
-use Throwable;
 
 class DefaultUpload implements UploadContract
 {
+    public static function createTempFilename(UploadSlot $uploadSlot): string
+    {
+        return sprintf('%s.finished.part', $uploadSlot->originalFilename);
+    }
+
     /**
      * Local uploader has no external prerequisites.
      *
@@ -29,7 +33,7 @@ class DefaultUpload implements UploadContract
      */
     public function initiate(UploadSlot $uploadSlot): void
     {
-        // No initiation needed for local uploads.
+        // No initiation needed.
     }
 
     /**
@@ -50,31 +54,32 @@ class DefaultUpload implements UploadContract
      * @param UploadSlot $uploadSlot
      * @param array $completionData
      * @return void
-     * @throws Throwable
      */
     public function complete(UploadSlot $uploadSlot, array $completionData): void
     {
         $validationRules = $completionData['validation_rules'] ?? null;
-        $targetKey = $uploadSlot->originalFilePath;
-        $disk = MediaStorage::ORIGINALS->getDisk();
 
         if ($validationRules === null) {
             throw new RuntimeException('Missing local completion metadata: validation_rules is required.');
         }
 
-        if (!$disk->exists($targetKey)) {
-            throw new RuntimeException('No stored file found for this upload slot. Ensure the chunk upload completed.');
+        $chunkDisk = Storage::disk(config('chunk-upload.storage.disk'));
+        $temporaryPath = implode(DIRECTORY_SEPARATOR, [config('chunk-upload.storage.chunks'), static::createTempFilename($uploadSlot)]);
+
+        if (!$chunkDisk->exists($temporaryPath)) {
+            throw new RuntimeException('No temporary file found for this upload slot. Ensure the chunk upload completed.');
         }
 
-        $mimeType = $disk->mimeType($targetKey) ?: 'application/octet-stream';
+        $mimeType = mime_content_type($chunkDisk->path($temporaryPath));
+        $stream = $chunkDisk->readStream($temporaryPath);
 
         try {
             Media::validateMimeType($mimeType, $validationRules);
-        } catch (Throwable $throwable) {
-            $disk->delete($targetKey);
-            throw $throwable;
+            MediaStorage::ORIGINALS->getDisk()->writeStream($uploadSlot->originalFilePath, $stream);
+        } finally {
+            fclose($stream);
+            $chunkDisk->delete($temporaryPath);
         }
-
     }
 
     /**
@@ -86,6 +91,9 @@ class DefaultUpload implements UploadContract
     public function abort(UploadSlot $uploadSlot): void
     {
         MediaStorage::ORIGINALS->getDisk()->delete($uploadSlot->originalFilePath);
+        Storage::disk(config('chunk-upload.storage.disk'))->delete(
+            config('chunk-upload.storage.chunks') . '/' . static::createTempFilename($uploadSlot)
+        );
     }
 
     /**
