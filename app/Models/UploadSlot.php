@@ -91,6 +91,7 @@ class UploadSlot extends Model
         });
 
         static::saving(function (UploadSlot $uploadSlot) {
+            // Will only be executed before updating.
             if ($uploadSlot->exists()) {
                 $uploadSlot->deleteFileRemnants();
             }
@@ -145,6 +146,7 @@ class UploadSlot extends Model
     {
         $uploadHasBeenCompleted = $this->User->Media()->firstWhere('identifier', $this->identifier)?->Versions()->firstWhere('filename', $this->originalFilename);
 
+        // For local uploads:
         // We don't want remnants of uncompleted uploads to remain on the disk.
         // This happens when an UploadSlot was invalidated, before an upload was completed (which will create a version).
         if (!$uploadHasBeenCompleted) {

@@ -61,6 +61,11 @@ class S3MultipartUploadTest extends TestCase
             {
                 return $this->testBucket;
             }
+
+            public function objectKeyForTesting(UploadSlot $uploadSlot): string
+            {
+                return $this->getObjectKey($uploadSlot);
+            }
         };
     }
 
@@ -305,7 +310,7 @@ class S3MultipartUploadTest extends TestCase
     {
         $expected = sprintf('originals/s3user/s3-uploader-test/%s-source-file.jpg', $this->token);
 
-        $this->assertEquals($expected, $this->upload->getObjectKey($this->uploadSlot));
+        $this->assertEquals($expected, $this->upload->objectKeyForTesting($this->uploadSlot));
     }
 }
 
