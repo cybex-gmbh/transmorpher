@@ -23622,28 +23622,21 @@ namespace App\Facades {
         }
 
         /**
-         * Local uploader has no external prerequisites.
-         *
-         * @return void
          * @static
          */
         public static function ensurePrerequisitesMet()
         {
             /** @var \App\Classes\Upload\DefaultUpload $instance */
-            $instance->ensurePrerequisitesMet();
+            return $instance->ensurePrerequisitesMet();
         }
 
         /**
-         * No-op for local uploads.
-         *
-         * @param \App\Models\UploadSlot $uploadSlot
-         * @return void
          * @static
          */
         public static function initiate($uploadSlot)
         {
             /** @var \App\Classes\Upload\DefaultUpload $instance */
-            $instance->initiate($uploadSlot);
+            return $instance->initiate($uploadSlot);
         }
 
         /**
@@ -23661,11 +23654,13 @@ namespace App\Facades {
         }
 
         /**
-         * Completes local upload by validating the file already stored at its reserved destination.
+         * Completes the upload by validating the file and moving it to its intended location.
          *
          * @param \App\Http\Requests\V2\CompleteUploadRequest $request
          * @param \App\Models\UploadSlot $uploadSlot
          * @return void
+         * @throws FileNotFoundException
+         * @throws ValidationException
          * @static
          */
         public static function complete($request, $uploadSlot)
@@ -23688,34 +23683,6 @@ namespace App\Facades {
         }
 
         /**
-         * Local uploads do not use an upload ID.
-         *
-         * @param \App\Models\UploadSlot $uploadSlot
-         * @return string|null
-         * @static
-         */
-        public static function getUploadId($uploadSlot)
-        {
-            /** @var \App\Classes\Upload\DefaultUpload $instance */
-            return $instance->getUploadId($uploadSlot);
-        }
-
-        /**
-         * Local uploads do not need an upload ID.
-         *
-         * @return false
-         * @static
-         */
-        public static function needsUploadId()
-        {
-            /** @var \App\Classes\Upload\DefaultUpload $instance */
-            return $instance->needsUploadId();
-        }
-
-        /**
-         * No completion validation rules needed for local uploads.
-         *
-         * @return array
          * @static
          */
         public static function getCompletionValidationRules()

@@ -8,11 +8,11 @@ use App\Enums\MediaType;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\UploadSlot;
 use App\Models\User;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use PHPUnit\Framework\Attributes\Test;
-use RuntimeException;
 use Tests\TestCase;
 
 class DefaultUploadTest extends TestCase
@@ -77,7 +77,7 @@ class DefaultUploadTest extends TestCase
     #[Test]
     public function completeUploadThrowsWhenNoStoredFileExists(): void
     {
-        $this->expectException(RuntimeException::class);
+        $this->expectException(FileNotFoundException::class);
 
         $this->upload->complete($this->makeCompleteRequest(), $this->uploadSlot);
     }
@@ -128,17 +128,6 @@ class DefaultUploadTest extends TestCase
         $this->assertTrue(true);
     }
 
-    #[Test]
-    public function getUploadIdReturnsNull(): void
-    {
-        $this->assertNull($this->upload->getUploadId($this->uploadSlot));
-    }
-
-    #[Test]
-    public function needsUploadIdReturnsFalse(): void
-    {
-        $this->assertFalse($this->upload->needsUploadId());
-    }
 
     #[Test]
     public function getCompletionValidationRulesReturnsEmptyArray(): void

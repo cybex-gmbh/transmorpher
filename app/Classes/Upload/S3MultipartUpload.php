@@ -163,11 +163,11 @@ class S3MultipartUpload implements UploadContract
      * @param UploadSlot $uploadSlot
      * @return string|null
      */
-    public function getUploadId(UploadSlot $uploadSlot): ?string
+    protected function getUploadId(UploadSlot $uploadSlot): ?string
     {
         $uploadId = Cache::get(sprintf('upload_id_%s', $uploadSlot->token));
 
-        if ($uploadId === null && $this->needsUploadId()) {
+        if ($uploadId === null) {
             throw new RuntimeException(sprintf(
                 'No upload ID found in cache for token "%s". The upload may have expired or never been initiated.',
                 $uploadSlot->token
@@ -175,16 +175,6 @@ class S3MultipartUpload implements UploadContract
         }
 
         return $uploadId;
-    }
-
-    /**
-     * S3 uploads require an upload ID.
-     *
-     * @return true
-     */
-    public function needsUploadId(): bool
-    {
-        return true;
     }
 
     /**

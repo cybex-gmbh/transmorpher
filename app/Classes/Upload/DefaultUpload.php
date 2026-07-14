@@ -6,9 +6,11 @@ use App\Enums\MediaStorage;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Interfaces\UploadContract;
 use App\Models\UploadSlot;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use RuntimeException;
+use League\Flysystem\UnableToDeleteFile;
+use League\Flysystem\UnableToWriteFile;
 
 class DefaultUpload implements UploadContract
 {
@@ -17,21 +19,11 @@ class DefaultUpload implements UploadContract
         return sprintf('%s.finished.part', $uploadSlot->originalFilename);
     }
 
-    /**
-     * Local uploader has no external prerequisites.
-     *
-     * @return void
-     */
     public function ensurePrerequisitesMet(): void
     {
+        // There are no prerequisites.
     }
 
-    /**
-     * No-op for local uploads.
-     *
-     * @param UploadSlot $uploadSlot
-     * @return void
-     */
     public function initiate(UploadSlot $uploadSlot): void
     {
         // No initiation needed.
@@ -42,6 +34,7 @@ class DefaultUpload implements UploadContract
      *
      * @param UploadSlot $uploadSlot
      * @param int $chunkNumber
+     *
      * @return string
      */
     public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string
@@ -50,22 +43,27 @@ class DefaultUpload implements UploadContract
     }
 
     /**
-     * Completes local upload by validating the file already stored at its reserved destination.
+     * Completes the upload by validating the file and moving it to its intended location.
      *
      * @param CompleteUploadRequest $request
      * @param UploadSlot $uploadSlot
+     *
      * @return void
+     *
+     * @throws FileNotFoundException
+     * @throws ValidationException
      */
     public function complete(CompleteUploadRequest $request, UploadSlot $uploadSlot): void
     {
-        $chunkDisk = Storage::disk(config('chunk-upload.storage.disk'));
-        $temporaryPath = implode(DIRECTORY_SEPARATOR, [config('chunk-upload.storage.chunks'), static::createTempFilename($uploadSlot)]);
+        $diskName = config('chunk-upload.storage.disk');
+        $disk = Storage::disk($diskName);
+        $filePath = implode(DIRECTORY_SEPARATOR, [config('chunk-upload.storage.chunks'), static::createTempFilename($uploadSlot)]);
 
-        if (!$chunkDisk->exists($temporaryPath)) {
-            throw new RuntimeException('No temporary file found for this upload slot. Ensure the chunk upload completed.');
+        if (!$disk->exists($filePath)) {
+            throw new FileNotFoundException(sprintf('No temporary file found at %s. Ensure the chunk upload completed.', $filePath));
         }
 
-        $mimeType = mime_content_type($chunkDisk->path($temporaryPath));
+        $mimeType = mime_content_type($disk->path($filePath));
 
         $typeHandler = $uploadSlot->media_type->handler();
         if (!$typeHandler->isMimeTypeValid($mimeType)) {
@@ -76,15 +74,18 @@ class DefaultUpload implements UploadContract
             ]);
         }
 
-        $stream = $chunkDisk->readStream($temporaryPath);
+        $stream = $disk->readStream($filePath);
 
         $writeSuccess = MediaStorage::ORIGINALS->getDisk()->writeStream($uploadSlot->originalFilePath, $stream);
 
         fclose($stream);
-        $chunkDisk->delete($temporaryPath);
+        $disk->delete($filePath);
 
         if (!$writeSuccess) {
-            throw new RuntimeException('Could not write assembled upload to final storage.');
+            throw UnableToWriteFile::atLocation(
+                $filePath,
+                sprintf('Intended disk: %s.', $diskName)
+            );
         }
     }
 
@@ -96,45 +97,24 @@ class DefaultUpload implements UploadContract
      */
     public function abort(UploadSlot $uploadSlot): void
     {
-        Storage::disk(config('chunk-upload.storage.disk'))
-            ->delete(
-                implode(DIRECTORY_SEPARATOR, [
-                    config('chunk-upload.storage.chunks'),
-                    static::createTempFilename($uploadSlot)
-                ])
+        $diskName = config('chunk-upload.storage.disk');
+        $filePath = implode(DIRECTORY_SEPARATOR, [
+            config('chunk-upload.storage.chunks'),
+            static::createTempFilename($uploadSlot)
+        ]);
+
+        $success = Storage::disk($diskName)->delete($filePath);
+
+        if (!$success) {
+            throw UnableToDeleteFile::atLocation(
+                $filePath,
+                sprintf('Intended disk: %s.', $diskName)
             );
+        }
     }
 
-    /**
-     * Local uploads do not use an upload ID.
-     *
-     * @param UploadSlot $uploadSlot
-     * @return string|null
-     */
-    public function getUploadId(UploadSlot $uploadSlot): ?string
-    {
-        return null;
-    }
-
-    /**
-     * Local uploads do not need an upload ID.
-     *
-     * @return false
-     */
-    public function needsUploadId(): bool
-    {
-        return false;
-    }
-
-    /**
-     * No completion validation rules needed for local uploads.
-     *
-     * @return array
-     */
     public function getCompletionValidationRules(): array
     {
         return [];
     }
 }
-
-
