@@ -24,8 +24,9 @@ class S3MultipartUpload implements UploadContract
 
     public function __construct()
     {
-        $this->client = $this->createS3ClientFromConfig();
-        $this->bucket = $this->resolveBucketFromConfig();
+        $disk = MediaStorage::ORIGINALS->getDisk();
+        $this->client = $disk->getClient();
+        $this->bucket = $disk->getConfig()['bucket'];
     }
 
     /**
@@ -33,7 +34,7 @@ class S3MultipartUpload implements UploadContract
      *
      * @return void
      */
-    public function ensurePrerequisitesMet(): void
+    public static function ensurePrerequisitesMet(): void
     {
         $diskName = MediaStorage::ORIGINALS->getDiskName();
         $diskDriver = config(sprintf('filesystems.disks.%s.driver', $diskName));
@@ -204,48 +205,6 @@ class S3MultipartUpload implements UploadContract
         return MediaStorage::ORIGINALS->getDisk()->path($uploadSlot->originalFilePath);
     }
 
-    /**
-     * Resolves the S3 client from the originals disk adapter.
-     *
-     * @return S3Client
-     */
-    protected function createS3ClientFromConfig(): S3Client
-    {
-        $diskName = MediaStorage::ORIGINALS->getDiskName();
-        $diskConfig = config(sprintf('filesystems.disks.%s', $diskName));
-
-        if (!is_array($diskConfig)) {
-            throw new RuntimeException('Originals disk configuration is invalid.');
-        }
-
-        $clientConfig = [
-            'version' => 'latest',
-            'region' => $diskConfig['region'] ?? config('transmorpher.aws.region'),
-        ];
-
-        if (!empty($diskConfig['key']) && !empty($diskConfig['secret'])) {
-            $clientConfig['credentials'] = [
-                'key' => $diskConfig['key'],
-                'secret' => $diskConfig['secret'],
-                'token' => $diskConfig['token'] ?? null,
-            ];
-        }
-
-        return new S3Client($clientConfig);
-    }
-
-    /**
-     * Resolves the S3 bucket name from the originals disk configuration.
-     *
-     * @return string
-     */
-    protected function resolveBucketFromConfig(): string
-    {
-
-        $diskName = MediaStorage::ORIGINALS->getDiskName();
-
-        return config(sprintf('filesystems.disks.%s.bucket', $diskName));
-    }
 }
 
 

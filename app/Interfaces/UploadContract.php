@@ -18,7 +18,7 @@ interface UploadContract
      *
      * @throws Throwable
      */
-    public function ensurePrerequisitesMet(): void;
+    public static function ensurePrerequisitesMet(): void;
 
     /**
      * Initiates the upload process (e.g. creating S3 multipart upload).
