@@ -3,9 +3,9 @@
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Helpers\SodiumHelper;
-use App\Http\Controllers\V1\DocumentController;
-use App\Http\Controllers\V1\ImageController;
-use App\Http\Controllers\V1\VersionController;
+use App\Http\Controllers\V2\DocumentController;
+use App\Http\Controllers\V2\ImageController;
+use App\Http\Controllers\V2\VersionController;
 use App\Http\Controllers\V2\UploadSlotController;
 use Illuminate\Support\Facades\Route;
 
