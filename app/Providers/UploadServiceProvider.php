@@ -18,11 +18,10 @@ class UploadServiceProvider extends ServiceProvider implements DeferrableProvide
     public function register(): void
     {
         $this->app->singleton(static::SERVICE_NAME, function (): UploadContract {
-            $upload = app()->make(config('transmorpher.upload'));
+            $uploadClass = config('transmorpher.upload');
+            $uploadClass::ensurePrerequisitesMet();
 
-            $upload->ensurePrerequisitesMet();
-
-            return $upload;
+            return app()->make($uploadClass);
         });
     }
 

@@ -19,7 +19,7 @@ class DefaultUpload implements UploadContract
         return sprintf('%s.finished.part', $uploadSlot->originalFilename);
     }
 
-    public function ensurePrerequisitesMet(): void
+    public static function ensurePrerequisitesMet(): void
     {
         // There are no prerequisites.
     }
