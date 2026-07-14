@@ -63,12 +63,14 @@ class UploadSlotController extends Controller
             $responseState = ResponseState::UPLOAD_SLOT_CREATION_FAILED;
         }
 
+        $responseState ??= ResponseState::UPLOAD_SLOT_CREATED;
+
         return response()->json([
-            'state' => ($responseState ?? ResponseState::UPLOAD_SLOT_CREATED)->getState()->value,
-            'message' => ($responseState ?? ResponseState::UPLOAD_SLOT_CREATED)->getMessage(),
+            'state' => $responseState->getState()->value,
+            'message' => $responseState->getMessage(),
             'identifier' => $uploadSlot->identifier,
             'upload_token' => $uploadSlot->token,
-        ]);
+        ])->setStatusCode($responseState->getResponseCode());
     }
 
     /**
@@ -182,7 +184,7 @@ class UploadSlotController extends Controller
             'public_path' => $uploadSlot->media_type->isInstantlyAvailable() ? implode(DIRECTORY_SEPARATOR, array_filter([$uploadSlot->media_type->prefix(), $uploadSlot->baseDirectory])) : null,
             'upload_token' => $uploadSlot->token,
             'hash' => $uploadSlot->media_type->isInstantlyAvailable() && $version?->exists ? $version?->hash : null,
-        ], 201);
+        ])->setStatusCode($responseState->getResponseCode());
     }
 
     /**
@@ -201,7 +203,7 @@ class UploadSlotController extends Controller
             'state' => ResponseState::UPLOAD_ABORTED->getState()->value,
             'message' => ResponseState::UPLOAD_ABORTED->getMessage(),
             'identifier' => $uploadSlot->identifier,
-        ]);
+        ])->setStatusCode(ResponseState::UPLOAD_ABORTED->getResponseCode());
     }
 
     protected function abort(UploadSlot $uploadSlot) {

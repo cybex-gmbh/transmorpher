@@ -51,4 +51,19 @@ enum ResponseState: string
     {
         return trans(sprintf('responses.%s', $this->value));
     }
+
+    public function getResponseCode(): int
+    {
+        return match ($this) {
+            self::CDN_INVALIDATION_FAILED,
+            self::WRITE_FAILED,
+            self::UPLOAD_SLOT_CREATION_FAILED,
+            self::TRANSCODING_FAILED,
+            self::TRANSCODING_JOB_DISPATCH_FAILED => 500,
+            self::DOCUMENT_UPLOAD_SUCCESSFUL,
+            self::IMAGE_UPLOAD_SUCCESSFUL,
+            self::VIDEO_UPLOAD_SUCCESSFUL => 201,
+            default => 200,
+        };
+    }
 }
