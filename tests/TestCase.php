@@ -12,11 +12,8 @@ abstract class TestCase extends BaseTestCase
     protected function getAccessibleReflectionMethod(Model $model, string $method): ReflectionMethod
     {
         $reflectionProtector = new ReflectionClass($model);
-        $method = $reflectionProtector->getMethod($method);
 
-        $method->setAccessible(true);
-
-        return $method;
+        return $reflectionProtector->getMethod($method);
     }
 
     /**
