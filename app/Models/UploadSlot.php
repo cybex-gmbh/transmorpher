@@ -152,8 +152,7 @@ class UploadSlot extends Model
             try {
                 Upload::abort($this);
             } catch (Throwable $throwable) {
-                // Abort is best-effort; remnant cleanup must not block slot updates.
-                report($throwable);
+                // Need to catch all exceptions to prevent aborting the model update process.
             }
         }
     }

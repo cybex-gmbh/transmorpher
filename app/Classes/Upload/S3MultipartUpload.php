@@ -5,9 +5,10 @@ namespace App\Classes\Upload;
 use App\Enums\MediaStorage;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Interfaces\UploadContract;
-use App\Models\Media;
 use App\Models\UploadSlot;
+use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
+use Illuminate\Filesystem\AwsS3V3Adapter;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
@@ -24,15 +25,19 @@ class S3MultipartUpload implements UploadContract
 
     public function __construct()
     {
+        /** @var $disk AwsS3V3Adapter */
         $disk = MediaStorage::ORIGINALS->getDisk();
+
         $this->client = $disk->getClient();
         $this->bucket = $disk->getConfig()['bucket'];
     }
 
     /**
-     * Ensure the configured originals disk is an S3 disk.
+     * Ensures that the configured originals disk is an S3 disk.
      *
      * @return void
+     *
+     * @throws RuntimeException
      */
     public static function ensurePrerequisitesMet(): void
     {
@@ -48,22 +53,28 @@ class S3MultipartUpload implements UploadContract
      * Initiates an S3 multipart upload and stores the upload ID in cache.
      *
      * @param UploadSlot $uploadSlot
+     *
      * @return void
+     *
+     * @throws AwsException
+     * @throws RuntimeException
      */
     public function initiate(UploadSlot $uploadSlot): void
     {
-        $key = $this->getObjectKey($uploadSlot);
-
         $result = $this->client->createMultipartUpload([
             'Bucket' => $this->bucket,
-            'Key' => $key,
+            'Key' => $this->getObjectKey($uploadSlot),
         ]);
 
-        Cache::put(
+        $success = Cache::put(
             sprintf('upload_id_%s', $uploadSlot->token),
             $result['UploadId'],
             now()->addHours(self::CACHE_TTL_HOURS)
         );
+
+        if (!$success) {
+            throw new RuntimeException('Failed to create upload slot.');
+        }
     }
 
     /**
@@ -71,42 +82,46 @@ class S3MultipartUpload implements UploadContract
      *
      * @param UploadSlot $uploadSlot
      * @param int $chunkNumber
+     *
      * @return string
+     *
+     * @throws AwsException
+     * @throws RuntimeException
      */
     public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string
     {
-        $key = $this->getObjectKey($uploadSlot);
-        $uploadId = $this->getUploadId($uploadSlot);
-
         $command = $this->client->getCommand('UploadPart', [
             'Bucket' => $this->bucket,
-            'Key' => $key,
-            'UploadId' => $uploadId,
+            'Key' => $this->getObjectKey($uploadSlot),
+            'UploadId' => $this->getUploadId($uploadSlot),
             'PartNumber' => $chunkNumber,
         ]);
 
-        return (string) $this->client->createPresignedRequest($command, '+24 hours')->getUri();
+        return (string)$this->client->createPresignedRequest($command, '+24 hours')->getUri();
     }
 
     /**
-     * Completes the S3 multipart upload, validates content-type via HeadObject,
-     * and returns null (file is already stored on S3).
-     * Throws on validation failure and deletes the S3 object.
+     * Completes the S3 multipart upload and validates the mime type.
+     *
+     * Throws on validation failure and then deletes the S3 object.
      *
      * @param CompleteUploadRequest $request
      * @param UploadSlot $uploadSlot
      *
      * @return void
+     *
+     * @throws AwsException
+     * @throws ValidationException
+     * @throws RuntimeException
      */
     public function complete(CompleteUploadRequest $request, UploadSlot $uploadSlot): void
     {
-        $sourceKey = $this->getObjectKey($uploadSlot);
-        $uploadId = $this->getUploadId($uploadSlot);
+        $key = $this->getObjectKey($uploadSlot);
 
         $this->client->completeMultipartUpload([
             'Bucket' => $this->bucket,
-            'Key' => $sourceKey,
-            'UploadId' => $uploadId,
+            'Key' => $key,
+            'UploadId' => $this->getUploadId($uploadSlot),
             'MultipartUpload' => [
                 'Parts' => $request->validated('parts'),
             ],
@@ -114,44 +129,42 @@ class S3MultipartUpload implements UploadContract
 
         $headResult = $this->client->headObject([
             'Bucket' => $this->bucket,
-            'Key' => $sourceKey,
+            'Key' => $key,
         ]);
 
         $contentType = $headResult['ContentType'];
-        $mediaType = $uploadSlot->media_type;
 
-        try {
-            Media::validateMimeType($contentType, $mediaType->handler()->getValidationRules());
-        } catch (ValidationException $e) {
+        $typeHandler = $uploadSlot->media_type->handler();
+        if (!$typeHandler->isMimeTypeValid($contentType)) {
             $this->client->deleteObject([
                 'Bucket' => $this->bucket,
-                'Key' => $sourceKey,
+                'Key' => $key,
             ]);
 
-            throw $e;
+            throw ValidationException::withMessages([
+                'file' => [
+                    trans('validation.mimetypes', ['attribute' => 'file', 'values' => $typeHandler->getValidationRules()])
+                ]
+            ]);
         }
-
     }
 
     /**
      * Aborts the S3 multipart upload.
      *
      * @param UploadSlot $uploadSlot
+     *
      * @return void
+     *
+     * @throws AwsException
+     * @throws RuntimeException
      */
     public function abort(UploadSlot $uploadSlot): void
     {
-        $key = $this->getObjectKey($uploadSlot);
-        $uploadId = $this->getUploadId($uploadSlot);
-
-        if ($uploadId === null) {
-            return;
-        }
-
         $this->client->abortMultipartUpload([
             'Bucket' => $this->bucket,
-            'Key' => $key,
-            'UploadId' => $uploadId,
+            'Key' => $this->getObjectKey($uploadSlot),
+            'UploadId' => $this->getUploadId($uploadSlot),
         ]);
 
         Cache::forget(sprintf('upload_id_%s', $uploadSlot->token));
@@ -159,10 +172,12 @@ class S3MultipartUpload implements UploadContract
 
     /**
      * Returns the S3 upload ID from cache.
-     * Throws if the upload ID is not found.
      *
      * @param UploadSlot $uploadSlot
+     *
      * @return string|null
+     *
+     * @throws RuntimeException Thrown if the upload ID is not found
      */
     protected function getUploadId(UploadSlot $uploadSlot): ?string
     {
@@ -198,6 +213,7 @@ class S3MultipartUpload implements UploadContract
      * The key is resolved through the configured originals disk path, so disk root is respected.
      *
      * @param UploadSlot $uploadSlot
+     *
      * @return string
      */
     protected function getObjectKey(UploadSlot $uploadSlot): string

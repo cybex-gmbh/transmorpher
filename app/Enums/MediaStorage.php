@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Storage;
 
 enum MediaStorage: string
@@ -15,9 +15,9 @@ enum MediaStorage: string
     /**
      * Retrieve storage disk from the value specified in the transmorpher config.
      *
-     * @return Filesystem
+     * @return FilesystemAdapter
      */
-    public function getDisk(): Filesystem
+    public function getDisk(): FilesystemAdapter
     {
         return Storage::disk($this->getDiskName());
     }
