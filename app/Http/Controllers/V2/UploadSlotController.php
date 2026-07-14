@@ -19,12 +19,12 @@ use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use League\Flysystem\UnableToWriteFile;
 use Log;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException;
 use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
-use RuntimeException;
 use Throwable;
 use Upload;
 
@@ -119,7 +119,10 @@ class UploadSlotController extends Controller
         File::delete($assembledFile->getRealPath());
 
         if (!$writeSuccess) {
-            throw new RuntimeException('Could not write assembled upload to chunk temporary storage.');
+            throw UnableToWriteFile::atLocation(
+                implode(DIRECTORY_SEPARATOR, [config('chunk-upload.storage.chunks'), DefaultUpload::createTempFilename($uploadSlot)]),
+                sprintf('Intended disk: %s.', config('chunk-upload.storage.disk'))
+            );
         }
 
         return response()->json([
@@ -206,7 +209,8 @@ class UploadSlotController extends Controller
         ])->setStatusCode(ResponseState::UPLOAD_ABORTED->getResponseCode());
     }
 
-    protected function abort(UploadSlot $uploadSlot) {
+    protected function abort(UploadSlot $uploadSlot)
+    {
         try {
             Upload::abort($uploadSlot);
         } catch (Throwable $throwable) {
@@ -214,7 +218,8 @@ class UploadSlotController extends Controller
         }
     }
 
-    protected function completeFileOperations(CompleteUploadRequest $request, UploadSlot $uploadSlot): ?ResponseState {
+    protected function completeFileOperations(CompleteUploadRequest $request, UploadSlot $uploadSlot): ?ResponseState
+    {
         try {
             Upload::complete($request, $uploadSlot);
         } catch (Throwable $throwable) {

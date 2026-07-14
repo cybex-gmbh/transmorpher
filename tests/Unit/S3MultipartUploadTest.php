@@ -67,6 +67,11 @@ class S3MultipartUploadTest extends TestCase
             {
                 return $this->getObjectKey($uploadSlot);
             }
+
+            public function uploadIdForTesting(UploadSlot $uploadSlot): ?string
+            {
+                return $this->getUploadId($uploadSlot);
+            }
         };
     }
 
@@ -284,7 +289,7 @@ class S3MultipartUploadTest extends TestCase
         $uploadId = 'test-upload-id-get';
         Cache::put(sprintf('upload_id_%s', $this->token), $uploadId, now()->addHours(24));
 
-        $this->assertEquals($uploadId, $this->upload->getUploadId($this->uploadSlot));
+        $this->assertEquals($uploadId, $this->upload->uploadIdForTesting($this->uploadSlot));
     }
 
     #[Test]
@@ -292,14 +297,9 @@ class S3MultipartUploadTest extends TestCase
     {
         $this->expectException(RuntimeException::class);
 
-        $this->upload->getUploadId($this->uploadSlot);
+        $this->upload->uploadIdForTesting($this->uploadSlot);
     }
 
-    #[Test]
-    public function needsUploadIdReturnsTrue(): void
-    {
-        $this->assertTrue($this->upload->needsUploadId());
-    }
 
     #[Test]
     public function getCompletionValidationRulesReturnsPartsRules(): void
