@@ -183,11 +183,11 @@ class S3MultipartUploadTest extends TestCase
             'identifier' => $identifier,
             'filename' => 'invalid.txt',
         ]);
+        $reserveResponse->assertOk();
 
         $uploadSlot = UploadSlot::withoutGlobalScopes()->firstWhere('token', $reserveResponse->json('upload_token'));
 
         $completeResponse = $this->postJson(route('v2.completeUpload', $uploadSlot), ['parts' => $parts]);
-
         $completeResponse->assertStatus(422);
 
         $this->assertNull(Media::firstWhere('identifier', $identifier));
