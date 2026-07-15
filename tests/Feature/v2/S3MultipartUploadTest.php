@@ -120,8 +120,6 @@ class S3MultipartUploadTest extends TestCase
         $parts = [['PartNumber' => 1, 'ETag' => '"etag1"']];
 
         $this->s3Client->shouldReceive('createMultipartUpload')->once()->andReturn(new Result(['UploadId' => 'complete-id']));
-        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
-        $this->s3Client->shouldReceive('headObject')->once()->andReturn(new Result(['ContentType' => 'image/jpeg']));
 
         $reserveResponse = $this->postJson(route('v2.reserveUploadSlot', MediaType::IMAGE), [
             'identifier' => $identifier,
@@ -129,6 +127,9 @@ class S3MultipartUploadTest extends TestCase
         ]);
 
         $uploadSlot = UploadSlot::withoutGlobalScopes()->firstWhere('token', $reserveResponse->json('upload_token'));
+
+        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
+        $this->mockDetectedMimetype('image/jpeg');
 
         $completeResponse = $this->postJson(route('v2.completeUpload', $uploadSlot), ['parts' => $parts]);
 
@@ -150,8 +151,6 @@ class S3MultipartUploadTest extends TestCase
         $identifier = 'missing-parts-s3-' . uniqid();
 
         $this->s3Client->shouldReceive('createMultipartUpload')->once()->andReturn(new Result(['UploadId' => 'missing-parts-id']));
-        // completeMultipartUpload must NOT be called – validation rejects the request first.
-        $this->s3Client->shouldNotReceive('completeMultipartUpload');
 
         $reserveResponse = $this->postJson(route('v2.reserveUploadSlot', MediaType::IMAGE), [
             'identifier' => $identifier,
@@ -159,6 +158,9 @@ class S3MultipartUploadTest extends TestCase
         ]);
 
         $uploadSlot = UploadSlot::withoutGlobalScopes()->firstWhere('token', $reserveResponse->json('upload_token'));
+
+        // completeMultipartUpload must NOT be called – validation rejects the request first.
+        $this->s3Client->shouldNotReceive('completeMultipartUpload');
 
         $completeResponse = $this->postJson(route('v2.completeUpload', $uploadSlot), data: []);
 
@@ -175,9 +177,6 @@ class S3MultipartUploadTest extends TestCase
         $parts = [['PartNumber' => 1, 'ETag' => '"etag1"']];
 
         $this->s3Client->shouldReceive('createMultipartUpload')->once()->andReturn(new Result(['UploadId' => 'invalid-mime-id']));
-        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
-        $this->s3Client->shouldReceive('headObject')->once()->andReturn(new Result(['ContentType' => 'text/plain']));
-        $this->s3Client->shouldReceive('deleteObject')->once(); // S3 object deleted on validation failure
 
         $reserveResponse = $this->postJson(route('v2.reserveUploadSlot', MediaType::IMAGE), [
             'identifier' => $identifier,
@@ -186,6 +185,10 @@ class S3MultipartUploadTest extends TestCase
         $reserveResponse->assertOk();
 
         $uploadSlot = UploadSlot::withoutGlobalScopes()->firstWhere('token', $reserveResponse->json('upload_token'));
+
+        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
+        $this->mockDetectedMimetype('text/plain');
+        $this->s3Client->shouldReceive('deleteObject')->once(); // S3 object deleted on validation failure
 
         $completeResponse = $this->postJson(route('v2.completeUpload', $uploadSlot), ['parts' => $parts]);
         $completeResponse->assertStatus(422);
@@ -199,7 +202,6 @@ class S3MultipartUploadTest extends TestCase
         $identifier = 'abort-upload-s3-' . uniqid();
 
         $this->s3Client->shouldReceive('createMultipartUpload')->once()->andReturn(new Result(['UploadId' => 'abort-id']));
-        $this->s3Client->shouldReceive('abortMultipartUpload')->once();
 
         $reserveResponse = $this->postJson(route('v2.reserveUploadSlot', MediaType::IMAGE), [
             'identifier' => $identifier,
@@ -207,6 +209,8 @@ class S3MultipartUploadTest extends TestCase
         ]);
 
         $uploadSlot = UploadSlot::withoutGlobalScopes()->firstWhere('token', $reserveResponse->json('upload_token'));
+
+        $this->s3Client->shouldReceive('abortMultipartUpload')->once();
 
         $abortResponse = $this->deleteJson(route('v2.abortUpload', $uploadSlot));
 
@@ -224,9 +228,7 @@ class S3MultipartUploadTest extends TestCase
         $identifier = 'versions-s3-' . uniqid();
         $parts = [['PartNumber' => 1, 'ETag' => '"etag1"']];
 
-        $this->s3Client->shouldReceive('createMultipartUpload')->twice()->andReturn(new Result(['UploadId' => 'versions-id']));
-        $this->s3Client->shouldReceive('completeMultipartUpload')->twice()->andReturn(new Result([]));
-        $this->s3Client->shouldReceive('headObject')->twice()->andReturn(new Result(['ContentType' => 'image/jpeg']));
+        $this->s3Client->shouldReceive('createMultipartUpload')->once()->andReturn(new Result(['UploadId' => 'versions-id']));
 
         // First upload
         $res1 = $this->postJson(route('v2.reserveUploadSlot', MediaType::IMAGE), [
@@ -234,17 +236,25 @@ class S3MultipartUploadTest extends TestCase
             'filename' => 'v1.jpg',
         ]);
 
+        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
+        $this->mockDetectedMimetype('image/jpeg');
+
         $slot1 = UploadSlot::firstWhere('token', $res1->json('upload_token'));
         $this->postJson(route('v2.completeUpload', $slot1), ['parts' => $parts])->assertSuccessful();
 
         $media = Media::firstWhere('identifier', $identifier);
         $this->assertSame(1, $media->Versions()->count());
 
+        $this->s3Client->shouldReceive('createMultipartUpload')->once()->andReturn(new Result(['UploadId' => 'versions-id']));
+
         // Second upload for same identifier creates a new version
         $res2 = $this->postJson(route('v2.reserveUploadSlot', MediaType::IMAGE), [
             'identifier' => $identifier,
             'filename' => 'v2.jpg',
         ]);
+
+        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
+        $this->mockDetectedMimetype('image/jpeg');
 
         $slot2 = UploadSlot::firstWhere('token', $res2->json('upload_token'));
         $this->postJson(route('v2.completeUpload', $slot2), ['parts' => $parts])->assertSuccessful();
@@ -286,8 +296,6 @@ class S3MultipartUploadTest extends TestCase
         $parts = [['PartNumber' => 1, 'ETag' => '"etag1"']];
 
         $this->s3Client->shouldReceive('createMultipartUpload')->once()->andReturn(new Result(['UploadId' => 'pdf-id']));
-        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
-        $this->s3Client->shouldReceive('headObject')->once()->andReturn(new Result(['ContentType' => 'application/pdf']));
 
         $reserveResponse = $this->postJson(route('v2.reserveUploadSlot', MediaType::DOCUMENT), [
             'identifier' => $identifier,
@@ -296,8 +304,10 @@ class S3MultipartUploadTest extends TestCase
 
         $uploadSlot = UploadSlot::firstWhere('token', $reserveResponse->json('upload_token'));
 
-        $completeResponse = $this->postJson(route('v2.completeUpload', $uploadSlot), ['parts' => $parts]);
+        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
+        $this->mockDetectedMimetype('application/pdf');
 
+        $completeResponse = $this->postJson(route('v2.completeUpload', $uploadSlot), ['parts' => $parts]);
         $completeResponse->assertCreated();
 
         $media = Media::firstWhere('identifier', $identifier);
@@ -311,8 +321,6 @@ class S3MultipartUploadTest extends TestCase
         $parts = [['PartNumber' => 1, 'ETag' => '"etag1"']];
 
         $this->s3Client->shouldReceive('createMultipartUpload')->once()->andReturn(new Result(['UploadId' => 'video-id']));
-        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
-        $this->s3Client->shouldReceive('headObject')->once()->andReturn(new Result(['ContentType' => 'video/mp4']));
 
         // Video handler should dispatch transcoding and return PROCESSING on success.
         Transcode::shouldReceive('createJob')->once()->andReturn(true);
@@ -324,8 +332,10 @@ class S3MultipartUploadTest extends TestCase
 
         $uploadSlot = UploadSlot::firstWhere('token', $reserveResponse->json('upload_token'));
 
-        $completeResponse = $this->postJson(route('v2.completeUpload', $uploadSlot), ['parts' => $parts]);
+        $this->s3Client->shouldReceive('completeMultipartUpload')->once()->andReturn(new Result([]));
+        $this->mockDetectedMimetype('video/mp4');
 
+        $completeResponse = $this->postJson(route('v2.completeUpload', $uploadSlot), ['parts' => $parts]);
         $completeResponse->assertCreated();
         $this->assertSame('processing', $completeResponse->json('state'));
 
@@ -344,5 +354,20 @@ class S3MultipartUploadTest extends TestCase
 
         $this->s3Client->shouldReceive('getCommand')->with('UploadPart', Mockery::type('array'))->andReturn(Mockery::mock(CommandInterface::class));
         $this->s3Client->shouldReceive('createPresignedRequest')->andReturn($mockRequest);
+    }
+
+    protected function mockDetectedMimetype(string $mimeType): void
+    {
+        $payload = match ($mimeType) {
+            'image/jpeg' => "\xFF\xD8\xFF\xE0JFIF",
+            'application/pdf' => "%PDF-1.4\n1 0 obj\n<<>>\nendobj\n",
+            'video/mp4' => "\x00\x00\x00\x18ftypmp42",
+            default => 'plain text payload',
+        };
+
+        $this->disk
+            ->shouldReceive('readStream')
+            ->once()
+            ->andReturnUsing(fn() => fopen('data://text/plain;base64,' . base64_encode($payload), 'r'));
     }
 }
