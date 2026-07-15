@@ -45,6 +45,7 @@ Route::prefix('v2')->name('v2.')->group(function () {
 
     Route::get('publickey', fn(): string => SodiumHelper::getPublicKey())->name('getPublicKey');
     Route::get('cacheInvalidator', fn(): string => MediaStorage::ORIGINALS->getDisk()->get(config('transmorpher.cache_invalidation_counter_file_path')) ?? 0)->name('getCacheInvalidator');
+    Route::get('uploadHandler', fn(): string => config('transmorpher.upload_handler'))->name('getUploadHandler');
 });
 
 
