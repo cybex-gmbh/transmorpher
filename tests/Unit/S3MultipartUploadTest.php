@@ -156,6 +156,27 @@ class S3MultipartUploadTest extends TestCase
         return $request;
     }
 
+    protected function payloadForMimeType(string $mimeType): string
+    {
+        return match ($mimeType) {
+            'image/jpeg' => "\xFF\xD8\xFF\xE0JFIF",
+            'application/pdf' => "%PDF-1.4\n1 0 obj\n<<>>\nendobj\n",
+            default => 'plain text payload',
+        };
+    }
+
+    protected function mockReadStream(string $mimeType, int $times = 1, ?string $expectedPath = null): void
+    {
+        $expectation = $this->disk->shouldReceive('readStream')->times($times);
+
+        if ($expectedPath !== null) {
+            $expectation->with($expectedPath);
+        }
+
+        $payload = $this->payloadForMimeType($mimeType);
+        $expectation->andReturnUsing(fn() => fopen('data://text/plain;base64,' . base64_encode($payload), 'r'));
+    }
+
     #[Test]
     public function completeUploadCallsCompleteMultipartUpload(): void
     {
@@ -178,14 +199,7 @@ class S3MultipartUploadTest extends TestCase
             ))
             ->andReturn(new Result([]));
 
-        $this->s3Client
-            ->shouldReceive('headObject')
-            ->once()
-            ->with(Mockery::on(fn($args) =>
-                $args['Bucket'] === $this->bucket &&
-                $args['Key'] === $this->expectedKey()
-            ))
-            ->andReturn(new Result(['ContentType' => 'image/jpeg']));
+        $this->mockReadStream('image/jpeg', expectedPath: $this->uploadSlot->originalFilePath);
 
         $this->s3Client->shouldNotReceive('copyObject');
 
@@ -211,10 +225,7 @@ class S3MultipartUploadTest extends TestCase
             ))
             ->andReturn(new Result([]));
 
-        $this->s3Client
-            ->shouldReceive('headObject')
-            ->once()
-            ->andReturn(new Result(['ContentType' => 'image/jpeg']));
+        $this->mockReadStream('image/jpeg');
 
         $this->upload->complete($this->makeCompleteRequest($parts), $this->uploadSlot);
     }
@@ -232,10 +243,7 @@ class S3MultipartUploadTest extends TestCase
             ->once()
             ->andReturn(new Result([]));
 
-        $this->s3Client
-            ->shouldReceive('headObject')
-            ->once()
-            ->andReturn(new Result(['ContentType' => 'application/pdf']));
+        $this->mockReadStream('application/pdf');
 
         $this->s3Client
             ->shouldReceive('deleteObject')
