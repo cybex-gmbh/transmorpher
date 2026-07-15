@@ -33,9 +33,9 @@ return [
     */
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
-        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
-        'documentDerivatives' =>  env('TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES', 'localDocumentDerivatives'),
-        'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
+        'imageDerivatives' => env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
+        'documentDerivatives' => env('TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES', 'localDocumentDerivatives'),
+        'videoDerivatives' => env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 
     /*
@@ -204,16 +204,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Upload
+    | Upload Handler
     |--------------------------------------------------------------------------
     |
-    | The upload class used for the v2 upload flow.
+    | The upload handler used for the v2 upload flow.
     | The class must implement UploadContract.
     |
-    | Available Upload classes:
-    | - App\Classes\Upload\DefaultUpload      (default, uses pionl/laravel-chunk-upload)
-    | - App\Classes\Upload\S3MultipartUpload  (S3 multipart uploads via signed URLs)
+    | These are defined through the `config/transmorpher/handler/upload` files.
+    |
+    | You can choose from:
+    | - default       (uses pionl/laravel-chunk-upload, can use any Laravel disk)
+    | - s3-multi-part (S3 multipart uploads via pre-signed URLs, originals disk needs to be an S3 disk)
     |
     */
-    'upload' => App\Classes\Upload\DefaultUpload::class,
+    'upload_handler' => env('TRANSMORPHER_UPLOAD_HANDLER', 'default'),
 ];
