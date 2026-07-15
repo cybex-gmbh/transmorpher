@@ -127,12 +127,7 @@ class S3MultipartUpload implements UploadContract
             ],
         ]);
 
-        $headResult = $this->client->headObject([
-            'Bucket' => $this->bucket,
-            'Key' => $key,
-        ]);
-
-        $contentType = $headResult['ContentType'];
+        $contentType = mime_content_type(MediaStorage::ORIGINALS->getDisk()->readStream($uploadSlot->originalFilePath));
 
         $typeHandler = $uploadSlot->media_type->handler();
         if (!$typeHandler->isMimeTypeValid($contentType)) {

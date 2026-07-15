@@ -211,7 +211,7 @@ return [
     | The class must implement UploadContract.
     |
     | Available Upload classes:
-    | - App\Classes\Upload\DefaultUpload      (default, uses pion/laravel-chunk-upload)
+    | - App\Classes\Upload\DefaultUpload      (default, uses pionl/laravel-chunk-upload)
     | - App\Classes\Upload\S3MultipartUpload  (S3 multipart uploads via signed URLs)
     |
     */
