@@ -38,7 +38,7 @@ Route::prefix('v2')->name('v2.')->group(function () {
     });
 
     // All chunk-phase endpoints are public; the upload token is the secret.
-    Route::post('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile'])->name('upload');
+    Route::put('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile'])->name('upload');
     Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadSlotController::class, 'getChunkUploadUrl'])->name('chunkUploadUrl');
     Route::post('/upload/{uploadSlot}/complete', [UploadSlotController::class, 'completeUpload'])->name('completeUpload');
     Route::delete('/upload/{uploadSlot}', [UploadSlotController::class, 'abortUpload'])->name('abortUpload');
