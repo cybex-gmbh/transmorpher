@@ -4,11 +4,10 @@ namespace Tests\Unit;
 
 use App\Classes\Upload\DefaultUpload;
 use App\Classes\Upload\S3MultipartUpload;
+use App\Enums\MediaType;
 use App\Http\Requests\V2\CompleteUploadRequest;
-use App\Models\Media;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Facade;
-use Illuminate\Validation\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -45,46 +44,39 @@ class CompleteUploadRequestTest extends TestCase
     }
 
     #[Test]
-    public function validateMimeTypePassesForValidMimetypeRule(): void
+    public function isMimeTypeValidReturnsTrueForValidVideoMimeType(): void
     {
-        Media::validateMimeType('video/mp4', 'mimetypes:video/x-msvideo,video/mpeg,video/mp4');
-        $this->assertTrue(true);
+        $this->assertTrue(MediaType::VIDEO->handler()->isMimeTypeValid('video/mp4'));
     }
 
     #[Test]
-    public function validateMimeTypeThrowsForInvalidMimetypeRule(): void
+    public function isMimeTypeValidReturnsFalseForInvalidVideoMimeType(): void
     {
-        $this->expectException(ValidationException::class);
-        Media::validateMimeType('application/pdf', 'mimetypes:video/x-msvideo,video/mpeg,video/mp4');
+        $this->assertFalse(MediaType::VIDEO->handler()->isMimeTypeValid('application/pdf'));
     }
 
     #[Test]
-    public function validateMimeTypePassesForValidMimesRule(): void
+    public function isMimeTypeValidReturnsTrueForValidImageMimeType(): void
     {
-        Media::validateMimeType('image/jpeg', 'mimes:jpg,jpeg,png,gif,webp');
-        $this->assertTrue(true);
+        $this->assertTrue(MediaType::IMAGE->handler()->isMimeTypeValid('image/jpeg'));
     }
 
     #[Test]
-    public function validateMimeTypeThrowsForInvalidMimesRule(): void
+    public function isMimeTypeValidReturnsFalseForInvalidImageMimeType(): void
     {
-        $this->expectException(ValidationException::class);
-        Media::validateMimeType('video/mp4', 'mimes:jpg,jpeg,png,gif,webp');
+        $this->assertFalse(MediaType::IMAGE->handler()->isMimeTypeValid('video/mp4'));
     }
 
     #[Test]
-    public function validateMimeTypeStripsContentTypeParameters(): void
+    public function isMimeTypeValidReturnsTrueForValidDocumentMimeType(): void
     {
-        // Content-type with charset parameter should still match.
-        Media::validateMimeType('image/jpeg; charset=utf-8', 'mimes:jpg,jpeg,png');
-        $this->assertTrue(true);
+        $this->assertTrue(MediaType::DOCUMENT->handler()->isMimeTypeValid('application/pdf'));
     }
 
     #[Test]
-    public function validateMimeTypeThrowsForUnsupportedRuleFormat(): void
+    public function isMimeTypeValidReturnsFalseForUnknownMimeType(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
-        Media::validateMimeType('image/jpeg', 'required|string');
+        $this->assertFalse(MediaType::IMAGE->handler()->isMimeTypeValid('application/octet-stream'));
     }
 }
 

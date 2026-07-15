@@ -103,7 +103,7 @@ class S3MultipartUploadTest extends TestCase
                 && $ttl instanceof CarbonInterface
                 && now()->diffInHours($ttl, false) >= 23
                 && now()->diffInHours($ttl, false) <= 24
-            );
+            )->andReturn(true);
 
         $this->s3Client
             ->shouldReceive('createMultipartUpload')
