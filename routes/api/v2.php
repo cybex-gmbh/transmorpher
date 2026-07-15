@@ -6,7 +6,7 @@ use App\Helpers\SodiumHelper;
 use App\Http\Controllers\V2\DocumentController;
 use App\Http\Controllers\V2\ImageController;
 use App\Http\Controllers\V2\VersionController;
-use App\Http\Controllers\V2\UploadSlotController;
+use App\Http\Controllers\V2\UploadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,14 +34,14 @@ Route::prefix('v2')->name('v2.')->group(function () {
         Route::get(sprintf('/%s/{media}/version/{version}/derivative/{transformations?}', MediaType::DOCUMENT->value), [DocumentController::class, 'getDerivativeForVersion'])->name('getDocumentDerivativeForVersion');
 
         // UploadSlot
-        Route::post('/{mediaType}/reserveUploadSlot', [UploadSlotController::class, 'reserveUploadSlot'])->name('reserveUploadSlot');
+        Route::post('/{mediaType}/reserveUploadSlot', [UploadController::class, 'reserveUploadSlot'])->name('reserveUploadSlot');
     });
 
     // All chunk-phase endpoints are public; the upload token is the secret.
-    Route::put('/upload/{uploadSlot}', [UploadSlotController::class, 'receiveFile'])->name('upload');
-    Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadSlotController::class, 'getChunkUploadUrl'])->name('chunkUploadUrl');
-    Route::post('/upload/{uploadSlot}/complete', [UploadSlotController::class, 'completeUpload'])->name('completeUpload');
-    Route::delete('/upload/{uploadSlot}', [UploadSlotController::class, 'abortUpload'])->name('abortUpload');
+    Route::put('/upload/{uploadSlot}', [UploadController::class, 'receiveFile'])->name('upload');
+    Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadController::class, 'getChunkUploadUrl'])->name('chunkUploadUrl');
+    Route::post('/upload/{uploadSlot}/complete', [UploadController::class, 'completeUpload'])->name('completeUpload');
+    Route::delete('/upload/{uploadSlot}', [UploadController::class, 'abortUpload'])->name('abortUpload');
 
     Route::get('publickey', fn(): string => SodiumHelper::getPublicKey())->name('getPublicKey');
     Route::get('cacheInvalidator', fn(): string => MediaStorage::ORIGINALS->getDisk()->get(config('transmorpher.cache_invalidation_counter_file_path')) ?? 0)->name('getCacheInvalidator');

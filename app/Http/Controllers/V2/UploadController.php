@@ -28,7 +28,7 @@ use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 use Throwable;
 use Upload;
 
-class UploadSlotController extends Controller
+class UploadController extends Controller
 {
     /**
      * Reserves an upload slot for the given media type and initiates the upload.

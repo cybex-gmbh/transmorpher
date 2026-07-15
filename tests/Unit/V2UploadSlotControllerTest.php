@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Enums\MediaType;
-use App\Http\Controllers\V2\UploadSlotController;
+use App\Http\Controllers\V2\UploadController;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\Media;
 use App\Models\UploadSlot;
@@ -66,7 +66,7 @@ class V2UploadSlotControllerTest extends TestCase
 
         Facade::clearResolvedInstance('upload');
 
-        $controller = app(UploadSlotController::class);
+        $controller = app(UploadController::class);
         $reflection = new ReflectionClass($controller);
         $saveFileMethod = $reflection->getMethod('completeFileOperations');
         $saveFileMethod->setAccessible(true);
