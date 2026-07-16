@@ -26,7 +26,7 @@ class CompleteUploadRequestTest extends TestCase
     }
 
     #[Test]
-    public function rulesIncludePartsForS3MultipartUpload(): void
+    public function rulesAreEmptyForS3MultipartUpload(): void
     {
         Config::set('transmorpher.disks.originals', 's3Originals');
         Config::set('filesystems.disks.s3Originals.bucket', 'test-bucket');
@@ -36,11 +36,8 @@ class CompleteUploadRequestTest extends TestCase
 
         $request = new CompleteUploadRequest();
         $request->setContainer($this->app);
-        $rules = $request->rules();
 
-        $this->assertArrayHasKey('parts', $rules);
-        $this->assertArrayHasKey('parts.*.PartNumber', $rules);
-        $this->assertArrayHasKey('parts.*.ETag', $rules);
+        $this->assertSame([], $request->rules());
     }
 
     #[Test]

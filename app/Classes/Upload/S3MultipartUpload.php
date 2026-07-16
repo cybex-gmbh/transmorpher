@@ -117,13 +117,16 @@ class S3MultipartUpload implements UploadContract
     public function complete(CompleteUploadRequest $request, UploadSlot $uploadSlot): void
     {
         $key = $this->getObjectKey($uploadSlot);
+        $uploadId = $this->getUploadId($uploadSlot);
+
+        $parts = $this->getUploadParts($key, $uploadId);
 
         $this->client->completeMultipartUpload([
             'Bucket' => $this->bucket,
             'Key' => $key,
-            'UploadId' => $this->getUploadId($uploadSlot),
+            'UploadId' => $uploadId,
             'MultipartUpload' => [
-                'Parts' => $request->validated('parts'),
+                'Parts' => $parts,
             ],
         ]);
 
@@ -195,11 +198,7 @@ class S3MultipartUpload implements UploadContract
      */
     public function getCompletionValidationRules(): array
     {
-        return [
-            'parts' => 'required|array',
-            'parts.*.PartNumber' => 'required|integer',
-            'parts.*.ETag' => 'required|string',
-        ];
+        return [];
     }
 
     /**
@@ -216,6 +215,44 @@ class S3MultipartUpload implements UploadContract
         return MediaStorage::ORIGINALS->getDisk()->path($uploadSlot->originalFilePath);
     }
 
+    /**
+     * Gets all uploaded parts from S3.
+     *
+     * @param string $key
+     * @param string|null $uploadId
+     *
+     * @return array
+     *
+     * @throws RuntimeException Thrown if no parts were found.
+     */
+    protected function getUploadParts(string $key, ?string $uploadId): array
+    {
+        $paginator = $this->client->getPaginator('ListParts', [
+            'Bucket' => $this->bucket,
+            'Key' => $key,
+            'UploadId' => $uploadId,
+        ]);
+
+        $parts = [];
+
+        foreach ($paginator as $page) {
+            if (!empty($page['Parts'])) {
+                foreach ($page['Parts'] as $part) {
+                    $parts[] = [
+                        'PartNumber' => $part['PartNumber'],
+                        // ETag is wrapped in escaped "
+                        'ETag' => json_decode($part['ETag']),
+                    ];
+                }
+            }
+        }
+
+        if (!count($parts)) {
+            throw new RuntimeException('No parts have been uploaded.');
+        }
+
+        return $parts;
+    }
 }
 
 

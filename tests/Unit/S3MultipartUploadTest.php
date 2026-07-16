@@ -148,12 +148,9 @@ class S3MultipartUploadTest extends TestCase
         $this->assertEquals($presignedUrl, $url);
     }
 
-    protected function makeCompleteRequest(array $parts): CompleteUploadRequest
+    protected function makeCompleteRequest(): CompleteUploadRequest
     {
-        $request = Mockery::mock(CompleteUploadRequest::class)->makePartial();
-        $request->shouldReceive('validated')->with('parts')->andReturn($parts);
-
-        return $request;
+        return Mockery::mock(CompleteUploadRequest::class)->makePartial();
     }
 
     protected function payloadForMimeType(string $mimeType): string
@@ -181,12 +178,28 @@ class S3MultipartUploadTest extends TestCase
     public function completeUploadCallsCompleteMultipartUpload(): void
     {
         $uploadId = 'test-upload-id-complete';
-        $parts = [
+        $partsFromS3 = [
             ['PartNumber' => 1, 'ETag' => '"etag1"'],
             ['PartNumber' => 2, 'ETag' => '"etag2"'],
         ];
+        $expectedParts = [
+            ['PartNumber' => 1, 'ETag' => 'etag1'],
+            ['PartNumber' => 2, 'ETag' => 'etag2'],
+        ];
 
         Cache::put(sprintf('upload_id_%s', $this->token), $uploadId, now()->addHours(24));
+
+        $this->s3Client
+            ->shouldReceive('getPaginator')
+            ->once()
+            ->with('ListParts', Mockery::on(fn($args) =>
+                $args['Bucket'] === $this->bucket
+                && $args['Key'] === $this->expectedKey()
+                && $args['UploadId'] === $uploadId
+            ))
+            ->andReturn(new \ArrayIterator([
+                ['Parts' => $partsFromS3],
+            ]));
 
         $this->s3Client
             ->shouldReceive('completeMultipartUpload')
@@ -195,7 +208,7 @@ class S3MultipartUploadTest extends TestCase
                 $args['Bucket'] === $this->bucket &&
                 $args['Key'] === $this->expectedKey() &&
                 $args['UploadId'] === $uploadId &&
-                $args['MultipartUpload']['Parts'] === $parts
+                $args['MultipartUpload']['Parts'] === $expectedParts
             ))
             ->andReturn(new Result([]));
 
@@ -203,18 +216,25 @@ class S3MultipartUploadTest extends TestCase
 
         $this->s3Client->shouldNotReceive('copyObject');
 
-        $this->upload->complete($this->makeCompleteRequest($parts), $this->uploadSlot);
+        $this->upload->complete($this->makeCompleteRequest(), $this->uploadSlot);
     }
 
     #[Test]
     public function completeUploadIgnoresTargetKeyAndUsesReservedObjectKey(): void
     {
         $uploadId = 'test-upload-id-complete-mismatch';
-        $parts = [
+        $partsFromS3 = [
             ['PartNumber' => 1, 'ETag' => '"etag1"'],
         ];
 
         Cache::put(sprintf('upload_id_%s', $this->token), $uploadId, now()->addHours(24));
+
+        $this->s3Client
+            ->shouldReceive('getPaginator')
+            ->once()
+            ->andReturn(new \ArrayIterator([
+                ['Parts' => $partsFromS3],
+            ]));
 
         $this->s3Client
             ->shouldReceive('completeMultipartUpload')
@@ -227,16 +247,23 @@ class S3MultipartUploadTest extends TestCase
 
         $this->mockReadStream('image/jpeg');
 
-        $this->upload->complete($this->makeCompleteRequest($parts), $this->uploadSlot);
+        $this->upload->complete($this->makeCompleteRequest(), $this->uploadSlot);
     }
 
     #[Test]
     public function completeUploadDeletesS3ObjectAndThrowsOnInvalidMimeType(): void
     {
         $uploadId = 'test-upload-id-fail';
-        $parts = [['PartNumber' => 1, 'ETag' => '"etag1"']];
+        $partsFromS3 = [['PartNumber' => 1, 'ETag' => '"etag1"']];
 
         Cache::put(sprintf('upload_id_%s', $this->token), $uploadId, now()->addHours(24));
+
+        $this->s3Client
+            ->shouldReceive('getPaginator')
+            ->once()
+            ->andReturn(new \ArrayIterator([
+                ['Parts' => $partsFromS3],
+            ]));
 
         $this->s3Client
             ->shouldReceive('completeMultipartUpload')
@@ -255,7 +282,7 @@ class S3MultipartUploadTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        $this->upload->complete($this->makeCompleteRequest($parts), $this->uploadSlot);
+        $this->upload->complete($this->makeCompleteRequest(), $this->uploadSlot);
     }
 
     #[Test]
@@ -288,13 +315,11 @@ class S3MultipartUploadTest extends TestCase
     }
 
     #[Test]
-    public function getCompletionValidationRulesReturnsPartsRules(): void
+    public function getCompletionValidationRulesAreEmpty(): void
     {
         $rules = $this->upload->getCompletionValidationRules();
 
-        $this->assertArrayHasKey('parts', $rules);
-        $this->assertArrayHasKey('parts.*.PartNumber', $rules);
-        $this->assertArrayHasKey('parts.*.ETag', $rules);
+        $this->assertSame([], $rules);
     }
 
 }
