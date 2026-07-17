@@ -37,7 +37,7 @@ enum Transformation: string
             throw new InvalidTransformationValueException($value, $this->name);
         }
 
-        return $value;
+        return is_int($valid) ? $valid : $value;
     }
 
     /**
