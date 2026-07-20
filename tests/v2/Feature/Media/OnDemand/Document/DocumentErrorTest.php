@@ -5,17 +5,15 @@ namespace Tests\v2\Feature\Media\OnDemand\Document;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
-use Tests\v2\Support\IsOnDemandMedia;
-use Tests\v2\Support\MediaHelper;
+use Tests\v2\Feature\Media\OnDemand\OnDemandMediaErrorTestCase;
 
-class DocumentErrorTest extends MediaHelper
+class DocumentErrorTest extends OnDemandMediaErrorTestCase
 {
-	use IsOnDemandMedia;
-
-	protected MediaType $mediaType = MediaType::DOCUMENT;
-	protected MediaStorage $derivativesStorage = MediaStorage::DOCUMENT_DERIVATIVES;
-	protected ResponseState $versionSetSuccessfulState = ResponseState::DOCUMENT_VERSION_SET;
-	protected string $identifier = 'test-document-error';
-	protected string $mediaFileFilePath = 'tests/data/test.pdf';
+    protected MediaType $mediaType = MediaType::DOCUMENT;
+    protected MediaStorage $derivativesStorage = MediaStorage::DOCUMENT_DERIVATIVES;
+    protected ResponseState $versionSetSuccessfulState = ResponseState::DOCUMENT_VERSION_SET;
+    protected string $identifier = 'test-document-error';
+    protected string $mediaFileFilePath = 'tests/data/test.pdf';
+    protected string $invalidMimeFileFilePath = 'tests/data/test.png';
 }
 
