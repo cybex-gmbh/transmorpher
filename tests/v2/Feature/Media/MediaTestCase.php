@@ -58,7 +58,7 @@ abstract class MediaTestCase extends MediaHelper
         ]);
 
         $uploadSlot->refresh();
-        $this->assertFalse((bool) $uploadSlot->is_valid);
+        $this->assertFalse($uploadSlot->is_valid);
 
         $this->completeUpload($uploadSlot)->assertNotFound();
     }
@@ -72,7 +72,7 @@ abstract class MediaTestCase extends MediaHelper
         $this->assertModelExists($uploadSlot);
         $this->sendFile($uploadSlot)->assertOk();
 
-        $chunkDisk = Storage::disk((string) config('chunk-upload.storage.disk'));
+        $chunkDisk = Storage::disk(config('chunk-upload.storage.disk'));
         $temporaryFilesBeforeAbort = $chunkDisk->allFiles();
 
         $this->assertNotEmpty($temporaryFilesBeforeAbort);
