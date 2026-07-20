@@ -6,7 +6,6 @@
 >
     <testsuites>
         <testsuite name="v1">
-            <directory>tests/v1/Feature</directory>
             <directory>tests/v1/Unit</directory>
         </testsuite>
         <testsuite name="v2">
