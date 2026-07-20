@@ -93,7 +93,7 @@ class TranscodeVideo implements ShouldQueue
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
 
-        \Log::info(sprintf('Transcoding finished for media %s and version %s with response state %s.', $this->version->Media->identifier, $this->version->getKey(), $this->responseState->value));
+        \Log::info(sprintf('Transcoding finished for media %s and version %s with response state %s.', $this->version->Media->identifier, $this->version->getKey(), $this->responseState->name));
         match ($this->responseState) {
             ResponseState::TRANSCODING_SUCCESSFUL => Transcode::callback($this->responseState, $this->uploadToken, $this->version->Media, $this->version->number),
             ResponseState::TRANSCODING_ABORTED => $this->failed(null),
