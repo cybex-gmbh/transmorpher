@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v1\Unit;
 
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
@@ -23,7 +23,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Smalot\PdfParser\Config as PdfParserConfig;
 use Smalot\PdfParser\Parser;
 use Storage;
-use Tests\OnDemandDerivativeMediaTest;
+use Tests\v1\OnDemandDerivativeMediaTest;
 
 class PdfTest extends OnDemandDerivativeMediaTest
 {

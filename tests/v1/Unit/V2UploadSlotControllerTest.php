@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v1\Unit;
 
 use App\Enums\MediaType;
 use App\Http\Controllers\V2\UploadController;
