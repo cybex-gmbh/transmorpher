@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v1\Unit;
 
 use App\Classes\Upload\DefaultUpload;
 use App\Classes\Upload\S3MultipartUpload;

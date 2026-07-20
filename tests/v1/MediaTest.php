@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\v1;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
@@ -11,6 +11,7 @@ use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
 use Storage;
+use Tests\TestCase;
 
 abstract class MediaTest extends TestCase
 {

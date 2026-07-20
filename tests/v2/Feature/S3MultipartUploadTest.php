@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\v2;
+namespace Tests\v2\Feature;
 
 use App\Classes\Upload\S3MultipartUpload;
 use App\Enums\MediaType;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v1\Unit;
 
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\UploadSlot;

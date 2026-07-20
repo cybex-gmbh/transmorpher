@@ -1,14 +1,14 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v1\Unit;
 
 use App\Enums\MediaType;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
-use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\v1;
 
 use App\Models\Media;
 use App\Models\Version;
