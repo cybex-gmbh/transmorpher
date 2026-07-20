@@ -3,8 +3,8 @@
 namespace Tests\v2\Feature\Media;
 
 use App\Classes\Upload\DefaultUpload;
-use App\Models\UploadSlot;
 use App\Models\Media;
+use App\Models\UploadSlot;
 use App\Models\Version;
 use Illuminate\Http\Testing\File;
 use Illuminate\Support\Facades\Storage;
@@ -157,9 +157,9 @@ abstract class MediaErrorTestCase extends MediaHelper
         $this->sendFile($uploadSlot, $this->fakeFile($this->invalidMimeFileFilePath))
             ->assertOk();
 
-        $chunkDisk = Storage::disk((string) config('chunk-upload.storage.disk'));
+        $chunkDisk = Storage::disk(config('chunk-upload.storage.disk'));
         $temporaryPath = implode(DIRECTORY_SEPARATOR, [
-            (string) config('chunk-upload.storage.chunks'),
+            config('chunk-upload.storage.chunks'),
             DefaultUpload::createTempFilename($uploadSlot),
         ]);
 
