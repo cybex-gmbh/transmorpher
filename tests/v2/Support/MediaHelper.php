@@ -38,7 +38,7 @@ abstract class MediaHelper extends TestCase
         parent::setUp();
 
         $this->originalsDisk = Storage::fake($this->originalsStorage->getDiskName());
-        Storage::fake((string)config('chunk-upload.storage.disk'));
+        Storage::fake(config('chunk-upload.storage.disk'));
 
         if (isset($this->derivativesStorage)) {
             $this->derivativesDisk = Storage::fake($this->derivativesStorage->getDiskName());

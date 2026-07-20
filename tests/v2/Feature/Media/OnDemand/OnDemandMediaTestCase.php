@@ -94,7 +94,7 @@ abstract class OnDemandMediaTestCase extends MediaTestCase
         $this->getDerivativeForVersion($version)->assertOk();
         $this->derivativesDisk->assertExists($version->onDemandDerivativeFilePath());
 
-        $counterPath = (string)config('transmorpher.cache_invalidation_counter_file_path');
+        $counterPath = config('transmorpher.cache_invalidation_counter_file_path');
         $counterBefore = (int)($this->originalsDisk->get($counterPath) ?? 0);
 
         Http::fake([

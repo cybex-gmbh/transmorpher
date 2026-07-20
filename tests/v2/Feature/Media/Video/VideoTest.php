@@ -52,7 +52,22 @@ class VideoTest extends MediaTestCase
         $this->assertModelExists($version);
         $this->assertFalse((bool)$version->processed);
         $this->originalsDisk->assertExists($version->originalFilePath());
+    }
 
+    #[Test]
+    public function canListVersions(): void
+    {
+        Queue::fake();
+
+        parent::invalidatesUploadTokenAfterCompletion();
+    }
+
+    #[Test]
+    public function invalidatesUploadTokenAfterCompletion(): void
+    {
+        Queue::fake();
+
+        parent::invalidatesUploadTokenAfterCompletion();
     }
 
     #[Test]
