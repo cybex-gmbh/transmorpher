@@ -33,16 +33,14 @@ Route::prefix('v2')->name('v2.')->group(function () {
         Route::get(sprintf('/%s/{media}/version/{version}/original', MediaType::DOCUMENT->value), [DocumentController::class, 'getOriginal'])->name('getDocumentOriginal');
         Route::get(sprintf('/%s/{media}/version/{version}/derivative/{transformations?}', MediaType::DOCUMENT->value), [DocumentController::class, 'getDerivativeForVersion'])->name('getDocumentDerivativeForVersion');
 
-        // UploadSlot
+        // Uploading
         Route::post('/{mediaType}/reserveUploadSlot', [UploadController::class, 'reserveUploadSlot'])->name('reserveUploadSlot');
+        Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadController::class, 'getChunkUploadUrl'])->name('chunkUploadUrl');
+        Route::post('/upload/{uploadSlot}/complete', [UploadController::class, 'completeUpload'])->name('completeUpload');
+        Route::delete('/upload/{uploadSlot}', [UploadController::class, 'abortUpload'])->name('abortUpload');
     });
 
-    // All chunk-phase endpoints are public; the upload token is the secret.
     Route::put('/upload/{uploadSlot}', [UploadController::class, 'receiveFile'])->name('upload');
-    Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadController::class, 'getChunkUploadUrl'])->name('chunkUploadUrl');
-    Route::post('/upload/{uploadSlot}/complete', [UploadController::class, 'completeUpload'])->name('completeUpload');
-    Route::delete('/upload/{uploadSlot}', [UploadController::class, 'abortUpload'])->name('abortUpload');
-
     Route::get('publickey', fn(): string => SodiumHelper::getPublicKey())->name('getPublicKey');
     Route::get('cacheInvalidator', fn(): string => MediaStorage::ORIGINALS->getDisk()->get(config('transmorpher.cache_invalidation_counter_file_path')) ?? 0)->name('getCacheInvalidator');
     Route::get('uploadHandler', fn(): string => config('transmorpher.upload_handler'))->name('getUploadHandler');
