@@ -76,7 +76,7 @@ class S3MultipartUploadTest extends TestCase
     }
 
     #[Test]
-    public function uploadIdIsCachedAfterReservation(): void
+    public function cachesUploadIdAfterReservation(): void
     {
         $identifier = 'upload-id-available-s3-' . uniqid();
 
@@ -146,7 +146,7 @@ class S3MultipartUploadTest extends TestCase
     }
 
     #[Test]
-    public function completeUploadFailsWhenS3ReturnsNoParts(): void
+    public function failsCompletionWhenS3ReturnsNoParts(): void
     {
         $identifier = 'no-s3-parts-' . uniqid();
 
@@ -169,7 +169,7 @@ class S3MultipartUploadTest extends TestCase
     }
 
     #[Test]
-    public function uploadWithInvalidMimeTypeFailsAndRollsBack(): void
+    public function failsAndRollsBackUploadWithInvalidMimeType(): void
     {
         $identifier = 'invalid-mime-type-s3-' . uniqid();
 
@@ -220,7 +220,7 @@ class S3MultipartUploadTest extends TestCase
 
 
     #[Test]
-    public function multipleUploadsWithSameIdentifierCreateVersions(): void
+    public function createsVersionsForSameMediaForMultipleUploadsWithSameIdentifier(): void
     {
         $identifier = 'versions-s3-' . uniqid();
 
@@ -263,7 +263,7 @@ class S3MultipartUploadTest extends TestCase
     }
 
     #[Test]
-    public function expiredUploadIdThrowsError(): void
+    public function failsOnExpiredUploadId(): void
     {
         $identifier = 'expired-upload-id-s3-' . uniqid();
 
