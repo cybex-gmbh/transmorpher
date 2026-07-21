@@ -18,7 +18,7 @@ use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
-abstract class MediaHelper extends TestCase
+abstract class MediaTestBase extends TestCase
 {
     use RefreshDatabase;
 

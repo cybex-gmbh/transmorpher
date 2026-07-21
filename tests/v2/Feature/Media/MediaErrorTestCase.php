@@ -12,9 +12,9 @@ use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\v2\Support\MediaHelper;
+use Tests\v2\Support\MediaTestBase;
 
-abstract class MediaErrorTestCase extends MediaHelper
+abstract class MediaErrorTestCase extends MediaTestBase
 {
     protected string $invalidMimeFileFilePath;
 

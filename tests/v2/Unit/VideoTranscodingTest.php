@@ -11,10 +11,10 @@ use App\Models\UploadSlot;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\v2\Support\MediaHelper;
+use Tests\v2\Support\MediaTestBase;
 use Transcode;
 
-class VideoTranscodingTest extends MediaHelper
+class VideoTranscodingTest extends MediaTestBase
 {
     protected MediaType $mediaType = MediaType::VIDEO;
     protected MediaStorage $derivativesStorage = MediaStorage::VIDEO_DERIVATIVES;

@@ -10,11 +10,11 @@ use Http;
 use Illuminate\Http\Client\Request;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\v2\Feature\Media\MediaTestCase;
-use Tests\v2\Support\IsOnDemandMedia;
+use Tests\v2\Support\HandlesOnDemandMedia;
 
 abstract class OnDemandMediaTestCase extends MediaTestCase
 {
-    use IsOnDemandMedia;
+    use HandlesOnDemandMedia;
 
     protected string $originalContentType;
     protected string $derivativeContentType;
