@@ -34,7 +34,7 @@ class ModelEventsTest extends TestCase
 
     #[Test]
     #[DataProvider('provideOnDemandMediaTypes')]
-    public function deletingVersionRemovesOriginalAndOnDemandDerivativesForOnDemandMedia(MediaType $type, MediaStorage $derivativesStorage, string $filename): void
+    public function deletingOnDemandMediaVersionRemovesOriginalAndDerivatives(MediaType $type, MediaStorage $derivativesStorage, string $filename): void
     {
         $media = $this->createMedia(type: $type, identifier: sprintf('%s-on-demand-delete', $type->value));
         $version = $this->createVersion($media, 1, $filename);
@@ -52,6 +52,25 @@ class ModelEventsTest extends TestCase
         $derivativesStorage->getDisk()->assertMissing($version->onDemandDerivativeDirectoryPath());
     }
 
+    /**
+     * Video derivatives should not be deleted when a version is deleted, else failed transcodings would delete the only available video derivative.
+     */
+    #[Test]
+    public function deletingVideoVersionRemovesOriginalAndKeepsDerivatives(): void
+    {
+        $media = $this->createMedia(type: MediaType::VIDEO, identifier: 'video-version-delete');
+        $version = $this->createVersion($media, 1, 'test-video.mp4');
+
+        MediaStorage::ORIGINALS->getDisk()->put($version->originalFilePath(), 'original');
+        MediaStorage::VIDEO_DERIVATIVES->getDisk()->put($media->videoDerivativeFilePath('mp4', 'video.mp4'), 'video');
+
+        $version->delete();
+
+        $this->assertModelMissing($version);
+        MediaStorage::ORIGINALS->getDisk()->assertMissing($version->originalFilePath());
+        MediaStorage::VIDEO_DERIVATIVES->getDisk()->assertExists($media->videoDerivativeFilePath('mp4', 'video.mp4'));
+    }
+
     #[Test]
     public function deletingVersionKeepsOriginalFileWhenAnotherVersionStillReferencesIt(): void
     {
@@ -67,22 +86,6 @@ class ModelEventsTest extends TestCase
         $this->assertModelExists($secondVersion);
         MediaStorage::ORIGINALS->getDisk()->assertExists($firstVersion->originalFilePath());
         MediaStorage::ORIGINALS->getDisk()->assertExists($secondVersion->originalFilePath());
-    }
-
-    #[Test]
-    public function deletingVersionDoesNotDeleteVideoDerivatives(): void
-    {
-        $media = $this->createMedia(type: MediaType::VIDEO, identifier: 'video-version-delete');
-        $version = $this->createVersion($media, 1, 'test-video.mp4');
-
-        MediaStorage::ORIGINALS->getDisk()->put($version->originalFilePath(), 'original');
-        MediaStorage::VIDEO_DERIVATIVES->getDisk()->put($media->videoDerivativeFilePath('mp4', 'video.mp4'), 'video');
-
-        $version->delete();
-
-        $this->assertModelMissing($version);
-        MediaStorage::ORIGINALS->getDisk()->assertMissing($version->originalFilePath());
-        MediaStorage::VIDEO_DERIVATIVES->getDisk()->assertExists($media->videoDerivativeFilePath('mp4', 'video.mp4'));
     }
 
     #[Test]

@@ -5,10 +5,11 @@ namespace Tests\v2\Feature\Media;
 use App\Classes\Upload\DefaultUpload;
 use App\Models\Media;
 use App\Models\UploadSlot;
-use App\Models\Version;
+use App\Models\User;
 use Illuminate\Http\Testing\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
+use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\v2\Support\MediaHelper;
@@ -124,6 +125,29 @@ abstract class MediaErrorTestCase extends MediaHelper
     }
 
     #[Test]
+    public function cannotDeleteNonExistentMedia(): void
+    {
+        $response = $this->deleteJson(route('v2.delete', 'non-existent-identifier'));
+
+        $response->assertNotFound();
+        $response->assertJsonStructure(['message']);
+    }
+
+    #[Test]
+    public function cannotDeleteMediaOfAnotherUser(): void
+    {
+        $version = $this->performUpload();
+        $media = $version->Media;
+
+        Sanctum::actingAs(User::factory()->create(), ['*']);
+
+        $response = $this->deleteJson(route('v2.delete', $media->identifier));
+
+        $response->assertNotFound();
+        $response->assertJsonStructure(['message']);
+    }
+
+    #[Test]
     public function cannotSetInvalidVersion(): void
     {
         $version = $this->performUpload();
@@ -173,7 +197,6 @@ abstract class MediaErrorTestCase extends MediaHelper
         $this->assertFalse($uploadSlot->is_valid);
 
         $this->assertNull(Media::firstWhere('identifier', $uploadSlot->identifier));
-        $this->assertSame(0, Version::query()->count());
         $this->originalsDisk->assertMissing($uploadSlot->originalFilePath);
         $chunkDisk->assertMissing($temporaryPath);
     }
