@@ -11,44 +11,38 @@ trait IsOnDemandMedia
 {
     protected function getOriginal(Version $version): TestResponse
     {
-        return $this->get(route(
-            sprintf('v2.get%sOriginal', ucfirst($this->mediaType->value)),
-            [$version->Media, $version]
-        ));
+        return $this->get($this->versionOriginalRoute($version->Media->identifier, $version->number));
     }
 
     protected function getDerivativeForVersion(Version $version, string $transformations = ''): TestResponse
     {
-        $params = [$version->Media, $version];
-
-        if ($transformations !== '') {
-            $params[] = $transformations;
-        }
-
-        return $this->get(route(
-            sprintf('v2.get%sDerivativeForVersion', ucfirst($this->mediaType->value)),
-            $params
-        ));
+        return $this->get($this->versionDerivativeRoute($version->Media->identifier, $version->number, $transformations));
     }
 
     protected function getPublicDerivative(Version $version, string $transformations = ''): TestResponse
     {
-        $params = [$this->user, $version->Media];
-
-        if ($transformations !== '') {
-            $params[] = $transformations;
-        }
-
         Auth::forgetGuards();
 
         try {
-            return $this->get(route(
-                sprintf('get%sDerivative', ucfirst($this->mediaType->value)),
-                $params
-            ));
+            return $this->get($this->publicDerivativeRoute($this->user->name, $version->Media->identifier, $transformations));
         } finally {
             Sanctum::actingAs($this->user, ['*']);
         }
+    }
+
+    protected function versionOriginalRoute(string $mediaIdentifier, int $versionNumber): string
+    {
+        return sprintf('/api/v2/%s/%s/version/%d/original', $this->mediaType->value, $mediaIdentifier, $versionNumber);
+    }
+
+    protected function versionDerivativeRoute(string $mediaIdentifier, int $versionNumber, string $transformations = ''): string
+    {
+        return sprintf('/api/v2/%s/%s/version/%d/derivative/%s', $this->mediaType->value, $mediaIdentifier, $versionNumber, $transformations);
+    }
+
+    protected function publicDerivativeRoute(string $userName, string $mediaIdentifier, string $transformations = ''): string
+    {
+        return sprintf('/%s/%s/%s/%s', $this->mediaType->prefix(), $userName, $mediaIdentifier, $transformations);
     }
 }
 

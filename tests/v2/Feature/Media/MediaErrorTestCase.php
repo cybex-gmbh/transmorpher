@@ -47,7 +47,7 @@ abstract class MediaErrorTestCase extends MediaHelper
             $payload['filename'] = $filename;
         }
 
-        $response = $this->postJson(route('v2.reserveUploadSlot', $this->mediaType), $payload);
+        $response = $this->postJson($this->reserveUploadSlotRoute($this->mediaType), $payload);
 
         $response->assertUnprocessable();
         $response->assertJsonValidationErrors(['filename']);
@@ -127,7 +127,7 @@ abstract class MediaErrorTestCase extends MediaHelper
     #[Test]
     public function cannotDeleteNonExistentMedia(): void
     {
-        $response = $this->deleteJson(route('v2.delete', 'non-existent-identifier'));
+        $response = $this->deleteJson($this->deleteMediaRoute('non-existent-identifier'));
 
         $response->assertNotFound();
         $response->assertJsonStructure(['message']);
@@ -141,7 +141,7 @@ abstract class MediaErrorTestCase extends MediaHelper
 
         Sanctum::actingAs(User::factory()->create(), ['*']);
 
-        $response = $this->deleteJson(route('v2.delete', $media->identifier));
+        $response = $this->deleteJson($this->deleteMediaRoute($media->identifier));
 
         $response->assertNotFound();
         $response->assertJsonStructure(['message']);
@@ -152,7 +152,7 @@ abstract class MediaErrorTestCase extends MediaHelper
     {
         $version = $this->performUpload();
 
-        $response = $this->patchJson(route('v2.setVersion', [$version->Media, 999999]));
+        $response = $this->patchJson($this->setVersionRoute($version->Media->identifier, 999999));
 
         $response->assertNotFound();
         $response->assertJsonStructure(['message']);
@@ -254,7 +254,7 @@ abstract class MediaErrorTestCase extends MediaHelper
         $files = array_filter($data, fn(mixed $value): bool => $value instanceof File);
         $parameters = array_filter($data, fn(mixed $value): bool => !$value instanceof File);
 
-        return $this->call('PUT', route('v2.upload', $uploadSlot), $parameters, [], $files, [
+        return $this->call('PUT', $this->uploadRoute($uploadSlot->token), $parameters, [], $files, [
             'HTTP_ACCEPT' => 'application/json',
         ]);
     }
