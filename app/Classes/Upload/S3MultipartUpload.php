@@ -73,7 +73,7 @@ class S3MultipartUpload implements UploadContract
         );
 
         if (!$success) {
-            throw new RuntimeException('Failed to create upload slot.');
+            throw new RuntimeException(sprintf('Failed to cache S3 Upload ID for upload token %s', $uploadSlot->token));
         }
     }
 
@@ -248,7 +248,7 @@ class S3MultipartUpload implements UploadContract
         }
 
         if (!count($parts)) {
-            throw new RuntimeException('No parts have been uploaded.');
+            throw new RuntimeException(sprintf('No parts have been uploaded for the key %s, with upload id %s.', $key, $uploadId));
         }
 
         return $parts;
