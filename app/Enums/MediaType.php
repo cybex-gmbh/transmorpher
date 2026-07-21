@@ -3,7 +3,6 @@
 namespace App\Enums;
 
 use App\Interfaces\MediaHandlerInterface;
-use Exception;
 
 enum MediaType: string
 {

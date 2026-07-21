@@ -209,7 +209,7 @@ class UploadController extends Controller
         ])->setStatusCode(ResponseState::UPLOAD_ABORTED->getResponseCode());
     }
 
-    protected function abort(UploadSlot $uploadSlot)
+    protected function abort(UploadSlot $uploadSlot): void
     {
         try {
             Upload::abort($uploadSlot);

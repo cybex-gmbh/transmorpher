@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Enums\ValidationRegex;
 use App\Models\User;
-use Hash;
 use Illuminate\Console\Command;
 
 class CreateUser extends Command
