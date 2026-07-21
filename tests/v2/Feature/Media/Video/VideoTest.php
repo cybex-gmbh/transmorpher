@@ -59,7 +59,7 @@ class VideoTest extends MediaTestCase
     {
         Queue::fake();
 
-        parent::invalidatesUploadTokenAfterCompletion();
+        parent::canListVersions();
     }
 
     #[Test]
