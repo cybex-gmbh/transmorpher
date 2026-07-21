@@ -38,7 +38,7 @@ class VersionController extends Controller
     /**
      * Sets a version as the current version.
      *
-     * @param $user
+     * @param User $user
      * @param SetVersionRequest $request
      * @param Media $media
      * @param Version $version
