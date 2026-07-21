@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use App\Interfaces\MediaHandlerInterface;
 use DB;
 use File;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -142,7 +143,7 @@ class Media extends Model
      * @throws ValidationException
      *
      * @deprecated Will be removed once v1 has been discontinued.
-     *             Use the media types handler "isMimeTypeValid" method instead.
+     *             Use the media types handler {@see MediaHandlerInterface::isMimeTypeValid()} method instead.
      */
     public function validateUploadFile(UploadedFile $file, string $mimeTypes): void
     {

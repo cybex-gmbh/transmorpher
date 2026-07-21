@@ -61,7 +61,7 @@ abstract class MediaHandler implements MediaHandlerInterface
      */
     public function isMimeTypeValid(string $mimeType): bool
     {
-        [, $allowedMimeTypes] = explode(':', $this->getValidationRules());
+        [, $allowedMimeTypes] = explode(':', $this->getAllowedMimetypes());
 
         return in_array(needle: $mimeType, haystack: explode(',', $allowedMimeTypes));
     }

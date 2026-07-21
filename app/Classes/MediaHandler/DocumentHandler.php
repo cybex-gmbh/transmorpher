@@ -20,10 +20,15 @@ class DocumentHandler extends OnDemandDerivativeMediaHandler
     protected ResponseState $versionSetFailed = ResponseState::CDN_INVALIDATION_FAILED;
 
     /**
-     * @return string
-     * @deprecated Should be renamed after v1 is removed. A more suitable name would be getAllowedMimetypes()
+     * @deprecated Will be removed once v1 has been discontinued.
+     *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string
+    {
+        return 'mimetypes:application/pdf';
+    }
+
+    public function getAllowedMimetypes(): string
     {
         return 'mimetypes:application/pdf';
     }
