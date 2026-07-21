@@ -12,7 +12,7 @@ jobs:
   execute-tests:
     name: Setup testing environment and execute tests
     # https://github.com/cybex-gmbh/github-workflows/blob/main/.github/workflows/tests.yml
-    uses: cybex-gmbh/github-workflows/.github/workflows/tests.yml@main
+    uses: cybex-gmbh/github-workflows/.github/workflows/tests.yml@fix/tests-cache-fails
     strategy:
       fail-fast: true
       matrix:
@@ -29,4 +29,5 @@ jobs:
       DATABASE_USERNAME: root
       DATABASE_CONNECTION: mariadb
       DATABASE_OPTIONS: "--health-cmd=\"healthcheck.sh --connect --innodb_initialized\" --health-interval=10s --health-timeout=5s --health-retries=3"
-      LINUX_PACKAGES: imagemagick jpegoptim optipng pngquant gifsicle webp ffmpeg mariadb-server
+      # Imagick is set up with PHP, Ghostscript is needed for PDFs.
+      BREW_FORMULAS: ghostscript jpegoptim optipng pngquant gifsicle webp ffmpeg mariadb
