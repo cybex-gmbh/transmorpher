@@ -1,8 +1,8 @@
 <?php
 
 use App\Enums\MediaType;
-use App\Http\Controllers\V1\ImageController;
-use App\Http\Controllers\V1\DocumentController;
+use App\Http\Controllers\V2\DocumentController;
+use App\Http\Controllers\V2\ImageController;
 use Illuminate\Support\Facades\Route;
 
 /*

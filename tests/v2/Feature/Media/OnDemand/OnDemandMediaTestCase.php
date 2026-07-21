@@ -87,6 +87,17 @@ abstract class OnDemandMediaTestCase extends MediaTestCase
     }
 
     #[Test]
+    public function canDownloadDerivativeWithTransformation(): void
+    {
+        $version = $this->performUpload();
+
+        $response = $this->getPublicDerivative($version, 'q-1');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', $this->derivativeContentType);
+    }
+
+    #[Test]
     public function canPurgeDerivatives(): void
     {
         $version = $this->performUpload();
