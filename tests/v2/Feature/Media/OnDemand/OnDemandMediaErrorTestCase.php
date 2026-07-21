@@ -81,9 +81,6 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
         $response->assertJsonStructure(['message']);
     }
 
-    /**
-     * @return array<string, array{0: string}>
-     */
     public static function invalidFormatProvider(): array
     {
         return [
@@ -91,9 +88,6 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
         ];
     }
 
-    /**
-     * @return array<string, array{0: string}>
-     */
     public static function invalidTransformationProvider(): array
     {
         return [

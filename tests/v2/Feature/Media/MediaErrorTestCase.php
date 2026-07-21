@@ -201,9 +201,6 @@ abstract class MediaErrorTestCase extends MediaHelper
         $chunkDisk->assertMissing($temporaryPath);
     }
 
-    /**
-     * @return array<string, array{0: string}>
-     */
     public static function invalidIdentifierProvider(): array
     {
         return [
@@ -212,9 +209,6 @@ abstract class MediaErrorTestCase extends MediaHelper
         ];
     }
 
-    /**
-     * @return array<string, array{0: string|null}>
-     */
     public static function missingFilenameProvider(): array
     {
         return [
@@ -224,9 +218,6 @@ abstract class MediaErrorTestCase extends MediaHelper
         ];
     }
 
-    /**
-     * @return array<string, array{0: string}>
-     */
     public static function nonMatchingIdentifierProvider(): array
     {
         return [
