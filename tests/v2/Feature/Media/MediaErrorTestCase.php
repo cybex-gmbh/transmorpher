@@ -215,6 +215,7 @@ abstract class MediaErrorTestCase extends MediaHelper
             'missing filename key' => [null],
             'empty filename string' => [''],
             'filename only spaces' => ['   '],
+            'invalid filename' => ['file/.invalid'],
         ];
     }
 
