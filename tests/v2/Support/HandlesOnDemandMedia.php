@@ -7,7 +7,7 @@ use Auth;
 use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
 
-trait IsOnDemandMedia
+trait HandlesOnDemandMedia
 {
     protected function getOriginal(Version $version): TestResponse
     {

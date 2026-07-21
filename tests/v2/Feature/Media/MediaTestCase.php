@@ -7,9 +7,9 @@ use App\Enums\UploadState;
 use App\Models\UploadSlot;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\v2\Support\MediaHelper;
+use Tests\v2\Support\MediaTestBase;
 
-abstract class MediaTestCase extends MediaHelper
+abstract class MediaTestCase extends MediaTestBase
 {
     #[Test]
     public function canListVersions(): void

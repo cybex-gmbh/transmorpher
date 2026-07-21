@@ -5,11 +5,11 @@ namespace Tests\v2\Feature\Media\OnDemand;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\v2\Feature\Media\MediaErrorTestCase;
-use Tests\v2\Support\IsOnDemandMedia;
+use Tests\v2\Support\HandlesOnDemandMedia;
 
 abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
 {
-    use IsOnDemandMedia;
+    use HandlesOnDemandMedia;
 
     #[Test]
     #[DataProvider('invalidFormatProvider')]

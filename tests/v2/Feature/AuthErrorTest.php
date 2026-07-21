@@ -4,13 +4,11 @@ namespace Tests\v2\Feature;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
-use Illuminate\Support\Facades\Auth;
-use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\v2\Support\MediaHelper;
+use Tests\TestCase;
 
-class AuthErrorTest extends MediaHelper
+class AuthErrorTest extends TestCase
 {
     protected MediaType $mediaType = MediaType::IMAGE;
     protected MediaStorage $derivativesStorage = MediaStorage::IMAGE_DERIVATIVES;
@@ -21,7 +19,9 @@ class AuthErrorTest extends MediaHelper
     #[DataProvider('protectedRouteProvider')]
     public function rejectsUnauthenticatedAccessToProtectedV2Routes(string $method, string $route): void
     {
-        $response = $this->asGuest(fn() => $this->json($method, $route));
+        $this->assertGuest();
+
+        $response = $this->json($method, $route);
 
         $response->assertUnauthorized();
         $response->assertJsonStructure(['message']);
@@ -42,17 +42,6 @@ class AuthErrorTest extends MediaHelper
             'complete upload' => ['POST', '/api/v2/upload/placeholder-upload-slot/complete'],
             'abort upload' => ['DELETE', '/api/v2/upload/placeholder-upload-slot'],
         ];
-    }
-
-    protected function asGuest(callable $request): mixed
-    {
-        Auth::forgetGuards();
-
-        try {
-            return $request();
-        } finally {
-            Sanctum::actingAs($this->user, ['*']);
-        }
     }
 }
 
