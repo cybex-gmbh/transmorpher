@@ -64,6 +64,26 @@ abstract class MediaTestCase extends MediaHelper
     }
 
     #[Test]
+    public function canDeleteMedia(): void
+    {
+        $version = $this->performUpload();
+        $media = $version->Media;
+        $originalFilePath = $version->originalFilePath();
+
+        $response = $this->deleteMedia($media);
+
+        $response->assertOk();
+        $response->assertJsonFragment([
+            'state' => ResponseState::DELETION_SUCCESSFUL->getState()->value,
+            'message' => ResponseState::DELETION_SUCCESSFUL->getMessage(),
+            'identifier' => $this->identifier,
+        ]);
+
+        $this->assertModelMissing($media);
+        $this->originalsDisk->assertMissing($originalFilePath);
+    }
+
+    #[Test]
     public function deletesTemporaryFilesAfterAbortingUpload(): void
     {
         $reserveResponse = $this->reserveUploadSlot();

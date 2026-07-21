@@ -45,7 +45,7 @@ abstract class MediaHelper extends TestCase
         }
 
         Sanctum::actingAs(
-            $this->user = User::factory()->create(),
+            $this->user = User::first() ?? User::factory()->create(),
             ['*']
         );
     }
