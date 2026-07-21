@@ -69,7 +69,7 @@ class DefaultUpload implements UploadContract
         if (!$typeHandler->isMimeTypeValid($mimeType)) {
             throw ValidationException::withMessages([
                 'file' => [
-                    trans('validation.mimetypes', ['attribute' => 'file', 'values' => $typeHandler->getValidationRules()])
+                    trans('validation.mimetypes', ['attribute' => 'file', 'values' => $typeHandler->getAllowedMimetypes()])
                 ]
             ]);
         }

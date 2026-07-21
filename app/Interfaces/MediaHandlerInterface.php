@@ -19,10 +19,12 @@ interface MediaHandlerInterface
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, Version $version): ResponseState;
 
     /**
-     * @return string
-     * @deprecated Should be renamed after v1 is removed. A more suitable name would be getAllowedMimetypes()
+     * @deprecated Will be removed once v1 has been discontinued.
+     *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string;
+
+    public function getAllowedMimetypes(): string;
 
     public function isMimeTypeValid(string $mimeType): bool;
 

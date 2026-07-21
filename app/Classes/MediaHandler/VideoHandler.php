@@ -39,10 +39,15 @@ class VideoHandler extends MediaHandler
     }
 
     /**
-     * @return string
-     * @deprecated Should be renamed after v1 is removed. A more suitable name would be getAllowedMimetypes()
+     * @deprecated Will be removed once v1 has been discontinued.
+     *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string
+    {
+        return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4,video/x-matroska';
+    }
+
+    public function getAllowedMimetypes(): string
     {
         return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4,video/x-matroska';
     }
