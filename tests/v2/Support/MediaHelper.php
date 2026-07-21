@@ -32,6 +32,7 @@ abstract class MediaHelper extends TestCase
     protected ResponseState $versionSetSuccessfulState;
     protected string $identifier;
     protected string $mediaFileFilePath;
+    protected string $v2ApiBaseRoute = '/api/v2';
 
     protected function setUp(): void
     {
@@ -62,7 +63,7 @@ abstract class MediaHelper extends TestCase
 
     protected function reserveUploadSlot(?string $identifier = null, ?string $filename = null): TestResponse
     {
-        return $this->postJson(route('v2.reserveUploadSlot', $this->mediaType), [
+        return $this->postJson($this->reserveUploadSlotRoute($this->mediaType), [
             'identifier' => $identifier ?? $this->identifier,
             'filename' => $filename ?? basename($this->mediaFileFilePath),
         ]);
@@ -70,7 +71,7 @@ abstract class MediaHelper extends TestCase
 
     protected function sendFile(UploadSlot $uploadSlot, ?File $file = null): TestResponse
     {
-        return $this->call('PUT', route('v2.upload', $uploadSlot), [
+        return $this->call('PUT', $this->uploadRoute($uploadSlot->token), [
             'identifier' => $uploadSlot->identifier,
         ], [], [
             'file' => $file ?? $this->fakeFile(),
@@ -79,27 +80,27 @@ abstract class MediaHelper extends TestCase
 
     protected function completeUpload(UploadSlot $uploadSlot): TestResponse
     {
-        return $this->postJson(route('v2.completeUpload', $uploadSlot));
+        return $this->postJson($this->completeUploadRoute($uploadSlot->token));
     }
 
     protected function abortUpload(UploadSlot $uploadSlot): TestResponse
     {
-        return $this->deleteJson(route('v2.abortUpload', $uploadSlot));
+        return $this->deleteJson($this->abortUploadRoute($uploadSlot->token));
     }
 
     protected function setVersion(Media $media, Version $version): TestResponse
     {
-        return $this->patchJson(route('v2.setVersion', [$media, $version]));
+        return $this->patchJson($this->setVersionRoute($media->identifier, $version->number));
     }
 
     protected function getVersions(Media $media): TestResponse
     {
-        return $this->getJson(route('v2.getVersions', $media));
+        return $this->getJson($this->versionsRoute($media->identifier));
     }
 
     protected function deleteMedia(Media $media): TestResponse
     {
-        return $this->deleteJson(route('v2.delete', $media));
+        return $this->deleteJson($this->deleteMediaRoute($media->identifier));
     }
 
     protected function performUpload(?string $identifier = null, ?File $file = null): Version
@@ -125,5 +126,40 @@ abstract class MediaHelper extends TestCase
         $this->assertModelExists($version);
 
         return $version;
+    }
+
+    protected function reserveUploadSlotRoute(MediaType $mediaType): string
+    {
+        return sprintf('%s/%s/reserveUploadSlot', $this->v2ApiBaseRoute, $mediaType->value);
+    }
+
+    protected function uploadRoute(string $uploadToken): string
+    {
+        return sprintf('%s/upload/%s', $this->v2ApiBaseRoute, $uploadToken);
+    }
+
+    protected function completeUploadRoute(string $uploadToken): string
+    {
+        return sprintf('%s/complete', $this->uploadRoute($uploadToken));
+    }
+
+    protected function abortUploadRoute(string $uploadToken): string
+    {
+        return $this->uploadRoute($uploadToken);
+    }
+
+    protected function versionsRoute(string $mediaIdentifier): string
+    {
+        return sprintf('%s/media/%s/versions', $this->v2ApiBaseRoute, $mediaIdentifier);
+    }
+
+    protected function deleteMediaRoute(string $mediaIdentifier): string
+    {
+        return sprintf('%s/media/%s', $this->v2ApiBaseRoute, $mediaIdentifier);
+    }
+
+    protected function setVersionRoute(string $mediaIdentifier, int $versionNumber): string
+    {
+        return sprintf('%s/media/%s/version/%d', $this->v2ApiBaseRoute, $mediaIdentifier, $versionNumber);
     }
 }

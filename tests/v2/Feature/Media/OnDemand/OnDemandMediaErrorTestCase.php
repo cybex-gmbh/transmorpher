@@ -17,10 +17,7 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
     {
         $version = $this->performUpload();
 
-        $response = $this->getJson(route(
-            sprintf('get%sDerivative', ucfirst($this->mediaType->value)),
-            [$this->user, $version->Media, $transformations]
-        ));
+        $response = $this->getJson($this->publicDerivativeRoute($this->user->name, $version->Media->identifier, $transformations));
 
         $response->assertStatus(400);
         $response->assertJsonStructure(['message']);
@@ -32,10 +29,7 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
     {
         $version = $this->performUpload();
 
-        $response = $this->getJson(route(
-            sprintf('get%sDerivative', ucfirst($this->mediaType->value)),
-            [$this->user, $version->Media, $transformations]
-        ));
+        $response = $this->getJson($this->publicDerivativeRoute($this->user->name, $version->Media->identifier, $transformations));
 
         $response->assertStatus(400);
         $response->assertJsonStructure(['message']);
@@ -47,10 +41,7 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
     {
         $version = $this->performUpload();
 
-        $response = $this->getJson(route(
-            sprintf('v2.get%sDerivativeForVersion', ucfirst($this->mediaType->value)),
-            [$version->Media, $version, $transformations]
-        ));
+        $response = $this->getJson($this->versionDerivativeRoute($version->Media->identifier, $version->number, $transformations));
 
         $response->assertStatus(400);
         $response->assertJsonStructure(['message']);
@@ -62,10 +53,7 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
     {
         $version = $this->performUpload();
 
-        $response = $this->getJson(route(
-            sprintf('v2.get%sDerivativeForVersion', ucfirst($this->mediaType->value)),
-            [$version->Media, $version, $transformations]
-        ));
+        $response = $this->getJson($this->versionDerivativeRoute($version->Media->identifier, $version->number, $transformations));
 
         $response->assertStatus(400);
         $response->assertJsonStructure(['message']);
@@ -76,11 +64,7 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
     {
         $version = $this->performUpload();
 
-        $response = $this->getJson(route(sprintf('v2.get%sDerivativeForVersion', ucfirst($this->mediaType->value)), [
-            $version->Media,
-            999999,
-            'q-1',
-        ]));
+        $response = $this->getJson($this->versionDerivativeRoute($version->Media->identifier, 999999, 'q-1'));
 
         $response->assertNotFound();
         $response->assertJsonStructure(['message']);
@@ -91,10 +75,7 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
     {
         $version = $this->performUpload();
 
-        $response = $this->getJson(route(sprintf('v2.get%sOriginal', ucfirst($this->mediaType->value)), [
-            $version->Media,
-            999999,
-        ]));
+        $response = $this->getJson($this->versionOriginalRoute($version->Media->identifier, 999999));
 
         $response->assertNotFound();
         $response->assertJsonStructure(['message']);
