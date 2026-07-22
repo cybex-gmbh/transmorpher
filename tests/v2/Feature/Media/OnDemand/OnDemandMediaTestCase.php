@@ -98,6 +98,16 @@ abstract class OnDemandMediaTestCase extends MediaTestCase
     }
 
     #[Test]
+    public function cannotDownloadUnprocessedVersion(): void
+    {
+        $version = $this->performUpload();
+        $this->getPublicDerivative($version)->assertOk();
+
+        $version->update(['processed' => 0]);
+        $this->getPublicDerivative($version)->assertNotFound();
+    }
+
+    #[Test]
     public function canPurgeDerivatives(): void
     {
         $version = $this->performUpload();
