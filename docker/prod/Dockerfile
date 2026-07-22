@@ -14,9 +14,6 @@ RUN chmod +x /var/www/docker/prod/pullpreview.initialize.sh; \
 
 RUN php /var/www/artisan storage:link
 
-# Can only be enabled once Protector v4 is released.
-# RUN php artisan optimize
-
 #########################
 
 FROM cybexwebdev/php-laravel:8.4-transcoder as transcoder
