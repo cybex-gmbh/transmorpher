@@ -1190,6 +1190,13 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
         - This will now need to be set up in the compose.yml file.
         - Please refer to the [compose.prod.example.yml](compose.prod.example.yml) file for an example production setup
 
+#### Client implementations
+
+- V1 will be deprecated in the near future, please use v2 routes
+- The upload process has changed
+    - please refer to the [Implementing a client](#implementing-a-client)'s [uploading media](#uploading-media) section for details
+    - please see the [Postman collection](postman.json) for example calls for all v2 routes
+
 ### v0.7.0 to v0.8.0
 
 - If not using the docker image:
