@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\V2;
 
-use App\Classes\Upload\DefaultUpload;
+use App\Classes\UploadHandler\DefaultUploadHandler;
 use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
@@ -26,7 +26,7 @@ use Pion\Laravel\ChunkUpload\Exceptions\UploadMissingFileException;
 use Pion\Laravel\ChunkUpload\Handler\HandlerFactory;
 use Pion\Laravel\ChunkUpload\Receiver\FileReceiver;
 use Throwable;
-use Upload;
+use UploadHandler;
 
 class UploadController extends Controller
 {
@@ -56,7 +56,7 @@ class UploadController extends Controller
             );
 
         try {
-            Upload::initiate($uploadSlot);
+            UploadHandler::initiate($uploadSlot);
         } catch (Throwable $throwable) {
             report($throwable);
 
@@ -74,7 +74,7 @@ class UploadController extends Controller
     }
 
     /**
-     * Used by the {@link DefaultUpload} handler.
+     * Used by the {@link DefaultUploadHandler} handler.
      *
      * Receives a file chunk.
      *
@@ -113,14 +113,14 @@ class UploadController extends Controller
         $writeSuccess = Storage::disk(config('chunk-upload.storage.disk'))->putFileAs(
             config('chunk-upload.storage.chunks'),
             $assembledFile,
-            DefaultUpload::createTempFilename($uploadSlot),
+            DefaultUploadHandler::createTempFilename($uploadSlot),
         );
 
         File::delete($assembledFile->getRealPath());
 
         if (!$writeSuccess) {
             throw UnableToWriteFile::atLocation(
-                implode(DIRECTORY_SEPARATOR, [config('chunk-upload.storage.chunks'), DefaultUpload::createTempFilename($uploadSlot)]),
+                implode(DIRECTORY_SEPARATOR, [config('chunk-upload.storage.chunks'), DefaultUploadHandler::createTempFilename($uploadSlot)]),
                 sprintf('Intended disk: %s.', config('chunk-upload.storage.disk'))
             );
         }
@@ -142,7 +142,7 @@ class UploadController extends Controller
     public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): JsonResponse
     {
         return response()->json([
-            'url' => Upload::getChunkUploadUrl($uploadSlot, $chunkNumber),
+            'url' => UploadHandler::getChunkUploadUrl($uploadSlot, $chunkNumber),
         ]);
     }
 
@@ -212,7 +212,7 @@ class UploadController extends Controller
     protected function abort(UploadSlot $uploadSlot): void
     {
         try {
-            Upload::abort($uploadSlot);
+            UploadHandler::abort($uploadSlot);
         } catch (Throwable $throwable) {
             report($throwable);
         }
@@ -221,7 +221,7 @@ class UploadController extends Controller
     protected function completeFileOperations(CompleteUploadRequest $request, UploadSlot $uploadSlot): ?ResponseState
     {
         try {
-            Upload::complete($request, $uploadSlot);
+            UploadHandler::complete($request, $uploadSlot);
         } catch (Throwable $throwable) {
             $this->abort($uploadSlot);
 

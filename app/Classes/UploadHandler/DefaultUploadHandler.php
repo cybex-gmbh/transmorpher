@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Classes\Upload;
+namespace App\Classes\UploadHandler;
 
 use App\Enums\MediaStorage;
 use App\Http\Requests\V2\CompleteUploadRequest;
-use App\Interfaces\UploadContract;
+use App\Interfaces\UploadHandlerInterface;
 use App\Models\UploadSlot;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 use League\Flysystem\UnableToDeleteFile;
 use League\Flysystem\UnableToWriteFile;
 
-class DefaultUpload implements UploadContract
+class DefaultUploadHandler implements UploadHandlerInterface
 {
     public static function createTempFilename(UploadSlot $uploadSlot): string
     {

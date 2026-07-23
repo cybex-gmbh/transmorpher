@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'class' => App\Classes\Upload\DefaultUpload::class,
+    'class' => App\Classes\UploadHandler\DefaultUploadHandler::class,
 ];

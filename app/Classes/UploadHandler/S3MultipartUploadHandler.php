@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Classes\Upload;
+namespace App\Classes\UploadHandler;
 
 use App\Enums\MediaStorage;
 use App\Http\Requests\V2\CompleteUploadRequest;
-use App\Interfaces\UploadContract;
+use App\Interfaces\UploadHandlerInterface;
 use App\Models\UploadSlot;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
-class S3MultipartUpload implements UploadContract
+class S3MultipartUploadHandler implements UploadHandlerInterface
 {
     protected S3Client $client;
     protected string $bucket;

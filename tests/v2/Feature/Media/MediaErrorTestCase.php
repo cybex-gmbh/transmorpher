@@ -2,7 +2,7 @@
 
 namespace Tests\v2\Feature\Media;
 
-use App\Classes\Upload\DefaultUpload;
+use App\Classes\UploadHandler\DefaultUploadHandler;
 use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
@@ -184,7 +184,7 @@ abstract class MediaErrorTestCase extends MediaTestBase
         $chunkDisk = Storage::disk(config('chunk-upload.storage.disk'));
         $temporaryPath = implode(DIRECTORY_SEPARATOR, [
             config('chunk-upload.storage.chunks'),
-            DefaultUpload::createTempFilename($uploadSlot),
+            DefaultUploadHandler::createTempFilename($uploadSlot),
         ]);
 
         $chunkDisk->assertExists($temporaryPath);

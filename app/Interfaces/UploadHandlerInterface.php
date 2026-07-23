@@ -7,7 +7,7 @@ use App\Models\UploadSlot;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
-interface UploadContract
+interface UploadHandlerInterface
 {
     /**
      * Ensures runtime prerequisites are met, such as the correct disk driver.

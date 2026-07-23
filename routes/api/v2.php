@@ -5,8 +5,8 @@ use App\Enums\MediaType;
 use App\Helpers\SodiumHelper;
 use App\Http\Controllers\V2\DocumentController;
 use App\Http\Controllers\V2\ImageController;
-use App\Http\Controllers\V2\VersionController;
 use App\Http\Controllers\V2\UploadController;
+use App\Http\Controllers\V2\VersionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,7 +35,7 @@ Route::prefix('v2')->name('v2.')->group(function () {
 
         // Uploading
         Route::post('/{mediaType}/reserveUploadSlot', [UploadController::class, 'reserveUploadSlot'])->name('reserveUploadSlot');
-        Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadController::class, 'getChunkUploadUrl'])->name('chunkUploadUrl');
+        Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadController::class, 'getChunkUploadUrl'])->name('getChunkUploadUrl');
         Route::post('/upload/{uploadSlot}/complete', [UploadController::class, 'completeUpload'])->name('completeUpload');
         Route::delete('/upload/{uploadSlot}', [UploadController::class, 'abortUpload'])->name('abortUpload');
     });

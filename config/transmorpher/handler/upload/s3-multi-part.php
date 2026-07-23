@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'class' => App\Classes\Upload\S3MultipartUpload::class,
+    'class' => App\Classes\UploadHandler\S3MultipartUploadHandler::class,
 ];
