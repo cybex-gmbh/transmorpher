@@ -141,10 +141,9 @@ class Version extends Model
         return sprintf('%s/%s_%s.%s',
             $this->onDemandDerivativeDirectoryPath(),
             implode('_',
-                Arr::mapWithKeys(Arr::except($transformations ?? [], Transformation::FORMAT->value),
-                    function ($value, $key) {
-                        return [sprintf('%s%s', $value, $key)];
-                    }
+                Arr::mapWithKeys(
+                    array: Arr::except($transformations ?? [], Transformation::FORMAT->value),
+                    callback: fn($value, $key) => [sprintf('%s%s', $value, $key)]
                 )
             ),
             $derivativeHash,
