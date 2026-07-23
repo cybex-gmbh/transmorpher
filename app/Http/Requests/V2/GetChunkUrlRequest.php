@@ -5,7 +5,7 @@ namespace App\Http\Requests\V2;
 use Illuminate\Foundation\Http\FormRequest;
 use UploadHandler;
 
-class CompleteUploadRequest extends FormRequest
+class GetChunkUrlRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,19 +14,17 @@ class CompleteUploadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:upload.complete');
+        return $this->user()->tokenCan('transmorpher:upload.chunk.url');
     }
 
     /**
      * Get the validation rules that apply to the request.
-     * Applies the upload-handler-specific complete validation rules.
+     * Applies the upload-handler-specific chunk url validation rules.
      *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
-        return UploadHandler::getCompleteRequestValidationRules();
+        return UploadHandler::getChunkUrlRequestValidationRules();
     }
 }
-
-

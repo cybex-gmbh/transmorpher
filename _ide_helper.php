@@ -23691,15 +23691,39 @@ namespace App\Facades {
         }
 
         /**
-         * Returns S3 multipart upload completion validation rules.
-         *
-         * @return array
          * @static
          */
-        public static function getCompletionValidationRules()
+        public static function getUploadSlotRequestValidationRules()
         {
             /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
-            return $instance->getCompletionValidationRules();
+            return $instance->getUploadSlotRequestValidationRules();
+        }
+
+        /**
+         * @static
+         */
+        public static function getChunkUrlRequestValidationRules()
+        {
+            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            return $instance->getChunkUrlRequestValidationRules();
+        }
+
+        /**
+         * @static
+         */
+        public static function getCompleteRequestValidationRules()
+        {
+            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            return $instance->getCompleteRequestValidationRules();
+        }
+
+        /**
+         * @static
+         */
+        public static function getAbortRequestValidationRules()
+        {
+            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            return $instance->getAbortRequestValidationRules();
         }
 
             }

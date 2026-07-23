@@ -2,7 +2,10 @@
 
 namespace App\Interfaces;
 
+use App\Http\Requests\V2\AbortUploadRequest;
 use App\Http\Requests\V2\CompleteUploadRequest;
+use App\Http\Requests\V2\GetChunkUrlRequest;
+use App\Http\Requests\V2\UploadSlotRequest;
 use App\Models\UploadSlot;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -73,15 +76,38 @@ interface UploadHandlerInterface
      * @param UploadSlot $uploadSlot
      *
      * @return void
+     *
+     * @throws Throwable
      */
     public function abort(UploadSlot $uploadSlot): void;
+
+    /**
+     * Returns Laravel validation rules for the {@link UploadSlotRequest} for the reserve upload slot endpoint request body.
+     *
+     * @return array
+     */
+    public function getUploadSlotRequestValidationRules(): array;
+
+    /**
+     * Returns Laravel validation rules for the {@link GetChunkUrlRequest} for the get chunk URL endpoint request body.
+     *
+     * @return array
+     */
+    public function getChunkUrlRequestValidationRules(): array;
 
     /**
      * Returns Laravel validation rules for the {@link CompleteUploadRequest} for the complete endpoint request body.
      *
      * @return array
      */
-    public function getCompletionValidationRules(): array;
+    public function getCompleteRequestValidationRules(): array;
+
+    /**
+     * Returns Laravel validation rules for the {@link AbortUploadRequest} for the abort endpoint request body.
+     *
+     * @return array
+     */
+    public function getAbortRequestValidationRules(): array;
 }
 
 

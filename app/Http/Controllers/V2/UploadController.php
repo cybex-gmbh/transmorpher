@@ -7,8 +7,10 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V2\AbortUploadRequest;
 use App\Http\Requests\V2\CompleteUploadRequest;
-use App\Http\Requests\V2\UploadRequest;
+use App\Http\Requests\V2\DefaultUploadRequest;
+use App\Http\Requests\V2\GetChunkUrlRequest;
 use App\Http\Requests\V2\UploadSlotRequest;
 use App\Models\Media;
 use App\Models\UploadSlot;
@@ -81,7 +83,7 @@ class UploadController extends Controller
      * The assembled file is persisted as a temporary .finished.part file in the chunk storage,
      * because later on we will not have access to the correct FileReceiver instance mapping to the chunks.
      *
-     * @param UploadRequest $request
+     * @param DefaultUploadRequest $request
      * @param UploadSlot $uploadSlot
      *
      * @return JsonResponse
@@ -89,7 +91,7 @@ class UploadController extends Controller
      * @throws UploadFailedException
      * @throws UploadMissingFileException
      */
-    public function receiveFile(UploadRequest $request, UploadSlot $uploadSlot): JsonResponse
+    public function receiveFile(DefaultUploadRequest $request, UploadSlot $uploadSlot): JsonResponse
     {
         $receiver = new FileReceiver($request->file('file'), $request, HandlerFactory::classFromRequest($request));
 
@@ -134,12 +136,13 @@ class UploadController extends Controller
     /**
      * Returns a chunk upload URL for the given chunk number.
      *
+     * @param GetChunkUrlRequest $request
      * @param UploadSlot $uploadSlot
      * @param int $chunkNumber
      *
      * @return JsonResponse
      */
-    public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): JsonResponse
+    public function getChunkUploadUrl(GetChunkUrlRequest $request, UploadSlot $uploadSlot, int $chunkNumber): JsonResponse
     {
         return response()->json([
             'url' => UploadHandler::getChunkUploadUrl($uploadSlot, $chunkNumber),
@@ -193,11 +196,12 @@ class UploadController extends Controller
     /**
      * Invalidates the upload slot and aborts the upload process.
      *
+     * @param AbortUploadRequest $request
      * @param UploadSlot $uploadSlot
      *
      * @return JsonResponse
      */
-    public function abortUpload(UploadSlot $uploadSlot): JsonResponse
+    public function abortUpload(AbortUploadRequest $request, UploadSlot $uploadSlot): JsonResponse
     {
         $uploadSlot->invalidate();
         $this->abort($uploadSlot);

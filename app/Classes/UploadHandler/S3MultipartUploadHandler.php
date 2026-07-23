@@ -168,6 +168,26 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         Cache::forget(sprintf('upload_id_%s', $uploadSlot->token));
     }
 
+    public function getUploadSlotRequestValidationRules(): array
+    {
+        return [];
+    }
+
+    public function getChunkUrlRequestValidationRules(): array
+    {
+        return [];
+    }
+
+    public function getCompleteRequestValidationRules(): array
+    {
+        return [];
+    }
+
+    public function getAbortRequestValidationRules(): array
+    {
+        return [];
+    }
+
     /**
      * Returns the S3 upload ID from cache.
      *
@@ -189,16 +209,6 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         }
 
         return $uploadId;
-    }
-
-    /**
-     * Returns S3 multipart upload completion validation rules.
-     *
-     * @return array
-     */
-    public function getCompletionValidationRules(): array
-    {
-        return [];
     }
 
     /**

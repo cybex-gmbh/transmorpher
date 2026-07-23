@@ -5,7 +5,7 @@ namespace App\Http\Requests\V2;
 use App\Enums\ValidationRegex;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UploadRequest extends FormRequest
+class DefaultUploadRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
