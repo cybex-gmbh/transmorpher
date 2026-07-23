@@ -113,7 +113,22 @@ class DefaultUploadHandler implements UploadHandlerInterface
         }
     }
 
-    public function getCompletionValidationRules(): array
+    public function getUploadSlotRequestValidationRules(): array
+    {
+        return [];
+    }
+
+    public function getChunkUrlRequestValidationRules(): array
+    {
+        return [];
+    }
+
+    public function getCompleteRequestValidationRules(): array
+    {
+        return [];
+    }
+
+    public function getAbortRequestValidationRules(): array
     {
         return [];
     }

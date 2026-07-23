@@ -4,6 +4,7 @@ namespace App\Http\Requests\V2;
 
 use App\Enums\ValidationRegex;
 use Illuminate\Foundation\Http\FormRequest;
+use UploadHandler;
 
 class UploadSlotRequest extends FormRequest
 {
@@ -19,31 +20,35 @@ class UploadSlotRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
+     * Merges the upload-handler-specific upload slot validation rules.
      *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
-        return [
-            // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and hyphens are allowed.
-            'identifier' => ['required', 'string', sprintf('regex:%s', ValidationRegex::IDENTIFIER->get())],
-            'filename' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Using these characters might cause file system problems.
-                    $disallowedCharacters = ['\'', '/', '\\', ':', '?', '"', '<', '>', '|', '*'];
+        return array_merge(
+            UploadHandler::getUploadSlotRequestValidationRules(),
+            [
+                // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and hyphens are allowed.
+                'identifier' => ['required', 'string', sprintf('regex:%s', ValidationRegex::IDENTIFIER->get())],
+                'filename' => [
+                    'required',
+                    'string',
+                    function ($attribute, $value, $fail) {
+                        // Using these characters might cause file system problems.
+                        $disallowedCharacters = ['\'', '/', '\\', ':', '?', '"', '<', '>', '|', '*'];
 
-                    if (preg_match(sprintf('/[%s]/', preg_quote(implode($disallowedCharacters), '/')), $value)) {
-                        $fail(trans('responses.file_name_invalid', ['disallowedCharacters' => implode(', ', $disallowedCharacters)]));
-                    }
+                        if (preg_match(sprintf('/[%s]/', preg_quote(implode($disallowedCharacters), '/')), $value)) {
+                            $fail(trans('responses.file_name_invalid', ['disallowedCharacters' => implode(', ', $disallowedCharacters)]));
+                        }
 
-                    if (!trim($value)) {
-                        $fail(trans('responses.file_name_invalid_only_spaces'));
-                    }
-                },
+                        if (!trim($value)) {
+                            $fail(trans('responses.file_name_invalid_only_spaces'));
+                        }
+                    },
+                ],
             ],
-        ];
+        );
     }
 }
 
