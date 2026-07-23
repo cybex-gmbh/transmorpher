@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Throwable;
-use Upload;
+use UploadHandler;
 
 /**
  * App\Models\UploadSlot
@@ -150,7 +150,7 @@ class UploadSlot extends Model
 
         if (!$uploadHasBeenCompleted) {
             try {
-                Upload::abort($this);
+                UploadHandler::abort($this);
             } catch (Throwable $throwable) {
                 // Need to catch all exceptions to prevent aborting the model update process.
             }

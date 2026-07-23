@@ -2,7 +2,7 @@
 
 namespace Tests\v2\Feature;
 
-use App\Classes\Upload\S3MultipartUpload;
+use App\Classes\UploadHandler\S3MultipartUploadHandler;
 use App\Enums\MediaType;
 use App\Models\Media;
 use App\Models\UploadSlot;
@@ -52,7 +52,7 @@ class S3MultipartUploadTest extends TestCase
 
         Storage::shouldReceive('disk')->with('s3Originals')->andReturn($this->disk);
 
-        $this->app->instance('upload', new S3MultipartUpload());
+        $this->app->instance('upload-handler', new S3MultipartUploadHandler());
     }
 
     #[Test]

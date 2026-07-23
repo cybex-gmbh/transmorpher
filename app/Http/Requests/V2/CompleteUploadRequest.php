@@ -3,7 +3,7 @@
 namespace App\Http\Requests\V2;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Upload;
+use UploadHandler;
 
 class CompleteUploadRequest extends FormRequest
 {
@@ -20,13 +20,13 @@ class CompleteUploadRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     * Merges the uploader-specific completion validation rules.
+     * Merges the upload-handler-specific completion validation rules.
      *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
-        return Upload::getCompletionValidationRules();
+        return UploadHandler::getCompletionValidationRules();
     }
 }
 

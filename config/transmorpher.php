@@ -208,7 +208,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | The upload handler used for the v2 upload flow.
-    | The class must implement UploadContract.
+    | The class must implement UploadHandlerContract.
     |
     | These are defined through the `config/transmorpher/handler/upload` files.
     |

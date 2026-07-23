@@ -23612,82 +23612,93 @@ namespace App\Facades {
             }
     /**
      */
-    class UploadFacade {
+    class UploadHandlerFacade {
         /**
-         * @static
-         */
-        public static function createTempFilename($uploadSlot)
-        {
-            return \App\Classes\Upload\DefaultUpload::createTempFilename($uploadSlot);
-        }
-
-        /**
+         * Ensures that the configured originals disk is an S3 disk.
+         *
+         * @return void
+         * @throws RuntimeException
          * @static
          */
         public static function ensurePrerequisitesMet()
         {
-            /** @var \App\Classes\Upload\DefaultUpload $instance */
-            return $instance->ensurePrerequisitesMet();
+            \App\Classes\UploadHandler\S3MultipartUploadHandler::ensurePrerequisitesMet();
         }
 
         /**
+         * Initiates an S3 multipart upload and stores the upload ID in cache.
+         *
+         * @param \App\Models\UploadSlot $uploadSlot
+         * @return void
+         * @throws AwsException
+         * @throws RuntimeException
          * @static
          */
         public static function initiate($uploadSlot)
         {
-            /** @var \App\Classes\Upload\DefaultUpload $instance */
-            return $instance->initiate($uploadSlot);
+            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            $instance->initiate($uploadSlot);
         }
 
         /**
-         * Returns the v2 chunk upload endpoint URL.
+         * Returns a presigned URL for uploading a single part.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @param int $chunkNumber
          * @return string
+         * @throws AwsException
+         * @throws RuntimeException
          * @static
          */
         public static function getChunkUploadUrl($uploadSlot, $chunkNumber)
         {
-            /** @var \App\Classes\Upload\DefaultUpload $instance */
+            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
             return $instance->getChunkUploadUrl($uploadSlot, $chunkNumber);
         }
 
         /**
-         * Completes the upload by validating the file and moving it to its intended location.
+         * Completes the S3 multipart upload and validates the mime type.
+         *
+         * Throws on validation failure and then deletes the S3 object.
          *
          * @param \App\Http\Requests\V2\CompleteUploadRequest $request
          * @param \App\Models\UploadSlot $uploadSlot
          * @return void
-         * @throws FileNotFoundException
+         * @throws AwsException
          * @throws ValidationException
+         * @throws RuntimeException
          * @static
          */
         public static function complete($request, $uploadSlot)
         {
-            /** @var \App\Classes\Upload\DefaultUpload $instance */
+            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
             $instance->complete($request, $uploadSlot);
         }
 
         /**
-         * Cleans up any already-stored local upload for the given upload slot.
+         * Aborts the S3 multipart upload.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @return void
+         * @throws AwsException
+         * @throws RuntimeException
          * @static
          */
         public static function abort($uploadSlot)
         {
-            /** @var \App\Classes\Upload\DefaultUpload $instance */
+            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
             $instance->abort($uploadSlot);
         }
 
         /**
+         * Returns S3 multipart upload completion validation rules.
+         *
+         * @return array
          * @static
          */
         public static function getCompletionValidationRules()
         {
-            /** @var \App\Classes\Upload\DefaultUpload $instance */
+            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
             return $instance->getCompletionValidationRules();
         }
 
@@ -29982,7 +29993,7 @@ namespace  {
     class Optimize extends \App\Facades\OptimizeFacade {}
     class Transcode extends \App\Facades\TranscodeFacade {}
     class Transform extends \App\Facades\TransformFacade {}
-    class Upload extends \App\Facades\UploadFacade {}
+    class UploadHandler extends \App\Facades\UploadHandlerFacade {}
     class Protector extends \Cybex\Protector\ProtectorFacade {}
     class Image extends \Intervention\Image\Laravel\Facades\Image {}
     class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}
