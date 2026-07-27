@@ -49,7 +49,7 @@ class PdfTest extends OnDemandDerivativeMediaTest
 
     protected function getDerivative(Version $version, ?string $transformations = null): TestResponse
     {
-        return $this->get(route('getDocumentDerivative', [$this->user->name, $version->Media, $transformations]));
+        return $this->get(route('delivery.document', [$this->user->name, $version->Media, $transformations]));
     }
 
     #[Test]
@@ -159,7 +159,7 @@ class PdfTest extends OnDemandDerivativeMediaTest
     {
         $version->Media->Versions->each->update(['processed' => 0]);
 
-        $this->get(route('getDocumentDerivative', [$this->user->name, $version->Media]))->assertNotFound();
+        $this->get(route('delivery.document', [$this->user->name, $version->Media]))->assertNotFound();
 
         return $version;
     }

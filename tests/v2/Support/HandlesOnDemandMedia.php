@@ -32,12 +32,12 @@ trait HandlesOnDemandMedia
 
     protected function versionOriginalRoute(string $mediaIdentifier, int $versionNumber): string
     {
-        return sprintf('/api/v2/%s/%s/version/%d/original', $this->mediaType->value, $mediaIdentifier, $versionNumber);
+        return sprintf('/api/v2/%s/%s/versions/%d/original', $this->mediaType->value, $mediaIdentifier, $versionNumber);
     }
 
     protected function versionDerivativeRoute(string $mediaIdentifier, int $versionNumber, string $transformations = ''): string
     {
-        return sprintf('/api/v2/%s/%s/version/%d/derivative/%s', $this->mediaType->value, $mediaIdentifier, $versionNumber, $transformations);
+        return sprintf('/api/v2/%s/%s/versions/%d/derivative/%s', $this->mediaType->value, $mediaIdentifier, $versionNumber, $transformations);
     }
 
     protected function publicDerivativeRoute(string $userName, string $mediaIdentifier, string $transformations = ''): string
@@ -45,4 +45,3 @@ trait HandlesOnDemandMedia
         return sprintf('/%s/%s/%s/%s', $this->mediaType->prefix(), $userName, $mediaIdentifier, $transformations);
     }
 }
-

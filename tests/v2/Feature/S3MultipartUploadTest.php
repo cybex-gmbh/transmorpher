@@ -381,7 +381,7 @@ class S3MultipartUploadTest extends TestCase
 
     protected function reserveUploadSlotRoute(MediaType $mediaType): string
     {
-        return sprintf('%s/%s/reserveUploadSlot', $this->v2ApiBaseRoute, $mediaType->value);
+        return sprintf('%s/%s/upload/reserve', $this->v2ApiBaseRoute, $mediaType->value);
     }
 
     protected function chunkUploadUrlRoute(UploadSlot $uploadSlot, int $chunkNumber): string

@@ -1,6 +1,6 @@
 {
   "info": {
-      "_postman_id": "50a673ec-6419-4c4d-a601-e74a19241ac3",
+      "_postman_id": "bb03aa7b-25e4-412d-b1f3-a6be09d6d070",
     "name": "Transmorpher Server API",
     "description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n    \n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n    \n- use the provided auth token and adjust the \"authToken\" variable\n    \n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n- to run the document queries, set a local PDF file in the \"Upload: OK\" call.\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -4725,7 +4725,7 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/image/reserveUploadSlot",
+                        "raw": "{{domain}}/api/v2/image/upload/reserve",
                       "host": [
                         "{{domain}}"
                       ],
@@ -4733,7 +4733,8 @@
                         "api",
                         "v2",
                         "image",
-                        "reserveUploadSlot"
+                          "upload",
+                          "reserve"
                       ]
                     },
                     "description": "Providing the auth token, the client reserves an upload slot for an image identifier. This action of the client backend secures the transaction, allowing the frontend to upload the image to the Transmorpher media server directly."
@@ -5330,7 +5331,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
+                        "raw": "{{domain}}/api/v2/image/{{imageIdentifier}}/versions/{{currentImageVersion}}/original",
                       "host": [
                         "{{domain}}"
                       ],
@@ -5339,7 +5340,7 @@
                         "v2",
                         "image",
                         "{{imageIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentImageVersion}}",
                         "original"
                       ]
@@ -5385,7 +5386,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/f-png+w-500+h-500+q-50",
+                        "raw": "{{domain}}/api/v2/image/{{imageIdentifier}}/versions/{{currentImageVersion}}/derivative/f-png+w-500+h-500+q-50",
                       "host": [
                         "{{domain}}"
                       ],
@@ -5394,7 +5395,7 @@
                         "v2",
                         "image",
                         "{{imageIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentImageVersion}}",
                         "derivative",
                         "f-png+w-500+h-500+q-50"
@@ -5528,7 +5529,7 @@
                       "formdata": []
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
+                        "raw": "{{domain}}/api/v2/media/{{imageIdentifier}}/versions/{{currentImageVersion}}",
                       "host": [
                         "{{domain}}"
                       ],
@@ -5537,7 +5538,7 @@
                         "v2",
                         "media",
                         "{{imageIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentImageVersion}}"
                       ]
                     }
@@ -5910,7 +5911,7 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/document/reserveUploadSlot",
+                        "raw": "{{domain}}/api/v2/document/upload/reserve",
                       "host": [
                         "{{domain}}"
                       ],
@@ -5918,7 +5919,8 @@
                         "api",
                         "v2",
                         "document",
-                        "reserveUploadSlot"
+                          "upload",
+                          "reserve"
                       ]
                     },
                     "description": "Providing the auth token, the client reserves an upload slot for a document identifier. This action of the client backend secures the transaction, allowing the frontend to upload the document to the Transmorpher media server directly."
@@ -6365,7 +6367,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/original",
+                        "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/versions/{{currentDocumentVersion}}/original",
                       "host": [
                         "{{domain}}"
                       ],
@@ -6374,7 +6376,7 @@
                         "v2",
                         "document",
                         "{{documentIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentDocumentVersion}}",
                         "original"
                       ]
@@ -6421,7 +6423,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative",
+                        "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/versions/{{currentDocumentVersion}}/derivative",
                       "host": [
                         "{{domain}}"
                       ],
@@ -6430,7 +6432,7 @@
                         "v2",
                         "document",
                         "{{documentIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentDocumentVersion}}",
                         "derivative"
                       ]
@@ -6476,7 +6478,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative/f-jpg+p-1",
+                        "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/versions/{{currentDocumentVersion}}/derivative/f-jpg+p-1",
                       "host": [
                         "{{domain}}"
                       ],
@@ -6485,7 +6487,7 @@
                         "v2",
                         "document",
                         "{{documentIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentDocumentVersion}}",
                         "derivative",
                         "f-jpg+p-1"
@@ -6619,7 +6621,7 @@
                       "formdata": []
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/media/{{documentIdentifier}}/version/{{currentDocumentVersion}}",
+                        "raw": "{{domain}}/api/v2/media/{{documentIdentifier}}/versions/{{currentDocumentVersion}}",
                       "host": [
                         "{{domain}}"
                       ],
@@ -6628,7 +6630,7 @@
                         "v2",
                         "media",
                         "{{documentIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentDocumentVersion}}"
                       ]
                     }
@@ -7154,7 +7156,7 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/video/reserveUploadSlot",
+                        "raw": "{{domain}}/api/v2/video/upload/reserve",
                       "host": [
                         "{{domain}}"
                       ],
@@ -7162,7 +7164,8 @@
                         "api",
                         "v2",
                         "video",
-                        "reserveUploadSlot"
+                          "upload",
+                          "reserve"
                       ]
                     },
                     "description": "Providing the auth token, the client reserves an upload slot for an image identifier. This action of the client backend secures the transaction, allowing the frontend to upload the image to the Transmorpher media server directly."
@@ -7539,7 +7542,7 @@
                       "formdata": []
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/media/{{videoIdentifier}}/version/{{currentVideoVersion}}",
+                        "raw": "{{domain}}/api/v2/media/{{videoIdentifier}}/versions/{{currentVideoVersion}}",
                       "host": [
                         "{{domain}}"
                       ],
@@ -7548,7 +7551,7 @@
                         "v2",
                         "media",
                         "{{videoIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentVideoVersion}}"
                       ]
                     }
@@ -7677,14 +7680,15 @@
               }
             ],
             "url": {
-              "raw": "{{domain}}/api/v2/publickey",
+                "raw": "{{domain}}/api/v2/meta/publicKey",
               "host": [
                 "{{domain}}"
               ],
               "path": [
                 "api",
                 "v2",
-                "publickey"
+                  "meta",
+                  "publicKey"
               ]
             },
             "description": "Messages from the Transmorpher media server to a client are signed. This public key allows verifying the identity of the notification sender."
@@ -7721,13 +7725,14 @@
               }
             ],
             "url": {
-              "raw": "{{domain}}/api/v2/uploadHandler",
+                "raw": "{{domain}}/api/v2/meta/uploadHandler",
               "host": [
                 "{{domain}}"
               ],
               "path": [
                 "api",
                 "v2",
+                  "meta",
                 "uploadHandler"
               ]
             },
@@ -7765,13 +7770,14 @@
               }
             ],
             "url": {
-              "raw": "{{domain}}/api/v2/cacheInvalidator",
+                "raw": "{{domain}}/api/v2/meta/cacheInvalidator",
               "host": [
                 "{{domain}}"
               ],
               "path": [
                 "api",
                 "v2",
+                  "meta",
                 "cacheInvalidator"
               ]
             },

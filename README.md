@@ -303,7 +303,7 @@ The newly created keypair has to be written in the `.env` file:
 TRANSMORPHER_SIGNING_KEYPAIR=
 ```
 
-The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested by any client.
+The public key of the media server is available under the `/api/v*/meta/publicKey` endpoint and can be requested by any client.
 
 ### Email notifications
 
@@ -680,7 +680,7 @@ See below for details.
 Before uploading, your client can check the configured upload handler:
 
 ```bash
-curl -sS 'https://transmorpher.test/api/v2/uploadHandler'
+curl -sS 'https://transmorpher.test/api/v2/meta/uploadHandler'
 ```
 
 #### 1) Reserve an upload slot
@@ -690,7 +690,7 @@ At any time only 1 upload can be active for a specific identifier.
 Reserve an upload slot for a media type, pass the media identifier and final filename:
 
 ```bash
-curl -sS -X POST 'https://transmorpher.test/api/v2/image/reserveUploadSlot' \
+curl -sS -X POST 'https://transmorpher.test/api/v2/image/upload/reserve' \
   -H "Accept: application/json" \
   -H "Authorization: Bearer <sanctum-token>" \
   -H "Content-Type: application/json" \
@@ -930,7 +930,7 @@ Example notification:
 To query the current revision, you can use the following endpoint:
 
 ```bash
-curl -sS 'https://transmorpher.test/api/v2/cacheInvalidator'
+curl -sS 'https://transmorpher.test/api/v2/meta/cacheInvalidator'
 ```
 
 ### Browser cache busting
@@ -956,7 +956,7 @@ Dependent on the notification type you can react to the notification.
 For this, you can use the public key of the media server:
 
 ```bash
-curl -sS 'https://transmorpher.test/api/v2/publickey'
+curl -sS 'https://transmorpher.test/api/v2/meta/publicKey'
 ```
 
 ## Interchangeability
@@ -1051,7 +1051,7 @@ php artisan purge:derivatives
 The command accepts the options `--image`, `--document`, `--video` and `--all` (or `-a`) for purging the respective derivatives.
 Image and document derivatives will be deleted, for video derivatives we dispatch a new transcoding job for the current version.
 
-The derivatives revision is available on the route `/api/v*/cacheInvalidator`.
+The derivatives revision is available on the route `/api/v*/meta/cacheInvalidator`.
 
 ## Recovery
 
@@ -1196,6 +1196,21 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 - The upload process has changed
     - please refer to the [Implementing a client](#implementing-a-client)'s [uploading media](#uploading-media) section for details
     - please see the [Postman collection](postman.json) for example calls for all v2 routes
+
+Following v2 routes have different URLs than their v1 equivalents:
+
+| v2 route                                                                        | v1 route                                                                       |
+|---------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| `POST /api/v2/image/upload/reserve`                                             | `POST /api/v1/image/reserveUploadSlot`                                         |
+| `POST /api/v2/document/upload/reserve`                                          | `POST /api/v1/document/reserveUploadSlot`                                      |
+| `POST /api/v2/video/upload/reserve`                                             | `POST /api/v1/video/reserveUploadSlot`                                         |
+| `PATCH /api/v2/media/{media}/versions/{version}`                                | `PATCH /api/v1/media/{media}/version/{version}`                                |
+| `GET /api/v2/image/{media}/versions/{version}/original`                         | `GET /api/v1/image/{media}/version/{version}/original`                         |
+| `GET /api/v2/image/{media}/versions/{version}/derivative/{transformations?}`    | `GET /api/v1/image/{media}/version/{version}/derivative/{transformations?}`    |
+| `GET /api/v2/document/{media}/versions/{version}/original`                      | `GET /api/v1/document/{media}/version/{version}/original`                      |
+| `GET /api/v2/document/{media}/versions/{version}/derivative/{transformations?}` | `GET /api/v1/document/{media}/version/{version}/derivative/{transformations?}` |
+| `GET /api/v2/meta/publicKey`                                                    | `GET /api/v1/publickey`                                                        |
+| `GET /api/v2/meta/cacheInvalidator`                                             | `GET /api/v1/cacheInvalidator`                                                 |
 
 ### v0.7.0 to v0.8.0
 
