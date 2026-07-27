@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "b5f91b73-64c9-4d2b-be56-642ec249ac0a",
+      "_postman_id": "50a673ec-6419-4c4d-a601-e74a19241ac3",
     "name": "Transmorpher Server API",
     "description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n    \n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n    \n- use the provided auth token and adjust the \"authToken\" variable\n    \n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n- to run the document queries, set a local PDF file in the \"Upload: OK\" call.\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -4839,9 +4839,6 @@
                     }
                   ],
                   "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
                     "method": "POST",
                     "header": [
                       {
@@ -4907,9 +4904,6 @@
                     }
                   ],
                   "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
                     "method": "DELETE",
                     "header": [
                       {
@@ -6030,9 +6024,6 @@
                     }
                   ],
                   "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
                     "method": "POST",
                     "header": [
                       {
@@ -6098,9 +6089,6 @@
                     }
                   ],
                   "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
                     "method": "DELETE",
                     "header": [
                       {
@@ -7334,9 +7322,6 @@
                     }
                   ],
                   "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
                     "method": "POST",
                     "header": [
                       {
@@ -7402,9 +7387,6 @@
                     }
                   ],
                   "request": {
-                    "auth": {
-                      "type": "noauth"
-                    },
                     "method": "DELETE",
                     "header": [
                       {
