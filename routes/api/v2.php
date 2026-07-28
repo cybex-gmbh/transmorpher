@@ -44,6 +44,6 @@ Route::prefix('v2')->name('v2.')->group(function () {
 
     // Meta information
     Route::get('/meta/publicKey', fn(): string => SodiumHelper::getPublicKey())->name('meta.publickey');
-    Route::get('/meta/cacheInvalidator', fn(): string => MediaStorage::ORIGINALS->getDisk()->get(config('transmorpher.cache_invalidation_counter_file_path')) ?? 0)->name('meta.cache.invalidator');
-    Route::get('/meta/uploadHandler', fn(): string => config('transmorpher.upload_handler'))->name('meta.upload.handler');
+    Route::get('/meta/cacheInvalidator', fn(): string => MediaStorage::ORIGINALS->getDisk()->get(config('transmorpher.media.derivatives.cache.invalidation.file.path')) ?? 0)->name('meta.cache.invalidator');
+    Route::get('/meta/uploadHandler', fn(): string => config('transmorpher.app.upload_handler'))->name('meta.upload.handler');
 });

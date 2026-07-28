@@ -967,38 +967,59 @@ If you want to use a CDN other than CloudFront, you will have to provide a class
 provides the functionality of invalidating the CDN's cache.
 The `CloudFrontHelper` class provides an implementation for CloudFront and can be viewed as an example.
 
-You will also have to adjust the `transmorpher.php` configuration value for the `cdn_helper`:
+You will then need to add a config file for your handler in the `config/transmorpher/classes/cdn` directory and specify the class name.
 
 ```php
-'cdn_helper' => App\Helpers\YourCdnClass::class,
+return [
+    'class' => Your\Cdn\Class::class,
+    
+    // Any additional configuration for your class can be added here
+    ...
+]
 ```
 
+You can then set the `TRANSMORPHER_CDN` environment variable to the name of your config file (without the `.php` extension) to use your class.
+
 ### Image Transformation
+
+#### Transformation class
 
 The class to transform images as well as the classes to convert images to different formats are interchangeable.
 This provides the ability to add additional image manipulation libraries or logic in a modular way.
 
 To add a class for image transformation, create a new class which implements the `TransformInterface`.
 An example implementation can be found at `App\Classes\Intervention\Transform`.
-Additionally, the newly created class has to be specified in the `transmorpher.php` configuration file:
+
+You will then need to add a config file for your class in the `config/transmorpher/classes/image/transformer` directory and specify the class name.
 
 ```php
-'transform_class' => App\Classes\YourTransformationClass::class,
+return [
+    'class' => Your\Transformation\Class::class,
+    
+    // Any additional configuration for your class can be added here
+    ...
+]
 ```
+
+You can then set the `TRANSMORPHER_IMAGE_TRANSFORMER` environment variable to the name of your config file (without the `.php` extension) to use your class.
+
+#### Format converters
 
 If you want to interchange the classes which convert images to different formats, you can do so by creating classes
-which implement the `ConvertInterface`. An example
-implementation can be found at `App\Classes\Intervention\Convert`.
-You will also have to adjust the configuration values:
+which implement the `ConvertInterface`. An example implementation can be found at `App\Classes\Intervention\Convert`.
+
+You will then need to add a config file for your class in the `config/transmorpher/classes/image/converter/<format>` directory and specify the class name.
 
 ```php
-'convert_classes' => [
-    'jpg' => App\Classes\YourClassJpg::class,
-    'png' => App\Classes\YourClassPng::class,
-    'gif' => App\Classes\YourClassGif::class,
-    'webp' => App\Classes\YourClassWebp::class,
-],
+return [
+    'class' => Your\Convert\Class::class,
+    
+    // Any additional configuration for your class can be added here
+    ...
+]
 ```
+
+You can then set the `TRANSMORPHER_IMAGE_CONVERTER_<FORMAT>` environment variable to the name of your config file (without the `.php` extension) to use your class.
 
 ### Image Optimization
 
@@ -1014,19 +1035,26 @@ By default, the Transmorpher uses FFmpeg and Laravel jobs for transcoding videos
 image transformation classes.
 
 To interchange the class, which is responsible for initiating transcoding, create a new class which implements
-the `TranscodeInterface`. An example implementation, which
-dispatches a job, can be found at `App\Classes\Transcode.php`.
-You will also have to adjust the configuration value:
+the `TranscodeInterface`. An example implementation, which dispatches a job, can be found at `App\Classes\Transcode.php`.
+
+You will then need to add a config file for your class in the `config/transmorpher/classes/video/transcoder` directory and specify the class name.
 
 ```php
-'transcode_class' => App\Classes\YourTranscodeClass::class,
+return [
+    'class' => Your\Transcoder\Class::class,
+    
+    // Any additional configuration for your class can be added here
+    ...
+]
 ```
+
+You can then set the `TRANSMORPHER_VIDEO_TRANSCODER` environment variable to the name of your config file (without the `.php` extension) to use your class.
 
 ### Upload handler
 
 You can create your own upload handler by implementing the `UploadHandlerInterface`, for example for the Azure Blob Storage.
 
-You will need to add a config file for your handler in the `config/handler/upload` directory and specify the class name of your handler.
+You will need to add a config file for your handler in the `config/transmorpher/classes/handler/upload` directory and specify the class name.
 
 ```php
 return [

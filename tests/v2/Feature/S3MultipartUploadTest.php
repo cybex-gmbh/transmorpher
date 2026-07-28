@@ -35,7 +35,7 @@ class S3MultipartUploadTest extends TestCase
         parent::setUp();
 
         Config::set('cache.default', 'array');
-        Config::set('transmorpher.disks.originals', 's3Originals');
+        Config::set('transmorpher.app.disks.originals', 's3Originals');
 
         $this->user = User::first() ?: User::factory()->create();
         Sanctum::actingAs($this->user, ['*']);

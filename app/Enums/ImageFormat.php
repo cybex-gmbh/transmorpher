@@ -79,7 +79,11 @@ enum ImageFormat: string
      */
     public function getConverter(): ConvertInterface
     {
-        return app(config(sprintf('transmorpher.convert_classes.%s', $this->value)));
+        return app(config(sprintf(
+            'transmorpher.classes.image.converter.%s.%s.class',
+            $this->value,
+            config(sprintf('transmorpher.media.image.converter.%s', $this->value))
+        )));
     }
 
     /**

@@ -17,7 +17,10 @@ class TransformServiceProvider extends ServiceProvider implements DeferrableProv
      */
     public function register(): void
     {
-        $this->app->singleton(static::SERVICE_NAME, fn(): TransformInterface => app()->make(config('transmorpher.transform_class')));
+        $this->app->singleton(
+            static::SERVICE_NAME,
+            fn(): TransformInterface => app()->make(config($this->getTransformerClassPath()))
+        );
     }
 
     /**
@@ -28,5 +31,10 @@ class TransformServiceProvider extends ServiceProvider implements DeferrableProv
     public function provides(): array
     {
         return [static::SERVICE_NAME];
+    }
+
+    protected function getTransformerClassPath(): string
+    {
+        return sprintf('transmorpher.classes.image.transformer.%s.class', config('transmorpher.media.image.transformer'));
     }
 }

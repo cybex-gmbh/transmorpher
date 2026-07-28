@@ -39,7 +39,7 @@ class PdfTest extends OnDemandDerivativeMediaTest
         $this->derivativesDisk ??= Storage::persistentFake(MediaStorage::DOCUMENT_DERIVATIVES->getDiskName());
         $this->mediaFile = UploadedFile::fake()->createWithContent($this->mediaName, File::get(base_path('tests/data/test.pdf')));
 
-        Config::set('transmorpher.document_remove_metadata', true);
+        Config::set('transmorpher.media.document.metadata.remove', true);
     }
 
     protected function getOriginal(Version $version): TestResponse
@@ -193,7 +193,7 @@ class PdfTest extends OnDemandDerivativeMediaTest
     #[Depends('ensurePdfMetadataIsRemoved')]
     public function ensurePdfMetadataIsKept()
     {
-        Config::set('transmorpher.document_remove_metadata', false);
+        Config::set('transmorpher.media.document.metadata.remove', false);
 
         $reserveUploadSlotResponse = $this->reserveUploadSlot();
         $uploadResponse = $this->uploadMedia($reserveUploadSlotResponse->json('upload_token'));
@@ -292,7 +292,7 @@ class PdfTest extends OnDemandDerivativeMediaTest
     {
         $this->derivativesDisk->assertExists($version->onDemandDerivativeFilePath());
 
-        $cacheCounterBeforeCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
+        $cacheCounterBeforeCommand = $this->originalsDisk->get(config('transmorpher.media.derivatives.cache.invalidation.file.path'));
 
         Http::fake([
             $this->user->api_url => Http::response()
@@ -300,7 +300,7 @@ class PdfTest extends OnDemandDerivativeMediaTest
 
         Artisan::call(PurgeDerivatives::class, ['--document' => true]);
 
-        $cacheCounterAfterCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
+        $cacheCounterAfterCommand = $this->originalsDisk->get(config('transmorpher.media.derivatives.cache.invalidation.file.path'));
 
         Http::assertSent(function (Request $request) use ($cacheCounterAfterCommand) {
             $decryptedNotification = json_decode(SodiumHelper::decrypt($request['signed_notification']), true);

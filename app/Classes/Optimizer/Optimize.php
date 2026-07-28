@@ -48,7 +48,7 @@ class Optimize
      */
     public function removeDocumentMetadata(string $fileData): string
     {
-        if (!config('transmorpher.document_remove_metadata')) {
+        if (!config('transmorpher.media.document.metadata.remove')) {
             return $fileData;
         }
 

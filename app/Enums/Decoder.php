@@ -10,6 +10,6 @@ enum Decoder: string
 
     public function getInitialParameters(): array
     {
-        return config(sprintf('decoder.%s', $this->value), []);
+        return config(sprintf('transmorpher.classes.video.decoder.%s', $this->value), []);
     }
 }

@@ -69,8 +69,8 @@ class TranscodeVideo implements ShouldQueue
         \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
         $this->uploadToken = $this->uploadSlot->token;
-        $this->decoder = Decoder::from(config('transmorpher.decoder'));
-        $this->encoder = Encoder::from(config('transmorpher.encoder'));
+        $this->decoder = Decoder::from(config('transmorpher.media.video.decoder'));
+        $this->encoder = Encoder::from(config('transmorpher.media.video.encoder'));
     }
 
     /**

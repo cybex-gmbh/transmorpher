@@ -54,7 +54,7 @@ class Transform implements TransformInterface
         $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
         file_put_contents($tempFile, $fileData);
 
-        $ppi = $transformations[Transformation::PPI->value] ?? config('transmorpher.document_default_ppi');
+        $ppi = $transformations[Transformation::PPI->value] ?? config('transmorpher.media.document.defaults.ppi');
         $imagick = new Imagick();
         $imagick->setResolution($ppi, $ppi);
 

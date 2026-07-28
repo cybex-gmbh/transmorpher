@@ -11,7 +11,7 @@ enum Encoder: string
 
     public function getAdditionalParameters(bool $forMp4Fallback = false): array
     {
-        $configuredParameters = config(sprintf('encoder.%s', $this->value), []);
+        $configuredParameters = config(sprintf('transmorpher.classes.video.encoder.%s', $this->value), []);
 
         if ($forMp4Fallback) {
             $enumParameters = match ($this) {

@@ -23639,17 +23639,17 @@ namespace App\Facades {
         }
 
         /**
-         * Returns an upload URL for the given chunk number.
+         * Returns the v2 chunk upload endpoint URL.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @param int $chunkNumber
          * @return string
          * @static
          */
-        public static function getUploadUrl($uploadSlot, $chunkNumber)
+        public static function getChunkUploadUrl($uploadSlot, $chunkNumber)
         {
             /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
-            return $instance->getUploadUrl($uploadSlot, $chunkNumber);
+            return $instance->getChunkUploadUrl($uploadSlot, $chunkNumber);
         }
 
         /**
