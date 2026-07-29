@@ -34,7 +34,7 @@ class VideoHandler extends MediaHandler
     {
         \Log::info(sprintf('Dispatching transcoding job for media %s and version %s.', $version->Media->identifier, $version->getKey()));
         $success = Transcode::createJob($version, $uploadSlot);
-        \Log::info(sprintf('Transcoding job dispatched with result %s for media %s and version %s.', $success, $version->Media->identifier, $version->getKey()));
+        \Log::info(sprintf('Transcoding job dispatch returned result "%s" for media %s and version %s.', $success ? 'success' : 'error', $version->Media->identifier, $version->getKey()));
 
         return $success ? $this->uploadSuccessful : $this->uploadFailed;
     }

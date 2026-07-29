@@ -21,7 +21,8 @@ services:
     environment:
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-      QUEUE: video-transcoding
+      QUEUE: ${TRANSMORPHER_VIDEO_TRANSCODING_QUEUE:-video-transcoding}
+      QUEUE_CONNECTION: ${TRANSMORPHER_VIDEO_TRANSCODING_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
     volumes:
       # If you are using local disks, persist the storage across container restarts.
       - 'storage:/var/www/storage'
@@ -35,7 +36,8 @@ services:
     environment:
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: 1
-      QUEUE: client-notifications
+      QUEUE: ${TRANSMORPHER_CLIENT_NOTIFICATIONS_QUEUE:-client-notifications}
+      QUEUE_CONNECTION: ${TRANSMORPHER_CLIENT_NOTIFICATIONS_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
     volumes:
       - './.env:/var/www/.env:ro'
     networks:
@@ -47,7 +49,8 @@ services:
     environment:
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: 1
-      QUEUE: email
+      QUEUE: ${TRANSMORPHER_EMAIL_QUEUE:-email}
+      QUEUE_CONNECTION: ${TRANSMORPHER_EMAIL_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
     volumes:
       - './.env:/var/www/.env:ro'
     networks:
