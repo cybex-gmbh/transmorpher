@@ -19,6 +19,7 @@
 - Original file names now use the upload token as prefix instead of the version id
 - The config file has been split up into multiple files and was restructured
 - Various classes can now be configured via the .env, using config files for the name and class specification.
+- Now uses Laravel's SQS FIFO implementation
 
 #### For docker image users
 
@@ -44,6 +45,7 @@
     - It now consists of multiple steps, which allows for more complex upload processes, such as S3 Multipart Uploads
     - The upload handler to be used can be configured in the `.env` file
 - FFmpeg Encoders and Decoders are now interchangeable, check the [README](README.md#encoder-and-decoder) for more information
+- Queues can now run on separate connections, e.g. video transcoding on `sqs`, client-notifications on `database`
 
 ### Fixes
 

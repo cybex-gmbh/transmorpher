@@ -1314,6 +1314,11 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 - Interchangeability is now configured via .env keys and config files
     - Check the [Interchangeability](#interchangeability) section for more information
 
+##### SQS FIFO
+
+- The `sqs-fifo` queue connection and driver have been removed in favour of Laravel's SQS FIFO implementation
+    - if you have previously used the `sqs-fifo` connection, replace it with `sqs`
+
 #### Client implementations
 
 - V1 will be deprecated in the near future, please use v2 routes
