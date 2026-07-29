@@ -16,6 +16,7 @@
 - Routes have been slightly adjusted, the `upload` route now uses `PUT` instead of `POST`
 - Reserving an upload slot now requires to pass the final file name
 - Original file names now use the upload token as prefix instead of the version id
+- Now uses Laravel's SQS FIFO implementation
 
 #### For docker image users
 
@@ -40,6 +41,7 @@
 - The Upload process can now be customized
     - It now consists of multiple steps, which allows for more complex upload processes, such as S3 Multipart Uploads
     - The upload handler to be used can be configured in the `.env` file
+- Queues can now run on separate connections, e.g. video transcoding on `sqs`, client-notifications on `database`
 
 ### Fixes
 

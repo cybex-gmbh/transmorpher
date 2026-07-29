@@ -1220,6 +1220,12 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
     - please refer to the [Implementing a client](#implementing-a-client)'s [uploading media](#uploading-media) section for details
     - please see the [Postman collection](postman.json) for example calls for all v2 routes
 
+#### Server
+
+- The `sqs-fifo` queue connection and driver has been removed in favour of Laravel's SQS FIFO implementation
+    - if you have previously used the `sqs-fifo` connection, replace it with `sqs`
+    - adjust the queue names to have the `.fifo` suffix for FIFO queues. Check the .env.example file for the corresponding keys
+
 ### v0.7.0 to v0.8.0
 
 - If not using the docker image:
