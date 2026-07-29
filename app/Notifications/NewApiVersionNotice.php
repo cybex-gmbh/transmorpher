@@ -19,7 +19,32 @@ class NewApiVersionNotice extends Notification implements ShouldQueue
      */
     public function __construct(protected int $apiVersion)
     {
-        $this->onQueue('email');
+        $this->onQueue(config('transmorpher.queue.email.queue'));
+        $this->onConnection(config('transmorpher.queue.email.connection'));
+    }
+
+    /**
+     * Get the message group ID for SQS queues.
+     * Groups by API version to keep all notifications for the same version together.
+     *
+     * @return string
+     */
+    public function messageGroup(): string
+    {
+        return sprintf('api-version-%s', $this->apiVersion);
+    }
+
+    /**
+     * Get the message deduplication ID for SQS FIFO queues.
+     * Uniquely identifies this notification by API version.
+     *
+     * @param string $payload
+     * @param string $queue
+     * @return string
+     */
+    public function deduplicationId(string $payload, string $queue): string
+    {
+        return sprintf('new-api-version-%s', $this->apiVersion);
     }
 
     /**

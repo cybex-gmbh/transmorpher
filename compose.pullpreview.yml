@@ -46,7 +46,8 @@ services:
       <<: *app-url
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-      QUEUE: video-transcoding
+      QUEUE: ${TRANSMORPHER_VIDEO_TRANSCODING_QUEUE:-video-transcoding}
+      QUEUE_CONNECTION: ${TRANSMORPHER_VIDEO_TRANSCODING_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
 
   worker-client-notifications:
     <<: *common
@@ -54,7 +55,8 @@ services:
       <<: *app-url
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: 1
-      QUEUE: client-notifications
+      QUEUE: ${TRANSMORPHER_CLIENT_NOTIFICATIONS_QUEUE:-client-notifications}
+      QUEUE_CONNECTION: ${TRANSMORPHER_CLIENT_NOTIFICATIONS_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
 
   worker-email:
     <<: *common
@@ -62,7 +64,8 @@ services:
       <<: *app-url
       CONTAINER_ROLE: worker
       SERVICE_INSTANCES: 1
-      QUEUE: email
+      QUEUE: ${TRANSMORPHER_EMAIL_QUEUE:-email}
+      QUEUE_CONNECTION: ${TRANSMORPHER_EMAIL_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
 
   scheduler:
     <<: *common

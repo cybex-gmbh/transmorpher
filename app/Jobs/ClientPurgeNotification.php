@@ -45,7 +45,31 @@ class ClientPurgeNotification implements ShouldQueue
      */
     public function __construct(protected User $user, protected int $cacheInvalidationCounter)
     {
-        $this->onQueue('client-notifications');
+        $this->onQueue(config('transmorpher.queue.client_notifications.queue'));
+        $this->onConnection(config('transmorpher.queue.client_notifications.connection'));
+    }
+
+    /**
+     * Get the message group ID for SQS FIFO queues.
+     *
+     * @return string
+     */
+    public function messageGroup(): string
+    {
+        return (string)$this->user->getKey();
+    }
+
+    /**
+     * Get the message deduplication ID for SQS FIFO queues.
+     * Combines user ID and cache invalidation counter to uniquely identify each dispatch.
+     *
+     * @param string $payload
+     * @param string $queue
+     * @return string
+     */
+    public function deduplicationId(string $payload, string $queue): string
+    {
+        return sprintf('%s:%s', $this->user->getKey(), $this->cacheInvalidationCounter);
     }
 
     /**

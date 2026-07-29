@@ -65,12 +65,48 @@ class TranscodeVideo implements ShouldQueue
         protected UploadSlot $uploadSlot,
     )
     {
-        $this->onQueue('video-transcoding');
+        $this->onQueue(config('transmorpher.queue.video_transcoding.queue'));
+        $this->onConnection(config('transmorpher.queue.video_transcoding.connection'));
+
         \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
         $this->uploadToken = $this->uploadSlot->token;
         $this->decoder = Decoder::from(config('transmorpher.decoder'));
         $this->encoder = Encoder::from(config('transmorpher.encoder'));
+    }
+
+    /**
+     * Get the message group ID for fair queuing on standard SQS queues
+     * and FIFO ordering on FIFO queues.
+     *
+     * For FIFO queues (.fifo suffix): returns version key to enable parallel processing across videos.
+     *   -> only the newest version will be accepted, other versions will be disposed either at the start of transcoding, or the end.
+     * For standard queues: returns user key to enable fair queuing across tenants.
+     *
+     * @return string
+     */
+    public function messageGroup(): string
+    {
+        $queue = config('transmorpher.queue.video_transcoding.queue');
+
+        if (str_ends_with($queue, '.fifo')) {
+            return (string)$this->version->getKey();
+        }
+
+        return (string)$this->version->Media->User->getKey();
+    }
+
+    /**
+     * Get the message deduplication ID for SQS FIFO queues.
+     * Combines upload token and version ID to uniquely identify each dispatch.
+     *
+     * @param string $payload
+     * @param string $queue
+     * @return string
+     */
+    public function deduplicationId(string $payload, string $queue): string
+    {
+        return sprintf('%s:%s', $this->uploadSlot->token, $this->version->getKey());
     }
 
     /**
