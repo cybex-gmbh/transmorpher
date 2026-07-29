@@ -16,6 +16,7 @@
 - Routes have been slightly adjusted, the `upload` route now uses `PUT` instead of `POST`
 - Reserving an upload slot now requires to pass the final file name
 - Original file names now use the upload token as prefix instead of the version id
+- Sanctum Token permission checks now use more structured ability names
 
 #### For docker image users
 
