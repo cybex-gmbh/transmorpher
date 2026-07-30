@@ -2,7 +2,7 @@ services:
   worker-transcoding:
     extends:
       file: compose.yml
-      service: transcoding-worker
+      service: worker-transcoding
     deploy:
       resources:
         reservations:
