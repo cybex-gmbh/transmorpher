@@ -45,7 +45,7 @@ class VideoTest extends MediaTest
         $uploadToken = $this->reserveUploadSlot()->json('upload_token');
 
         return $this->post(route('v1.upload', [$uploadToken]), [
-            // For some reason, Laravel infers the mime type as application/mp4 instead of video/mp4, when the file has the .mp4 extension.
+            // Misnamed the file as "video.webm" because, for reasons unknown, Laravel infers the mime type as application/mp4 instead of video/mp4, when the file has the .mp4 extension.
             'file' => UploadedFile::fake()->createWithContent('video.webm', File::get(base_path('tests/data/test.mp4'))),
             'identifier' => $this->identifier
         ]);

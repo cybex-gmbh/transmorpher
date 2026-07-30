@@ -34,7 +34,7 @@ The Transmorpher Media Server comes with two images:
 
 Please check the [compose.prod.example.yml](compose.prod.example.yml) file for an example of a production configuration.
 
-To not accidentally upgrade to a new breaking version, attach the version you want to use to the image name:
+To not accidentally upgrade to a new breaking version, attach the version (replace "0.x" with a valid version in this example) you want to use to the image name:
 
 `cybexwebdev/transmorpher:0.x-app`
 `cybexwebdev/transmorpher:0.x-transcoder`
