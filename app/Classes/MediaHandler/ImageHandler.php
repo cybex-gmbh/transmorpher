@@ -49,8 +49,8 @@ class ImageHandler extends OnDemandDerivativeMediaHandler
      */
     public function applyTransformations(Version $version, ?array $transformationsArray): false|string
     {
-        $derivativeFileData = Transform::transform($version->originalFilePath(), $transformationsArray);
+        $derivativeFileData = Transform::image($version->originalFilePath(), $transformationsArray);
 
-        return Optimize::optimize($derivativeFileData, $transformationsArray[Transformation::QUALITY->value] ?? null);
+        return Optimize::image($derivativeFileData, $transformationsArray[Transformation::QUALITY->value] ?? null);
     }
 }

@@ -15,10 +15,12 @@ class Optimize
      *
      * @param string $fileData
      * @param int|null $quality
+     *
      * @return string
+     *
      * @throws Exception
      */
-    public function optimize(string $fileData, int $quality = null): string
+    public function image(string $fileData, ?int $quality = null): string
     {
         $tempFile = $this->getTemporaryFile($fileData);
 
@@ -42,11 +44,15 @@ class Optimize
     }
 
     /**
+     * Optimize a document derivative. Currently only removes metadata if enabled.
+     * Creates a temporary file since removing metadata only work locally.
+     *
      * @param string $fileData
      * @return string
+     *
      * @throws Exception
      */
-    public function removeDocumentMetadata(string $fileData): string
+    public function document(string $fileData): string
     {
         if (!config('transmorpher.document_remove_metadata')) {
             return $fileData;
@@ -65,10 +71,6 @@ class Optimize
         return $pdfData;
     }
 
-    /**
-     * @param string $fileData
-     * @return false|string
-     */
     protected function getTemporaryFile(string $fileData): string|false
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');

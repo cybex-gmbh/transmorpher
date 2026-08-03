@@ -23527,22 +23527,26 @@ namespace App\Facades {
          * @throws Exception
          * @static
          */
-        public static function optimize($fileData, $quality = null)
+        public static function image($fileData, $quality = null)
         {
             /** @var \App\Classes\Optimizer\Optimize $instance */
-            return $instance->optimize($fileData, $quality);
+            return $instance->image($fileData, $quality);
         }
 
         /**
+         * Optimize a document derivative. Currently only removes metadata if enabled.
+         *
+         * Creates a temporary file since removing metadata only work locally.
+         *
          * @param string $fileData
          * @return string
          * @throws Exception
          * @static
          */
-        public static function removeDocumentMetadata($fileData)
+        public static function document($fileData)
         {
             /** @var \App\Classes\Optimizer\Optimize $instance */
-            return $instance->removeDocumentMetadata($fileData);
+            return $instance->document($fileData);
         }
 
             }
@@ -23596,17 +23600,33 @@ namespace App\Facades {
      */
     class TransformFacade {
         /**
-         * Transform image based on specified transformations.
+         * Transform an image based on specified transformations.
          *
          * @param string $pathToOriginalImage
          * @param array|null $transformations
          * @return string Binary string of the image.
          * @static
          */
-        public static function transform($pathToOriginalImage, $transformations = null)
+        public static function image($pathToOriginalImage, $transformations = null)
         {
             /** @var \App\Classes\Intervention\Transform $instance */
-            return $instance->transform($pathToOriginalImage, $transformations);
+            return $instance->image($pathToOriginalImage, $transformations);
+        }
+
+        /**
+         * Transform a document based on specified transformations.
+         *
+         * Will first create an image from the document.
+         *
+         * @param string $pathToOriginalDocument
+         * @param array|null $transformations
+         * @return string Binary string of the image.
+         * @static
+         */
+        public static function document($pathToOriginalDocument, $transformations = null)
+        {
+            /** @var \App\Classes\Intervention\Transform $instance */
+            return $instance->document($pathToOriginalDocument, $transformations);
         }
 
             }
@@ -23614,79 +23634,70 @@ namespace App\Facades {
      */
     class UploadHandlerFacade {
         /**
-         * Ensures that the configured originals disk is an S3 disk.
-         *
-         * @return void
-         * @throws RuntimeException
+         * @static
+         */
+        public static function createTempFilename($uploadSlot)
+        {
+            return \App\Classes\UploadHandler\DefaultUploadHandler::createTempFilename($uploadSlot);
+        }
+
+        /**
          * @static
          */
         public static function ensurePrerequisitesMet()
         {
-            \App\Classes\UploadHandler\S3MultipartUploadHandler::ensurePrerequisitesMet();
+            return \App\Classes\UploadHandler\DefaultUploadHandler::ensurePrerequisitesMet();
         }
 
         /**
-         * Initiates an S3 multipart upload and stores the upload ID in cache.
-         *
-         * @param \App\Models\UploadSlot $uploadSlot
-         * @return void
-         * @throws AwsException
-         * @throws RuntimeException
          * @static
          */
         public static function initiate($uploadSlot)
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
-            $instance->initiate($uploadSlot);
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
+            return $instance->initiate($uploadSlot);
         }
 
         /**
-         * Returns a presigned URL for uploading a single part.
+         * Returns the v2 chunk upload endpoint URL.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @param int $chunkNumber
          * @return string
-         * @throws AwsException
-         * @throws RuntimeException
          * @static
          */
         public static function getChunkUploadUrl($uploadSlot, $chunkNumber)
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getChunkUploadUrl($uploadSlot, $chunkNumber);
         }
 
         /**
-         * Completes the S3 multipart upload and validates the mime type.
-         *
-         * Throws on validation failure and then deletes the S3 object.
+         * Completes the upload by validating the file and moving it to its intended location.
          *
          * @param \App\Http\Requests\V2\CompleteUploadRequest $request
          * @param \App\Models\UploadSlot $uploadSlot
          * @return void
-         * @throws AwsException
+         * @throws FileNotFoundException
          * @throws ValidationException
-         * @throws RuntimeException
          * @static
          */
         public static function complete($request, $uploadSlot)
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             $instance->complete($request, $uploadSlot);
         }
 
         /**
-         * Aborts the S3 multipart upload.
+         * Cleans up any already-stored local upload for the given upload slot.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @return void
-         * @throws AwsException
-         * @throws RuntimeException
          * @static
          */
         public static function abort($uploadSlot)
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             $instance->abort($uploadSlot);
         }
 
@@ -23695,7 +23706,7 @@ namespace App\Facades {
          */
         public static function getUploadSlotRequestValidationRules()
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getUploadSlotRequestValidationRules();
         }
 
@@ -23704,7 +23715,7 @@ namespace App\Facades {
          */
         public static function getChunkUrlRequestValidationRules()
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getChunkUrlRequestValidationRules();
         }
 
@@ -23713,7 +23724,7 @@ namespace App\Facades {
          */
         public static function getCompleteRequestValidationRules()
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getCompleteRequestValidationRules();
         }
 
@@ -23722,7 +23733,7 @@ namespace App\Facades {
          */
         public static function getAbortRequestValidationRules()
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getAbortRequestValidationRules();
         }
 

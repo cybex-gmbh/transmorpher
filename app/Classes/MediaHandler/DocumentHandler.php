@@ -33,19 +33,14 @@ class DocumentHandler extends OnDemandDerivativeMediaHandler
         return 'mimetypes:application/pdf';
     }
 
-    /**
-     * @param Version $version
-     * @param array|null $transformationsArray
-     * @return string
-     */
     public function applyTransformations(Version $version, ?array $transformationsArray): string
     {
         if ($transformationsArray[Transformation::FORMAT->value] ?? false) {
-            $derivativeFileData = Transform::transform($version->originalFilePath(), $transformationsArray);
+            $derivativeFileData = Transform::document($version->originalFilePath(), $transformationsArray);
 
-            return Optimize::optimize($derivativeFileData, $transformationsArray[Transformation::QUALITY->value] ?? null);
+            return Optimize::image($derivativeFileData, $transformationsArray[Transformation::QUALITY->value] ?? null);
         }
 
-        return Optimize::removeDocumentMetadata(MediaStorage::ORIGINALS->getDisk()->get($version->originalFilePath()));
+        return Optimize::document(MediaStorage::ORIGINALS->getDisk()->get($version->originalFilePath()));
     }
 }

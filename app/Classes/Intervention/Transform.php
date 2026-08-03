@@ -19,33 +19,52 @@ use Intervention\Image\Laravel\Facades\Image as ImageManager;
 class Transform implements TransformInterface
 {
     /**
-     * Transform image based on specified transformations.
+     * Transform an image based on specified transformations.
      *
      * @param string $pathToOriginalImage
      * @param array|null $transformations
      *
      * @return string Binary string of the image.
      */
-    public function transform(string $pathToOriginalImage, ?array $transformations = null): string
+    public function image(string $pathToOriginalImage, ?array $transformations = null): string
     {
-        $fileHandle = $this->getOriginalFileStream($pathToOriginalImage);
-        $mimeType = mime_content_type($fileHandle);
-        $fileData = stream_get_contents($fileHandle);
+        $fileData = $this->getOriginalFileData($pathToOriginalImage);
 
         if (!$transformations) {
             return $fileData;
         }
 
-        return match ($mimeType) {
-            'application/pdf' => $this->pdfToImage($fileData, $transformations),
-            default => $this->applyTransformations($fileData, $transformations),
-        };
+        return $this->applyTransformations($fileData, $transformations);
+    }
+
+    /**
+     * Transform a document based on specified transformations.
+     * Will first create an image from the document.
+     *
+     * @param string $pathToOriginalDocument
+     * @param array|null $transformations
+     *
+     * @return string Binary string of the image.
+     */
+    public function document(string $pathToOriginalDocument, ?array $transformations = null): string
+    {
+        $fileData = $this->getOriginalFileData($pathToOriginalDocument);
+
+        if (!$transformations) {
+            return $fileData;
+        }
+
+        $imageData = $this->pdfToImage($fileData, $transformations);
+
+        return $this->applyTransformations($imageData, $transformations);
     }
 
     /**
      * @param string $fileData
      * @param array|null $transformations
-     * @return string
+     *
+     * @return string Binary string of the image.
+     *
      * @throws ImageTransformationException
      */
     protected function pdfToImage(string $fileData, ?array $transformations = null): string
@@ -77,15 +96,13 @@ class Transform implements TransformInterface
             throw $customException;
         }
 
-        return $this->applyTransformations($imagick->getImageBlob(), $transformations);
+        return $imagick->getImageBlob();
     }
 
     /**
-     * @param string $path
-     * @return resource|null
      * @throws FileNotFoundException
      */
-    protected function getOriginalFileStream(string $path)
+    protected function getOriginalFileData(string $path): string
     {
         $disk = MediaStorage::ORIGINALS->getDisk();
 
@@ -93,13 +110,10 @@ class Transform implements TransformInterface
             throw new FileNotFoundException(sprintf('File not found at path "%s" on configured disk', $path));
         }
 
-        return $disk->readStream($path);
+        return $disk->get($path);
     }
 
     /**
-     * @param string $imageData
-     * @param array|null $transformations
-     * @return string
      * @throws ImageTransformationException
      */
     protected function applyTransformations(string $imageData, ?array $transformations = null): string
@@ -129,6 +143,7 @@ class Transform implements TransformInterface
 
     /**
      * See https://imagemagick.org/script/exception.php for error code reference.
+     *
      * @throws ImagickPolicyException|DocumentPageDoesNotExistException|ImagickException|ImageTransformationException
      */
     protected function handleReadImagickExceptions(ImagickException $exception, ?array $transformations = null): void
