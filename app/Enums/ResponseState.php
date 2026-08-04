@@ -14,7 +14,8 @@ enum ResponseState: string
     case TRANSCODING_FAILED = 'video.transcoding.failed';
     case TRANSCODING_JOB_DISPATCH_FAILED = 'video.transcoding.job_dispatch_failed';
     case TRANSCODING_SUCCESSFUL = 'video.transcoding.success';
-    case UPLOAD_ABORTED = 'upload.aborted';
+    case UPLOAD_ABORTED = 'upload.abort.success';
+    case UPLOAD_ABORT_FAILED = 'upload.abort.failed';
     case UPLOAD_SLOT_CREATED = 'upload.slot.created';
     case UPLOAD_SLOT_CREATION_FAILED = 'upload.slot.failed';
     case VERSIONS_RETRIEVED = 'media.versions.retrieved';
@@ -56,10 +57,11 @@ enum ResponseState: string
     {
         return match ($this) {
             self::CDN_INVALIDATION_FAILED,
-            self::WRITE_FAILED,
-            self::UPLOAD_SLOT_CREATION_FAILED,
             self::TRANSCODING_FAILED,
-            self::TRANSCODING_JOB_DISPATCH_FAILED => 500,
+            self::TRANSCODING_JOB_DISPATCH_FAILED,
+            self::UPLOAD_ABORT_FAILED,
+            self::UPLOAD_SLOT_CREATION_FAILED,
+            self::WRITE_FAILED => 500,
             self::DOCUMENT_UPLOAD_SUCCESSFUL,
             self::IMAGE_UPLOAD_SUCCESSFUL,
             self::VIDEO_UPLOAD_SUCCESSFUL => 201,

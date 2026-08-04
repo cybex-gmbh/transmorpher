@@ -204,22 +204,27 @@ class UploadController extends Controller
     public function abortUpload(AbortUploadRequest $request, UploadSlot $uploadSlot): JsonResponse
     {
         $uploadSlot->invalidate();
-        $this->abort($uploadSlot);
+
+        $responseState = $this->abort($uploadSlot);
 
         return response()->json([
-            'state' => ResponseState::UPLOAD_ABORTED->getState()->value,
-            'message' => ResponseState::UPLOAD_ABORTED->getMessage(),
+            'state' => $responseState->getState()->value,
+            'message' => $responseState->getMessage(),
             'identifier' => $uploadSlot->identifier,
-        ])->setStatusCode(ResponseState::UPLOAD_ABORTED->getResponseCode());
+        ])->setStatusCode($responseState->getResponseCode());
     }
 
-    protected function abort(UploadSlot $uploadSlot): void
+    protected function abort(UploadSlot $uploadSlot): ResponseState
     {
         try {
             UploadHandler::abort($uploadSlot);
         } catch (Throwable $throwable) {
             report($throwable);
+
+            return ResponseState::UPLOAD_ABORT_FAILED;
         }
+
+        return ResponseState::UPLOAD_ABORTED;
     }
 
     protected function completeFileOperations(CompleteUploadRequest $request, UploadSlot $uploadSlot): ?ResponseState
