@@ -29,7 +29,10 @@ return [
     ],
 
     'upload' => [
-        'aborted' => 'Upload aborted.',
+        'abort' => [
+            'success' => 'Upload aborted.',
+            'failed' => 'Aborting upload failed.',
+        ],
         'slot' => [
             'created' => 'Successfully created upload slot.',
             'failed' => 'Upload slot creation failed.',
