@@ -516,7 +516,7 @@ Videos may be transcoded using a machine's NVIDIA GPU.
 This requires the according hardware and driver setup on the host machine.
 
 - https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
-- https://docs.nvidia.com/video-technologies/video-codec-sdk/pdf/Using_FFmpeg_with_NVIDIA_GPU_Hardware_Acceleration.pdf
+- https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
 
 The following steps are necessary on a docker host:
 
