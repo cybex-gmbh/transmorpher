@@ -14,7 +14,7 @@ class GetChunkUrlRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:upload.chunk.url');
+        return $this->user()->tokenCan('transmorpher:upload.url');
     }
 
     /**
