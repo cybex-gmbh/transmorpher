@@ -30,7 +30,7 @@ class DefaultUploadHandler implements UploadHandlerInterface
     }
 
     /**
-     * Returns the v2 chunk upload endpoint URL.
+     * Returns the chunk upload endpoint URL.
      *
      * @param UploadSlot $uploadSlot
      * @param int $chunkNumber

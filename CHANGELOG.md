@@ -11,7 +11,7 @@
 
 - Restructured the README
 - Added a README section about [Implementing a client](README.md#implementing-a-client)
-- v2 API added, v1 will be deprecated in the future. Various v1 methods have been deprecated.
+- v2 API added, v1 API will be deprecated in the future. Various v1 API methods have been deprecated.
 - Upload process has been restructured, see ["Uploading Media README"](README.md#uploading-media) for more information
 - Routes have been slightly adjusted, the `upload` route now uses `PUT` instead of `POST`
 - Reserving an upload slot now requires to pass the final file name
@@ -51,8 +51,8 @@
 - Sail has been removed,
   please refer to the [development section of the README](README.md#development) for information on running, connecting and testing with the new images
 - Docker Bake is now used to build and push images, which allows the simultaneous building of the app and transcoder images, including caching mechanisms
-- v2 Tests have been added, with more extensive test cases
-- Postman v2 has been added, with only the happy path since tests should now cover failures
+- v2 API Tests have been added, with more extensive test cases
+- v2 API calls have been added to Postman, with only the happy path since tests should now cover failures
 - The `responses.php` language file has been restructured to use dot notation
 
 ## [v0.8.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.7.0...v0.8.0)
