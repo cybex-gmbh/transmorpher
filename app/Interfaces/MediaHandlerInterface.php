@@ -3,6 +3,7 @@
 namespace App\Interfaces;
 
 use App\Enums\ResponseState;
+use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
@@ -43,6 +44,8 @@ interface MediaHandlerInterface
      * @return array
      */
     public function processVersion(User $user, Version $version): array;
+
+    public function getVersionsInfo(Media $media): array;
 
     /**
      * @return Filesystem

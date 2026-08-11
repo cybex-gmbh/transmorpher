@@ -84,7 +84,7 @@ class VideoHandler extends MediaHandler
      * @param Media $media
      * @return array
      */
-    public function getVersions(Media $media): array
+    public function getVersionsInfo(Media $media): array
     {
         $versions = $media->Versions;
 
