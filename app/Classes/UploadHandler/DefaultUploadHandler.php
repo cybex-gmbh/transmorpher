@@ -64,8 +64,8 @@ class DefaultUploadHandler implements UploadHandlerInterface
         }
 
         $mimeType = mime_content_type($disk->path($filePath));
-
         $typeHandler = $uploadSlot->media_type->handler();
+
         if (!$typeHandler->isMimeTypeValid($mimeType)) {
             throw ValidationException::withMessages([
                 'file' => [
@@ -75,7 +75,6 @@ class DefaultUploadHandler implements UploadHandlerInterface
         }
 
         $stream = $disk->readStream($filePath);
-
         $writeSuccess = MediaStorage::ORIGINALS->getDisk()->writeStream($uploadSlot->originalFilePath, $stream);
 
         fclose($stream);

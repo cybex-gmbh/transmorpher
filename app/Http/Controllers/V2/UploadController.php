@@ -240,6 +240,7 @@ class UploadController extends Controller
             }
 
             report($throwable);
+
             $responseState = ResponseState::WRITE_FAILED;
         }
 

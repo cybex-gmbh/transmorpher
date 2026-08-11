@@ -131,8 +131,8 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         ]);
 
         $contentType = mime_content_type(MediaStorage::ORIGINALS->getDisk()->readStream($uploadSlot->originalFilePath));
-
         $typeHandler = $uploadSlot->media_type->handler();
+
         if (!$typeHandler->isMimeTypeValid($contentType)) {
             $this->client->deleteObject([
                 'Bucket' => $this->bucket,
