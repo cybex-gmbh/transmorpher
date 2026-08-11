@@ -88,7 +88,7 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
      * @throws AwsException
      * @throws RuntimeException
      */
-    public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string
+    public function getUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string
     {
         $command = $this->client->getCommand('UploadPart', [
             'Bucket' => $this->bucket,

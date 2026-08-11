@@ -134,7 +134,7 @@ class UploadController extends Controller
     }
 
     /**
-     * Returns a chunk upload URL for the given chunk number.
+     * Returns an upload URL for the given chunk number.
      *
      * @param GetChunkUrlRequest $request
      * @param UploadSlot $uploadSlot
@@ -142,10 +142,10 @@ class UploadController extends Controller
      *
      * @return JsonResponse
      */
-    public function getChunkUploadUrl(GetChunkUrlRequest $request, UploadSlot $uploadSlot, int $chunkNumber): JsonResponse
+    public function getUploadUrl(GetChunkUrlRequest $request, UploadSlot $uploadSlot, int $chunkNumber): JsonResponse
     {
         return response()->json([
-            'url' => UploadHandler::getChunkUploadUrl($uploadSlot, $chunkNumber),
+            'url' => UploadHandler::getUploadUrl($uploadSlot, $chunkNumber),
         ]);
     }
 

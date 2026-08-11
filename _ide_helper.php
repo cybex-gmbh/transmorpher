@@ -23614,79 +23614,70 @@ namespace App\Facades {
      */
     class UploadHandlerFacade {
         /**
-         * Ensures that the configured originals disk is an S3 disk.
-         *
-         * @return void
-         * @throws RuntimeException
+         * @static
+         */
+        public static function createTempFilename($uploadSlot)
+        {
+            return \App\Classes\UploadHandler\DefaultUploadHandler::createTempFilename($uploadSlot);
+        }
+
+        /**
          * @static
          */
         public static function ensurePrerequisitesMet()
         {
-            \App\Classes\UploadHandler\S3MultipartUploadHandler::ensurePrerequisitesMet();
+            return \App\Classes\UploadHandler\DefaultUploadHandler::ensurePrerequisitesMet();
         }
 
         /**
-         * Initiates an S3 multipart upload and stores the upload ID in cache.
-         *
-         * @param \App\Models\UploadSlot $uploadSlot
-         * @return void
-         * @throws AwsException
-         * @throws RuntimeException
          * @static
          */
         public static function initiate($uploadSlot)
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
-            $instance->initiate($uploadSlot);
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
+            return $instance->initiate($uploadSlot);
         }
 
         /**
-         * Returns a presigned URL for uploading a single part.
+         * Returns the chunk upload endpoint URL.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @param int $chunkNumber
          * @return string
-         * @throws AwsException
-         * @throws RuntimeException
          * @static
          */
-        public static function getChunkUploadUrl($uploadSlot, $chunkNumber)
+        public static function getUploadUrl($uploadSlot, $chunkNumber)
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
-            return $instance->getChunkUploadUrl($uploadSlot, $chunkNumber);
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
+            return $instance->getUploadUrl($uploadSlot, $chunkNumber);
         }
 
         /**
-         * Completes the S3 multipart upload and validates the mime type.
-         *
-         * Throws on validation failure and then deletes the S3 object.
+         * Completes the upload by validating the file and moving it to its intended location.
          *
          * @param \App\Http\Requests\V2\CompleteUploadRequest $request
          * @param \App\Models\UploadSlot $uploadSlot
          * @return void
-         * @throws AwsException
+         * @throws FileNotFoundException
          * @throws ValidationException
-         * @throws RuntimeException
          * @static
          */
         public static function complete($request, $uploadSlot)
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             $instance->complete($request, $uploadSlot);
         }
 
         /**
-         * Aborts the S3 multipart upload.
+         * Cleans up any already-stored local upload for the given upload slot.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @return void
-         * @throws AwsException
-         * @throws RuntimeException
          * @static
          */
         public static function abort($uploadSlot)
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             $instance->abort($uploadSlot);
         }
 
@@ -23695,7 +23686,7 @@ namespace App\Facades {
          */
         public static function getUploadSlotRequestValidationRules()
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getUploadSlotRequestValidationRules();
         }
 
@@ -23704,7 +23695,7 @@ namespace App\Facades {
          */
         public static function getChunkUrlRequestValidationRules()
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getChunkUrlRequestValidationRules();
         }
 
@@ -23713,7 +23704,7 @@ namespace App\Facades {
          */
         public static function getCompleteRequestValidationRules()
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getCompleteRequestValidationRules();
         }
 
@@ -23722,7 +23713,7 @@ namespace App\Facades {
          */
         public static function getAbortRequestValidationRules()
         {
-            /** @var \App\Classes\UploadHandler\S3MultipartUploadHandler $instance */
+            /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
             return $instance->getAbortRequestValidationRules();
         }
 

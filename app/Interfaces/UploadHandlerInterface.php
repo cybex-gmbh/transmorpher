@@ -48,7 +48,7 @@ interface UploadHandlerInterface
      *
      * @throws Throwable
      */
-    public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string;
+    public function getUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string;
 
     /**
      * Completes the upload process. This includes:

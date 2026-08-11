@@ -35,7 +35,7 @@ Route::prefix('v2')->name('v2.')->group(function () {
 
         // Uploading
         Route::post('/{mediaType}/reserveUploadSlot', [UploadController::class, 'reserveUploadSlot'])->name('reserveUploadSlot');
-        Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadController::class, 'getChunkUploadUrl'])->name('getChunkUploadUrl');
+        Route::get('/upload/{uploadSlot}/chunkUrl/{chunkNumber}', [UploadController::class, 'getUploadUrl'])->name('getUploadUrl');
         Route::post('/upload/{uploadSlot}/complete', [UploadController::class, 'completeUpload'])->name('completeUpload');
         Route::delete('/upload/{uploadSlot}', [UploadController::class, 'abortUpload'])->name('abortUpload');
     });

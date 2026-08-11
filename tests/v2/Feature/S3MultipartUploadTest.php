@@ -93,7 +93,7 @@ class S3MultipartUploadTest extends TestCase
     }
 
     #[Test]
-    public function canGetChunkUploadUrl(): void
+    public function canGetUploadUrl(): void
     {
         $identifier = 'chunk-upload-url-s3-' . uniqid();
         $presignedUrl = 'https://s3.example.com/chunk-presigned';

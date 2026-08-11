@@ -30,14 +30,13 @@ class DefaultUploadHandler implements UploadHandlerInterface
     }
 
     /**
-     * Returns the chunk upload endpoint URL.
-     *
+     * Returns an upload URL for the given chunk number.
      * @param UploadSlot $uploadSlot
      * @param int $chunkNumber
      *
      * @return string
      */
-    public function getChunkUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string
+    public function getUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string
     {
         return route('v2.upload', $uploadSlot->token);
     }
