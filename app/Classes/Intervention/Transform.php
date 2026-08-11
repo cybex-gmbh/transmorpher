@@ -139,7 +139,9 @@ class Transform implements TransformInterface
         }
 
         $requestedPage = $transformations[Transformation::PAGE->value] ?? false;
-        if ($exception->getCode() === 1 && $requestedPage) {
+
+        // The call to a delegate failed (in this case it should be ghostscript, which processes the PDF)
+        if ($exception->getCode() === 415 && $requestedPage) {
             // We assume an error happened because the requested page does not exist. In case this is not applicable, check the error logs.
             $customException = new DocumentPageDoesNotExistException($requestedPage, $exception->getCode(), previous: $exception);
         }

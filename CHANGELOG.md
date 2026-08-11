@@ -1,14 +1,39 @@
 # Release Notes
 
+## [v0.9.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.8.0...v0.9.0)
+
+> [!WARNING]
+> Breaking changes!
+>
+> For more information, see the [upgrade guide](README.md#v080-to-v090).
+
+### General
+
+- Added a README section about [browser cache busting](README.md#browser-cache-busting)
+
+#### For docker image users
+
+- The Transmorpher base images have changed, which leads to several structural changes. Refer to the [compose.prod.example.yml](compose.prod.example.yml) for an example production
+  setup
+    - Workers are now running in separate containers
+    - Transcoding workers have their own image and run in a separate container
+    - Scheduler has to run as its own container
+
+### Development
+
+- Sail has been removed,
+  please refer to the [development section of the README](README.md#development) for information on running, connecting and testing with the new images
+- Docker Bake is now used to build and push images, which allows the simultaneous building of the app and transcoder images, including caching mechanisms
+
 ## [v0.8.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.7.0...v0.8.0)
 
 ### Features
 
 - now uses Laravel 12 and PHP 8.4, this implies:
-  - local disk is now pointing to `storage/app/private` by default. The local disk is used for storing temporary files.
-  - session driver is now set to `database` by default in the .env.example
-  - cache store is now set to `database` by default in the .env.example
-  - migrations for the session and cache database tables have been published
+    - local disk is now pointing to `storage/app/private` by default. The local disk is used for storing temporary files.
+    - session driver is now set to `database` by default in the .env.example
+    - cache store is now set to `database` by default in the .env.example
+    - migrations for the session and cache database tables have been published
 - a worker for emails has been added to the docker image. Available notifications have been documented, see ["Email notifications README"](README.md#email-notifications)
 
 ### Bug Fixes
@@ -17,18 +42,18 @@
 
 ### Development
 
-- the `Intervention Image` package has been updated to v3, since v2 is EOL. 
-- `ImageMagick` v6 caused artifacts to appear in images when combined with `Intervention Image` v3, therefore we needed to update `ImageMagick` to v7. 
+- the `Intervention Image` package has been updated to v3, since v2 is EOL.
+- `ImageMagick` v6 caused artifacts to appear in images when combined with `Intervention Image` v3, therefore we needed to update `ImageMagick` to v7.
 
 ## [v0.7.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.6.0...v0.7.0)
 
 ### Features
 
 - PDFs are now supported, see ["PDF handling README"](README.md#pdf-handling)
-  - upload
-  - download
-  - images of specific pages, supporting image formats and transformations
-  - derivative purging
+    - upload
+    - download
+    - images of specific pages, supporting image formats and transformations
+    - derivative purging
 - the version history is now traceable, this means that restoring a version will now create a new version using the same original file as source
 
 ## [v0.6.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.5.3...v0.6.0)
@@ -89,7 +114,7 @@
 
 ### Features
 
-- provide the possibility to configure a subdirectory for the laravel.log file 
+- provide the possibility to configure a subdirectory for the laravel.log file
 
 ### Development
 

@@ -27,9 +27,21 @@ A media server for images, pdfs and videos.
 
 See the [Docker Hub repository](https://hub.docker.com/r/cybexwebdev/transmorpher) for images.
 
-To not accidentally upgrade to a new major version, attach the major version you want to use to the image name:
+The Transmorpher Media Server comes with two images:
 
-`cybexwebdev/transmorpher:0`
+- `app`: The main application, which handles image and document processing.
+- `transcoder`: The transcoding worker, which handles video processing.
+
+Please check the [compose.prod.example.yml](compose.prod.example.yml) file for an example of a production configuration.
+
+To not accidentally upgrade to a new breaking version, attach the version (replace "0.x" with a valid version in this example) you want to use to the image name:
+
+`cybexwebdev/transmorpher:0.x-app`
+`cybexwebdev/transmorpher:0.x-transcoder`
+
+> [!IMPORTANT]
+> 
+> The app and transcoder image need to match in version.
 
 #### Configuration options
 
@@ -45,11 +57,11 @@ VIDEO_TRANSCODING_WORKERS_AMOUNT=1
 > It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
 > To prevent duplicate runs with database, use only one worker process.
 
-This environment variable has to be passed to the app container in your docker-compose.yml:
+This environment variable has to be passed to the transcoding worker container in your compose.yml:
 
 ```yaml
 environment:
-    VIDEO_TRANSCODING_WORKERS_AMOUNT: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
+    SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
 ```
 
 ### Cloning the repository
@@ -139,7 +151,7 @@ Use the provided `.env` keys to select the according disks in the `filesystems.p
 > [!NOTE]
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
-> 1. If this prefix would be changed after initially launching your media server,
+> 2. If this prefix would be changed after initially launching your media server,
      > clients would no longer be able to retrieve their previously uploaded media.
 
 #### Sodium Keypair
@@ -246,7 +258,7 @@ the [documentation page](https://docs.aws.amazon.com/AmazonCloudFront/latest/Dev
 To properly use the API, you need to either:
 
 1. add a rule to not cache anything under `/api/*`
-1. publish the Transmorpher media server under an additional domain that is not behind the CDN
+2. publish the Transmorpher media server under an additional domain that is not behind the CDN
 
 #### Video specific configuration
 
@@ -277,9 +289,12 @@ To configure an AWS SQS queue, see the according keys in the `.env`.
 ### Local disk setup
 
 > [!WARNING]
-> For the docker setup, to be able to deliver videos, the `Access-Control-Allow-Origin` header is currently set to '*'. This means every website can embed your videos.
+> For the docker setup, to be able to deliver videos, the `Access-Control-Allow-Origin` header is currently set to '*'.
+> This means every website can embed your videos.
 > 
-> If you want to restrict this, you can mount your own configuration at `/opt/docker/etc/nginx/vhost.common.d/10-location-root.conf`. The current config can be found at `docker/location-root.conf`. 
+> This applies to files in your /public/videos folder ending with .m3u8, .ts, .mpd, .m4s and .mp4.
+> If you want to restrict this, you can mount your own configuration at `/etc/nginx/conf.d/default.conf.template`.
+> The current config can be found at `docker/common/nginx.default.conf`. 
 
 #### Prerequisites for video functionality
 
@@ -374,6 +389,17 @@ The media server provides the following features for media:
 - delete
 
 > Marked with * does not apply to videos.
+
+### Browser cache busting
+
+When a media version has been processed, the response or client notification will include a `hash` for this version.
+Use this hash in combination with the `cacheInvalidationCounter` (see [Purging derivates](#purging-derivatives)),
+and add both to the public URL.
+
+For example:
+
+`https://transmorpher.test/images/<clientname>/<identifier>?v=<cacheInvalidationCounter>_<hash>`
+`https://transmorpher.test/images/<clientname>/<identifier>/<transformations>?v=<cacheInvalidationCounter>_<hash>`
 
 ## Image transformation
 
@@ -490,7 +516,7 @@ Videos may be transcoded using a machine's NVIDIA GPU.
 This requires the according hardware and driver setup on the host machine.
 
 - https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC
-- https://docs.nvidia.com/video-technologies/video-codec-sdk/pdf/Using_FFmpeg_with_NVIDIA_GPU_Hardware_Acceleration.pdf
+- https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
 
 The following steps are necessary on a docker host:
 
@@ -634,25 +660,55 @@ Lost image and document derivatives will automatically be re-generated on demand
 
 ## Development
 
+To start the docker containers for development, use the following command:
+
+```bash
+docker compose up -d
+```
+
+To start the containers with a GPU worker, use the following command:
+
+```bash
+docker compose -f compose.yml -f compose.nvidia.yml up -d
+```
+
+To connect to the application container:
+
+```bash
+docker compose exec app shell
+```
+
+To connect to other containers, such as the transcoding worker container, replace `app` with the service name in the `compose.yml` file, e.g. `transcoding-worker`
+
+### Testing
+
+You need to use the `testing` container:
+
+```bash
+docker compose exec testing shell
+```
+
+To run the tests:
+
+```bash
+php artisan test
+```
+
+> [!NOTE]
+>
+> Your IDE may have some kind of docker integration which allows you to run the tests directly from the IDE.
+> When configuring this, make sure to connect to the docker container as `www-data` user, to prevent mismatching file permissions.
+
 ### Docker image information
 
 #### ImageMagick
 
-Due to issues with `ImageMagick 6` in combination with `Intervention Image v3` it is necessary to install `ImageMagick 7`.
-This needs to be compiled from source, as our currently used distribution versions (Ubuntu 24.04, Debian bookworm) do not provide it yet.
-
-#### FFmpeg
-
-The production base image comes with an old FFmpeg version, therefore we add the source manually and install it from there.
+Due to issues with `ImageMagick 6` in combination with `Intervention Image v3`, we need to install `ImageMagick 7`.
+This is already included in the base image.
 
 #### NVIDIA toolkit
 
-The production base image comes with the NVIDIA container toolkit pre-installed to enable GPU acceleration for video transcoding.
-
-The development base image does not include it by default.
-There is an additional build stage which takes care of installing the toolkit.
-
-There is a development compose file `compose-nvidia.yml`, which targets this build stage.
+The transcoder image comes with the NVIDIA container toolkit pre-installed to enable GPU acceleration for video transcoding.
 
 ### [Pullpreview](https://github.com/pullpreview/action)
 
@@ -706,6 +762,19 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 ```
 
 ## Upgrade Guide
+
+### v0.8.0 to v0.9.0
+
+> [!WARNING]
+> Breaking changes!
+
+#### For Docker image users
+
+- The base images have changed and need a new compose.yml definition.
+  - The main application image was split into separate images for the application and the transcoding worker.
+  - The application image no longer automatically starts workers or creates a cron for the scheduler.
+    - This will now need to be set up in the compose.yml file.
+    - Please refer to the [compose.prod.example.yml](compose.prod.example.yml) file for an example production setup
 
 ### v0.7.0 to v0.8.0
 

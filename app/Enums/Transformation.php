@@ -27,9 +27,9 @@ enum Transformation: string
         $valid = match ($this) {
             self::WIDTH,
             self::HEIGHT,
-            self::PAGE,
-            self::PPI => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]),
-            self::FORMAT => in_array($value, ImageFormat::getFormats(), true),
+            self::PAGE => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]),
+            self::PPI => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 2]]),
+            self::FORMAT => in_array($value, ImageFormat::getFormats(), strict: true),
             self::QUALITY => filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100]]),
         };
 
@@ -37,7 +37,7 @@ enum Transformation: string
             throw new InvalidTransformationValueException($value, $this->name);
         }
 
-        return $value;
+        return is_int($valid) ? $valid : $value;
     }
 
     /**
