@@ -133,7 +133,7 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         $contentType = mime_content_type(MediaStorage::ORIGINALS->getDisk()->readStream($uploadSlot->originalFilePath));
         $typeHandler = $uploadSlot->media_type->handler();
 
-        if (!$typeHandler->isMimeTypeValid($contentType)) {
+        if (!$typeHandler->isMimetypeValid($contentType)) {
             $this->client->deleteObject([
                 'Bucket' => $this->bucket,
                 'Key' => $key,
@@ -141,7 +141,7 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
 
             throw ValidationException::withMessages([
                 'file' => [
-                    trans('validation.mimetypes', ['attribute' => 'file', 'values' => $typeHandler->getAllowedMimetypes()])
+                    trans('validation.mimetypes', ['attribute' => 'file', 'values' => $typeHandler->getAllowedMimetypesAsString()])
                 ]
             ]);
         }

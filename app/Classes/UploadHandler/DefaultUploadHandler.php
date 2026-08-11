@@ -66,10 +66,10 @@ class DefaultUploadHandler implements UploadHandlerInterface
         $mimeType = mime_content_type($disk->path($filePath));
         $typeHandler = $uploadSlot->media_type->handler();
 
-        if (!$typeHandler->isMimeTypeValid($mimeType)) {
+        if (!$typeHandler->isMimetypeValid($mimeType)) {
             throw ValidationException::withMessages([
                 'file' => [
-                    trans('validation.mimetypes', ['attribute' => 'file', 'values' => $typeHandler->getAllowedMimetypes()])
+                    trans('validation.mimetypes', ['attribute' => 'file', 'values' => $typeHandler->getAllowedMimetypesAsString()])
                 ]
             ]);
         }

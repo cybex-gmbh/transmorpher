@@ -7,6 +7,7 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\Transformation;
 use App\Models\Version;
+use Illuminate\Support\Collection;
 use Optimize;
 use Transform;
 
@@ -28,9 +29,9 @@ class DocumentHandler extends OnDemandDerivativeMediaHandler
         return 'mimetypes:application/pdf';
     }
 
-    public function getAllowedMimetypes(): string
+    public function getAllowedMimetypes(): Collection
     {
-        return 'mimetypes:application/pdf';
+        return collect(['application/pdf']);
     }
 
     /**

@@ -46,6 +46,11 @@ abstract class MediaHandler implements MediaHandlerInterface
         return true;
     }
 
+    public function getAllowedMimetypesAsString(): string
+    {
+        return $this->getAllowedMimetypes()->join(', ');
+    }
+
     /**
      * Validates the passed mimetype against allowed mimetypes.
      * This has to be done after all chunks have been received, because the mime type of the received chunks is 'application/octet-stream'.
@@ -59,10 +64,8 @@ abstract class MediaHandler implements MediaHandlerInterface
      *      video/mp4 => mp4 mp4v mpg4
      *
      */
-    public function isMimeTypeValid(string $mimeType): bool
+    public function isMimetypeValid(string $mimetype): bool
     {
-        [, $allowedMimeTypes] = explode(':', $this->getAllowedMimetypes());
-
-        return in_array(needle: $mimeType, haystack: explode(',', $allowedMimeTypes));
+        return $this->getAllowedMimetypes()->contains($mimetype);
     }
 }

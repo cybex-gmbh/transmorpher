@@ -143,7 +143,7 @@ class Media extends Model
      * @throws ValidationException
      *
      * @deprecated Will be removed once v1 has been discontinued.
-     *             Use the media types handler {@see MediaHandlerInterface::isMimeTypeValid()} method instead.
+     *             Use the media types handler {@see MediaHandlerInterface::isMimetypeValid()} method instead.
      */
     public function validateUploadFile(UploadedFile $file, string $mimeTypes): void
     {

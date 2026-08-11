@@ -11,6 +11,7 @@ use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
 use BadMethodCallException;
+use Illuminate\Support\Collection;
 use Transcode;
 
 class VideoHandler extends MediaHandler
@@ -47,9 +48,16 @@ class VideoHandler extends MediaHandler
         return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4,video/x-matroska';
     }
 
-    public function getAllowedMimetypes(): string
+    public function getAllowedMimetypes(): Collection
     {
-        return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4,video/x-matroska';
+        return collect([
+            'video/x-msvideo',
+            'video/mpeg',
+            'video/ogg',
+            'video/webm',
+            'video/mp4',
+            'video/x-matroska'
+        ]);
     }
 
     /**

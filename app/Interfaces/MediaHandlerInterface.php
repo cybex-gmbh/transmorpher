@@ -7,6 +7,7 @@ use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 
 interface MediaHandlerInterface
 {
@@ -24,9 +25,11 @@ interface MediaHandlerInterface
      */
     public function getValidationRules(): string;
 
-    public function getAllowedMimetypes(): string;
+    public function getAllowedMimetypes(): Collection;
 
-    public function isMimeTypeValid(string $mimeType): bool;
+    public function getAllowedMimetypesAsString(): string;
+
+    public function isMimetypeValid(string $mimetype): bool;
 
     /**
      * @param string $basePath

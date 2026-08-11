@@ -8,6 +8,7 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\Transformation;
 use App\Models\Version;
+use Illuminate\Support\Collection;
 use Optimize;
 use Transform;
 
@@ -29,17 +30,9 @@ class ImageHandler extends OnDemandDerivativeMediaHandler
         return sprintf('mimes:%s', implode(',', ImageFormat::getFormats()));
     }
 
-    public function getAllowedMimetypes(): string
+    public function getAllowedMimetypes(): Collection
     {
-        return sprintf('mimes:%s', implode(',', ImageFormat::getFormats()));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isMimeTypeValid(string $mimeType): bool
-    {
-        return parent::isMimeTypeValid(ImageFormat::tryFromMimeType($mimeType)?->value ?? '');
+        return collect(ImageFormat::getMimetypes());
     }
 
     /**
