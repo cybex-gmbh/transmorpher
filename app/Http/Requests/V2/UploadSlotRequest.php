@@ -27,7 +27,6 @@ class UploadSlotRequest extends FormRequest
     public function rules(): array
     {
         return array_merge(
-            UploadHandler::getUploadSlotRequestValidationRules(),
             [
                 // Identifier is used in file paths and URLs, therefore only lower/uppercase characters, numbers, underscores and hyphens are allowed.
                 'identifier' => ['required', 'string', sprintf('regex:%s', ValidationRegex::IDENTIFIER->get())],
@@ -48,6 +47,7 @@ class UploadSlotRequest extends FormRequest
                     },
                 ],
             ],
+            UploadHandler::getUploadSlotRequestValidationRules(),
         );
     }
 }
