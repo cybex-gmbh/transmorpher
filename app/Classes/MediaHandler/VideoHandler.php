@@ -40,7 +40,7 @@ class VideoHandler extends MediaHandler
     }
 
     /**
-     * @deprecated Will be removed once v1 has been discontinued.
+     * @deprecated Will be removed once the v1 API has been discontinued.
      *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string

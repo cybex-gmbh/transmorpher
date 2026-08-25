@@ -116,7 +116,7 @@ class Version extends Model
      * @param string $filename
      *
      * @return string
-     * @deprecated Will be removed once v1 has been discontinued.
+     * @deprecated Will be removed once the v1 API has been discontinued.
      *             Original file names are now managed via UploadSlots, since we need to know the file destination before creating a version.
      */
     public function createOriginalFileName(string $filename): string

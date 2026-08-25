@@ -30,7 +30,7 @@
 #### Client-facing
 
 - The Media Server now has the ability to handle S3 Multipart Uploads, when it is configured so
-    - Added a route to retrieve the configured upload handler, `s3-multi-part` for S3 Multipart Uploads, `default` for the v1 behaviour
+    - Added a route to retrieve the configured upload handler, `s3-multi-part` for S3 Multipart Uploads, `default` for the v1 API behaviour
     - See ["Uploading Media README"](README.md#uploading-media) for more information, also on the updated upload process
 - The Postman collection has been updated with v2 API example calls
 - More accurate HTTP responses will be returned by the server, especially for errors

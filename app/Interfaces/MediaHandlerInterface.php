@@ -21,7 +21,7 @@ interface MediaHandlerInterface
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, Version $version): ResponseState;
 
     /**
-     * @deprecated Will be removed once v1 has been discontinued.
+     * @deprecated Will be removed once the v1 API has been discontinued.
      *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string;
