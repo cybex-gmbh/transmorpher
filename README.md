@@ -235,6 +235,10 @@ To use video transcoding:
 
 #### Generic workers
 
+> [!IMPORTANT]
+> To run workers, you should use the provided `php artisan transmorpher:queue-work` command.
+> The command will validate your config and make sure the worker is running with the correct settings.
+
 Client notifications will be pushed onto the queue configured by `TRANSMORPHER_CLIENT_NOTIFICATIONS_QUEUE` (default: `client-notifications`).
 You must set up 1 worker for this queue.
 
@@ -402,11 +406,12 @@ which is the video derivatives S3 bucket.
 *Queue*
 
 Transcoding jobs are dispatched onto the "video-transcoding" queue by default.
-You can set the queue name and connection via environment variables:
+You can set the queue name, connection and whether to use SQS FIFO via environment variables:
 
 ```dotenv
-TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=video-transcoding
+TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=custom-name
 # TRANSMORPHER_VIDEO_TRANSCODING_QUEUE_CONNECTION=
+# TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=false
 ```
 
 You can have these jobs processed on the main server or dedicated workers.
@@ -416,27 +421,21 @@ For more information, check the [Laravel Queue Documentation](https://laravel.co
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
 > duplicate runs.
 >
-> This can be achieved using AWS SQS FIFO: append `.fifo` to the queue name and set the connection to `sqs`.
+> This can be achieved using AWS SQS FIFO: `TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true` and make sure to use a connection using the sqs driver.
 
 **Example: AWS SQS FIFO for video transcoding**
 
 ```dotenv
 QUEUE_CONNECTION=sqs
-TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=video-transcoding.fifo
+TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true
 ```
 
 **Example: Mixed queue connections** (transcoding on SQS FIFO, other queues on database)
 
 ```dotenv
 QUEUE_CONNECTION=database
-TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=video-transcoding.fifo
 TRANSMORPHER_VIDEO_TRANSCODING_QUEUE_CONNECTION=sqs
-```
-
-The worker container automatically uses the same queue name:
-
-```yaml
-QUEUE: ${TRANSMORPHER_VIDEO_TRANSCODING_QUEUE:-video-transcoding}
+TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true
 ```
 
 To configure an AWS SQS queue, see the according keys in the `.env`.

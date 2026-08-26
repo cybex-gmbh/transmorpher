@@ -44,28 +44,25 @@ services:
     image: *transcoder-image
     environment:
       <<: *app-url
-      CONTAINER_ROLE: worker
+      CONTAINER_ROLE: runner
       SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-      QUEUE: ${TRANSMORPHER_VIDEO_TRANSCODING_QUEUE:-video-transcoding}
-      QUEUE_CONNECTION: ${TRANSMORPHER_VIDEO_TRANSCODING_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
+      RUNNER_COMMAND: php artisan transmorpher:queue-work video_transcoding
 
   worker-client-notifications:
     <<: *common
     environment:
       <<: *app-url
-      CONTAINER_ROLE: worker
+      CONTAINER_ROLE: runner
       SERVICE_INSTANCES: 1
-      QUEUE: ${TRANSMORPHER_CLIENT_NOTIFICATIONS_QUEUE:-client-notifications}
-      QUEUE_CONNECTION: ${TRANSMORPHER_CLIENT_NOTIFICATIONS_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
+      RUNNER_COMMAND: php artisan transmorpher:queue-work client_notifications
 
   worker-email:
     <<: *common
     environment:
       <<: *app-url
-      CONTAINER_ROLE: worker
+      CONTAINER_ROLE: runner
       SERVICE_INSTANCES: 1
-      QUEUE: ${TRANSMORPHER_EMAIL_QUEUE:-email}
-      QUEUE_CONNECTION: ${TRANSMORPHER_EMAIL_QUEUE_CONNECTION:-${QUEUE_CONNECTION}}
+      RUNNER_COMMAND: php artisan transmorpher:queue-work email
 
   scheduler:
     <<: *common

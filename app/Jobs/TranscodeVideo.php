@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Enums\Decoder;
 use App\Enums\Encoder;
 use App\Enums\MediaStorage;
+use App\Enums\Queue;
 use App\Enums\ResponseState;
 use App\Enums\StreamingFormat;
 use App\Models\UploadSlot;
@@ -65,8 +66,8 @@ class TranscodeVideo implements ShouldQueue
         protected UploadSlot $uploadSlot,
     )
     {
-        $this->onQueue(config('transmorpher.queue.video_transcoding.queue'));
-        $this->onConnection(config('transmorpher.queue.video_transcoding.connection'));
+        $this->onQueue(Queue::VIDEO_TRANSCODING->getQueue());
+        $this->onConnection(Queue::VIDEO_TRANSCODING->getConnection());
 
         \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
@@ -87,7 +88,7 @@ class TranscodeVideo implements ShouldQueue
      */
     public function messageGroup(): string
     {
-        $queue = config('transmorpher.queue.video_transcoding.queue');
+        $queue = Queue::VIDEO_TRANSCODING->getQueue();
 
         if (str_ends_with($queue, '.fifo')) {
             return (string)$this->version->getKey();
