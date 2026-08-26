@@ -42,27 +42,21 @@ services:
       <<: *common-build
       target: transcoder
     image: *transcoder-image
+    command: [ "shell", "php artisan transmorpher:queue-work video_transcoding" ]
     environment:
       <<: *app-url
-      CONTAINER_ROLE: runner
-      SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-      RUNNER_COMMAND: php artisan transmorpher:queue-work video_transcoding
 
   worker-client-notifications:
     <<: *common
+    command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
     environment:
       <<: *app-url
-      CONTAINER_ROLE: runner
-      SERVICE_INSTANCES: 1
-      RUNNER_COMMAND: php artisan transmorpher:queue-work client_notifications
 
   worker-email:
     <<: *common
+    command: [ "shell", "php artisan transmorpher:queue-work email" ]
     environment:
       <<: *app-url
-      CONTAINER_ROLE: runner
-      SERVICE_INSTANCES: 1
-      RUNNER_COMMAND: php artisan transmorpher:queue-work email
 
   scheduler:
     <<: *common
