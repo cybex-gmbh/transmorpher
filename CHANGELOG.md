@@ -20,6 +20,7 @@
 - The config file has been split up into multiple files and was restructured
 - Various classes can now be configured via the .env, using config files for the name and class specification.
 - Now uses Laravel's SQS FIFO implementation
+- Video transcoding workers amount can no longer be configured via .env.
 
 #### For docker image users
 
