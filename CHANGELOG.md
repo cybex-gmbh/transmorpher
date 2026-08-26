@@ -17,6 +17,7 @@
 - Reserving an upload slot now requires to pass the final file name
 - Original file names now use the upload token as prefix instead of the version id
 - Now uses Laravel's SQS FIFO implementation
+- Video transcoding workers amount can no longer be configured via .env.
 
 #### For docker image users
 
