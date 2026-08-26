@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\ClientNotification;
+use App\Enums\Queue;
 use App\Exceptions\ClientNotificationFailedException;
 use App\Helpers\SodiumHelper;
 use App\Models\User;
@@ -45,8 +46,8 @@ class ClientPurgeNotification implements ShouldQueue
      */
     public function __construct(protected User $user, protected int $cacheInvalidationCounter)
     {
-        $this->onQueue(config('transmorpher.queue.client_notifications.queue'));
-        $this->onConnection(config('transmorpher.queue.client_notifications.connection'));
+        $this->onQueue(Queue::CLIENT_NOTIFICATIONS->getQueue());
+        $this->onConnection(Queue::CLIENT_NOTIFICATIONS->getConnection());
     }
 
     /**

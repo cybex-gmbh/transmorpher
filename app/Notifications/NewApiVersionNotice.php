@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\Queue;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,8 +20,8 @@ class NewApiVersionNotice extends Notification implements ShouldQueue
      */
     public function __construct(protected int $apiVersion)
     {
-        $this->onQueue(config('transmorpher.queue.email.queue'));
-        $this->onConnection(config('transmorpher.queue.email.connection'));
+        $this->onQueue(Queue::EMAIL->getQueue());
+        $this->onConnection(Queue::EMAIL->getConnection());
     }
 
     /**
