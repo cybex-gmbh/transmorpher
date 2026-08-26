@@ -44,6 +44,3 @@ class AuthErrorTest extends TestCase
         ];
     }
 }
-
-
-

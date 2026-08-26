@@ -109,5 +109,3 @@ interface UploadHandlerInterface
      */
     public function getAbortRequestValidationRules(): array;
 }
-
-

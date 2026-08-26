@@ -264,6 +264,3 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         return $parts;
     }
 }
-
-
-

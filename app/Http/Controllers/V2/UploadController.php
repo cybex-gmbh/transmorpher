@@ -263,8 +263,3 @@ class UploadController extends Controller
         return $version;
     }
 }
-
-
-
-
-

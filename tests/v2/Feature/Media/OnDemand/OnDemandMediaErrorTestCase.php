@@ -95,5 +95,3 @@ abstract class OnDemandMediaErrorTestCase extends MediaErrorTestCase
         ];
     }
 }
-
-

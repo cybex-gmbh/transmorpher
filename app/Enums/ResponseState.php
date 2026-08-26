@@ -23,7 +23,6 @@ enum ResponseState: string
     case VIDEO_VERSION_SET = 'video.version.set.success';
     case WRITE_FAILED = 'disk.write.failed';
 
-
     /**
      * @return UploadState
      */

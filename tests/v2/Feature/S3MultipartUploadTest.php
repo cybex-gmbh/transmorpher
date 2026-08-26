@@ -219,7 +219,6 @@ class S3MultipartUploadTest extends TestCase
         $this->assertFalse($uploadSlot->is_valid);
     }
 
-
     #[Test]
     public function createsVersionsForSameMediaForMultipleUploadsWithSameIdentifier(): void
     {

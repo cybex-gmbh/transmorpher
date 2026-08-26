@@ -28,5 +28,3 @@ class CompleteUploadRequest extends FormRequest
         return UploadHandler::getCompleteRequestValidationRules();
     }
 }
-
-

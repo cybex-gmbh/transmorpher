@@ -328,7 +328,6 @@ class ImageTest extends OnDemandDerivativeMediaTest
                 'expectedException' => InvalidTransformationValueException::class,
             ],
 
-
             'valid_Multiple' => [
                 'input' => 'f-png+w-200+h-150+q-35+p-1+ppi-100',
                 'expectedException' => null,

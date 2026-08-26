@@ -35,5 +35,3 @@ class UploadHandlerServiceProvider extends ServiceProvider implements Deferrable
         return [static::SERVICE_NAME];
     }
 }
-
-

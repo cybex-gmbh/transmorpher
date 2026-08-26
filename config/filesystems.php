@@ -107,7 +107,6 @@ return [
             'report' => false,
         ],
 
-
         's3DocumentDerivatives' => [
             'driver' => 's3',
             'root' => MediaType::DOCUMENT->prefix(),
