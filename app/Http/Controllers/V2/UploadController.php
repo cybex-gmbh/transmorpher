@@ -250,12 +250,13 @@ class UploadController extends Controller
     protected function createVersion(UploadSlot $uploadSlot): Version
     {
         $type = $uploadSlot->media_type;
-
         $media = $uploadSlot->User->Media()->firstOrNew(['identifier' => $uploadSlot->identifier, 'type' => $type]);
+
         $media->save();
 
         $versionNumber = $media->latestVersion?->number + 1;
         $version = $media->Versions()->create(['number' => $versionNumber]);
+
         $version->update(['filename' => $uploadSlot->originalFilename]);
 
         Log::info(sprintf('Version %s for Media %s created successfully.', $media->identifier, $version->number));
