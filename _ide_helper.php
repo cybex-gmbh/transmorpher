@@ -23639,7 +23639,7 @@ namespace App\Facades {
         }
 
         /**
-         * Returns the chunk upload endpoint URL.
+         * Returns an upload URL for the given chunk number.
          *
          * @param \App\Models\UploadSlot $uploadSlot
          * @param int $chunkNumber

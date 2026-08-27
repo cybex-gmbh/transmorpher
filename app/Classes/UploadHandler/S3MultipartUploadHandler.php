@@ -67,7 +67,7 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         ]);
 
         $success = Cache::put(
-            sprintf('upload_id_%s', $uploadSlot->token),
+            $this->getUploadIdCacheKey($uploadSlot),
             $result['UploadId'],
             now()->addHours(self::CACHE_TTL_HOURS)
         );
@@ -119,6 +119,8 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         $key = $this->getObjectKey($uploadSlot);
         $uploadId = $this->getUploadId($uploadSlot);
 
+        Cache::forget($this->getUploadIdCacheKey($uploadSlot));
+
         $parts = $this->getUploadParts($key, $uploadId);
 
         $this->client->completeMultipartUpload([
@@ -165,7 +167,7 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
             'UploadId' => $this->getUploadId($uploadSlot),
         ]);
 
-        Cache::forget(sprintf('upload_id_%s', $uploadSlot->token));
+        Cache::forget($this->getUploadIdCacheKey($uploadSlot));
     }
 
     public function getUploadSlotRequestValidationRules(): array
@@ -199,7 +201,7 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
      */
     protected function getUploadId(UploadSlot $uploadSlot): ?string
     {
-        $uploadId = Cache::get(sprintf('upload_id_%s', $uploadSlot->token));
+        $uploadId = Cache::get($this->getUploadIdCacheKey($uploadSlot));
 
         if ($uploadId === null) {
             throw new RuntimeException(sprintf(
@@ -262,5 +264,10 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         }
 
         return $parts;
+    }
+
+    protected function getUploadIdCacheKey(UploadSlot $uploadSlot): string
+    {
+        return sprintf('upload_id_%s', $uploadSlot->token);
     }
 }
