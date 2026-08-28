@@ -48,21 +48,21 @@ services:
 
   worker-transcoding:
     <<: *common
-    image: cybexwebdev/php-laravel:8.4-transcoder
+    image: cybexwebdev/php-laravel-experimental:8.4-transcoder
+    command: [ "shell", "php artisan transmorpher:queue-work video_transcoding" ]
+    # Database might take some time to be available.
+    restart: on-failure:3
     environment:
       <<: *common-env
-      CONTAINER_ROLE: worker
-      SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-      QUEUE: video-transcoding
 
   worker-client-notifications:
     <<: *common
-    image: cybexwebdev/php-laravel:8.4-alpine
+    image: cybexwebdev/php-laravel-experimental:8.4-alpine
+    command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
+    # Database might take some time to be available.
+    restart: on-failure:3
     environment:
       <<: *common-env
-      CONTAINER_ROLE: worker
-      SERVICE_INSTANCES: 1
-      QUEUE: client-notifications
 
   scheduler:
     <<: *common

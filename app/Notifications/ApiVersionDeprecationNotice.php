@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\Queue;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,7 +20,31 @@ class ApiVersionDeprecationNotice extends Notification implements ShouldQueue
      */
     public function __construct(protected int $apiVersion)
     {
-        $this->onQueue('email');
+        $this->onQueue(Queue::EMAIL->getQueue());
+        $this->onConnection(Queue::EMAIL->getConnection());
+    }
+
+    /**
+     * Get the message group ID for SQS queues.
+     *
+     * @return string
+     */
+    public function messageGroup(): string
+    {
+        return sprintf('api-version-%s', $this->apiVersion);
+    }
+
+    /**
+     * Get the message deduplication ID for SQS FIFO queues.
+     * Uniquely identifies this notification by API version.
+     *
+     * @param string $payload
+     * @param string $queue
+     * @return string
+     */
+    public function deduplicationId(string $payload, string $queue): string
+    {
+        return sprintf('api-deprecation-%s', $this->apiVersion);
     }
 
     /**

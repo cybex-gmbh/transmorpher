@@ -170,27 +170,6 @@ To not accidentally upgrade to a new breaking version, attach the version (repla
 >
 > The app and transcoder image need to match in version.
 
-#### Configuration options
-
-There needs to be at least 1 Laravel worker to transcode videos.
-The following variable specifies how many workers should be running in the container:
-
-```dotenv
-VIDEO_TRANSCODING_WORKERS_AMOUNT=1
-```
-
-> [!CAUTION]
-> Using the database queue connection does neither guarantee FIFO nor prevent duplicate runs.
-> It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
-> To prevent duplicate runs with database, use only one worker process.
-
-This environment variable has to be passed to the transcoding worker container in your compose.yml:
-
-```yaml
-environment:
-    SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-```
-
 ### Cloning the repository
 
 To clone the repository and get your media server running, use:
@@ -235,10 +214,14 @@ To use video transcoding:
 
 #### Generic workers
 
-Client notifications will be pushed onto the queue `client-notifications`.
+> [!IMPORTANT]
+> To run workers, you should use the provided `php artisan transmorpher:queue-work` command.
+> The command will validate your config and make sure the worker is running with the correct settings.
+
+Client notifications will be pushed onto the queue configured by `TRANSMORPHER_CLIENT_NOTIFICATIONS_QUEUE` (default: `client-notifications`).
 You must set up 1 worker for this queue.
 
-Email notifications will be pushed onto the queue `email`.
+Email notifications will be pushed onto the queue configured by `TRANSMORPHER_EMAIL_QUEUE` (default: `email`).
 You may set up 1 worker for this queue, if you want to send emails.
 See [Email notifications](#email-notifications) for more information.
 
@@ -401,22 +384,85 @@ which is the video derivatives S3 bucket.
 
 *Queue*
 
-Transcoding jobs are dispatched onto the "video-transcoding" queue.
+Transcoding jobs are dispatched onto the "video-transcoding" queue by default.
+You can set the queue name, connection and whether to use SQS FIFO via environment variables:
+
+```dotenv
+TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=custom-name
+# TRANSMORPHER_VIDEO_TRANSCODING_QUEUE_CONNECTION=
+# TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=false
+```
+
 You can have these jobs processed on the main server or dedicated workers.
 For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
 
 > [!NOTE]
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
 > duplicate runs.
-> For this, a custom AWS SQS FIFO queue connection is available.
+>
+> This can be achieved using AWS SQS FIFO: set `TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true` and make sure to use a connection using the "sqs" driver.
 
-You can define your queue connection in the `.env` file:
+**Example: AWS SQS FIFO for video transcoding**
 
 ```dotenv
-QUEUE_CONNECTION=sqs-fifo
+TRANSMORPHER_VIDEO_TRANSCODING_QUEUE_CONNECTION=sqs
+TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true
+```
+
+**Example: Mixed queue connections** (transcoding on SQS FIFO, other queues on database)
+
+```dotenv
+QUEUE_CONNECTION=database
+TRANSMORPHER_VIDEO_TRANSCODING_QUEUE_CONNECTION=sqs
+TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true
 ```
 
 To configure an AWS SQS queue, see the according keys in the `.env`.
+
+#### SQS
+
+> [!IMPORTANT]
+> SQS queues use a visibility timeout for releasing messages back to the queue if they are not deleted.
+> The default for this is 30 seconds.
+>
+> To make sure your jobs are not released preemptively, set the visibility timeout to a value higher than the job timeout:
+>
+> - Video transcoding: 10.800 seconds (3 hours)
+> - Client notifications: 10 seconds
+> - Email: 30 seconds
+
+When using SQS as queue connection, you will need to configure queues with the following names (default):
+
+- video-transcoding
+- client-notifications
+- email
+
+If you want SQS FIFO queues, the SQS queue names need to have ".fifo" appended:
+
+- video-transcoding.fifo
+- client-notifications.fifo
+- email.fifo
+
+To use SQS set the database connection to SQS:
+
+```dotenv
+QUEUE_CONNECTION=sqs
+```
+
+Or set it for only a single queue:
+
+```dotenv
+QUEUE_CONNECTION=database
+TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=sqs
+```
+
+If you additionally want to use SQS FIFO, set the according environment variable (automatically appends ".fifo" to the queue name):
+
+```dotenv
+TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true
+```
+
+See the .env.example for all keys.
 
 ### Local disk setup
 
@@ -1189,6 +1235,7 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
     - The application image no longer automatically starts workers or creates a cron for the scheduler.
         - This will now need to be set up in the compose.yml file.
         - Please refer to the [compose.prod.example.yml](compose.prod.example.yml) file for an example production setup
+  - Video transcoding workers amount can no longer be configured via .env. If you need multiple workers, define multiple services in your compose.yml.
 
 #### Client implementations
 
@@ -1196,6 +1243,15 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 - The upload process has changed
     - please refer to the [Implementing a client](#implementing-a-client)'s [uploading media](#uploading-media) section for details
     - please see the [Postman collection](postman.json) for example calls for all v2 routes
+
+#### Server
+
+- The `sqs-fifo` queue connection and driver has been removed in favour of Laravel's SQS FIFO implementation
+    - if you have previously used the `sqs-fifo` connection, replace it with `sqs`
+  - new .env keys for fine-grained control of queue configuration (queue name, queue connection, FIFO usage) have been added.
+    Check the .env.example for details
+  - to use FIFO, set the according .env key to true, e.g. `TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true`.
+    ".fifo" will automatically be appended to the queue name.
 
 ### v0.7.0 to v0.8.0
 
