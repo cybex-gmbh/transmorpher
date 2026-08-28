@@ -153,6 +153,7 @@ class UploadSlot extends Model
                 UploadHandler::abort($this);
             } catch (Throwable $throwable) {
                 // Need to catch all exceptions to prevent aborting the model update process.
+                report($throwable);
             }
         }
     }
