@@ -89,7 +89,7 @@ class S3MultipartUploadTest extends TestCase
         ]);
 
         $uploadToken = $response->json('upload_token');
-        $this->assertNotNull(Cache::get(sprintf('upload_id_%s', $uploadToken)));
+        $this->assertNotNull(Cache::get(sprintf('uploads.s3_multi_part.upload_id_%s', $uploadToken)));
     }
 
     #[Test]
