@@ -4531,6 +4531,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -4628,6 +4631,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -5718,6 +5724,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -5814,6 +5823,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -6787,6 +6799,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -6885,6 +6900,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -6986,6 +7004,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -7059,6 +7080,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
