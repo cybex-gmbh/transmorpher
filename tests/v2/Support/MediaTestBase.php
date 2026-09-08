@@ -130,7 +130,7 @@ abstract class MediaTestBase extends TestCase
 
     protected function reserveUploadSlotRoute(MediaType $mediaType): string
     {
-        return sprintf('%s/%s/reserveUploadSlot', $this->v2ApiBaseRoute, $mediaType->value);
+        return sprintf('%s/%s/upload/reserve', $this->v2ApiBaseRoute, $mediaType->value);
     }
 
     protected function uploadRoute(string $uploadToken): string
@@ -160,6 +160,6 @@ abstract class MediaTestBase extends TestCase
 
     protected function setVersionRoute(string $mediaIdentifier, int $versionNumber): string
     {
-        return sprintf('%s/media/%s/version/%d', $this->v2ApiBaseRoute, $mediaIdentifier, $versionNumber);
+        return sprintf('%s/media/%s/versions/%d', $this->v2ApiBaseRoute, $mediaIdentifier, $versionNumber);
     }
 }

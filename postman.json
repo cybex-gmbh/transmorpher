@@ -1,6 +1,6 @@
 {
   "info": {
-      "_postman_id": "50a673ec-6419-4c4d-a601-e74a19241ac3",
+      "_postman_id": "5a2a11ae-1317-45ee-812a-833cc68ab88d",
     "name": "Transmorpher Server API",
     "description": "This file describes the Transmorpher Server API.\n\n- It includes examples for failed calls as well, until they are all covered in tests.\n    \n- Filter for \": OK\" to only see correct API calls.\n    \n\nConfiguration:\n\n- create a user on Transmorpher: `php artisan create:user postman postman@example.com http://amigor/transmorpher/notifications`\n    \n- use the provided auth token and adjust the \"authToken\" variable\n    \n- if you're using a domain different from \"transmorpher.test\", you will have to adjust the \"domain\" variable\n    \n- to run the document queries, set a local PDF file in the \"Upload: OK\" call.\n    \n\nIf you want to use the collection with the already defined files, you will have to go to `Settings > General > Allow reading files outside working directory`, and enable the option.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -4483,7 +4483,7 @@
                   "name": "Default",
                   "item": [
                     {
-                      "name": "Upload chunk 1: OK",
+                        "name": "Upload chunk 1",
                       "event": [
                         {
                           "listen": "test",
@@ -4531,6 +4531,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -4548,7 +4551,7 @@
                             {
                               "key": "file",
                               "type": "file",
-                              "src": "/home/syl/Downloads/landscape.jpg"
+                                "src": "/home/syl/Pictures/landscape.jpg"
                             },
                             {
                               "key": "identifier",
@@ -4586,7 +4589,7 @@
                   "name": "S3 Multi Part",
                   "item": [
                     {
-                      "name": "Upload chunk 1: OK",
+                        "name": "Upload chunk 1",
                       "event": [
                         {
                           "listen": "prerequest",
@@ -4628,6 +4631,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -4658,7 +4664,7 @@
                   ]
                 },
                 {
-                  "name": "Reserve upload slot: OK",
+                    "name": "Reserve upload slot",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -4725,7 +4731,7 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/image/reserveUploadSlot",
+                        "raw": "{{domain}}/api/v2/image/upload/reserve",
                       "host": [
                         "{{domain}}"
                       ],
@@ -4733,7 +4739,8 @@
                         "api",
                         "v2",
                         "image",
-                        "reserveUploadSlot"
+                          "upload",
+                          "reserve"
                       ]
                     },
                     "description": "Providing the auth token, the client reserves an upload slot for an image identifier. This action of the client backend secures the transaction, allowing the frontend to upload the image to the Transmorpher media server directly."
@@ -4741,7 +4748,7 @@
                   "response": []
                 },
                 {
-                  "name": "Get Chunk Upload URL for chunk #1: OK",
+                    "name": "Get Chunk Upload URL for chunk #1",
                   "event": [
                     {
                       "listen": "test",
@@ -4797,7 +4804,7 @@
                   "response": []
                 },
                 {
-                  "name": "Complete Upload: OK",
+                    "name": "Complete Upload",
                   "event": [
                     {
                       "listen": "test",
@@ -4868,7 +4875,7 @@
                   "response": []
                 },
                 {
-                  "name": "Abort Upload: OK",
+                    "name": "Abort Upload",
                   "event": [
                     {
                       "listen": "test",
@@ -4937,7 +4944,7 @@
               "name": "Download",
               "item": [
                 {
-                  "name": "Download (default): OK",
+                    "name": "Download (default)",
                   "event": [
                     {
                       "listen": "test",
@@ -4976,7 +4983,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download as PNG: OK",
+                    "name": "Download as PNG",
                   "event": [
                     {
                       "listen": "test",
@@ -5015,7 +5022,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download as PNG, low quality: OK",
+                    "name": "Download as PNG, low quality",
                   "event": [
                     {
                       "listen": "test",
@@ -5054,7 +5061,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download as JPG, low quality: OK",
+                    "name": "Download as JPG, low quality",
                   "event": [
                     {
                       "listen": "test",
@@ -5093,7 +5100,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download as WEBP, low quality: OK",
+                    "name": "Download as WEBP, low quality",
                   "event": [
                     {
                       "listen": "test",
@@ -5132,7 +5139,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download width 100: OK",
+                    "name": "Download width 100",
                   "event": [
                     {
                       "listen": "test",
@@ -5172,7 +5179,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download quality 90: OK",
+                    "name": "Download quality 90",
                   "event": [
                     {
                       "listen": "test",
@@ -5212,7 +5219,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download height 100: OK",
+                    "name": "Download height 100",
                   "event": [
                     {
                       "listen": "test",
@@ -5252,7 +5259,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download with all transformations: OK",
+                    "name": "Download with all transformations",
                   "event": [
                     {
                       "listen": "test",
@@ -5292,7 +5299,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download specific Version original: OK",
+                    "name": "Download specific Version original",
                   "event": [
                     {
                       "listen": "test",
@@ -5330,7 +5337,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/image/{{imageIdentifier}}/version/{{currentImageVersion}}/original",
+                        "raw": "{{domain}}/api/v2/image/{{imageIdentifier}}/versions/{{currentImageVersion}}/original",
                       "host": [
                         "{{domain}}"
                       ],
@@ -5339,7 +5346,7 @@
                         "v2",
                         "image",
                         "{{imageIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentImageVersion}}",
                         "original"
                       ]
@@ -5348,7 +5355,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download specific Version derivative: OK",
+                    "name": "Download specific Version derivative",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -5385,7 +5392,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/image/{{imageIdentifier}}/version/{{currentImageVersion}}/derivative/f-png+w-500+h-500+q-50",
+                        "raw": "{{domain}}/api/v2/image/{{imageIdentifier}}/versions/{{currentImageVersion}}/derivative/f-png+w-500+h-500+q-50",
                       "host": [
                         "{{domain}}"
                       ],
@@ -5394,7 +5401,7 @@
                         "v2",
                         "image",
                         "{{imageIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentImageVersion}}",
                         "derivative",
                         "f-png+w-500+h-500+q-50"
@@ -5409,7 +5416,7 @@
               "name": "Versions",
               "item": [
                 {
-                  "name": "List Versions: OK",
+                    "name": "List Versions",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -5476,7 +5483,7 @@
                   "response": []
                 },
                 {
-                  "name": "Restore old Version: OK",
+                    "name": "Restore old Version",
                   "event": [
                     {
                       "listen": "test",
@@ -5528,7 +5535,7 @@
                       "formdata": []
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/media/{{imageIdentifier}}/version/{{currentImageVersion}}",
+                        "raw": "{{domain}}/api/v2/media/{{imageIdentifier}}/versions/{{currentImageVersion}}",
                       "host": [
                         "{{domain}}"
                       ],
@@ -5537,7 +5544,7 @@
                         "v2",
                         "media",
                         "{{imageIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentImageVersion}}"
                       ]
                     }
@@ -5550,7 +5557,7 @@
               "name": "Delete",
               "item": [
                 {
-                  "name": "Delete: OK",
+                    "name": "Delete",
                   "event": [
                     {
                       "listen": "test",
@@ -5669,7 +5676,7 @@
                   "name": "Default",
                   "item": [
                     {
-                      "name": "Upload chunk 1: OK",
+                        "name": "Upload chunk 1",
                       "event": [
                         {
                           "listen": "test",
@@ -5717,6 +5724,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -5771,7 +5781,7 @@
                   "name": "S3 Multi Part",
                   "item": [
                     {
-                      "name": "Upload chunk 1: OK",
+                        "name": "Upload chunk 1",
                       "event": [
                         {
                           "listen": "prerequest",
@@ -5813,6 +5823,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -5843,7 +5856,7 @@
                   ]
                 },
                 {
-                  "name": "Reserve upload slot: OK",
+                    "name": "Reserve upload slot",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -5910,7 +5923,7 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/document/reserveUploadSlot",
+                        "raw": "{{domain}}/api/v2/document/upload/reserve",
                       "host": [
                         "{{domain}}"
                       ],
@@ -5918,7 +5931,8 @@
                         "api",
                         "v2",
                         "document",
-                        "reserveUploadSlot"
+                          "upload",
+                          "reserve"
                       ]
                     },
                     "description": "Providing the auth token, the client reserves an upload slot for a document identifier. This action of the client backend secures the transaction, allowing the frontend to upload the document to the Transmorpher media server directly."
@@ -5926,7 +5940,7 @@
                   "response": []
                 },
                 {
-                  "name": "Get Chunk Upload URL for chunk #1: OK",
+                    "name": "Get Chunk Upload URL for chunk #1",
                   "event": [
                     {
                       "listen": "test",
@@ -5982,7 +5996,7 @@
                   "response": []
                 },
                 {
-                  "name": "Complete Upload: OK",
+                    "name": "Complete Upload",
                   "event": [
                     {
                       "listen": "test",
@@ -6053,7 +6067,7 @@
                   "response": []
                 },
                 {
-                  "name": "Abort Upload: OK",
+                    "name": "Abort Upload",
                   "event": [
                     {
                       "listen": "test",
@@ -6122,7 +6136,7 @@
               "name": "Download",
               "item": [
                 {
-                  "name": "Download (default): OK",
+                    "name": "Download (default)",
                   "event": [
                     {
                       "listen": "test",
@@ -6162,7 +6176,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download as JPG page 1: OK",
+                    "name": "Download as JPG page 1",
                   "event": [
                     {
                       "listen": "test",
@@ -6203,7 +6217,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download as PNG, low quality: OK",
+                    "name": "Download as PNG, low quality",
                   "event": [
                     {
                       "listen": "test",
@@ -6244,7 +6258,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download as WEBP, low ppi: OK",
+                    "name": "Download as WEBP, low ppi",
                   "event": [
                     {
                       "listen": "test",
@@ -6285,7 +6299,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download with all transformations: OK",
+                    "name": "Download with all transformations",
                   "event": [
                     {
                       "listen": "test",
@@ -6326,7 +6340,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download specific Version original: OK",
+                    "name": "Download specific Version original",
                   "event": [
                     {
                       "listen": "test",
@@ -6365,7 +6379,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/original",
+                        "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/versions/{{currentDocumentVersion}}/original",
                       "host": [
                         "{{domain}}"
                       ],
@@ -6374,7 +6388,7 @@
                         "v2",
                         "document",
                         "{{documentIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentDocumentVersion}}",
                         "original"
                       ]
@@ -6383,7 +6397,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download specific Version derivative: OK",
+                    "name": "Download specific Version derivative",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -6421,7 +6435,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative",
+                        "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/versions/{{currentDocumentVersion}}/derivative",
                       "host": [
                         "{{domain}}"
                       ],
@@ -6430,7 +6444,7 @@
                         "v2",
                         "document",
                         "{{documentIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentDocumentVersion}}",
                         "derivative"
                       ]
@@ -6439,7 +6453,7 @@
                   "response": []
                 },
                 {
-                  "name": "Download specific Version derivative image: OK",
+                    "name": "Download specific Version derivative image",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -6476,7 +6490,7 @@
                       }
                     ],
                     "url": {
-                      "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/version/{{currentDocumentVersion}}/derivative/f-jpg+p-1",
+                        "raw": "{{domain}}/api/v2/document/{{documentIdentifier}}/versions/{{currentDocumentVersion}}/derivative/f-jpg+p-1",
                       "host": [
                         "{{domain}}"
                       ],
@@ -6485,7 +6499,7 @@
                         "v2",
                         "document",
                         "{{documentIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentDocumentVersion}}",
                         "derivative",
                         "f-jpg+p-1"
@@ -6500,7 +6514,7 @@
               "name": "Versions",
               "item": [
                 {
-                  "name": "List Versions: OK",
+                    "name": "List Versions",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -6567,7 +6581,7 @@
                   "response": []
                 },
                 {
-                  "name": "Restore old Version: OK",
+                    "name": "Restore old Version",
                   "event": [
                     {
                       "listen": "test",
@@ -6619,7 +6633,7 @@
                       "formdata": []
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/media/{{documentIdentifier}}/version/{{currentDocumentVersion}}",
+                        "raw": "{{domain}}/api/v2/media/{{documentIdentifier}}/versions/{{currentDocumentVersion}}",
                       "host": [
                         "{{domain}}"
                       ],
@@ -6628,7 +6642,7 @@
                         "v2",
                         "media",
                         "{{documentIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentDocumentVersion}}"
                       ]
                     }
@@ -6641,7 +6655,7 @@
               "name": "Delete",
               "item": [
                 {
-                  "name": "Delete: OK",
+                    "name": "Delete",
                   "event": [
                     {
                       "listen": "test",
@@ -6738,7 +6752,7 @@
                   "name": "Default",
                   "item": [
                     {
-                      "name": "Upload chunk 1: OK",
+                        "name": "Upload chunk 1",
                       "event": [
                         {
                           "listen": "test",
@@ -6785,6 +6799,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -6836,7 +6853,7 @@
                       "response": []
                     },
                     {
-                      "name": "Upload chunk 2: OK",
+                        "name": "Upload chunk 2",
                       "event": [
                         {
                           "listen": "test",
@@ -6883,6 +6900,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -6939,7 +6959,7 @@
                   "name": "S3 Multi Part",
                   "item": [
                     {
-                      "name": "Upload chunk 1: OK",
+                        "name": "Upload chunk 1",
                       "event": [
                         {
                           "listen": "prerequest",
@@ -6984,6 +7004,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -7012,7 +7035,7 @@
                       "response": []
                     },
                     {
-                      "name": "Upload chunk 2: OK",
+                        "name": "Upload chunk 2",
                       "event": [
                         {
                           "listen": "test",
@@ -7057,6 +7080,9 @@
                           }
                         }
                       ],
+                        "protocolProfileBehavior": {
+                            "disableUrlEncoding": true
+                        },
                       "request": {
                         "auth": {
                           "type": "noauth"
@@ -7087,7 +7113,7 @@
                   ]
                 },
                 {
-                  "name": "Reserve upload slot: OK",
+                    "name": "Reserve upload slot",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -7154,7 +7180,7 @@
                       ]
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/video/reserveUploadSlot",
+                        "raw": "{{domain}}/api/v2/video/upload/reserve",
                       "host": [
                         "{{domain}}"
                       ],
@@ -7162,7 +7188,8 @@
                         "api",
                         "v2",
                         "video",
-                        "reserveUploadSlot"
+                          "upload",
+                          "reserve"
                       ]
                     },
                     "description": "Providing the auth token, the client reserves an upload slot for an image identifier. This action of the client backend secures the transaction, allowing the frontend to upload the image to the Transmorpher media server directly."
@@ -7170,7 +7197,7 @@
                   "response": []
                 },
                 {
-                  "name": "Get Chunk Upload URL for chunk #1: OK",
+                    "name": "Get Chunk Upload URL for chunk #1",
                   "event": [
                     {
                       "listen": "test",
@@ -7225,7 +7252,7 @@
                   "response": []
                 },
                 {
-                  "name": "Get Chunk Upload URL for chunk #2: OK",
+                    "name": "Get Chunk Upload URL for chunk #2",
                   "event": [
                     {
                       "listen": "test",
@@ -7280,7 +7307,7 @@
                   "response": []
                 },
                 {
-                  "name": "Complete Upload: OK",
+                    "name": "Complete Upload",
                   "event": [
                     {
                       "listen": "test",
@@ -7351,7 +7378,7 @@
                   "response": []
                 },
                 {
-                  "name": "Abort Upload: OK",
+                    "name": "Abort Upload",
                   "event": [
                     {
                       "listen": "test",
@@ -7420,7 +7447,7 @@
               "name": "Versions",
               "item": [
                 {
-                  "name": "List Versions: OK",
+                    "name": "List Versions",
                   "event": [
                     {
                       "listen": "prerequest",
@@ -7487,7 +7514,7 @@
                   "response": []
                 },
                 {
-                  "name": "Restore old Version: OK",
+                    "name": "Restore old Version",
                   "event": [
                     {
                       "listen": "test",
@@ -7539,7 +7566,7 @@
                       "formdata": []
                     },
                     "url": {
-                      "raw": "{{domain}}/api/v2/media/{{videoIdentifier}}/version/{{currentVideoVersion}}",
+                        "raw": "{{domain}}/api/v2/media/{{videoIdentifier}}/versions/{{currentVideoVersion}}",
                       "host": [
                         "{{domain}}"
                       ],
@@ -7548,7 +7575,7 @@
                         "v2",
                         "media",
                         "{{videoIdentifier}}",
-                        "version",
+                          "versions",
                         "{{currentVideoVersion}}"
                       ]
                     }
@@ -7561,7 +7588,7 @@
               "name": "Delete",
               "item": [
                 {
-                  "name": "Delete: OK",
+                    "name": "Delete",
                   "event": [
                     {
                       "listen": "test",
@@ -7648,7 +7675,7 @@
           ]
         },
         {
-          "name": "Get public key: OK",
+            "name": "Get public key",
           "event": [
             {
               "listen": "test",
@@ -7677,14 +7704,15 @@
               }
             ],
             "url": {
-              "raw": "{{domain}}/api/v2/publickey",
+                "raw": "{{domain}}/api/v2/meta/publicKey",
               "host": [
                 "{{domain}}"
               ],
               "path": [
                 "api",
                 "v2",
-                "publickey"
+                  "meta",
+                  "publicKey"
               ]
             },
             "description": "Messages from the Transmorpher media server to a client are signed. This public key allows verifying the identity of the notification sender."
@@ -7692,7 +7720,7 @@
           "response": []
         },
         {
-          "name": "Get upload handler name: OK",
+            "name": "Get upload handler name",
           "event": [
             {
               "listen": "test",
@@ -7721,13 +7749,14 @@
               }
             ],
             "url": {
-              "raw": "{{domain}}/api/v2/uploadHandler",
+                "raw": "{{domain}}/api/v2/meta/uploadHandler",
               "host": [
                 "{{domain}}"
               ],
               "path": [
                 "api",
                 "v2",
+                  "meta",
                 "uploadHandler"
               ]
             },
@@ -7736,7 +7765,7 @@
           "response": []
         },
         {
-          "name": "Get cache invalidator: OK",
+            "name": "Get cache invalidator",
           "event": [
             {
               "listen": "test",
@@ -7765,13 +7794,14 @@
               }
             ],
             "url": {
-              "raw": "{{domain}}/api/v2/cacheInvalidator",
+                "raw": "{{domain}}/api/v2/meta/cacheInvalidator",
               "host": [
                 "{{domain}}"
               ],
               "path": [
                 "api",
                 "v2",
+                  "meta",
                 "cacheInvalidator"
               ]
             },

@@ -12,6 +12,7 @@
 - Restructured the README
 - Added a README section about [Implementing a client](README.md#implementing-a-client)
 - v2 API added, v1 API will be deprecated in the future.
+- v2 API URLs have been adjusted to be more uniform and RESTful
 - Upload process has been restructured, see ["Uploading Media README"](README.md#uploading-media) for more information
 - Routes have been slightly adjusted, the `upload` route now uses `PUT` instead of `POST`
 - Reserving an upload slot now requires to pass the final file name

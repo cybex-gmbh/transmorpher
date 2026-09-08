@@ -38,7 +38,7 @@ class DefaultUploadHandler implements UploadHandlerInterface
      */
     public function getUploadUrl(UploadSlot $uploadSlot, int $chunkNumber): string
     {
-        return route('v2.upload', $uploadSlot->token);
+        return route('v2.upload.receive', $uploadSlot->token);
     }
 
     /**

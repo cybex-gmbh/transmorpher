@@ -48,7 +48,7 @@ class ImageTest extends OnDemandDerivativeMediaTest
 
     protected function createDerivativeForVersion(Version $version): TestResponse
     {
-        return $this->get(route('getImageDerivative', [$this->user->name, $version->Media]));
+        return $this->get(route('delivery.image', [$this->user->name, $version->Media]));
     }
 
     #[Test]
@@ -66,7 +66,7 @@ class ImageTest extends OnDemandDerivativeMediaTest
     {
         $version->Media->Versions->each->update(['processed' => 0]);
 
-        $getDerivativeResponse = $this->get(route('getImageDerivative', [$this->user->name, $version->Media]));
+        $getDerivativeResponse = $this->get(route('delivery.image', [$this->user->name, $version->Media]));
         $getDerivativeResponse->assertNotFound();
     }
 

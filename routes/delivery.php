@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Image
-Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::IMAGE->prefix()), [ImageController::class, 'get'])->name('getImageDerivative');
+Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::IMAGE->prefix()), [ImageController::class, 'get'])->name('delivery.image');
 
 // Document
-Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::DOCUMENT->prefix()), [DocumentController::class, 'get'])->name('getDocumentDerivative');
+Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::DOCUMENT->prefix()), [DocumentController::class, 'get'])->name('delivery.document');
