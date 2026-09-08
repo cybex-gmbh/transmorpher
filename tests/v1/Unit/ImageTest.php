@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v1\Unit;
 
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
@@ -24,7 +24,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 use Storage;
-use Tests\OnDemandDerivativeMediaTest;
+use Tests\v1\OnDemandDerivativeMediaTest;
 
 class ImageTest extends OnDemandDerivativeMediaTest
 {
@@ -327,7 +327,6 @@ class ImageTest extends OnDemandDerivativeMediaTest
                 'input' => 'p-aa',
                 'expectedException' => InvalidTransformationValueException::class,
             ],
-
 
             'valid_Multiple' => [
                 'input' => 'f-png+w-200+h-150+q-35+p-1+ppi-100',

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
+use App\Interfaces\MediaHandlerInterface;
 use DB;
 use File;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -92,6 +93,11 @@ class Media extends Model
         MediaStorage::ORIGINALS->getDisk()->deleteDirectory($fileBasePath);
     }
 
+    public static function getBaseDirectoryFor(User $user, string $identifier): string
+    {
+        return sprintf('%s/%s', $user->name, $identifier);
+    }
+
     /**
      * Returns the user that owns the media.
      */
@@ -135,6 +141,9 @@ class Media extends Model
      *
      * @return void
      * @throws ValidationException
+     *
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use the media types handler {@see MediaHandlerInterface::isMimetypeValid()} method instead.
      */
     public function validateUploadFile(UploadedFile $file, string $mimeTypes): void
     {
@@ -182,7 +191,7 @@ class Media extends Model
      */
     public function baseDirectory(): string
     {
-        return sprintf('%s/%s', $this->User->name, $this->identifier);
+        return static::getBaseDirectoryFor($this->User, $this->identifier);
     }
 
     /**

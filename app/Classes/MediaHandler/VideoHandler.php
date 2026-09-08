@@ -11,6 +11,7 @@ use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
 use BadMethodCallException;
+use Illuminate\Support\Collection;
 use Transcode;
 
 class VideoHandler extends MediaHandler
@@ -39,11 +40,24 @@ class VideoHandler extends MediaHandler
     }
 
     /**
-     * @return string
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string
     {
         return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4,video/x-matroska';
+    }
+
+    public function getAllowedMimetypes(): Collection
+    {
+        return collect([
+            'video/x-msvideo',
+            'video/mpeg',
+            'video/ogg',
+            'video/webm',
+            'video/mp4',
+            'video/x-matroska'
+        ]);
     }
 
     /**
@@ -70,7 +84,7 @@ class VideoHandler extends MediaHandler
      * @param Media $media
      * @return array
      */
-    public function getVersions(Media $media): array
+    public function getVersionsInfo(Media $media): array
     {
         $versions = $media->Versions;
 

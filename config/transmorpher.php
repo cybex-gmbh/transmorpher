@@ -33,9 +33,9 @@ return [
     */
     'disks' => [
         'originals' => env('TRANSMORPHER_DISK_ORIGINALS', 'localOriginals'),
-        'imageDerivatives' =>  env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
-        'documentDerivatives' =>  env('TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES', 'localDocumentDerivatives'),
-        'videoDerivatives' =>  env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
+        'imageDerivatives' => env('TRANSMORPHER_DISK_IMAGE_DERIVATIVES', 'localImageDerivatives'),
+        'documentDerivatives' => env('TRANSMORPHER_DISK_DOCUMENT_DERIVATIVES', 'localDocumentDerivatives'),
+        'videoDerivatives' => env('TRANSMORPHER_DISK_VIDEO_DERIVATIVES', 'localVideoDerivatives'),
     ],
 
     /*
@@ -201,4 +201,21 @@ return [
     |
     */
     'cache_invalidation_counter_file_path' => env('CACHE_INVALIDATION_COUNTER_FILE_PATH', 'cacheInvalidationCounter'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Upload Handler
+    |--------------------------------------------------------------------------
+    |
+    | The upload handler used for the v2 upload flow.
+    | The class must implement UploadHandlerContract.
+    |
+    | These are defined through the `config/transmorpher/handler/upload` files.
+    |
+    | You can choose from:
+    | - default       (uses pionl/laravel-chunk-upload, can use any Laravel disk)
+    | - s3-multi-part (S3 multipart uploads via pre-signed URLs, originals disk needs to be an S3 disk)
+    |
+    */
+    'upload_handler' => env('TRANSMORPHER_UPLOAD_HANDLER', 'default'),
 ];

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v2\Unit;
 
 use FFMpeg\FFMpeg;
 use Imagick;

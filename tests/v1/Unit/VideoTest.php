@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v1\Unit;
 
 use App\Console\Commands\PurgeDerivatives;
 use App\Enums\ClientNotification;
@@ -21,7 +21,7 @@ use Illuminate\Testing\TestResponse;
 use PHPUnit\Framework\Attributes\Test;
 use Queue;
 use Storage;
-use Tests\MediaTest;
+use Tests\v1\MediaTest;
 use Transcode;
 
 class VideoTest extends MediaTest

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\v2\Feature;
 
 use App\Console\Commands\CreateUser;
 use App\Models\User;
@@ -16,9 +16,9 @@ class CreateUserCommandTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected const NAME = 'Oswald';
-    protected const EMAIL = 'oswald@example.com';
-    protected const API_URL = 'http://example.com/transmorpher/notifications';
+    protected const string NAME = 'Oswald';
+    protected const string EMAIL = 'oswald@example.com';
+    protected const string API_URL = 'http://example.com/transmorpher/notifications';
 
     #[Test]
     public function ensureUserCanBeCreated()

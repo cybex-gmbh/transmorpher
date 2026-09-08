@@ -5,6 +5,99 @@ A media server for images, pdfs and videos.
 > For a client implementation for Laravel
 > see [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client).
 
+> We offer a [Postman collection](postman.json) which features example calls for all API endpoints.
+> Based on that you can implement your own client in any language you like.
+
+> [!WARNING]
+> The API version 1 is deprecated and will be removed in a future release. Please use API version 2.
+>
+> See the [Changelog](CHANGELOG.md) and [Upgrade Guide](#upgrade-guide) for more information.
+
+### Table of Contents
+
+- [Libraries used](#libraries-used)
+    - [Image transformation and optimization](#image-transformation-and-optimization)
+    - [PDF metadata removal](#pdf-metadata-removal)
+    - [Video transcoding](#video-transcoding)
+- [Concepts](#concepts)
+    - [Identifiers](#identifiers)
+    - [Versions](#versions)
+    - [Originals and derivatives](#originals-and-derivatives)
+    - [Media types](#media-types)
+    - [Derivatives revision](#derivatives-revision)
+- [Installation](#installation)
+    - [Using docker](#using-docker)
+        - [Configuration options](#configuration-options)
+    - [Cloning the repository](#cloning-the-repository)
+        - [Required software](#required-software)
+        - [Generic workers](#generic-workers)
+        - [Scheduling](#scheduling)
+- [General configuration](#general-configuration)
+    - [Basics](#basics)
+    - [Disks](#disks)
+    - [Sodium Keypair](#sodium-keypair)
+    - [Email notifications](#email-notifications)
+    - [Cloud Setup](#cloud-setup)
+        - [Prerequisites for video functionality](#prerequisites-for-video-functionality)
+        - [IAM](#iam)
+        - [File Storage](#file-storage)
+        - [Content Delivery Network](#content-delivery-network)
+        - [Video specific configuration](#video-specific-configuration)
+    - [Local disk setup](#local-disk-setup)
+        - [Prerequisites for video functionality](#prerequisites-for-video-functionality-1)
+        - [File Storage](#file-storage-1)
+        - [Video specific configuration](#video-specific-configuration-1)
+    - [Upload Handler](#upload-handler)
+        - [Default Upload Handler](#default-upload-handler)
+        - [S3 Multipart Upload Handler](#s3-multipart-upload-handler)
+    - [Video transcoding](#video-transcoding-1)
+        - [Bit rate](#bit-rate)
+        - [Streaming Codec](#streaming-codec)
+        - [GPU Acceleration](#gpu-acceleration)
+    - [PDF configuration](#pdf-configuration)
+        - [Metadata](#metadata)
+        - [PPI](#ppi)
+    - [Additional options](#additional-options)
+- [Managing users](#managing-users)
+- [Implementing a client](#implementing-a-client)
+    - [Uploading media](#uploading-media)
+        - [Upload Handler](#upload-handler-1)
+        - [1) Reserve an upload slot](#1-reserve-an-upload-slot)
+        - [2) Get a chunk upload URL](#2-get-a-chunk-upload-url)
+        - [3) Upload chunks](#3-upload-chunks)
+        - [4) Complete the upload](#4-complete-the-upload)
+        - [5) Abort an upload](#5-abort-an-upload)
+    - [Image transformation](#image-transformation)
+    - [PDF handling](#pdf-handling)
+        - [Images](#images)
+    - [Video transcoding](#video-transcoding-2)
+    - [Derivatives Revision](#derivatives-revision-1)
+    - [Browser cache busting](#browser-cache-busting)
+    - [Receiving signed notifications from the server](#receiving-signed-notifications-from-the-server)
+- [Interchangeability](#interchangeability)
+    - [Content Delivery Network](#content-delivery-network-1)
+    - [Image Transformation](#image-transformation-1)
+    - [Image Optimization](#image-optimization)
+    - [Video Transcoding](#video-transcoding-3)
+    - [Upload handler](#upload-handler-2)
+- [Purging derivatives](#purging-derivatives)
+- [Recovery](#recovery)
+- [Development](#development)
+    - [Testing](#testing)
+    - [Docker image information](#docker-image-information)
+        - [ImageMagick](#imagemagick)
+        - [NVIDIA toolkit](#nvidia-toolkit)
+    - [Pullpreview](#pullpreview)
+        - [Companion App](#companion-app)
+        - [Auth Token Hash](#auth-token-hash)
+        - [Using your custom PullPreview environment](#using-your-custom-pullpreview-environment)
+    - [Chunk a file in Artisan Tinker](#chunk-a-file-in-artisan-tinker)
+- [Upgrade Guide](#upgrade-guide)
+    - [v0.8.0 to v0.9.0](#v080-to-v090)
+        - [For Docker image users](#for-docker-image-users)
+    - [v0.7.0 to v0.8.0](#v070-to-v080)
+- [License](#license)
+
 ### Libraries used
 
 #### Image transformation and optimization
@@ -20,6 +113,40 @@ A media server for images, pdfs and videos.
 
 - [PHP-FFmpeg-video-streaming](https://github.com/hadronepoch/PHP-FFmpeg-video-streaming)
 - [PHP-FFMpeg](https://github.com/PHP-FFMpeg/PHP-FFMpeg)
+
+## Concepts
+
+### Identifiers
+
+Each medium is identified by a unique string identifier, scoped per user.
+You choose the identifier when uploading media for the first time and use it in all subsequent requests for that medium.
+
+### Versions
+
+Every time media is uploaded for an existing identifier, a new version is created.
+Previous versions are retained and can be restored.
+The latest processed version is always the one that is served to the public.
+
+### Originals and derivatives
+
+When media is uploaded, the original file is stored and never modified.
+All files served to the public are derivatives, i.e. transformed or transcoded copies of the original.
+For images and documents, derivatives are generated on demand and by default stored for subsequent requests.
+For videos, derivatives are produced asynchronously by a transcoding worker.
+
+### Media types
+
+The media server supports three media types:
+
+- **Image**: derivatives are generated and served synchronously on request.
+- **Document**: PDF files; derivatives are generated and served synchronously on request.
+- **Video**: derivatives are transcoded asynchronously, the client is notified when transcoding completes.
+
+### Derivatives revision
+
+The derivatives revision is defined as a counter that increments whenever derivatives are purged.
+Clients can combine the revision with the media hash to build browser cache-busting URLs.
+See [Purging derivatives](#purging-derivatives) for details.
 
 ## Installation
 
@@ -40,7 +167,7 @@ To not accidentally upgrade to a new breaking version, attach the version (repla
 `cybexwebdev/transmorpher:0.x-transcoder`
 
 > [!IMPORTANT]
-> 
+>
 > The app and transcoder image need to match in version.
 
 #### Configuration options
@@ -88,6 +215,7 @@ Image manipulation:
 - [php-imagick](https://www.php.net/manual/en/book.imagick.php)
 
 > Optionally, you can use GD, which can be configured in the Intervention Image configuration file.
+> This has not been tested.
 
 Image optimization:
 
@@ -96,6 +224,10 @@ Image optimization:
 - [Pngquant](https://pngquant.org/)
 - [Gifsicle](https://www.lcdf.org/gifsicle/)
 - [cwebp](https://developers.google.com/speed/webp/docs/precompiled)
+
+PDF handling:
+
+- [Ghostscript](https://ghostscript.com/)
 
 To use video transcoding:
 
@@ -106,8 +238,8 @@ To use video transcoding:
 Client notifications will be pushed onto the queue `client-notifications`.
 You must set up 1 worker for this queue.
 
-Email notifications will be pushed onto the queue `email`. 
-You may set up 1 worker for this queue, if you want to send emails. 
+Email notifications will be pushed onto the queue `email`.
+You may set up 1 worker for this queue, if you want to send emails.
 See [Email notifications](#email-notifications) for more information.
 
 #### Scheduling
@@ -127,7 +259,7 @@ For more information about scheduling, check the [Laravel Docs](https://laravel.
 
 ## General configuration
 
-#### Basics
+### Basics
 
 1. Create an app key:
 
@@ -143,7 +275,7 @@ php artisan key:generate
 php artisan migrate
 ```
 
-#### Disks
+### Disks
 
 The media server must use 3 separate Laravel disks to store originals, image derivatives and video derivatives.
 Use the provided `.env` keys to select the according disks in the `filesystems.php` config file.
@@ -152,9 +284,9 @@ Use the provided `.env` keys to select the according disks in the `filesystems.p
 >
 > 1. The root folder, like images/, of the configured derivatives disks has to always match the prefix provided by the `MediaType` enum.
 > 2. If this prefix would be changed after initially launching your media server,
-     > clients would no longer be able to retrieve their previously uploaded media.
+     clients would no longer be able to retrieve their previously uploaded media.
 
-#### Sodium Keypair
+### Sodium Keypair
 
 A signed request is used to notify clients about finished transcodings and when derivatives are purged.
 For this, a [Sodium](https://www.php.net/manual/en/book.sodium.php) keypair has to be configured.
@@ -173,7 +305,7 @@ TRANSMORPHER_SIGNING_KEYPAIR=
 
 The public key of the media server is available under the `/api/v*/publickey` endpoint and can be requested by any client.
 
-#### Email notifications
+### Email notifications
 
 If you want to send emails, you will need to configure a mail provider via the `MAIL_` `.env` keys.
 For more information, check the [Laravel Mail documentation](https://laravel.com/docs/12.x/mail).
@@ -183,7 +315,7 @@ Available email notifications:
 - New Api Version Notice: `php artisan mail:new-api-version-notice <newApiVersion>`
 - Api Version Deprecation Notice `php artisan mail:deprecation-notice <deprecatedApiVersion>`
 
-These will be sent to all users. 
+These will be sent to all users.
 
 ### Cloud Setup
 
@@ -291,10 +423,10 @@ To configure an AWS SQS queue, see the according keys in the `.env`.
 > [!WARNING]
 > For the docker setup, to be able to deliver videos, the `Access-Control-Allow-Origin` header is currently set to '*'.
 > This means every website can embed your videos.
-> 
+>
 > This applies to files in your /public/videos folder ending with .m3u8, .ts, .mpd, .m4s and .mp4.
 > If you want to restrict this, you can mount your own configuration at `/etc/nginx/conf.d/default.conf.template`.
-> The current config can be found at `docker/common/nginx.default.conf`. 
+> The current config can be found at `docker/common/nginx.default.conf`.
 
 #### Prerequisites for video functionality
 
@@ -340,147 +472,44 @@ QUEUE_CONNECTION=database
 > It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
 > To prevent duplicate runs with database, use only one worker process.
 
-### Additional options
+### Upload Handler
 
-By default, the media server stores image derivatives on the image derivatives disk.
-This can be turned off, so they will always be re-generated on demand instead:
-
-```dotenv
-TRANSMORPHER_STORE_DERIVATIVES=true
-```
-
-There are additional settings in the `transmorpher.php` config file.
-
-## Managing Media
-
-### Users
-
-Media always belongs to a user. To easily create one, use the provided command:
-
-```bash
-php artisan create:user <name> <email> <api_url>
-```
-
-The server sends notifications to the api url, for example, video transcoding information.
-For our standard laravel client implementation, this is: `https://example.com/transmorpher/notifications`.
-
-This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/12.x/sanctum) token, which has to be
-written in the `.env` file of a client system.
-> The token will be passed for all API requests for authorization and is connected to the corresponding user.
-
-If you need to re-generate a token for a user, use the provided command:
-
-```bash
-php artisan create:token <userId>
-```
-
-### Media
-
-Media is identified by a string which is passed when uploading media. This "identifier" is unique per user.
-
-When media is uploaded on the same identifier by the same user, a new version for the same media will be created.
-
-The media server provides the following features for media:
-
-- upload
-- get derivative
-- get original*
-- set version
-- delete
-
-> Marked with * does not apply to videos.
-
-### Browser cache busting
-
-When a media version has been processed, the response or client notification will include a `hash` for this version.
-Use this hash in combination with the `cacheInvalidationCounter` (see [Purging derivates](#purging-derivatives)),
-and add both to the public URL.
-
-For example:
-
-`https://transmorpher.test/images/<clientname>/<identifier>?v=<cacheInvalidationCounter>_<hash>`
-`https://transmorpher.test/images/<clientname>/<identifier>/<transformations>?v=<cacheInvalidationCounter>_<hash>`
-
-## Image transformation
-
-Images will always be optimized and transformed on the Transmorpher media server.
-The media server will also directly answer requests for derivatives.
-
-The media server provides the following transformations for images:
-
-- width (w)
-- height (h)
-- quality (q)
-- format (f)
-
-To publicly access an image, the client name and the identifier have to be specified:
-
-`https://transmorpher.test/images/<clientname>/<identifier>`
-
-Images retrieved from this URL will be derivatives which are optimized.
-Additionally, you can specify transformation parameters in the following format:
-
-`https://transmorpher.test/images/<clientname>/<identifier>/<transformations>`
-
-For example:
-
-`https://transmorpher.test/images/catworld/european-short-hair/w-1920+h-1080+f-png+q-50`
-
-The [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client) will receive this information and store it. It can also create URLs with
-transformations.
-
-## PDF handling
-
-Requesting a PDF file will return the document.
-Metadata can be removed optionally by setting the `.env` key:
+You can specify the upload handler via the `.env` key:
 
 ```dotenv
-TRANSMORPHER_DOCUMENT_REMOVE_METADATA=true
+TRANSMORPHER_UPLOAD_HANDLER=s3-multi-part
 ```
 
-### Images
+Dependent on the upload handler, the upload flow and required payload can differ.
+See the [Upload chunks section](#3-upload-chunks) for more information.
 
-When an image format transformation is specified, an image of a page will be returned.
+The Transmorpher offers two upload handlers out of the box:
 
-By using the `p` transformation, you can specify the page to be exported.
-By default, the first page will be used.
+#### Default Upload Handler
 
-All available image transformations can also be applied to PDF image derivatives.
-Requesting a PDF also follows the same URL structure as images, just replace `images` with `documents`.
+- can work with any Laravel disk
+- handles chunked uploads for various request structures, see the Postman collection for an example
+- will first receive the file on the server, and then move it to the configured disk
 
-Additionally, the pixels per inch can be specified with the `ppi` transformation.
-The ppi will be multiplied with the document dimensions, which results in the image resolution.
-By default, 300 ppi is used.
-Use the `.env` key to specify another default:
+#### S3 Multipart Upload Handler
 
-```dotenv
-TRANSMORPHER_DOCUMENT_DEFAULT_PPI=600
-```
+- the originals disk needs to be an S3 disk
+- initiates a multipart upload on S3 and returns pre-signed URLs for each chunk
+- the client can upload the chunks directly to S3, which is faster and saves bandwidth on the server
+- uncompleted uploads will leave chunks on S3, which need to be cleaned up with an S3 lifecycle rule
+- chunk size needs to be at least 5MiB (excluding the last chunk)
 
-Example:
+> [!IMPORTANT]
+> When using S3 multipart uploads, configure an S3 lifecycle rule
+> on the originals bucket to automatically abort incomplete multipart uploads after
+> 24 hours.
+>
+> This mirrors the upload slot expiry and prevents abandoned multipart
+> uploads from accumulating storage costs.
 
-Document: `https://transmorpher.test/documents/catworld/cat-essay`
+### Video transcoding
 
-Image of page 5: `https://transmorpher.test/documents/catworld/cat-essay/f-jpg+p-5+w-1920+h-1080`
-
-## Video transcoding
-
-Video transcoding is handled as an asynchronous task. The client will receive the
-information about the transcoded video as soon as it completes. For this, a signed request is sent to the client.
-
-Since video transcoding is a complex task, it may take some time to complete.
-The client will also be notified about failed attempts.
-
-To publicly access a video, the client name, the identifier and a format have to be specified.
-There are different formats available:
-
-- HLS (.m3u8) `https://transmorpher.test/videos/<clientname>/<identifier>/hls/video.m3u8`
-- DASH (.mpd) `https://transmorpher.test/videos/<clientname>/<identifier>/dash/video.mpd`
-- MP4 (.mp4) `https://transmorpher.test/videos/<clientname>/<identifier>/mp4/video.mp4`
-
-The [Laravel Transmorpher Client](https://github.com/cybex-gmbh/laravel-transmorpher-client) will receive this information and store it.
-
-### Bit rate
+#### Bit rate
 
 The bit rate for video transcoding can be set in the `.env` file in kilobits:
 
@@ -491,7 +520,7 @@ TRANSMORPHER_VIDEO_ENCODER_BITRATE=9000k
 This setting will be ignored for the DASH/HLS streaming formats because they are calculated automatically.
 For suitable bit rates, see: https://help.twitch.tv/s/article/broadcast-guidelines#recommended
 
-### Streaming Codec
+#### Streaming Codec
 
 To encode the DASH and HLS formats with either HEVC or h264, set the following environment variable.
 
@@ -510,7 +539,7 @@ For the MP4 fallback file, h264 is always used because
 - FFmpeg doesn't support HEVC in MP4 files when encoding with a CPU.
 - h264 is the most widely supported codec, and this file is to be used when a client does not support HLS or DASH.
 
-### GPU Acceleration
+#### GPU Acceleration
 
 Videos may be transcoded using a machine's NVIDIA GPU.
 This requires the according hardware and driver setup on the host machine.
@@ -558,6 +587,377 @@ Each encoder has its own configuration file in the `config/encoder` folder, cont
 
 Note that the optional GPU video decoding setting is experimental and unstable.
 By default, videos are decoded using the CPU.
+
+### PDF configuration
+
+#### Metadata
+
+Metadata can be removed optionally by setting the `.env` key:
+
+```dotenv
+TRANSMORPHER_DOCUMENT_REMOVE_METADATA=true
+```
+
+#### PPI
+
+When an image format transformation is specified, an image of a page will be returned.
+The ppi will be multiplied with the document dimensions, which results in the image resolution.
+By default, 300 ppi is used.
+
+Use the `.env` key to specify another default:
+
+```dotenv
+TRANSMORPHER_DOCUMENT_DEFAULT_PPI=600
+```
+
+### Additional options
+
+By default, the media server stores image derivatives on the image derivatives disk.
+This can be turned off, so they will always be re-generated on demand instead:
+
+```dotenv
+TRANSMORPHER_STORE_DERIVATIVES=true
+```
+
+There are additional settings in the `transmorpher.php` config file.
+
+## Managing users
+
+Media always belongs to a user. To easily create one, use the provided command:
+
+```bash
+php artisan create:user <name> <email> <api_url>
+```
+
+The server sends notifications to the api url, for example, video transcoding information.
+For our standard Laravel client implementation, this is: `https://example.com/transmorpher/notifications`.
+
+This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/12.x/sanctum) token, which has to be
+written in the `.env` file of a client system.
+> The token should be passed for all API requests for authorization and is connected to the corresponding user.
+
+If you need to re-generate a token for a user, use the provided command:
+
+```bash
+php artisan create:token <userId>
+```
+
+## Implementing a client
+
+The media server provides the following features from client perspective:
+
+Media specific:
+
+- upload
+- get original*
+- get derivative
+- get derivative for specific version*
+- list versions
+- set version
+- delete
+
+> Marked with * does not apply to videos.
+
+Informative:
+
+- get public key for verifying signed requests
+- get current derivatives revision
+- get upload handler
+
+### Uploading media
+
+The following examples use the `image` media type.
+The other media types work the same way.
+
+#### Upload Handler
+
+See the [upload handler section](#upload-handler) for more information about the available upload handlers.
+
+Dependent on the server's configuration, the upload handler can either be `default` or `s3-multi-part`.
+Based on that, the upload flow can differ.
+See below for details.
+
+Before uploading, your client can check the configured upload handler:
+
+```bash
+curl -sS 'https://transmorpher.test/api/v2/uploadHandler'
+```
+
+#### 1) Reserve an upload slot
+
+At any time only 1 upload can be active for a specific identifier.
+
+Reserve an upload slot for a media type, pass the media identifier and final filename:
+
+```bash
+curl -sS -X POST 'https://transmorpher.test/api/v2/image/reserveUploadSlot' \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer <sanctum-token>" \
+  -H "Content-Type: application/json" \
+  --data-raw '{"identifier":"example-media","filename":"example.jpg"}'
+```
+
+Example response:
+
+```json
+{
+    "state": "initializing",
+    "message": "Successfully created upload slot.",
+    "identifier": "example-media",
+    "upload_token": "<upload-token>"
+}
+```
+
+The "upload_token" is required for all subsequent upload requests and is valid for 24 hours.
+
+#### 2) Get a chunk upload URL
+
+Request an upload URL for each chunk:
+
+```bash
+curl -sS 'https://transmorpher.test/api/v2/upload/<upload-token>/chunkUrl/<chunk-number>' \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer <sanctum-token>"
+```
+
+Example response:
+
+```json
+{
+    "url": "<chunk-upload-url>"
+}
+```
+
+#### 3) Upload chunks
+
+Based on the upload handler configured on the server, see the appropriate section.
+
+##### default
+
+The file has to be sent as multipart form-data to the chunk upload URL.
+Additionally, a few form fields have to be sent:
+
+```bash
+curl -sS -X PUT 'https://transmorpher.test/api/v2/upload/<upload-token>' \
+  -H "Accept: application/json" \
+  -F 'file=@/path/to/chunk-1.part' \
+  -F 'identifier=example-media' \
+  -F 'chunkNumber=1' \
+  -F 'totalChunks=4'
+```
+
+> [!NOTE]
+> `chunkNumber` and `totalChunks` are optional for single-chunk uploads.
+
+> [!NOTE]
+> The `default` handler also supports dropzone-style request fields instead of `chunkNumber` and `totalChunks`.
+
+Repeat steps 2 and 3 for all chunks in order.
+
+##### s3-multi-part
+
+The file has to be sent as binary data to the pre-signed URL.
+
+> [!IMPORTANT]
+> Due to AWS S3 limitations, each chunk except the last one must be at least `5MiB`.
+
+```bash
+curl -sS -X PUT '<chunk-upload-url>' \
+  -H "Content-Type: application/octet-stream" \
+  --data-binary '@/path/to/chunk-1.part'
+```
+
+Repeat steps 2 and 3 for all chunks in order.
+
+#### 4) Complete the upload
+
+After all chunks are uploaded, complete the upload:
+
+```bash
+curl -sS -X POST 'https://transmorpher.test/api/v2/upload/<upload-token>/complete' \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer <sanctum-token>"
+```
+
+Example success response for images (documents are similar):
+
+```json
+{
+    "state": "success",
+    "message": "Successfully uploaded new image version.",
+    "identifier": "example-media",
+    "version": 1,
+    "public_path": "images/<clientname>/example-media",
+    "upload_token": "<upload-token>",
+    "hash": "<hash>"
+}
+```
+
+Example success response for videos (transcoding is asynchronous and a finished transcoding will send a notification):
+
+```json
+{
+    "state": "processing",
+    "message": "Successfully uploaded new video version, transcoding job has been dispatched.",
+    "identifier": "example-media",
+    "version": 1,
+    "public_path": null,
+    "upload_token": "<upload-token>",
+    "hash": null
+}
+```
+
+#### 5) Abort an upload
+
+If an upload fails or is abandoned you need to abort the upload:
+
+```bash
+curl -sS -X DELETE 'https://transmorpher.test/api/v2/upload/<upload-token>' \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer <sanctum-token>"
+```
+
+Example success response:
+
+```json
+{
+    "state": "aborted",
+    "message": "Upload aborted",
+    "identifier": "example-media"
+}
+```
+
+### Image transformation
+
+Images will always be optimized and transformed on the Transmorpher media server.
+The media server will also directly answer requests for derivatives.
+
+The media server provides the following transformations for images:
+
+- width (w)
+- height (h)
+- quality (q)
+- format (f)
+
+To publicly access an image, the client name and the identifier have to be specified:
+
+`https://transmorpher.test/images/<clientname>/<identifier>`
+
+Images retrieved from this URL will be derivatives which are optimized.
+Additionally, you can specify transformation parameters in the following format:
+
+`https://transmorpher.test/images/<clientname>/<identifier>/<transformations>`
+
+For example:
+
+`https://transmorpher.test/images/catworld/european-short-hair/w-1920+h-1080+f-png+q-50`
+
+### PDF handling
+
+Requesting a PDF file will return the full document.
+
+#### Images
+
+When an image format transformation is specified, an image of a page will be returned.
+
+By using the `p` transformation, you can specify the page to be exported.
+By default, the first page will be used.
+
+All available image transformations can also be applied to PDF image derivatives.
+Requesting a PDF also follows the same URL structure as images, just replace `images` with `documents`.
+
+Additionally, the pixels per inch can be specified with the `ppi` transformation.
+The ppi will be multiplied with the document dimensions, which results in the image resolution.
+By default, 300 ppi is used.
+
+Example:
+
+Document: `https://transmorpher.test/documents/catworld/cat-essay`
+
+Image of page 5: `https://transmorpher.test/documents/catworld/cat-essay/f-jpg+p-5+w-1920+h-1080`
+
+### Video transcoding
+
+Video transcoding is handled as an asynchronous task.
+Since video transcoding is a complex task, it may take some time to complete.
+
+You will receive the information about the transcoded video as soon as it completes.
+You will also be notified about failed attempts.
+See [Receiving signed notifications from the server](#receiving-signed-notifications-from-the-server) for more information.
+
+To publicly access a video, the client name, the identifier and a format have to be specified.
+There are different formats available:
+
+- HLS (.m3u8) `https://transmorpher.test/videos/<clientname>/<identifier>/hls/video.m3u8`
+- DASH (.mpd) `https://transmorpher.test/videos/<clientname>/<identifier>/dash/video.mpd`
+- MP4 (.mp4) `https://transmorpher.test/videos/<clientname>/<identifier>/mp4/video.mp4`
+
+> [!IMPORTANT]
+> The path beyond the identifier is by convention and has to be exactly as specified above.
+
+Example success notification:
+
+```json
+{
+    "state": "success",
+    "message": "Successfully transcoded video.",
+    "identifier": "example-media",
+    "version": 1,
+    "upload_token": "<upload-token>",
+    "public_path": "videos/<clientname>/example-media",
+    "hash": "<hash>",
+    "notification_type": "video_transcoding"
+}
+```
+
+### Derivatives Revision
+
+The media server keeps its own revision counter for derivatives.
+When the counter increases, all old derivatives have been deleted from the server.
+
+When this happens you will receive a notification with the new revision number.
+See [Receiving signed notifications from the server](#receiving-signed-notifications-from-the-server) for more information.
+
+Example notification:
+
+```json
+{
+    "notification_type": "cache_invalidation",
+    "cache_invalidator": 2
+}
+```
+
+To query the current revision, you can use the following endpoint:
+
+```bash
+curl -sS 'https://transmorpher.test/api/v2/cacheInvalidator'
+```
+
+### Browser cache busting
+
+When a media version has been processed, the response or client notification will include a `hash` for this version.
+Use this hash in combination with the `derivatives revision` (see [Derivatives revision](#derivatives-revision) and [Purging derivatives](#purging-derivatives)),
+and add both to the public URL.
+
+For example:
+
+`https://transmorpher.test/images/<clientname>/<identifier>?v=<derivatives_revision>_<hash>`
+`https://transmorpher.test/images/<clientname>/<identifier>/<transformations>?v=<derivatives_revision>_<hash>`
+
+### Receiving signed notifications from the server
+
+For certain cases, such as finished or failed video transcodings, the server will send a signed notification to the `api_url` you have given to a media server admin.
+
+Dependent on the notification type you can react to the notification.
+
+> [!IMPORTANT]
+> You will need some implementation of `libsodium` to verify the signature of the notification.
+
+For this, you can use the public key of the media server:
+
+```bash
+curl -sS 'https://transmorpher.test/api/v2/publickey'
+```
 
 ## Interchangeability
 
@@ -621,6 +1021,20 @@ You will also have to adjust the configuration value:
 ```php
 'transcode_class' => App\Classes\YourTranscodeClass::class,
 ```
+
+### Upload handler
+
+You can create your own upload handler by implementing the `UploadHandlerInterface`, for example for the Azure Blob Storage.
+
+You will need to add a config file for your handler in the `config/handler/upload` directory and specify the class name of your handler.
+
+```php
+return [
+    'class' => Your\Upload\Handler\Class::class,
+]
+```
+
+You can then set the `TRANSMORPHER_UPLOAD_HANDLER` environment variable to the name of your config file (without the `.php` extension) to use your handler.
 
 ## Purging derivatives
 
@@ -771,10 +1185,17 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 #### For Docker image users
 
 - The base images have changed and need a new compose.yml definition.
-  - The main application image was split into separate images for the application and the transcoding worker.
-  - The application image no longer automatically starts workers or creates a cron for the scheduler.
-    - This will now need to be set up in the compose.yml file.
-    - Please refer to the [compose.prod.example.yml](compose.prod.example.yml) file for an example production setup
+    - The main application image was split into separate images for the application and the transcoding worker.
+    - The application image no longer automatically starts workers or creates a cron for the scheduler.
+        - This will now need to be set up in the compose.yml file.
+        - Please refer to the [compose.prod.example.yml](compose.prod.example.yml) file for an example production setup
+
+#### Client implementations
+
+- V1 will be deprecated in the near future, please use v2 routes
+- The upload process has changed
+    - please refer to the [Implementing a client](#implementing-a-client)'s [uploading media](#uploading-media) section for details
+    - please see the [Postman collection](postman.json) for example calls for all v2 routes
 
 ### v0.7.0 to v0.8.0
 

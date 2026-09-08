@@ -7,6 +7,7 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\Transformation;
 use App\Models\Version;
+use Illuminate\Support\Collection;
 use Optimize;
 use Transform;
 
@@ -20,11 +21,17 @@ class DocumentHandler extends OnDemandDerivativeMediaHandler
     protected ResponseState $versionSetFailed = ResponseState::CDN_INVALIDATION_FAILED;
 
     /**
-     * @return string
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string
     {
         return 'mimetypes:application/pdf';
+    }
+
+    public function getAllowedMimetypes(): Collection
+    {
+        return collect(['application/pdf']);
     }
 
     /**

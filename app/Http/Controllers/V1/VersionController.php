@@ -28,7 +28,7 @@ class VersionController extends Controller
                 'message' => ResponseState::VERSIONS_RETRIEVED->getMessage(),
                 'identifier' => $media->identifier,
             ],
-                $media->type->handler()->getVersions($media)
+                $media->type->handler()->getVersionsInfo($media)
             )
         );
     }

@@ -143,6 +143,7 @@ return [
         'Optimize' => App\Facades\OptimizeFacade::class,
         'Transcode' => App\Facades\TranscodeFacade::class,
         'Transform' => App\Facades\TransformFacade::class,
+        'UploadHandler' => App\Facades\UploadHandlerFacade::class,
     ])->toArray(),
 
 ];

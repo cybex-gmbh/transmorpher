@@ -9,7 +9,13 @@
 
 ### General
 
-- Added a README section about [browser cache busting](README.md#browser-cache-busting)
+- Restructured the README
+- Added a README section about [Implementing a client](README.md#implementing-a-client)
+- v2 API added, v1 API will be deprecated in the future.
+- Upload process has been restructured, see ["Uploading Media README"](README.md#uploading-media) for more information
+- Routes have been slightly adjusted, the `upload` route now uses `PUT` instead of `POST`
+- Reserving an upload slot now requires to pass the final file name
+- Original file names now use the upload token as prefix instead of the version id
 
 #### For docker image users
 
@@ -19,11 +25,35 @@
     - Transcoding workers have their own image and run in a separate container
     - Scheduler has to run as its own container
 
+### Features
+
+#### Client-facing
+
+- The Media Server now has the ability to handle S3 Multipart Uploads, when it is configured so
+    - Added a route to retrieve the configured upload handler, `s3-multi-part` for S3 Multipart Uploads, `default` for the v1 API behaviour
+    - See ["Uploading Media README"](README.md#uploading-media) for more information, also on the updated upload process
+- The Postman collection has been updated with v2 API example calls
+- More accurate HTTP responses will be returned by the server, especially for errors
+
+#### Server
+
+- The Upload process can now be customized
+    - It now consists of multiple steps, which allows for more complex upload processes, such as S3 Multipart Uploads
+    - The upload handler to be used can be configured in the `.env` file
+
+### Fixes
+
+- fixed an issue where requesting PDF images with PPI < 2 would lead to a 500 server error
+- fixed an issue where passing only the quality transformation would lead to a 500 server error
+
 ### Development
 
 - Sail has been removed,
   please refer to the [development section of the README](README.md#development) for information on running, connecting and testing with the new images
 - Docker Bake is now used to build and push images, which allows the simultaneous building of the app and transcoder images, including caching mechanisms
+- v2 API Tests have been added, with more extensive test cases
+- v2 API calls have been added to Postman, with only the happy path since tests should now cover failures
+- The `responses.php` language file has been restructured to use dot notation
 
 ## [v0.8.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.7.0...v0.8.0)
 

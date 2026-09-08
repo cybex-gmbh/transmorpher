@@ -3,10 +3,12 @@
 namespace App\Interfaces;
 
 use App\Enums\ResponseState;
+use App\Models\Media;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 
 interface MediaHandlerInterface
 {
@@ -19,9 +21,16 @@ interface MediaHandlerInterface
     public function handleSavedFile(string $basePath, UploadSlot $uploadSlot, Version $version): ResponseState;
 
     /**
-     * @return string
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string;
+
+    public function getAllowedMimetypes(): Collection;
+
+    public function getAllowedMimetypesAsString(): string;
+
+    public function isMimetypeValid(string $mimetype): bool;
 
     /**
      * @param string $basePath
@@ -35,6 +44,8 @@ interface MediaHandlerInterface
      * @return array
      */
     public function processVersion(User $user, Version $version): array;
+
+    public function getVersionsInfo(Media $media): array;
 
     /**
      * @return Filesystem

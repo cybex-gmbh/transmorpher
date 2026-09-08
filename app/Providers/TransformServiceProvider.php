@@ -8,7 +8,7 @@ use Illuminate\Support\ServiceProvider;
 
 class TransformServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    const SERVICE_NAME = 'transform';
+    const string SERVICE_NAME = 'transform';
 
     /**
      * Register services.
