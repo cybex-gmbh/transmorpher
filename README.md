@@ -1197,20 +1197,21 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
     - please refer to the [Implementing a client](#implementing-a-client)'s [uploading media](#uploading-media) section for details
     - please see the [Postman collection](postman.json) for example calls for all v2 routes
 
-Following v2 routes have different URLs than their v1 equivalents:
+Following v2 routes have different URLs or HTTP methods than their v1 equivalents:
 
-| v2 route                                                                        | v1 route                                                                       |
-|---------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| `POST /api/v2/image/upload/reserve`                                             | `POST /api/v1/image/reserveUploadSlot`                                         |
-| `POST /api/v2/document/upload/reserve`                                          | `POST /api/v1/document/reserveUploadSlot`                                      |
-| `POST /api/v2/video/upload/reserve`                                             | `POST /api/v1/video/reserveUploadSlot`                                         |
-| `PATCH /api/v2/media/{media}/versions/{version}`                                | `PATCH /api/v1/media/{media}/version/{version}`                                |
-| `GET /api/v2/image/{media}/versions/{version}/original`                         | `GET /api/v1/image/{media}/version/{version}/original`                         |
-| `GET /api/v2/image/{media}/versions/{version}/derivative/{transformations?}`    | `GET /api/v1/image/{media}/version/{version}/derivative/{transformations?}`    |
-| `GET /api/v2/document/{media}/versions/{version}/original`                      | `GET /api/v1/document/{media}/version/{version}/original`                      |
-| `GET /api/v2/document/{media}/versions/{version}/derivative/{transformations?}` | `GET /api/v1/document/{media}/version/{version}/derivative/{transformations?}` |
-| `GET /api/v2/meta/publicKey`                                                    | `GET /api/v1/publickey`                                                        |
-| `GET /api/v2/meta/cacheInvalidator`                                             | `GET /api/v1/cacheInvalidator`                                                 |
+| v1 route                                                                       | v2 route                                                                        |
+|--------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| `POST /api/v1/image/reserveUploadSlot`                                         | `POST /api/v2/image/upload/reserve`                                             |
+| `POST /api/v1/document/reserveUploadSlot`                                      | `POST /api/v2/document/upload/reserve`                                          |
+| `POST /api/v1/video/reserveUploadSlot`                                         | `POST /api/v2/video/upload/reserve`                                             |
+| `POST /api/v1/upload/{uploadSlot}`                                             | `PUT /api/v2/upload/{uploadSlot}`                                               |
+| `PATCH /api/v1/media/{media}/version/{version}`                                | `PATCH /api/v2/media/{media}/versions/{version}`                                |
+| `GET /api/v1/image/{media}/version/{version}/original`                         | `GET /api/v2/image/{media}/versions/{version}/original`                         |
+| `GET /api/v1/image/{media}/version/{version}/derivative/{transformations?}`    | `GET /api/v2/image/{media}/versions/{version}/derivative/{transformations?}`    |
+| `GET /api/v1/document/{media}/version/{version}/original`                      | `GET /api/v2/document/{media}/versions/{version}/original`                      |
+| `GET /api/v1/document/{media}/version/{version}/derivative/{transformations?}` | `GET /api/v2/document/{media}/versions/{version}/derivative/{transformations?}` |
+| `GET /api/v1/publickey`                                                        | `GET /api/v2/meta/publicKey`                                                    |
+| `GET /api/v1/cacheInvalidator`                                                 | `GET /api/v2/meta/cacheInvalidator`                                             |
 
 ### v0.7.0 to v0.8.0
 
