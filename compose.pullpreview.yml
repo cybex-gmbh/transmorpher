@@ -1,8 +1,4 @@
-x-app-image: &app-image transmorpher-prod-8.4/app
-x-transcoder-image: &transcoder-image transmorpher-prod-8.4/transcoder
-
 x-common: &common
-  image: *app-image
   depends_on:
     mariadb:
       condition: service_healthy
@@ -21,6 +17,23 @@ x-common-build: &common-build
 x-app-url: &app-url
   APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
 
+x-amigor-image: &amigor-image cybexwebdev/transmorpher-amigor:chore-route-naming
+
+x-amigor-app-url: &amigor-app-url
+  APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
+
+x-amigor-common: &amigor-common
+  image: *amigor-image
+  depends_on:
+    amigor-mariadb:
+      condition: service_healthy
+    traefik:
+      condition: service_started
+  volumes:
+    - 'amigor-storage:/var/www/storage'
+    - '.env.amigor:/var/www/.env'
+  networks: *common-networks
+
 services:
   app:
     <<: *common
@@ -30,18 +43,12 @@ services:
     environment:
       <<: *app-url
       CONTAINER_ROLE: web
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`transmorpher.${PULLPREVIEW_PUBLIC_DNS}`)'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls=true'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.tls.certresolver=production'
 
   worker-transcoding:
     <<: *common
     build:
       <<: *common-build
       target: transcoder
-    image: *transcoder-image
     environment:
       <<: *app-url
       CONTAINER_ROLE: worker
@@ -50,6 +57,9 @@ services:
 
   worker-client-notifications:
     <<: *common
+    build:
+      <<: *common-build
+      target: app
     environment:
       <<: *app-url
       CONTAINER_ROLE: worker
@@ -58,6 +68,9 @@ services:
 
   worker-email:
     <<: *common
+    build:
+      <<: *common-build
+      target: app
     environment:
       <<: *app-url
       CONTAINER_ROLE: worker
@@ -66,12 +79,18 @@ services:
 
   scheduler:
     <<: *common
+    build:
+      <<: *common-build
+      target: app
     environment:
       <<: *app-url
       CONTAINER_ROLE: scheduler
 
   initialize:
     <<: *common
+    build:
+      <<: *common-build
+      target: app
     command: [ '/var/www/docker/prod/pullpreview.initialize.sh' ]
     restart: 'on-failure'
     environment:
@@ -102,51 +121,37 @@ services:
 
   amigor:
     container_name: ${COMPOSE_PROJECT_NAME}-amigor
-    image: 'cybexwebdev/transmorpher-amigor'
-    depends_on:
-      amigor-mysql:
-        condition: service_healthy
-      traefik:
-        condition: service_started
+    <<: *amigor-common
     environment:
-      APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
-      PULLPREVIEW: true
-      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
+      <<: *amigor-app-url
       TRANSMORPHER_WEB_DELIVERY_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
       TRANSMORPHER_WEB_API_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}/api
-    volumes:
-      - 'amigor-storage:/var/www/html/amigor/storage'
-      - '.env.amigor:/var/www/html/amigor/.env'
-    networks: *common-networks
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`)'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor.tls=true'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor.tls.certresolver=production'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor.priority=1'
-      # Protect the root with Basic Auth.
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor-root.rule=Host(`${PULLPREVIEW_PUBLIC_DNS}`) && Path(`/`)'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor-root.middlewares=htpasswd'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor-root.tls=true'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor-root.tls.certresolver=production'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}-amigor-root.priority=2'
-      - 'traefik.http.middlewares.htpasswd.basicauth.usersfile=/.htpasswd'
+      CONTAINER_ROLE: web
 
-  amigor-mysql:
-    image: 'mysql/mysql-server:8.0'
+  amigor-initialize:
+    <<: *amigor-common
+    command: [ '/var/www/docker/prod/pullpreview.initialize.sh' ]
+    restart: 'on-failure'
     environment:
-      MYSQL_ROOT_PASSWORD: 'password'
-      MYSQL_ROOT_HOST: "%"
-      MYSQL_DATABASE: 'amigor'
-      MYSQL_USER: 'amigor'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      <<: *amigor-app-url
+      PULLPREVIEW: true
+      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
+    networks:
+      - internal
+
+  amigor-mariadb:
+    image: 'mariadb:lts-noble'
+    environment:
+      MARIADB_DATABASE: amigor
+      MARIADB_USER: amigor
+      MARIADB_PASSWORD: amigor
+      MARIADB_ROOT_PASSWORD: amigor
     volumes:
-      - 'amigor-mysql:/var/lib/mysql'
+      - 'amigor-mariadb:/var/lib/mysql'
     networks:
       - internal
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-ppassword" ]
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
       retries: 3
       timeout: 5s
 
@@ -166,7 +171,7 @@ services:
       TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION: true
       TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_EMAIL: 'cloud@cybex-online.com'
       TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_CASERVER: 'https://acme-v02.api.letsencrypt.org/directory'
-      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_STORAGE: '/letsencrypt/acme.json'
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_STORAGE: 'acme.json'
       TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_HTTPCHALLENGE: true
       TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_HTTPCHALLENGE_ENTRYPOINT: web
       TRAEFIK_ENTRYPOINTS_WEB: true
@@ -176,14 +181,15 @@ services:
       TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME: https
       TRAEFIK_ENTRYPOINTS_WEBSECURE: true
       TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS: ':443'
-      TRAEFIK_PROVIDERS_DOCKER: true
-      TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT: false
-      TRAEFIK_PROVIDERS_DOCKER_NETWORK: traefik
+      TRAEFIK_PROVIDERS_FILE: 'true'
+      TRAEFIK_PROVIDERS_FILE_FILENAME: /etc/traefik/pullpreview.traefik.yml
+      TRAEFIK_PROVIDERS_FILE_WATCH: 'true'
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./storage/letsencrypt:/letsencrypt
       - ./storage/logs:/logs
       - ./.htpasswd:/.htpasswd:ro
+      - ./pullpreview.traefik.yml:/etc/traefik/pullpreview.traefik.yml:ro
+      # Needs to be mounted so that it is synced to the server for use in the pre-script
+      - ./pullpreview.traefik.template.yml:/pullpreview.traefik.template.yml:ro
     networks:
       - traefik
 
@@ -198,7 +204,7 @@ networks:
 volumes:
   mariadb:
     driver: local
-  amigor-mysql:
+  amigor-mariadb:
     driver: local
   storage:
     driver: local

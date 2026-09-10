@@ -1,0 +1,47 @@
+http:
+  routers:
+    app:
+      rule: "Host(`transmorpher.${PULLPREVIEW_PUBLIC_DNS}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: production
+      service: app
+
+    amigor:
+      rule: "Host(`${PULLPREVIEW_PUBLIC_DNS}`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: production
+      service: amigor
+      priority: 1
+
+    amigor-root:
+      rule: "Host(`${PULLPREVIEW_PUBLIC_DNS}`) && Path(`/`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - htpasswd
+      tls:
+        certResolver: production
+      service: amigor
+      priority: 2
+
+  services:
+    app:
+      loadBalancer:
+        servers:
+          - url: "http://app:80"
+
+    amigor:
+      loadBalancer:
+        servers:
+          - url: "http://amigor:80"
+
+  middlewares:
+    htpasswd:
+      basicAuth:
+        # Generated in the PullPreview workflow when the PULLPREVIEW_BASIC_AUTH secret is passed.
+        usersFile: "/.htpasswd"
+
