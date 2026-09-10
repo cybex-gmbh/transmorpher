@@ -37,7 +37,7 @@ class DocumentTest extends OnDemandMediaTestCase
     #[Test]
     public function removesMetadataIfConfigured(): void
     {
-        Config::set('transmorpher.document_remove_metadata', true);
+        Config::set('transmorpher.media.document.metadata.remove', true);
 
         $version = $this->performUpload();
         $this->getPublicDerivative($version)->assertOk();
@@ -63,7 +63,7 @@ class DocumentTest extends OnDemandMediaTestCase
     #[Test]
     public function keepsMetadataIfConfigured(): void
     {
-        Config::set('transmorpher.document_remove_metadata', false);
+        Config::set('transmorpher.media.document.metadata.remove', false);
 
         $version = $this->performUpload();
         $this->getPublicDerivative($version)->assertOk();

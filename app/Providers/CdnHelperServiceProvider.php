@@ -17,7 +17,10 @@ class CdnHelperServiceProvider extends ServiceProvider implements DeferrableProv
      */
     public function register(): void
     {
-        $this->app->singleton(static::SERVICE_NAME, fn(): CdnHelperInterface => app()->make(config('transmorpher.cdn_helper')));
+        $this->app->singleton(
+            static::SERVICE_NAME,
+            fn(): CdnHelperInterface => app()->make(config($this->getCdnClassPath()))
+        );
     }
 
     /**
@@ -28,5 +31,10 @@ class CdnHelperServiceProvider extends ServiceProvider implements DeferrableProv
     public function provides(): array
     {
         return [static::SERVICE_NAME];
+    }
+
+    protected function getCdnClassPath(): string
+    {
+        return sprintf('transmorpher.classes.cdn.%s.class', config('transmorpher.app.cdn_class'));
     }
 }

@@ -19,9 +19,18 @@ class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableP
      */
     public function register(): void
     {
-        $this->app->singleton(static::DOCUMENT_SERVICE_NAME, fn(): MediaHandlerInterface => app()->make(config('transmorpher.media_handlers.document')));
-        $this->app->singleton(static::IMAGE_SERVICE_NAME, fn(): MediaHandlerInterface => app()->make(config('transmorpher.media_handlers.image')));
-        $this->app->singleton(static::VIDEO_SERVICE_NAME, fn(): MediaHandlerInterface => app()->make(config('transmorpher.media_handlers.video')));
+        $this->app->singleton(
+            static::DOCUMENT_SERVICE_NAME,
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath('document')))
+        );
+        $this->app->singleton(
+            static::IMAGE_SERVICE_NAME,
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath('image')))
+        );
+        $this->app->singleton(
+            static::VIDEO_SERVICE_NAME,
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath('video')))
+        );
     }
 
     /**
@@ -36,5 +45,14 @@ class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableP
             static::IMAGE_SERVICE_NAME,
             static::VIDEO_SERVICE_NAME,
         ];
+    }
+
+    protected function getMediaHandlerClassPath(string $mediaType): string
+    {
+        return sprintf(
+            'transmorpher.classes.handler.media.%s.%s.class',
+            $mediaType,
+            config(sprintf('transmorpher.media.%s.handler', $mediaType))
+        );
     }
 }

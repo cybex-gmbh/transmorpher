@@ -44,17 +44,19 @@ class CloudFrontHelper implements CdnHelperInterface
      */
     protected function invalidate(array $invalidationPaths): void
     {
+        $awsConfig = config('transmorpher.classes.cdn.cloudfront.aws');
+
         $cloudFrontClient = new CloudFrontClient([
             'version' => 'latest',
-            'region' => config('transmorpher.aws.region'),
+            'region' => $awsConfig['region'],
             'credentials' => [
-                'key' => config('transmorpher.aws.key'),
-                'secret' => config('transmorpher.aws.secret'),
+                'key' => $awsConfig['key'],
+                'secret' => $awsConfig['secret'],
             ],
         ]);
 
         $cloudFrontClient->createInvalidation([
-            'DistributionId' => config('transmorpher.aws.cloudfront_distribution_id'),
+            'DistributionId' => $awsConfig['cloudfront_distribution_id'],
             'InvalidationBatch' => [
                 'CallerReference' => $this->getCallerReference(),
                 'Paths' => [
@@ -72,7 +74,7 @@ class CloudFrontHelper implements CdnHelperInterface
      */
     public function isConfigured(): bool
     {
-        return config('transmorpher.aws.cloudfront_distribution_id') ?? false;
+        return config('transmorpher.classes.cdn.cloudfront.aws.cloudfront_distribution_id') ?? false;
     }
 
     /**

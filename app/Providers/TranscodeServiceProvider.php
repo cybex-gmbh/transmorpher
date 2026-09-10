@@ -17,7 +17,10 @@ class TranscodeServiceProvider extends ServiceProvider implements DeferrableProv
      */
     public function register(): void
     {
-        $this->app->singleton(static::SERVICE_NAME, fn(): TranscodeInterface => app()->make(config('transmorpher.transcode_class')));
+        $this->app->singleton(
+            static::SERVICE_NAME,
+            fn(): TranscodeInterface => app()->make(config($this->getTranscoderClassPath()))
+        );
     }
 
     /**
@@ -28,5 +31,10 @@ class TranscodeServiceProvider extends ServiceProvider implements DeferrableProv
     public function provides(): array
     {
         return [static::SERVICE_NAME];
+    }
+
+    protected function getTranscoderClassPath(): string
+    {
+        return sprintf('transmorpher.classes.video.transcoder.%s.class', config('transmorpher.media.video.transcoder'));
     }
 }
