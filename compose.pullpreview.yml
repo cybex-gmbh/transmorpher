@@ -17,6 +17,23 @@ x-common-build: &common-build
 x-app-url: &app-url
   APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
 
+x-amigor-image: &amigor-image cybexwebdev/transmorpher-amigor:chore-route-naming
+
+x-amigor-app-url: &amigor-app-url
+  APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
+
+x-amigor-common: &amigor-common
+  image: *amigor-image
+  depends_on:
+    amigor-mariadb:
+      condition: service_healthy
+    traefik:
+      condition: service_started
+  volumes:
+    - 'amigor-storage:/var/www/storage'
+    - '.env.amigor:/var/www/.env'
+  networks: *common-networks
+
 services:
   app:
     <<: *common
@@ -104,38 +121,37 @@ services:
 
   amigor:
     container_name: ${COMPOSE_PROJECT_NAME}-amigor
-    image: 'cybexwebdev/transmorpher-amigor'
-    depends_on:
-      amigor-mysql:
-        condition: service_healthy
-      traefik:
-        condition: service_started
+    <<: *amigor-common
     environment:
-      APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
-      PULLPREVIEW: true
-      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
+      <<: *amigor-app-url
       TRANSMORPHER_WEB_DELIVERY_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
       TRANSMORPHER_WEB_API_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}/api
-    volumes:
-      - 'amigor-storage:/var/www/html/amigor/storage'
-      - '.env.amigor:/var/www/html/amigor/.env'
-    networks: *common-networks
+      CONTAINER_ROLE: web
 
-  amigor-mysql:
-    image: 'mysql/mysql-server:8.0'
+  amigor-initialize:
+    <<: *amigor-common
+    command: [ '/var/www/docker/prod/pullpreview.initialize.sh' ]
+    restart: 'on-failure'
     environment:
-      MYSQL_ROOT_PASSWORD: 'password'
-      MYSQL_ROOT_HOST: "%"
-      MYSQL_DATABASE: 'amigor'
-      MYSQL_USER: 'amigor'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      <<: *amigor-app-url
+      PULLPREVIEW: true
+      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
+    networks:
+      - internal
+
+  amigor-mariadb:
+    image: 'mariadb:lts-noble'
+    environment:
+      MARIADB_DATABASE: amigor
+      MARIADB_USER: amigor
+      MARIADB_PASSWORD: amigor
+      MARIADB_ROOT_PASSWORD: amigor
     volumes:
-      - 'amigor-mysql:/var/lib/mysql'
+      - 'amigor-mariadb:/var/lib/mysql'
     networks:
       - internal
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-ppassword" ]
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
       retries: 3
       timeout: 5s
 
@@ -188,7 +204,7 @@ networks:
 volumes:
   mariadb:
     driver: local
-  amigor-mysql:
+  amigor-mariadb:
     driver: local
   storage:
     driver: local
