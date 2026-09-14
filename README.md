@@ -1210,13 +1210,22 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 > [!WARNING]
 > Breaking changes!
 
-#### For Docker image users
+#### For Media Server operators
+
+##### For Docker image users
 
 - The base images have changed and need a new compose.yml definition.
     - The main application image was split into separate images for the application and the transcoding worker.
     - The application image no longer automatically starts workers or creates a cron for the scheduler.
         - This will now need to be set up in the compose.yml file.
         - Please refer to the [compose.prod.example.yml](compose.prod.example.yml) file for an example production setup
+
+##### Configuration file changes
+
+- The config file has been split up and restructured.
+    - Various configuration options have new keys, compare and adjust accordingly
+- Interchangeability is now configured via .env keys and config files
+    - Check the [Interchangeability](#interchangeability) section for more information
 
 #### Client implementations
 
