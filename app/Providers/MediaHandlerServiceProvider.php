@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\MediaType;
 use App\Interfaces\MediaHandlerInterface;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
@@ -21,15 +22,15 @@ class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableP
     {
         $this->app->singleton(
             static::DOCUMENT_SERVICE_NAME,
-            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath('document')))
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath(MediaType::DOCUMENT)))
         );
         $this->app->singleton(
             static::IMAGE_SERVICE_NAME,
-            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath('image')))
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath(MediaType::IMAGE)))
         );
         $this->app->singleton(
             static::VIDEO_SERVICE_NAME,
-            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath('video')))
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath(MediaType::VIDEO)))
         );
     }
 
@@ -47,12 +48,12 @@ class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableP
         ];
     }
 
-    protected function getMediaHandlerClassPath(string $mediaType): string
+    protected function getMediaHandlerClassPath(MediaType $mediaType): string
     {
         return sprintf(
             'transmorpher.interchangeable.handler.media.%s.%s.class',
-            $mediaType,
-            config(sprintf('transmorpher.media.%s.handler', $mediaType))
+            $mediaType->value,
+            config(sprintf('transmorpher.media.%s.handler', $mediaType->value))
         );
     }
 }
