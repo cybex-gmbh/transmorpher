@@ -43,6 +43,7 @@
 - The Upload process can now be customized
     - It now consists of multiple steps, which allows for more complex upload processes, such as S3 Multipart Uploads
     - The upload handler to be used can be configured in the `.env` file
+- Encoders and Decoders are now interchangeable, check the [README](README.md#encoder-and-decoder) for more information
 
 ### Fixes
 

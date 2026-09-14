@@ -39,10 +39,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | The decoder used when transcoding videos.
-    | These are defined through the `config/media/video/decoder` files.
+    | Decoder classes and options are defined through `config/transmorpher/interchangeable/video/decoder` files.
     |
-    | You can choose from:
-    | cpu, nvidia-cuda
+    | Available decoders:
+    | - cpu
+    | - nvidia-cuda
     */
     'decoder' => env('TRANSMORPHER_VIDEO_DECODER', 'cpu'),
 
@@ -52,10 +53,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | The encoder used when transcoding videos.
-    | Additional FFmpeg parameters are controlled through the according `config/media/video/encoder` files.
+    | Encoder classes and FFmpeg options are defined through `config/transmorpher/interchangeable/video/encoder` files.
     |
-    | You can choose from:
-    | cpu-h264, cpu-hevc, nvidia-h264, nvidia-hevc
+    | Available encoders:
+    | - cpu-h264
+    | - cpu-hevc
+    | - nvidia-h264
+    | - nvidia-hevc
     */
     'encoder' => env('TRANSMORPHER_VIDEO_ENCODER', 'cpu-h264'),
 

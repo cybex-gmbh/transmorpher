@@ -583,7 +583,7 @@ The default preset is `p4`. To set the high quality preset, use the following en
 TRANSMORPHER_VIDEO_ENCODER_NVIDIA_PRESET=p6
 ```
 
-Each encoder has its own configuration file in the `config/encoder` folder, containing FFmpeg parameters.
+Each encoder has its own configuration file in the `config/transmorpher/interchangeable/video/encoder` folder, containing FFmpeg parameters.
 
 Note that the optional GPU video decoding setting is experimental and unstable.
 By default, videos are decoded using the CPU.
@@ -1049,6 +1049,16 @@ return [
 ```
 
 You can then set the `TRANSMORPHER_VIDEO_TRANSCODER` environment variable to the name of your config file (without the `.php` extension) to use your class.
+
+#### Encoder and Decoder
+
+Encoders and decoders are configured under `config/transmorpher/interchangeable/video/{encoder|decoder}`.
+Each file defines a `class` key and FFmpeg options.
+
+To add a custom encoder or decoder, create a new file with your configuration and set `TRANSMORPHER_VIDEO_ENCODER` or
+`TRANSMORPHER_VIDEO_DECODER` to the file name (without `.php`).
+
+If you want to add an entirely new encoder or decoder, you will need to create a class which implements the `EncoderInterface` or `DecoderInterface`.
 
 ### Upload handler
 

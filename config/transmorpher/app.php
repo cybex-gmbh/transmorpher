@@ -61,7 +61,7 @@ return [
     | The upload handler used for the v2 upload flow.
     | The class must implement UploadHandlerContract.
     |
-    | These are defined through the `config/transmorpher/class/handler/upload` files.
+    | These are defined through the `config/transmorpher/interchangeable/handler/upload` files.
     |
     | You can choose from:
     | - default       (uses pionl/laravel-chunk-upload, can use any Laravel disk)
