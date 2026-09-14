@@ -35,6 +35,6 @@ class CdnHelperServiceProvider extends ServiceProvider implements DeferrableProv
 
     protected function getCdnClassPath(): string
     {
-        return sprintf('transmorpher.classes.cdn.%s.class', config('transmorpher.app.cdn_class'));
+        return sprintf('transmorpher.interchangeable.cdn.%s.class', config('transmorpher.app.cdn_class'));
     }
 }

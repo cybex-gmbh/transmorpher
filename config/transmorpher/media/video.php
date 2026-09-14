@@ -9,7 +9,7 @@ return [
     | The class which is responsible for handling media specific actions, such as validation rules or handling the newly saved file.
     | The class must implement MediaHandlerInterface.
     |
-    | These are defined through the `config/transmorpher/classes/handler/media/video` files.
+    | These are defined through the `config/transmorpher/interchangeable/handler/media/video` files.
     |
     | You can choose from:
     | - default
@@ -25,7 +25,7 @@ return [
     | The class which is used for transcoding videos.
     | The class must implement TranscodeInterface.
     |
-    | These are defined through the `config/transmorpher/classes/video/transcoder` files.
+    | These are defined through the `config/transmorpher/interchangeable/video/transcoder` files.
     |
     | Available transcoders:
     | - default (uses FFmpeg and Laravel Queue for transcoding)

@@ -45,7 +45,7 @@ return [
     | The class which is used for creating CDN invalidations.
     | The class must implement CdnHelperInterface.
     |
-    | These are defined through the `config/transmorpher/classes/cdn` files.
+    | These are defined through the `config/transmorpher/interchangeable/cdn` files.
     |
     | Available classes:
     | - cloudfront (AWS CloudFront)

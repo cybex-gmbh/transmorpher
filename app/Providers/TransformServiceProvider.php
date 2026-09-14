@@ -35,6 +35,6 @@ class TransformServiceProvider extends ServiceProvider implements DeferrableProv
 
     protected function getTransformerClassPath(): string
     {
-        return sprintf('transmorpher.classes.image.transformer.%s.class', config('transmorpher.media.image.transformer'));
+        return sprintf('transmorpher.interchangeable.image.transformer.%s.class', config('transmorpher.media.image.transformer'));
     }
 }

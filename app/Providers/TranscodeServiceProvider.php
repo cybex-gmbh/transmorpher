@@ -35,6 +35,6 @@ class TranscodeServiceProvider extends ServiceProvider implements DeferrableProv
 
     protected function getTranscoderClassPath(): string
     {
-        return sprintf('transmorpher.classes.video.transcoder.%s.class', config('transmorpher.media.video.transcoder'));
+        return sprintf('transmorpher.interchangeable.video.transcoder.%s.class', config('transmorpher.media.video.transcoder'));
     }
 }

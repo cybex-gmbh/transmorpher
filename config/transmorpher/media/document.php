@@ -9,7 +9,7 @@ return [
     | The class which is responsible for handling media specific actions, such as validation rules or handling the newly saved file.
     | The class must implement MediaHandlerInterface.
     |
-    | These are defined through the `config/transmorpher/classes/handler/media/document` files.
+    | These are defined through the `config/transmorpher/interchangeable/handler/media/document` files.
     |
     | You can choose from:
     | - default

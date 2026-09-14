@@ -80,7 +80,7 @@ enum ImageFormat: string
     public function getConverter(): ConvertInterface
     {
         return app(config(sprintf(
-            'transmorpher.classes.image.converter.%s.%s.class',
+            'transmorpher.interchangeable.image.converter.%s.%s.class',
             $this->value,
             config(sprintf('transmorpher.media.image.converter.%s', $this->value))
         )));

@@ -44,7 +44,7 @@ class CloudFrontHelper implements CdnHelperInterface
      */
     protected function invalidate(array $invalidationPaths): void
     {
-        $awsConfig = config('transmorpher.classes.cdn.cloudfront.aws');
+        $awsConfig = config('transmorpher.interchangeable.cdn.cloudfront.aws');
 
         $cloudFrontClient = new CloudFrontClient([
             'version' => 'latest',
@@ -74,7 +74,7 @@ class CloudFrontHelper implements CdnHelperInterface
      */
     public function isConfigured(): bool
     {
-        return config('transmorpher.classes.cdn.cloudfront.aws.cloudfront_distribution_id') ?? false;
+        return config('transmorpher.interchangeable.cdn.cloudfront.aws.cloudfront_distribution_id') ?? false;
     }
 
     /**

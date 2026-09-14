@@ -9,7 +9,7 @@ return [
     | The class which is responsible for handling media specific actions, such as validation rules or handling the newly saved file.
     | The class must implement MediaHandlerInterface.
     |
-    | These are defined through the `config/transmorpher/classes/handler/media/image` files.
+    | These are defined through the `config/transmorpher/interchangeable/handler/media/image` files.
     |
     | You can choose from:
     | - default
@@ -25,7 +25,7 @@ return [
     | The class which is used for applying transformations.
     | The class must implement TransformInterface.
     |
-    | These are defined through the `config/transmorpher/classes/image/transformer` files.
+    | These are defined through the `config/transmorpher/interchangeable/image/transformer` files.
     |
     | Available transformers:
     | -  intervention (based on Intervention Image)
@@ -41,7 +41,7 @@ return [
     | The classes which are used for applying format conversions.
     | The classes must implement ConvertInterface.
     |
-    | These are defined through the `config/transmorpher/classes/image/converter` files.
+    | These are defined through the `config/transmorpher/interchangeable/image/converter` files.
     |
     | Available Converters:
     | - intervention (based on Intervention Image)

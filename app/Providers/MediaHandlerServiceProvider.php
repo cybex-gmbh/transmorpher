@@ -50,7 +50,7 @@ class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableP
     protected function getMediaHandlerClassPath(string $mediaType): string
     {
         return sprintf(
-            'transmorpher.classes.handler.media.%s.%s.class',
+            'transmorpher.interchangeable.handler.media.%s.%s.class',
             $mediaType,
             config(sprintf('transmorpher.media.%s.handler', $mediaType))
         );

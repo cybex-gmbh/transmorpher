@@ -967,7 +967,7 @@ If you want to use a CDN other than CloudFront, you will have to provide a class
 provides the functionality of invalidating the CDN's cache.
 The `CloudFrontHelper` class provides an implementation for CloudFront and can be viewed as an example.
 
-You will then need to add a config file for your handler in the `config/transmorpher/classes/cdn` directory and specify the class name.
+You will then need to add a config file for your handler in the `config/transmorpher/interchangeable/cdn` directory and specify the class name.
 
 ```php
 return [
@@ -990,7 +990,7 @@ This provides the ability to add additional image manipulation libraries or logi
 To add a class for image transformation, create a new class which implements the `TransformInterface`.
 An example implementation can be found at `App\Classes\Intervention\Transform`.
 
-You will then need to add a config file for your class in the `config/transmorpher/classes/image/transformer` directory and specify the class name.
+You will then need to add a config file for your class in the `config/transmorpher/interchangeable/image/transformer` directory and specify the class name.
 
 ```php
 return [
@@ -1008,7 +1008,7 @@ You can then set the `TRANSMORPHER_IMAGE_TRANSFORMER` environment variable to th
 If you want to interchange the classes which convert images to different formats, you can do so by creating classes
 which implement the `ConvertInterface`. An example implementation can be found at `App\Classes\Intervention\Convert`.
 
-You will then need to add a config file for your class in the `config/transmorpher/classes/image/converter/<format>` directory and specify the class name.
+You will then need to add a config file for your class in the `config/transmorpher/interchangeable/image/converter/<format>` directory and specify the class name.
 
 ```php
 return [
@@ -1037,7 +1037,7 @@ image transformation classes.
 To interchange the class, which is responsible for initiating transcoding, create a new class which implements
 the `TranscodeInterface`. An example implementation, which dispatches a job, can be found at `App\Classes\Transcode.php`.
 
-You will then need to add a config file for your class in the `config/transmorpher/classes/video/transcoder` directory and specify the class name.
+You will then need to add a config file for your class in the `config/transmorpher/interchangeable/video/transcoder` directory and specify the class name.
 
 ```php
 return [
@@ -1054,7 +1054,7 @@ You can then set the `TRANSMORPHER_VIDEO_TRANSCODER` environment variable to the
 
 You can create your own upload handler by implementing the `UploadHandlerInterface`, for example for the Azure Blob Storage.
 
-You will need to add a config file for your handler in the `config/transmorpher/classes/handler/upload` directory and specify the class name.
+You will need to add a config file for your handler in the `config/transmorpher/interchangeable/handler/upload` directory and specify the class name.
 
 ```php
 return [
