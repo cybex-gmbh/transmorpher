@@ -1053,12 +1053,66 @@ You can then set the `TRANSMORPHER_VIDEO_TRANSCODER` environment variable to the
 #### Encoder and Decoder
 
 Encoders and decoders are configured under `config/transmorpher/interchangeable/video/{encoder|decoder}`.
-Each file defines a `class` key and FFmpeg options.
+Each file needs to define a `class` key.
 
-To add a custom encoder or decoder, create a new file with your configuration and set `TRANSMORPHER_VIDEO_ENCODER` or
-`TRANSMORPHER_VIDEO_DECODER` to the file name (without `.php`).
+For example, if you want to use the VP9 codec with CPU encoding:
 
-If you want to add an entirely new encoder or decoder, you will need to create a class which implements the `EncoderInterface` or `DecoderInterface`.
+In a new file `config/transmorpher/interchangeable/video/encoder/cpu-vp9.php`
+
+```php
+return [
+    'class' => The\Path\To\Your\CpuVp9Encoder::class,
+
+    'streaming_codec' => 'vp9',
+    'streaming_parameters' => [ /* Your FFmpeg parameters for DASH and HLS */ ],
+    'mp4_parameters' => [/* Your FFmpeg parameters for MP4 */],
+    'parameters' => [/* Your common FFmpeg parameters for DASH, HLS and MP4 */],
+]
+```
+
+> [!NOTE]
+> The only mandatory key in the config file is `class`.
+> Since you implement your own class, you can specify all other keys yourself as needed.
+>
+> If you want, you can extend the `\App\Classes\Video\Encoder\AbstractEncoder` class, which will use the config keys specified above.
+
+Then in your class
+
+```php
+class CpuVp9Encoder implements \App\Interfaces\VideoEncoderInterface
+{
+    public function name(): string
+    {
+        // Your config file name without the .php extension
+        return 'cpu-vp9';
+    }
+
+    public function outputParameters(bool $forMp4Fallback = false): array
+    {   
+        // All parameters for the FFmpeg output. If you have MP4 specific parameters, they should only be applied when $forMp4Fallback is true.
+        return ...;
+        
+    }
+
+    public function streamingCodec(): string;
+    {
+        // The codec to be used for the streaming formats (DASH and HLS)
+        return 'vp9';
+    }
+}
+```
+
+> [!NOTE]
+> The only supported values for the streaming codec are currently `h264`, `hevc` and `vp9`.
+
+Finally, set the `TRANSMORPHER_VIDEO_ENCODER` environment variable to the name of your config file (without the `.php` extension) to use your encoder:
+
+```dotenv
+TRANSMORPHER_VIDEO_ENCODER=cpu-vp9
+```
+
+The process for decoders is similar.
+Create a new class which implements the `DecodeInterface` and add a config file for your class in the `config/transmorpher/interchangeable/video/decoder` directory.
 
 ### Upload handler
 

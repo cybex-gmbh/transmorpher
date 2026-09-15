@@ -7,7 +7,7 @@ interface VideoEncoderInterface
     public function name(): string;
 
     /**
-     * Returns additional FFmpeg output parameters for the configured encoder.
+     * Returns FFmpeg output parameters for the configured encoder.
      *
      * @param bool $forMp4Fallback
      * @return array
