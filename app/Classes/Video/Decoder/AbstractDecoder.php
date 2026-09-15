@@ -15,7 +15,7 @@ abstract class AbstractDecoder implements VideoDecoderInterface
         ));
 
         if (!is_array($parameters)) {
-            throw new TypeError(sprintf('Invalid decoder initial parameter configuration for "%s". Expected array.', $this->name()));
+            throw new TypeError(sprintf('Invalid decoder parameter configuration for "%s". Expected array.', $this->name()));
         }
 
         return $parameters;
