@@ -27,7 +27,7 @@ FROM cybexwebdev/php-laravel:8.4-alpine as app
 # Timeout for the post update script in minutes.
 LABEL com.centurylinklabs.watchtower.lifecycle.post-update-timeout="1440"
 # Watchtower will run this script after restarting the updated container.
-LABEL com.centurylinklabs.watchtower.lifecycle.post-update="/var/www/docker/watchtower.post-update.sh"
+LABEL com.centurylinklabs.watchtower.lifecycle.post-update="/var/www/docker/prod/watchtower.post-update.sh"
 
 COPY --chown=www-data:www-data docker/common/nginx.default.conf /etc/nginx/conf.d/default.conf.template
 
