@@ -138,7 +138,9 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'CdnHelper' => App\Facades\CdnHelperFacade::class,
+        'Decoder' => App\Facades\DecoderFacade::class,
         'Delivery' => App\Facades\DeliveryFacade::class,
+        'Encoder' => App\Facades\EncoderFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
         'Optimize' => App\Facades\OptimizeFacade::class,
         'Transcode' => App\Facades\TranscodeFacade::class,

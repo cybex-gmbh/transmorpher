@@ -17,4 +17,5 @@ return [
     App\Providers\TranscodeServiceProvider::class,
     App\Providers\TransformServiceProvider::class,
     App\Providers\UploadHandlerServiceProvider::class,
+    App\Providers\VideoCodecServiceProvider::class,
 ];
