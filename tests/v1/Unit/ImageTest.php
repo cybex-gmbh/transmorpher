@@ -169,7 +169,7 @@ class ImageTest extends OnDemandDerivativeMediaTest
 
         $this->assertVersionFilesExist($this->version);
 
-        $cacheCounterBeforeCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
+        $cacheCounterBeforeCommand = $this->originalsDisk->get(config('transmorpher.media.derivatives.cache.invalidation.file.path'));
 
         Http::fake([
             $this->user->api_url => Http::response()
@@ -177,7 +177,7 @@ class ImageTest extends OnDemandDerivativeMediaTest
 
         Artisan::call(PurgeDerivatives::class, ['--image' => true]);
 
-        $cacheCounterAfterCommand = $this->originalsDisk->get(config('transmorpher.cache_invalidation_counter_file_path'));
+        $cacheCounterAfterCommand = $this->originalsDisk->get(config('transmorpher.media.derivatives.cache.invalidation.file.path'));
 
         Http::assertSent(function (Request $request) use ($cacheCounterAfterCommand) {
             $decryptedNotification = json_decode(SodiumHelper::decrypt($request['signed_notification']), true);

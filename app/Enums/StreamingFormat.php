@@ -24,7 +24,7 @@ enum StreamingFormat: string
         // GPU accelerated encoding cannot be set via $codec('h264_nvenc'). It may be set through the additional params.
         return $video->$format()
             ->$codec()
-            ->autoGenerateRepresentations(config('transmorpher.representations'))
+            ->autoGenerateRepresentations(config('transmorpher.media.video.representations'))
             ->setAdditionalParams($encoder->getAdditionalParameters());
     }
 }

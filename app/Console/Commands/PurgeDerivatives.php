@@ -46,7 +46,7 @@ class PurgeDerivatives extends Command
         }
 
         $originalsDisk = MediaStorage::ORIGINALS->getDisk();
-        $cacheInvalidationCounterFilePath = config('transmorpher.cache_invalidation_counter_file_path');
+        $cacheInvalidationCounterFilePath = config('transmorpher.media.derivatives.cache.invalidation.file.path');
 
         if (!$originalsDisk->put($cacheInvalidationCounterFilePath, $originalsDisk->get($cacheInvalidationCounterFilePath) + 1)) {
             $this->error(sprintf('Failed to update cache invalidation counter at path %s on disk %s', $cacheInvalidationCounterFilePath, MediaStorage::ORIGINALS->value));

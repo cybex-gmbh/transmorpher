@@ -24,6 +24,6 @@ enum MediaStorage: string
 
     public function getDiskName(): string
     {
-        return config(sprintf('transmorpher.disks.%s', $this->value));
+        return config(sprintf('transmorpher.app.disks.%s', $this->value));
     }
 }
