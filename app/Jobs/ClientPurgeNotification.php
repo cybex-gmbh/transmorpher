@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\ClientNotification;
+use App\Enums\Queue;
 use App\Exceptions\ClientNotificationFailedException;
 use App\Helpers\SodiumHelper;
 use App\Models\User;
@@ -45,7 +46,31 @@ class ClientPurgeNotification implements ShouldQueue
      */
     public function __construct(protected User $user, protected int $cacheInvalidationCounter)
     {
-        $this->onQueue('client-notifications');
+        $this->onQueue(Queue::CLIENT_NOTIFICATIONS->getQueue());
+        $this->onConnection(Queue::CLIENT_NOTIFICATIONS->getConnection());
+    }
+
+    /**
+     * Get the message group ID for SQS FIFO queues.
+     *
+     * @return string
+     */
+    public function messageGroup(): string
+    {
+        return (string)$this->user->getKey();
+    }
+
+    /**
+     * Get the message deduplication ID for SQS FIFO queues.
+     * Combines user ID and cache invalidation counter to uniquely identify each dispatch.
+     *
+     * @param string $payload
+     * @param string $queue
+     * @return string
+     */
+    public function deduplicationId(string $payload, string $queue): string
+    {
+        return sprintf('%s:%s', $this->user->getKey(), $this->cacheInvalidationCounter);
     }
 
     /**

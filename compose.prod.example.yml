@@ -17,11 +17,8 @@ services:
 
   worker-transcoding:
     image: cybexwebdev/transmorpher:x.x-transcoder
+    command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
     restart: unless-stopped
-    environment:
-      CONTAINER_ROLE: worker
-      SERVICE_INSTANCES: ${VIDEO_TRANSCODING_WORKERS_AMOUNT:-1}
-      QUEUE: video-transcoding
     volumes:
       # If you are using local disks, persist the storage across container restarts.
       - 'storage:/var/www/storage'
@@ -31,11 +28,8 @@ services:
 
   worker-client-notifications:
     image: cybexwebdev/transmorpher:x.x-app
+    command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
     restart: unless-stopped
-    environment:
-      CONTAINER_ROLE: worker
-      SERVICE_INSTANCES: 1
-      QUEUE: client-notifications
     volumes:
       - './.env:/var/www/.env:ro'
     networks:
@@ -43,11 +37,8 @@ services:
 
   worker-email:
     image: cybexwebdev/transmorpher:x.x-app
+    command: [ "shell", "php artisan transmorpher:queue-work email" ]
     restart: unless-stopped
-    environment:
-      CONTAINER_ROLE: worker
-      SERVICE_INSTANCES: 1
-      QUEUE: email
     volumes:
       - './.env:/var/www/.env:ro'
     networks:
