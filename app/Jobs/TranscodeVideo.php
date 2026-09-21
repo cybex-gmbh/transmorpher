@@ -73,8 +73,7 @@ class TranscodeVideo implements ShouldQueue
     }
 
     /**
-     * Get the message group ID for fair queuing on standard SQS queues
-     * and FIFO ordering on FIFO queues.
+     * Get the message group ID for fair queuing on standard SQS queues and FIFO ordering on FIFO queues.
      *
      * For FIFO queues (.fifo suffix): returns version key to enable parallel processing across videos.
      *   -> only the newest version will be accepted, other versions will be disposed either at the start of transcoding, or the end.
@@ -85,12 +84,13 @@ class TranscodeVideo implements ShouldQueue
     public function messageGroup(): string
     {
         $queue = Queue::VIDEO_TRANSCODING->getName();
+        $prefix = Queue::VIDEO_TRANSCODING->name;
 
         if (str_ends_with($queue, '.fifo')) {
-            return (string)$this->version->getKey();
+            return sprintf('%s:version-%s', $prefix, $this->version->getKey());
         }
 
-        return (string)$this->version->Media->User->getKey();
+        return sprintf('%s:user-%s', $prefix, $this->version->Media->User->getKey());
     }
 
     /**
@@ -103,7 +103,7 @@ class TranscodeVideo implements ShouldQueue
      */
     public function deduplicationId(string $payload, string $queue): string
     {
-        return sprintf('%s:%s', $this->uploadSlot->token, $this->version->getKey());
+        return sprintf('%s:upload-%s:version-%s', Queue::VIDEO_TRANSCODING->name, $this->uploadSlot->token, $this->version->getKey());
     }
 
     /**

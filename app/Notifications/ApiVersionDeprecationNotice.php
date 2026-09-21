@@ -25,13 +25,13 @@ class ApiVersionDeprecationNotice extends Notification implements ShouldQueue
     }
 
     /**
-     * Get the message group ID for SQS queues.
+     * Get the message group ID for SQS (FIFO) queues.
      *
      * @return string
      */
     public function messageGroup(): string
     {
-        return sprintf('api-version-%s', $this->apiVersion);
+        return Queue::EMAIL->name;
     }
 
     /**
@@ -44,7 +44,7 @@ class ApiVersionDeprecationNotice extends Notification implements ShouldQueue
      */
     public function deduplicationId(string $payload, string $queue): string
     {
-        return sprintf('api-deprecation-%s', $this->apiVersion);
+        return sprintf('%s:api-deprecation-%s', Queue::EMAIL->name, $this->apiVersion);
     }
 
     /**
@@ -70,7 +70,7 @@ class ApiVersionDeprecationNotice extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->from(config('mail.from.address'), config('app.name'))
-            ->bcc(User::get()->pluck('email'))
+            ->bcc(User::pluck('email'))
             ->subject(trans('version-deprecation-notice.subject', ['apiVersion' => $this->apiVersion]))
             ->greeting(trans('version-deprecation-notice.title'))
             ->line(trans('version-deprecation-notice.version_soon_deprecated', ['apiVersion' => $this->apiVersion]))

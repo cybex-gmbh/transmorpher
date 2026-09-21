@@ -51,13 +51,13 @@ class ClientPurgeNotification implements ShouldQueue
     }
 
     /**
-     * Get the message group ID for SQS FIFO queues.
+     * Get the message group ID for SQS (FIFO) queues.
      *
      * @return string
      */
     public function messageGroup(): string
     {
-        return (string)$this->user->getKey();
+        return sprintf('%s:user-%s', Queue::CLIENT_NOTIFICATIONS->name, $this->user->getKey());
     }
 
     /**
@@ -70,7 +70,7 @@ class ClientPurgeNotification implements ShouldQueue
      */
     public function deduplicationId(string $payload, string $queue): string
     {
-        return sprintf('%s:%s', $this->user->getKey(), $this->cacheInvalidationCounter);
+        return sprintf('%s:user-%s:invalidation-counter-%s', Queue::CLIENT_NOTIFICATIONS->name, $this->user->getKey(), $this->cacheInvalidationCounter);
     }
 
     /**

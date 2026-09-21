@@ -25,14 +25,13 @@ class NewApiVersionNotice extends Notification implements ShouldQueue
     }
 
     /**
-     * Get the message group ID for SQS queues.
-     * Groups by API version to keep all notifications for the same version together.
+     * Get the message group ID for SQS (FIFO) queues.
      *
      * @return string
      */
     public function messageGroup(): string
     {
-        return sprintf('api-version-%s', $this->apiVersion);
+        return Queue::EMAIL->name;
     }
 
     /**
@@ -45,7 +44,7 @@ class NewApiVersionNotice extends Notification implements ShouldQueue
      */
     public function deduplicationId(string $payload, string $queue): string
     {
-        return sprintf('new-api-version-%s', $this->apiVersion);
+        return sprintf('%s:new-api-version-%s', Queue::EMAIL->name, $this->apiVersion);
     }
 
     /**
@@ -71,7 +70,7 @@ class NewApiVersionNotice extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->from(config('mail.from.address'), config('app.name'))
-            ->bcc(User::get()->pluck('email'))
+            ->bcc(User::pluck('email'))
             ->subject(trans('new-version-notice.subject', ['apiVersion' => $this->apiVersion]))
             ->greeting(trans('new-version-notice.title',  ['apiVersion' => $this->apiVersion]))
             ->line(trans('new-version-notice.new_api_version_released', ['apiVersion' => $this->apiVersion]))
