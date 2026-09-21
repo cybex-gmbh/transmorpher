@@ -176,9 +176,12 @@ class QueueTest extends TestCase
 
     protected function assertCorrectlyPushed(string $dispatchableClass, string $expectedConnection, string $expectedQueue): void
     {
-        Queue::assertPushed($this->queuedClassFor($dispatchableClass), fn(ShouldQueue $job): bool => $job->connection === $expectedConnection
-            && $job->queue === $expectedQueue
-            && $this->dispatchedClassFor($job) === $dispatchableClass);
+        Queue::assertPushed(
+            $this->queuedClassFor($dispatchableClass),
+            fn(ShouldQueue $job): bool => $job->connection === $expectedConnection
+                && $job->queue === $expectedQueue
+                && $this->dispatchedClassFor($job) === $dispatchableClass
+        );
     }
 
     protected function queuedClassFor(string $dispatchableClass): string
