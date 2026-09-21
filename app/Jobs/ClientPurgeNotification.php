@@ -46,7 +46,7 @@ class ClientPurgeNotification implements ShouldQueue
      */
     public function __construct(protected User $user, protected int $cacheInvalidationCounter)
     {
-        $this->onQueue(Queue::CLIENT_NOTIFICATIONS->getQueue());
+        $this->onQueue(Queue::CLIENT_NOTIFICATIONS->getName());
         $this->onConnection(Queue::CLIENT_NOTIFICATIONS->getConnection());
     }
 

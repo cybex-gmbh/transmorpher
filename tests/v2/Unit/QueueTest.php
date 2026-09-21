@@ -3,7 +3,7 @@
 namespace Tests\v2\Unit;
 
 use App\Enums\MediaType;
-use App\Enums\Queue as QueueTarget;
+use App\Enums\Queue as QueueEnum;
 use App\Exceptions\InvalidConfigurationException;
 use App\Jobs\ClientPurgeNotification;
 use App\Jobs\TranscodeVideo;
@@ -29,26 +29,27 @@ class QueueTest extends TestCase
 
     #[Test]
     #[DataProvider('provideDispatchConfigs')]
-    public function dispatchesOnCorrectQueueAndConnection(string $dispatchableClass, QueueTarget $target): void
+    public function dispatchesOnCorrectQueueAndConnection(string $dispatchableClass, QueueEnum $queue): void
     {
-        config()->set(sprintf('transmorpher.queue.%s.queue', $target->value), sprintf('configured-%s', $target->value));
-        config()->set(sprintf('transmorpher.queue.%s.connection', $target->value), 'database');
-        config()->set(sprintf('transmorpher.queue.%s.use_sqs_fifo', $target->value), false);
+        config()->set(sprintf('transmorpher.queue.%s.queue', $queue->value), sprintf('configured-%s', $queue->value));
+        config()->set(sprintf('transmorpher.queue.%s.connection', $queue->value), 'database');
+        config()->set(sprintf('transmorpher.queue.%s.use_sqs_fifo', $queue->value), false);
 
         Queue::fake();
 
         $this->dispatch($dispatchableClass);
 
-        $this->assertCorrectlyPushed($dispatchableClass, 'database', sprintf('configured-%s', $target->value));
+        $this->assertCorrectlyPushed($dispatchableClass, 'database', sprintf('configured-%s', $queue->value));
     }
 
     #[Test]
     public function addsFifoSuffixIfConfigured(): void
     {
         config()->set('transmorpher.queue.video_transcoding.queue', 'video-transcoding');
+        config()->set('transmorpher.queue.video_transcoding.connection', 'sqs');
         config()->set('transmorpher.queue.video_transcoding.use_sqs_fifo', true);
 
-        $this->assertSame('video-transcoding.fifo', QueueTarget::VIDEO_TRANSCODING->getQueue());
+        $this->assertSame('video-transcoding.fifo', QueueEnum::VIDEO_TRANSCODING->getName());
     }
 
     #[Test]
@@ -57,7 +58,7 @@ class QueueTest extends TestCase
         config()->set('transmorpher.queue.video_transcoding.queue', 'video-transcoding');
         config()->set('transmorpher.queue.video_transcoding.use_sqs_fifo', false);
 
-        $this->assertSame('video-transcoding', QueueTarget::VIDEO_TRANSCODING->getQueue());
+        $this->assertSame('video-transcoding', QueueEnum::VIDEO_TRANSCODING->getName());
     }
 
     #[Test]
@@ -68,7 +69,7 @@ class QueueTest extends TestCase
         config()->set('transmorpher.queue.video_transcoding.use_sqs_fifo', true);
 
         $this->artisan('transmorpher:queue-work', [
-            'target' => 'video_transcoding',
+            'queue' => 'video_transcoding',
         ])->assertFailed();
     }
 
@@ -85,7 +86,7 @@ class QueueTest extends TestCase
         });
 
         $this->artisan('transmorpher:queue-work', [
-            'target' => 'video_transcoding',
+            'queue' => 'video_transcoding',
             '--once' => true,
         ])->assertExitCode(Command::SUCCESS);
 
@@ -103,7 +104,7 @@ class QueueTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
 
-        QueueTarget::VIDEO_TRANSCODING->validateConfiguration();
+        QueueEnum::VIDEO_TRANSCODING->getName();
     }
 
     #[Test]
@@ -114,17 +115,17 @@ class QueueTest extends TestCase
 
         $this->expectException(InvalidConfigurationException::class);
 
-        QueueTarget::VIDEO_TRANSCODING->validateConfiguration();
+        QueueEnum::VIDEO_TRANSCODING->getName();
     }
 
 
     public static function provideDispatchConfigs(): array
     {
         return [
-            'client purge notification job' => [ClientPurgeNotification::class, QueueTarget::CLIENT_NOTIFICATIONS],
-            'video transcode job' => [TranscodeVideo::class, QueueTarget::VIDEO_TRANSCODING],
-            'new api version notice notification' => [NewApiVersionNotice::class, QueueTarget::EMAIL],
-            'api deprecation notice notification' => [ApiVersionDeprecationNotice::class, QueueTarget::EMAIL],
+            'client purge notification job' => [ClientPurgeNotification::class, QueueEnum::CLIENT_NOTIFICATIONS],
+            'video transcode job' => [TranscodeVideo::class, QueueEnum::VIDEO_TRANSCODING],
+            'new api version notice notification' => [NewApiVersionNotice::class, QueueEnum::EMAIL],
+            'api deprecation notice notification' => [ApiVersionDeprecationNotice::class, QueueEnum::EMAIL],
         ];
     }
 

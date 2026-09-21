@@ -64,7 +64,7 @@ class TranscodeVideo implements ShouldQueue
         protected UploadSlot $uploadSlot,
     )
     {
-        $this->onQueue(Queue::VIDEO_TRANSCODING->getQueue());
+        $this->onQueue(Queue::VIDEO_TRANSCODING->getName());
         $this->onConnection(Queue::VIDEO_TRANSCODING->getConnection());
 
         \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
@@ -84,7 +84,7 @@ class TranscodeVideo implements ShouldQueue
      */
     public function messageGroup(): string
     {
-        $queue = Queue::VIDEO_TRANSCODING->getQueue();
+        $queue = Queue::VIDEO_TRANSCODING->getName();
 
         if (str_ends_with($queue, '.fifo')) {
             return (string)$this->version->getKey();

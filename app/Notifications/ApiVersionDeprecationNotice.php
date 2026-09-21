@@ -20,7 +20,7 @@ class ApiVersionDeprecationNotice extends Notification implements ShouldQueue
      */
     public function __construct(protected int $apiVersion)
     {
-        $this->onQueue(Queue::EMAIL->getQueue());
+        $this->onQueue(Queue::EMAIL->getName());
         $this->onConnection(Queue::EMAIL->getConnection());
     }
 
