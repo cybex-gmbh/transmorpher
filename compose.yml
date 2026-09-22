@@ -64,6 +64,15 @@ services:
     environment:
       <<: *common-env
 
+  worker-email:
+    <<: *common
+    image: cybexwebdev/php-laravel:8.4-alpine
+    command: [ "shell", "php artisan transmorpher:queue-work email" ]
+    # Database might take some time to be available.
+    restart: on-failure:3
+    environment:
+      <<: *common-env
+
   scheduler:
     <<: *common
     image: cybexwebdev/php-laravel:8.4-alpine
