@@ -465,7 +465,7 @@ TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true
 
 See the .env.example for all keys.
 
-##### Example IAM role
+##### Example IAM policy
 
 ```json
 {
