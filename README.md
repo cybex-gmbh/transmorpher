@@ -393,7 +393,8 @@ TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=custom-name
 ```
 
 To process these jobs, you will need to have at least 1 worker.
-For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
+The worker needs to be run using `php artisan transmorpher:queue-work video_transcoding`, to apply and validate your settings.
+See the [compose.prod.example.yml](compose.prod.example.yml) for an example.
 
 > [!NOTE]
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
@@ -502,9 +503,9 @@ php artisan storage:link
 
 *Queue*
 
-Transcoding jobs are dispatched onto the "video-transcoding" queue.
 To process these jobs, you will need to have at least 1 worker.
-For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
+The worker needs to be run using `php artisan transmorpher:queue-work video_transcoding`, to apply and validate your settings.
+See the [compose.prod.example.yml](compose.prod.example.yml) for an example.
 
 You can define your queue connection in the `.env` file:
 
