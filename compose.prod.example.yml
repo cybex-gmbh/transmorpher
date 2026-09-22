@@ -17,7 +17,7 @@ services:
 
   worker-transcoding:
     image: cybexwebdev/transmorpher:x.x-transcoder
-    command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
+    command: [ "shell", "php artisan transmorpher:queue-work video_transcoding" ]
     restart: unless-stopped
     volumes:
       # If you are using local disks, persist the storage across container restarts.
