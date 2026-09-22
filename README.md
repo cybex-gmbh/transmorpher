@@ -397,10 +397,10 @@ The worker needs to be run using `php artisan transmorpher:queue-work video_tran
 See [compose.prod.example.yml](compose.prod.example.yml).
 
 > [!NOTE]
-> Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
-> duplicate runs.
+> It is recommended to use a queue which prevents duplicate runs.
 >
 > This can be achieved using AWS SQS FIFO: set `TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true` and make sure to use a connection using the "sqs" driver.
+> Note that we break the FIFO aspect of the video-transcoding queue, allowing parallel processing of videos and preventing a jam.
 
 **Example: AWS SQS FIFO for video transcoding**
 
@@ -515,9 +515,11 @@ QUEUE_CONNECTION=database
 
 > [!CAUTION]
 >
-> The database connection does neither guarantee FIFO nor prevent duplicate runs.
-> It is recommended to use a queue which can guarantee these aspects, such as AWS SQS FIFO.
+> The database connection does not guarantee exactly-once processing.
 > To prevent duplicate runs with database, use only one worker process.
+>
+> It is recommended to use a queue which can guarantee this, such as AWS SQS FIFO.
+> Note that we break the FIFO aspect of the video-transcoding queue, allowing parallel processing of videos and preventing a jam.
 
 ### Upload Handler
 
