@@ -393,7 +393,7 @@ TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=custom-name
 # TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=false
 ```
 
-You can have these jobs processed on the main server or dedicated workers.
+To process these jobs, you will need to have at least 1 worker.
 For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
 
 > [!NOTE]
@@ -424,6 +424,7 @@ To configure an AWS SQS queue, see the according keys in the `.env`.
 > [!IMPORTANT]
 > SQS queues use a visibility timeout for releasing messages back to the queue if they are not deleted.
 > The default for this is 30 seconds.
+> You can configure this in the AWS Console in your queue settings.
 >
 > To make sure your jobs are not released preemptively, set the visibility timeout to a value higher than the job timeout:
 >
@@ -431,19 +432,19 @@ To configure an AWS SQS queue, see the according keys in the `.env`.
 > - Client notifications: 10 seconds
 > - Email: 30 seconds
 
-When using SQS as queue connection, you will need to configure queues with the following names (default):
+For the queues that you want to run with SQS as queue connection, you will need to configure queues with the following names (default):
 
 - video-transcoding
 - client-notifications
 - email
 
-If you want SQS FIFO queues, the SQS queue names need to have ".fifo" appended:
+If you want SQS FIFO queues, the according SQS queue names need to have ".fifo" appended:
 
 - video-transcoding.fifo
 - client-notifications.fifo
 - email.fifo
 
-To use SQS set the database connection to SQS:
+To use SQS, set the queue connection to `sqs`:
 
 ```dotenv
 QUEUE_CONNECTION=sqs
@@ -503,7 +504,7 @@ php artisan storage:link
 *Queue*
 
 Transcoding jobs are dispatched onto the "video-transcoding" queue.
-You can have these jobs processed on the main server or dedicated workers.
+To process these jobs, you will need to have at least 1 worker.
 For more information, check the [Laravel Queue Documentation](https://laravel.com/docs/12.x/queues).
 
 You can define your queue connection in the `.env` file:
