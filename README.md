@@ -394,7 +394,7 @@ TRANSMORPHER_VIDEO_TRANSCODING_QUEUE=custom-name
 
 To process these jobs, you will need to have at least 1 worker.
 The worker needs to be run using `php artisan transmorpher:queue-work video_transcoding`, to apply and validate your settings.
-See the [compose.prod.example.yml](compose.prod.example.yml) for an example.
+See [compose.prod.example.yml](compose.prod.example.yml).
 
 > [!NOTE]
 > Since queues are not generally FIFO, it is recommended to use a queue which guarantees FIFO and also prevents
@@ -505,7 +505,7 @@ php artisan storage:link
 
 To process these jobs, you will need to have at least 1 worker.
 The worker needs to be run using `php artisan transmorpher:queue-work video_transcoding`, to apply and validate your settings.
-See the [compose.prod.example.yml](compose.prod.example.yml) for an example.
+See [compose.prod.example.yml](compose.prod.example.yml).
 
 You can define your queue connection in the `.env` file:
 
