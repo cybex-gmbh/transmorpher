@@ -27,7 +27,6 @@ A media server for images, pdfs and videos.
     - [Derivatives revision](#derivatives-revision)
 - [Installation](#installation)
     - [Using docker](#using-docker)
-        - [Configuration options](#configuration-options)
     - [Cloning the repository](#cloning-the-repository)
         - [Required software](#required-software)
         - [Generic workers](#generic-workers)
