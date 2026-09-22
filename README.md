@@ -465,6 +465,27 @@ TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true
 
 See the .env.example for all keys.
 
+##### Example IAM role
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "sqs:DeleteMessage",
+                "sqs:ChangeMessageVisibility",
+                "sqs:ReceiveMessage",
+                "sqs:SendMessage"
+            ],
+            "Resource": "arn:aws:sqs:eu-central-1:<account-id>:<queue-name>"
+        }
+    ]
+}
+```
+
 ### Local disk setup
 
 > [!WARNING]
