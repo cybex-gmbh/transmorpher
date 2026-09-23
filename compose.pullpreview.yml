@@ -17,7 +17,7 @@ x-common-build: &common-build
 x-app-url: &app-url
   APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
 
-x-amigor-image: &amigor-image cybexwebdev/transmorpher-amigor:chore-route-naming
+x-amigor-image: &amigor-image cybexwebdev/transmorpher-amigor:feature-support-laravel-13
 
 x-amigor-app-url: &amigor-app-url
   APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
@@ -124,7 +124,7 @@ services:
 
   amigor-initialize:
     <<: *amigor-common
-    command: [ '/var/www/docker/prod/pullpreview.initialize.sh' ]
+    command: [ '/var/www/docker/amigor/pullpreview.initialize.sh' ]
     restart: 'on-failure'
     environment:
       <<: *amigor-app-url
@@ -152,7 +152,7 @@ services:
   ########################################################################## Traefik ##########################################################################
 
   traefik:
-    image: traefik:mimolette
+    image: traefik:langres
     ports:
       - '80:80'
       - '443:443'
