@@ -1,26 +1,44 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "cybex-gmbh/transmorpher",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A media server for images, pdfs and videos.",
     "keywords": [
-        "laravel",
-        "framework"
+        "transmorpher",
+        "media-server",
+        "image",
+        "image-transformation",
+        "video",
+        "video-transcoding",
+        "documents",
+        "pdfs"
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "8.4.*",
+        "ext-fileinfo": "*",
+        "ext-imagick": "*",
+        "ext-sodium": "*",
+        "aminyazdanpanah/php-ffmpeg-video-streaming": "^1.2.17",
+        "cybex/laravel-protector": "^4.0",
+        "intervention/image-laravel": "^1.5",
+        "karriere/pdf-merge": "^3.2",
         "laravel/framework": "^13.17",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "league/flysystem-aws-s3-v3": "^3.12",
+        "pion/laravel-chunk-upload": "^1.5",
+        "spatie/laravel-image-optimizer": "^1.7"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.7",
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^12.5.12"
+        "phpunit/phpunit": "^12.5.12",
+        "smalot/pdfparser": "^2.11"
     },
     "autoload": {
         "psr-4": {

@@ -2,7 +2,19 @@
 
 namespace App\Providers;
 
+use App\Classes\Delivery;
+use App\Classes\Optimizer\Optimize;
+use App\Models\Media;
+use App\Models\User;
+use App\Models\Version;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton('optimize', Optimize::class);
+        $this->app->singleton('delivery', Delivery::class);
     }
 
     /**
@@ -19,6 +32,36 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Force the App URL to prevent issues with S2S requests in Docker Networks and HTTPS issues behind proxies.
+        URL::useOrigin(config('app.url'));
+        URL::forceScheme(parse_url(config('app.url'), PHP_URL_SCHEME));
+
+        Relation::enforceMorphMap([
+            'user' => User::class,
+        ]);
+
+        $this->configureRateLimiting();
+
+        Route::bind('media', function (string $identifier): Media {
+            $user = Auth::user() ?? User::whereName(Route::getCurrentRoute()->parameter('user'))->firstOrFail();
+            return $user->Media()->whereIdentifier($identifier)->firstOrFail();
+        });
+
+        Route::bind('version', function (int $versionNumber): Version {
+            $media = Route::getCurrentRoute()->parameter('media');
+            return $media->Versions()->whereNumber($versionNumber)->firstOrFail();
+        });
+    }
+
+    /**
+     * Configure the rate limiters for the application.
+     *
+     * @return void
+     */
+    protected function configureRateLimiting(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

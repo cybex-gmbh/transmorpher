@@ -1,0 +1,215 @@
+x-common: &common
+  depends_on:
+    mariadb:
+      condition: service_healthy
+    traefik:
+      condition: service_started
+  volumes:
+    - 'storage:/var/www/storage'
+  networks: &common-networks
+    - traefik
+    - internal
+
+x-common-build: &common-build
+  context: .
+  dockerfile: docker/prod/Dockerfile
+
+x-app-url: &app-url
+  APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
+
+x-amigor-image: &amigor-image cybexwebdev/transmorpher-amigor:feature-support-laravel-13
+
+x-amigor-app-url: &amigor-app-url
+  APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
+
+x-amigor-common: &amigor-common
+  image: *amigor-image
+  depends_on:
+    amigor-mariadb:
+      condition: service_healthy
+    traefik:
+      condition: service_started
+  volumes:
+    - 'amigor-storage:/var/www/storage'
+    - '.env.amigor:/var/www/.env'
+  networks: *common-networks
+
+services:
+  app:
+    <<: *common
+    build:
+      <<: *common-build
+      target: app
+    environment:
+      <<: *app-url
+      CONTAINER_ROLE: web
+
+  worker-transcoding:
+    <<: *common
+    build:
+      <<: *common-build
+      target: transcoder
+    command: [ "shell", "php artisan transmorpher:queue-work video_transcoding" ]
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+    environment:
+      <<: *app-url
+
+  worker-client-notifications:
+    <<: *common
+    build:
+      <<: *common-build
+      target: app
+    command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+    environment:
+      <<: *app-url
+
+  worker-email:
+    <<: *common
+    build:
+      <<: *common-build
+      target: app
+    command: [ "shell", "php artisan transmorpher:queue-work email" ]
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
+    environment:
+      <<: *app-url
+
+  scheduler:
+    <<: *common
+    build:
+      <<: *common-build
+      target: app
+    environment:
+      <<: *app-url
+      CONTAINER_ROLE: scheduler
+
+  initialize:
+    <<: *common
+    build:
+      <<: *common-build
+      target: app
+    command: [ '/var/www/docker/prod/pullpreview.initialize.sh' ]
+    restart: 'on-failure'
+    environment:
+      <<: *app-url
+      CLIENT_CONTAINER_NAME: ${COMPOSE_PROJECT_NAME}-amigor
+      PULLPREVIEW: true
+      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
+    networks:
+      - internal
+
+  mariadb:
+    image: 'mariadb:lts-noble'
+    environment:
+      MARIADB_DATABASE: '${DB_DATABASE}'
+      MARIADB_USER: '${DB_USERNAME}'
+      MARIADB_PASSWORD: '${DB_PASSWORD}'
+      MARIADB_ROOT_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - 'mariadb:/var/lib/mysql'
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      retries: 3
+      timeout: 5s
+
+  ########################################################################## Amigor ##########################################################################
+
+  amigor:
+    container_name: ${COMPOSE_PROJECT_NAME}-amigor
+    <<: *amigor-common
+    environment:
+      <<: *amigor-app-url
+      TRANSMORPHER_WEB_DELIVERY_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
+      TRANSMORPHER_WEB_API_BASE_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}/api
+      CONTAINER_ROLE: web
+
+  amigor-initialize:
+    <<: *amigor-common
+    command: [ '/var/www/docker/amigor/pullpreview.initialize.sh' ]
+    restart: 'on-failure'
+    environment:
+      <<: *amigor-app-url
+      PULLPREVIEW: true
+      PULLPREVIEW_FIRST_RUN: ${PULLPREVIEW_FIRST_RUN}
+    networks:
+      - internal
+
+  amigor-mariadb:
+    image: 'mariadb:lts-noble'
+    environment:
+      MARIADB_DATABASE: amigor
+      MARIADB_USER: amigor
+      MARIADB_PASSWORD: amigor
+      MARIADB_ROOT_PASSWORD: amigor
+    volumes:
+      - 'amigor-mariadb:/var/lib/mysql'
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      retries: 3
+      timeout: 5s
+
+  ########################################################################## Traefik ##########################################################################
+
+  traefik:
+    image: traefik:langres
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      TRAEFIK_GLOBAL_SENDANONYMOUSUSAGE: false
+      TRAEFIK_LOG: true
+      TRAEFIK_LOG_FILEPATH: '/logs/traefik.log'
+      TRAEFIK_LOG_LEVEL: DEBUG
+      TRAEFIK_API: false
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION: true
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_EMAIL: 'cloud@cybex-online.com'
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_CASERVER: 'https://acme-v02.api.letsencrypt.org/directory'
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_STORAGE: 'acme.json'
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_HTTPCHALLENGE: true
+      TRAEFIK_CERTIFICATESRESOLVERS_PRODUCTION_ACME_HTTPCHALLENGE_ENTRYPOINT: web
+      TRAEFIK_ENTRYPOINTS_WEB: true
+      TRAEFIK_ENTRYPOINTS_WEB_ADDRESS: ':80'
+      TRAEFIK_ENTRYPOINTS_WEB_HTTP: true
+      TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_TO: websecure
+      TRAEFIK_ENTRYPOINTS_WEB_HTTP_REDIRECTIONS_ENTRYPOINT_SCHEME: https
+      TRAEFIK_ENTRYPOINTS_WEBSECURE: true
+      TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS: ':443'
+      TRAEFIK_PROVIDERS_FILE: 'true'
+      TRAEFIK_PROVIDERS_FILE_FILENAME: /etc/traefik/pullpreview.traefik.yml
+      TRAEFIK_PROVIDERS_FILE_WATCH: 'true'
+    volumes:
+      - ./storage/logs:/logs
+      - ./.htpasswd:/.htpasswd:ro
+      - ./pullpreview.traefik.yml:/etc/traefik/pullpreview.traefik.yml:ro
+      # Needs to be mounted so that it is synced to the server for use in the pre-script
+      - ./pullpreview.traefik.template.yml:/pullpreview.traefik.template.yml:ro
+    networks:
+      - traefik
+
+########################################################################## Networks & Volumes ##########################################################################
+
+networks:
+  internal:
+    internal: true
+  traefik:
+    name: traefik
+
+volumes:
+  mariadb:
+    driver: local
+  amigor-mariadb:
+    driver: local
+  storage:
+    driver: local
+  amigor-storage:
+    driver: local
