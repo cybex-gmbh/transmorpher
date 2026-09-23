@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\ClientNotification;
+use App\Enums\Queue;
 use App\Exceptions\ClientNotificationFailedException;
 use App\Helpers\SodiumHelper;
 use App\Models\User;
@@ -22,7 +23,7 @@ class ClientPurgeNotification implements ShouldQueue
      *
      * @var int
      */
-    public int $tries = 14;
+    public int $tries = 10;
 
     /**
      * The number of seconds the job can run before timing out.
@@ -33,10 +34,11 @@ class ClientPurgeNotification implements ShouldQueue
 
     /**
      * The number of seconds to wait before retrying the job.
+     * May not exceed 12 hours for the SQS visibility timeout.
      *
      * @var int
      */
-    public int $backoff = 60 * 60 * 24; // 1 day
+    public int $backoff = 60 * 60 * 11; // 11 hours
 
     protected ClientNotification $notificationType = ClientNotification::CACHE_INVALIDATION;
 
@@ -45,7 +47,29 @@ class ClientPurgeNotification implements ShouldQueue
      */
     public function __construct(protected User $user, protected int $cacheInvalidationCounter)
     {
-        $this->onQueue('client-notifications');
+        $this->onQueue(Queue::CLIENT_NOTIFICATIONS->getName());
+        $this->onConnection(Queue::CLIENT_NOTIFICATIONS->getConnection());
+    }
+
+    /**
+     * Get the message group ID for SQS (FIFO) queues.
+     *
+     * @return string
+     */
+    public function messageGroup(): string
+    {
+        return sprintf('%s:user-%s', Queue::CLIENT_NOTIFICATIONS->name, $this->user->getKey());
+    }
+
+    /**
+     * Get the message deduplication ID for SQS FIFO queues.
+     * Combines user ID and cache invalidation counter to uniquely identify each dispatch.
+     *
+     * @return string
+     */
+    public function deduplicationId(): string
+    {
+        return sprintf('%s:user-%s:invalidation-counter-%s', Queue::CLIENT_NOTIFICATIONS->name, $this->user->getKey(), $this->cacheInvalidationCounter);
     }
 
     /**

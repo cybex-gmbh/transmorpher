@@ -13,7 +13,6 @@ return [
      */
     App\Providers\CdnHelperServiceProvider::class,
     App\Providers\MediaHandlerServiceProvider::class,
-    App\Providers\SqsFifoServiceProvider::class,
     App\Providers\TranscodeServiceProvider::class,
     App\Providers\TransformServiceProvider::class,
     App\Providers\UploadHandlerServiceProvider::class,

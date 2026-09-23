@@ -23,7 +23,7 @@
         "cybex/laravel-protector": "^3.0",
         "intervention/image-laravel": "^1.5",
         "karriere/pdf-merge": "^3.2",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^12.27.0",
         "laravel/tinker": "^2.10.1",
         "league/flysystem-aws-s3-v3": "^3.12",
         "pion/laravel-chunk-upload": "^1.5",

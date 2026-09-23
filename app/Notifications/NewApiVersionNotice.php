@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Enums\Queue;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -19,7 +20,31 @@ class NewApiVersionNotice extends Notification implements ShouldQueue
      */
     public function __construct(protected int $apiVersion)
     {
-        $this->onQueue('email');
+        $this->onQueue(Queue::EMAIL->getName());
+        $this->onConnection(Queue::EMAIL->getConnection());
+    }
+
+    /**
+     * Get the message group ID for SQS (FIFO) queues.
+     *
+     * @return string
+     */
+    public function messageGroup(): string
+    {
+        return Queue::EMAIL->name;
+    }
+
+    /**
+     * Get the message deduplication ID for SQS FIFO queues.
+     * Uniquely identifies this notification by API version.
+     *
+     * @param string $payload
+     * @param string $queue
+     * @return string
+     */
+    public function deduplicationId(string $payload, string $queue): string
+    {
+        return sprintf('%s:new-api-version-%s', Queue::EMAIL->name, $this->apiVersion);
     }
 
     /**
@@ -45,7 +70,7 @@ class NewApiVersionNotice extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->from(config('mail.from.address'), config('app.name'))
-            ->bcc(User::get()->pluck('email'))
+            ->bcc(User::pluck('email'))
             ->subject(trans('new-version-notice.subject', ['apiVersion' => $this->apiVersion]))
             ->greeting(trans('new-version-notice.title',  ['apiVersion' => $this->apiVersion]))
             ->line(trans('new-version-notice.new_api_version_released', ['apiVersion' => $this->apiVersion]))
