@@ -21,6 +21,7 @@
 - Various classes can now be configured via the .env, using config files for the name and class specification.
 - Now uses Laravel's SQS FIFO implementation
 - Video transcoding workers amount can no longer be configured via .env.
+- Sanctum Token permission checks now use more structured ability names
 
 #### For docker image users
 
