@@ -1,7 +1,5 @@
 <?php
 
-use App\Enums\MediaType;
-
 return [
 
     /*
@@ -43,91 +41,18 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/') . '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
         ],
 
-        'localOriginals' => [
-            'driver' => 'local',
-            'root' => storage_path('app/originals'),
-            'throw' => false,
-            'report' => false,
-        ],
-
-        'localImageDerivatives' => [
-            'driver' => 'local',
-            'root' => storage_path('app/' . MediaType::IMAGE->prefix()),
-            'throw' => false,
-            'report' => false,
-        ],
-
-        'localDocumentDerivatives' => [
-            'driver' => 'local',
-            'root' => storage_path('app/' . MediaType::DOCUMENT->prefix()),
-            'throw' => false,
-            'report' => false,
-        ],
-
-        'localVideoDerivatives' => [
-            'driver' => 'local',
-            'root' => storage_path('app/' . MediaType::VIDEO->prefix()),
-            'url' => env('APP_URL') . '/' . MediaType::VIDEO->prefix(),
-            'visibility' => 'public',
-            'throw' => false,
-            'report' => false,
-        ],
-
-        's3Originals' => [
+        's3' => [
             'driver' => 's3',
-            'root' => 'originals',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET_ORIGINALS'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
-        ],
-
-        's3ImageDerivatives' => [
-            'driver' => 's3',
-            'root' => MediaType::IMAGE->prefix(),
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET_IMAGE_DERIVATIVES'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
-        ],
-
-        's3DocumentDerivatives' => [
-            'driver' => 's3',
-            'root' => MediaType::DOCUMENT->prefix(),
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET_IMAGE_DERIVATIVES'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
-        ],
-
-        's3VideoDerivatives' => [
-            'driver' => 's3',
-            'root' => MediaType::VIDEO->prefix(),
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET_VIDEO_DERIVATIVES'),
+            'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
@@ -150,7 +75,6 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
-        public_path(MediaType::VIDEO->prefix()) => storage_path('app/' . MediaType::VIDEO->prefix()),
     ],
 
 ];

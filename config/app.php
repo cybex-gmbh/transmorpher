@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Facade;
-
 return [
 
     /*
@@ -116,7 +114,7 @@ return [
     | manage Laravel's "maintenance mode" status. The "cache" driver will
     | allow maintenance mode to be controlled across multiple machines.
     |
-    | Supported drivers: "file", "cache"
+    | Supported drivers: "file", "cache", "array"
     |
     */
 
@@ -124,28 +122,5 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Class Aliases
-    |--------------------------------------------------------------------------
-    |
-    | This array of class aliases will be registered when this application
-    | is started. However, feel free to register as many as you wish as
-    | the aliases are "lazy" loaded so they don't hinder performance.
-    |
-    */
-
-    'aliases' => Facade::defaultAliases()->merge([
-        'CdnHelper' => App\Facades\CdnHelperFacade::class,
-        'Decoder' => App\Facades\DecoderFacade::class,
-        'Delivery' => App\Facades\DeliveryFacade::class,
-        'Encoder' => App\Facades\EncoderFacade::class,
-        'InterventionImage' => Intervention\Image\Facades\Image::class,
-        'Optimize' => App\Facades\OptimizeFacade::class,
-        'Transcode' => App\Facades\TranscodeFacade::class,
-        'Transform' => App\Facades\TransformFacade::class,
-        'UploadHandler' => App\Facades\UploadHandlerFacade::class,
-    ])->toArray(),
 
 ];

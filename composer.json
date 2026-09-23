@@ -1,43 +1,26 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "cybex-gmbh/transmorpher",
+    "name": "laravel/laravel",
     "type": "project",
-    "description": "A media server for images, pdfs and videos.",
+    "description": "The skeleton application for the Laravel framework.",
     "keywords": [
-        "transmorpher",
-        "media-server",
-        "image",
-        "image-transformation",
-        "video",
-        "video-transcoding",
-        "documents",
-        "pdfs"
+        "laravel",
+        "framework"
     ],
     "license": "MIT",
     "require": {
-        "php": "8.4.*",
-        "ext-fileinfo": "*",
-        "ext-imagick": "*",
-        "ext-sodium": "*",
-        "aminyazdanpanah/php-ffmpeg-video-streaming": "^1.2.17",
-        "cybex/laravel-protector": "^3.0",
-        "intervention/image-laravel": "^1.5",
-        "karriere/pdf-merge": "^3.2",
-        "laravel/framework": "^12.27.0",
-        "laravel/tinker": "^2.10.1",
-        "league/flysystem-aws-s3-v3": "^3.12",
-        "pion/laravel-chunk-upload": "^1.5",
-        "spatie/laravel-image-optimizer": "^1.7"
+        "php": "^8.3",
+        "laravel/framework": "^13.17",
+        "laravel/tinker": "^3.0"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^3.0",
         "fakerphp/faker": "^1.23",
-        "laravel/pint": "^1.24",
+        "laravel/pail": "^1.2.5",
+        "laravel/pao": "^1.0.6",
+        "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^11.5.3",
-        "smalot/pdfparser": "^2.11",
-        "spatie/laravel-ignition": "^2.4"
+        "phpunit/phpunit": "^12.5.12"
     },
     "autoload": {
         "psr-4": {
@@ -56,10 +39,16 @@
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
-            "@php artisan migrate --force"
+            "@php artisan migrate --force",
+            "npm install --ignore-scripts",
+            "npm run build"
+        ],
+        "dev": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php artisan dev"
         ],
         "test": [
-            "@php artisan config:clear --ansi",
+            "@php artisan config:clear --ansi @no_additional_args",
             "@php artisan test"
         ],
         "post-autoload-dump": [
