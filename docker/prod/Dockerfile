@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM cybexwebdev/php-laravel:8.4-alpine-devtools as build
+FROM cybexwebdev/php-laravel:8.5-alpine-devtools as build
 
 WORKDIR /var/www
 
@@ -16,13 +16,13 @@ RUN php /var/www/artisan storage:link
 
 ## Transcoder
 
-FROM cybexwebdev/php-laravel:8.4-transcoder as transcoder
+FROM cybexwebdev/php-laravel:8.5-transcoder as transcoder
 
 COPY --from=build /var/www /var/www
 
 ## App
 
-FROM cybexwebdev/php-laravel:8.4-alpine as app
+FROM cybexwebdev/php-laravel:8.5-alpine as app
 
 # Timeout for the post update script in minutes.
 LABEL com.centurylinklabs.watchtower.lifecycle.post-update-timeout="1440"
