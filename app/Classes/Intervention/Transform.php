@@ -105,7 +105,7 @@ class Transform implements TransformInterface
     protected function applyTransformations(string $imageData, ?array $transformations = null): string
     {
         try {
-            $image = ImageManager::read($imageData);
+            $image = ImageManager::decode($imageData);
         } catch (DecoderException $exception) {
             $customException = new ImageTransformationException($exception->getMessage(), 420, previous: $exception);
 
