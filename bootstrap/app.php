@@ -10,10 +10,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        // Using base_path() instead of __DIR__ because it's more uniform.
-        web: base_path('routes/web.php'),
-        api: base_path('routes/api.php'),
-        commands: base_path('routes/console.php'),
+        web: __DIR__ . '/../routes/web.php',
+        api: __DIR__ . '/../routes/api.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
         then: function () {
             Route::middleware(SubstituteBindings::class)

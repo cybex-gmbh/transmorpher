@@ -1,125 +1,125 @@
 x-common: &common
-  depends_on:
-    - mariadb
-  volumes:
-    - '.:/var/www'
-  networks:
-    - shared
-    - internal
+    depends_on:
+        - mariadb
+    volumes:
+        - '.:/var/www'
+    networks:
+        - shared
+        - internal
 
 x-local: &common-env
-  APP_ENV: local
+    APP_ENV: local
 
 services:
-  app:
-    container_name: ${COMPOSE_PROJECT_NAME}
-    <<: *common
-    build:
-      context: .
-      dockerfile: docker/dev/Dockerfile
-    image: transmorpher-dev-8.4/app
-    environment:
-      <<: *common-env
-      CONTAINER_ROLE: web
-    volumes:
-      - '.:/var/www'
-      - 'home:/home/www'
-    labels:
-      - 'traefik.enable=true'
-      - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_PROJECT_NAME}.test`)'
-      - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80'
+    app:
+        container_name: ${COMPOSE_PROJECT_NAME}
+        <<: *common
+        build:
+            context: .
+            dockerfile: docker/dev/Dockerfile
+        image: transmorpher-dev-8.5/app
+        environment:
+            <<: *common-env
+            CONTAINER_ROLE: web
+        volumes:
+            - '.:/var/www'
+            - 'home:/home/www'
+        labels:
+            - 'traefik.enable=true'
+            - 'traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_PROJECT_NAME}.test`)'
+            - 'traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80'
 
-  testing:
-    build:
-      context: .
-      dockerfile: docker/dev/Dockerfile
-    image: transmorpher-dev-8.4/app
-    depends_on:
-      - mariadb_testing
-    environment:
-      APP_ENV: testing
-      CONTAINER_ROLE: app
-    volumes:
-      - '.:/var/www'
-      - 'home:/home/www'
-    networks:
-      - shared
-      - internal
+    testing:
+        build:
+            context: .
+            dockerfile: docker/dev/Dockerfile
+        image: transmorpher-dev-8.5/app
+        depends_on:
+            - mariadb_testing
+        environment:
+            APP_ENV: testing
+            CONTAINER_ROLE: app
+        volumes:
+            - '.:/var/www'
+            - 'home:/home/www'
+        networks:
+            - shared
+            - internal
 
-  worker-transcoding:
-    <<: *common
-    image: cybexwebdev/php-laravel:8.4-transcoder
-    command: [ "shell", "php artisan transmorpher:queue-work video_transcoding" ]
-    # Database might take some time to be available.
-    restart: on-failure:3
-    environment:
-      <<: *common-env
+    worker-transcoding:
+        <<: *common
+        image: cybexwebdev/php-laravel:8.5-transcoder
+        command: [ "shell", "php artisan transmorpher:queue-work video_transcoding" ]
+        # Database might take some time to be available.
+        restart: on-failure:3
+        environment:
+            <<: *common-env
 
-  worker-client-notifications:
-    <<: *common
-    image: cybexwebdev/php-laravel:8.4-alpine
-    command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
-    # Database might take some time to be available.
-    restart: on-failure:3
-    environment:
-      <<: *common-env
+    worker-client-notifications:
+        <<: *common
+        image: cybexwebdev/php-laravel:8.5-alpine
+        command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
+        # Database might take some time to be available.
+        restart: on-failure:3
+        environment:
+            <<: *common-env
 
-  worker-email:
-    <<: *common
-    image: cybexwebdev/php-laravel:8.4-alpine
-    command: [ "shell", "php artisan transmorpher:queue-work email" ]
-    # Database might take some time to be available.
-    restart: on-failure:3
-    environment:
-      <<: *common-env
+    worker-email:
+        <<: *common
+        image: cybexwebdev/php-laravel:8.5-alpine
+        command: [ "shell", "php artisan transmorpher:queue-work email" ]
+        # Database might take some time to be available.
+        restart: on-failure:3
+        environment:
+            <<: *common-env
 
-  scheduler:
-    <<: *common
-    image: cybexwebdev/php-laravel:8.4-alpine
-    environment:
-      <<: *common-env
-      CONTAINER_ROLE: scheduler
-    networks:
-      - internal
+    scheduler:
+        <<: *common
+        image: cybexwebdev/php-laravel:8.5-alpine
+        environment:
+            <<: *common-env
+            CONTAINER_ROLE: scheduler
+        networks:
+            - internal
 
-  mariadb:
-    image: 'mariadb:lts-noble'
-    environment:
-      MARIADB_DATABASE: '${DB_DATABASE}'
-      MARIADB_USER: '${DB_USERNAME}'
-      MARIADB_PASSWORD: '${DB_PASSWORD}'
-      MARIADB_ROOT_PASSWORD: '${DB_PASSWORD}'
-    volumes:
-      - 'mariadb:/var/lib/mysql'
-    networks:
-      - internal
-    healthcheck:
-      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
-      retries: 3
-      timeout: 5s
+    mariadb:
+        image: 'mariadb:lts-noble'
+        environment:
+            MARIADB_DATABASE: '${DB_DATABASE}'
+            MARIADB_USER: '${DB_USERNAME}'
+            MARIADB_PASSWORD: '${DB_PASSWORD}'
+            MARIADB_ROOT_PASSWORD: '${DB_PASSWORD}'
+        volumes:
+            - 'mariadb:/var/lib/mysql'
+        networks:
+            - internal
+        healthcheck:
+            test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+            retries: 3
+            timeout: 5s
 
-  mariadb_testing:
-    image: 'mariadb:lts-noble'
-    environment:
-      MARIADB_DATABASE: 'transmorpher_test'
-      MARIADB_USER: 'transmorpher_test'
-      MARIADB_PASSWORD: 'transmorpher_test'
-      MARIADB_ROOT_PASSWORD: 'transmorpher_test'
-    networks:
-      - internal
-    healthcheck:
-      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
-      retries: 3
-      timeout: 5s
+    mariadb_testing:
+        image: 'mariadb:lts-noble'
+        environment:
+            MARIADB_DATABASE: 'transmorpher_test'
+            MARIADB_USER: 'transmorpher_test'
+            MARIADB_PASSWORD: 'transmorpher_test'
+            MARIADB_ROOT_PASSWORD: 'transmorpher_test'
+        networks:
+            - internal
+        healthcheck:
+            test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+            retries: 3
+            timeout: 5s
 
 networks:
-  internal:
-    internal: true
-  shared:
-    external: true
+    internal:
+        internal: true
+    shared:
+        external: true
 
 volumes:
-  mariadb:
-    driver: local
-  home:
-    driver: local
+    mariadb:
+        driver: local
+    home:
+        driver: local

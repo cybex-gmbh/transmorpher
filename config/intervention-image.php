@@ -13,10 +13,10 @@ return [
     | Included options:
     |   - \Intervention\Image\Drivers\Gd\Driver::class
     |   - \Intervention\Image\Drivers\Imagick\Driver::class
-    |
+    |   - \Intervention\Image\Drivers\Vips\Driver::class
     */
 
-    'driver' => \Intervention\Image\Drivers\Imagick\Driver::class,
+    'driver' => env('IMAGE_DRIVER', \Intervention\Image\Drivers\Imagick\Driver::class),
 
     /*
     |--------------------------------------------------------------------------
@@ -25,22 +25,22 @@ return [
     |
     | These options control the behavior of Intervention Image.
     |
-    | - "autoOrientation" controls whether an imported image should be
-    | automatically rotated according to any existing Exif data.
+    | - "autoOrientation" controls whether imported images should be
+    |    automatically rotated according to any existing Exif data.
     |
-    | - "decodeAnimation" decides whether a possibly animated image is
-    | decoded as such or whether the animation is discarded.
+    | - "decodeAnimation" determines whether animated images are decoded
+    |    with their animation intact or if the animation is discarded.
     |
-    | - "blendingColor" Defines the default blending color.
+    | - "backgroundColor" defines the default background and blending color.
     |
-    | - "strip" controls if metadata like exif tags should be removed when
-    | encoding images.
+    | - "strip" controls whether metadata like Exif tags should be removed
+    |    automatically when encoding images.
     */
 
     'options' => [
         'autoOrientation' => false,
         'decodeAnimation' => true,
-        'blendingColor' => 'ffffff',
+        'backgroundColor' => 'ffffff',
         'strip' => true,
-    ]
+    ],
 ];

@@ -6,6 +6,7 @@ use App\Enums\MediaStorage;
 use App\Enums\Transformation;
 use Arr;
 use Eloquent;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,23 +38,10 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Version whereUpdatedAt($value)
  * @mixin Eloquent
  */
+#[Fillable(['filename', 'number', 'processed'])]
 class Version extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     *  Version number determines the current version.
-     *  Version key distinguishes the files and database rows.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'filename',
-        'number',
-        'processed',
-    ];
 
     /**
      * The "booted" method of the model.

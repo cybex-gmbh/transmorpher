@@ -4,7 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\MediaStorage;
+use Database\Factories\UserFactory;
 use DB;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,8 +15,6 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
- * App\Models\User
- *
  * @property int $id
  * @property string $name
  * @property string $email
@@ -48,33 +49,13 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable(['api_url', 'email', 'name', 'password'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
     use HasApiTokens;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'api_url',
-        'email',
-        'name',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 
     /**
      * The "booted" method of the model.
@@ -85,20 +66,6 @@ class User extends Authenticatable
             $user->deleteRelatedModels();
             $user->deleteMediaDirectories();
         });
-    }
-
-    protected function deleteRelatedModels(): void
-    {
-        DB::transaction(function () {
-            $this->Media()->get()->each->delete();
-        });
-    }
-
-    protected function deleteMediaDirectories(): void
-    {
-        foreach (MediaStorage::cases() as $mediaStorage) {
-            $mediaStorage->getDisk()->deleteDirectory($this->name);
-        }
     }
 
     /**
@@ -138,5 +105,19 @@ class User extends Authenticatable
     public function getRouteKeyName(): string
     {
         return 'name';
+    }
+
+    protected function deleteRelatedModels(): void
+    {
+        DB::transaction(function () {
+            $this->Media()->get()->each->delete();
+        });
+    }
+
+    protected function deleteMediaDirectories(): void
+    {
+        foreach (MediaStorage::cases() as $mediaStorage) {
+            $mediaStorage->getDisk()->deleteDirectory($this->name);
+        }
     }
 }
