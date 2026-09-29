@@ -5,7 +5,7 @@ namespace App\Http\Requests\V2;
 use Illuminate\Foundation\Http\FormRequest;
 use UploadHandler;
 
-class GetChunkUrlRequest extends FormRequest
+class GetUploadUrlRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,12 +19,12 @@ class GetChunkUrlRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     * Applies the upload-handler-specific chunk url validation rules.
+     * Applies the upload-handler-specific upload url validation rules.
      *
      * @return array<string, mixed>
      */
     public function rules(): array
     {
-        return UploadHandler::getChunkUrlRequestValidationRules();
+        return UploadHandler::getUploadUrlRequestValidationRules();
     }
 }

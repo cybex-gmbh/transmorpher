@@ -116,7 +116,7 @@ class DefaultUploadHandler implements UploadHandlerInterface
         return [];
     }
 
-    public function getChunkUrlRequestValidationRules(): array
+    public function getUploadUrlRequestValidationRules(): array
     {
         return [];
     }

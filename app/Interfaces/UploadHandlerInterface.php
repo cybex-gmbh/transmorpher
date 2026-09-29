@@ -4,7 +4,7 @@ namespace App\Interfaces;
 
 use App\Http\Requests\V2\AbortUploadRequest;
 use App\Http\Requests\V2\CompleteUploadRequest;
-use App\Http\Requests\V2\GetChunkUrlRequest;
+use App\Http\Requests\V2\GetUploadUrlRequest;
 use App\Http\Requests\V2\UploadSlotRequest;
 use App\Models\UploadSlot;
 use Illuminate\Validation\ValidationException;
@@ -89,11 +89,11 @@ interface UploadHandlerInterface
     public function getUploadSlotRequestValidationRules(): array;
 
     /**
-     * Returns Laravel validation rules for the {@link GetChunkUrlRequest} for the get chunk URL endpoint request body.
+     * Returns Laravel validation rules for the {@link GetUploadUrlRequest} for the get upload URL endpoint request body.
      *
      * @return array
      */
-    public function getChunkUrlRequestValidationRules(): array;
+    public function getUploadUrlRequestValidationRules(): array;
 
     /**
      * Returns Laravel validation rules for the {@link CompleteUploadRequest} for the complete endpoint request body.
