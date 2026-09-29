@@ -72,7 +72,7 @@ class NewApiVersionNotice extends Notification implements ShouldQueue
             ->from(config('mail.from.address'), config('app.name'))
             ->bcc(User::pluck('email'))
             ->subject(trans('new-version-notice.subject', ['apiVersion' => $this->apiVersion]))
-            ->greeting(trans('new-version-notice.title',  ['apiVersion' => $this->apiVersion]))
+            ->greeting(trans('new-version-notice.title', ['apiVersion' => $this->apiVersion]))
             ->line(trans('new-version-notice.new_api_version_released', ['apiVersion' => $this->apiVersion]))
             ->line(trans('new-version-notice.update_client_implementations'))
             ->action(trans('new-version-notice.check_out_on_github'), 'https://github.com/cybex-gmbh/transmorpher/releases');

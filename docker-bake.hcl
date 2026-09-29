@@ -9,10 +9,10 @@ target "docker-metadata-action" {}
 
 target "app" {
     inherits = ["docker-metadata-action"]
-    context = "."
+    context    = "."
     dockerfile = "docker/prod/Dockerfile"
-    target = "app"
-    tags = [for TAG in target.docker-metadata-action.tags : "${TAG}-app"]
+    target     = "app"
+    tags       = [for TAG in target.docker-metadata-action.tags : "${TAG}-app"]
 
     # BuildKit cache: persist across runs via GitHub Actions cache and
     # also try to reuse layers from the previously pushed base image.
@@ -32,10 +32,10 @@ target "app" {
 
 target "transcoder" {
     inherits = ["docker-metadata-action"]
-    context = "."
+    context    = "."
     dockerfile = "docker/prod/Dockerfile"
-    target = "transcoder"
-    tags = [for TAG in target.docker-metadata-action.tags : "${TAG}-transcoder"]
+    target     = "transcoder"
+    tags       = [for TAG in target.docker-metadata-action.tags : "${TAG}-transcoder"]
 
     # BuildKit cache: persist across runs via GitHub Actions cache and
     # also try to reuse layers from the previously pushed base image.

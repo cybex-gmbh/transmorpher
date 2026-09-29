@@ -7,6 +7,7 @@ use App\Enums\MediaType;
 use App\Interfaces\MediaHandlerInterface;
 use DB;
 use File;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,19 +42,10 @@ use Validator;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Media whereUserId($value)
  * @mixin \Eloquent
  */
+#[Fillable(['identifier', 'type'])]
 class Media extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'identifier',
-        'type',
-    ];
 
     /**
      * The "booted" method of the model.

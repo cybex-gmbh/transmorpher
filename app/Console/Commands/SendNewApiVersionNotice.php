@@ -28,7 +28,7 @@ class SendNewApiVersionNotice extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(): int
     {
         Notification::route('mail', config('mail.from.address'))
             ->notify(app(NewApiVersionNotice::class, ['apiVersion' => $this->argument('apiVersion')]));

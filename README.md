@@ -237,7 +237,7 @@ To run the scheduler, you will need to add a cron job that runs the `schedule:ru
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-For more information about scheduling, check the [Laravel Docs](https://laravel.com/docs/12.x/scheduling).
+For more information about scheduling, check the [Laravel Docs](https://laravel.com/docs/13.x/scheduling).
 
 ## General configuration
 
@@ -290,7 +290,7 @@ The public key of the media server is available under the `/api/v*/meta/publicKe
 ### Email notifications
 
 If you want to send emails, you will need to configure a mail provider via the `MAIL_` `.env` keys.
-For more information, check the [Laravel Mail documentation](https://laravel.com/docs/12.x/mail).
+For more information, check the [Laravel Mail documentation](https://laravel.com/docs/13.x/mail).
 
 Available email notifications:
 
@@ -702,7 +702,7 @@ php artisan create:user <name> <email> <api_url>
 The server sends notifications to the api url, for example, video transcoding information.
 For our standard Laravel client implementation, this is: `https://example.com/transmorpher/notifications`.
 
-This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/12.x/sanctum) token, which has to be
+This command will provide you with a [Laravel Sanctum](https://laravel.com/docs/13.x/sanctum) token, which has to be
 written in the `.env` file of a client system.
 > The token should be passed for all API requests for authorization and is connected to the corresponding user.
 
@@ -1346,6 +1346,11 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 
 #### For Media Server operators
 
+##### Package updates
+
+- The [Laravel Protector package](https://github.com/cybex-gmbh/laravel-protector) has been updated to v4.
+    - The endpoint for retrieving backups is now configured in the `.env`. Please compare your existing `.env` with the `.env.example`
+
 ##### For Docker image users
 
 - The base images have changed and need a new compose.yml definition.
@@ -1353,7 +1358,20 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
     - The application image no longer automatically starts workers or creates a cron for the scheduler.
         - This will now need to be set up in the compose.yml file.
         - Please refer to the [compose.prod.example.yml](compose.prod.example.yml) file for an example production setup
-  - Video transcoding workers amount can no longer be configured via .env. If you need multiple workers, define multiple services in your compose.yml.
+    - Video transcoding workers amount can no longer be configured via .env. If you need multiple workers, define multiple services in your compose.yml.
+
+##### For Non-image users
+
+- The media server now requires PHP 8.5. Upgrade your server accordingly.
+- Run `composer install` to update dependencies.
+- Workers should now be run with the new `transmorpher:queue-work` command instead of `queue:work`.
+    - For example, to run a video transcoding worker, use `php artisan transmorpher:queue-work video_transcoding`.
+      The command will validate your config and make sure the worker is running with the correct settings.
+    - See [compose.prod.example.yml](compose.prod.example.yml) for examples for all workers.
+
+##### Migrations
+
+- The `job_batches` table was added. Please run `php artisan migrate` to apply the new migration.
 
 ##### Configuration file changes
 

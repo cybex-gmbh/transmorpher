@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\MediaStorage;
 use App\Enums\MediaType;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +44,7 @@ use UploadHandler;
  * @method static Builder<static>|UploadSlot whereValidationRules($value)
  * @mixin \Eloquent
  */
+#[Fillable(['filename', 'identifier', 'media_type', 'validation_rules'])]
 class UploadSlot extends Model
 {
     use HasFactory;
@@ -58,18 +60,6 @@ class UploadSlot extends Model
     public string $originalFilePath {
         get => sprintf('%s/%s', $this->baseDirectory, $this->originalFilename);
     }
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'filename',
-        'identifier',
-        'media_type',
-        'validation_rules',
-    ];
 
     /**
      * Get the attributes that should be cast.

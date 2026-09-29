@@ -18,7 +18,7 @@ class Optimize
      * @return string
      * @throws Exception
      */
-    public function optimize(string $fileData, int $quality = null): string
+    public function optimize(string $fileData, ?int $quality = null): string
     {
         $tempFile = $this->getTemporaryFile($fileData);
 

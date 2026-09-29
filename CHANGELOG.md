@@ -9,6 +9,7 @@
 
 ### General
 
+- The media server has been updated to use PHP 8.5 and Laravel 13
 - Restructured the README
 - Added a README section about [Implementing a client](README.md#implementing-a-client)
 - v2 API added, v1 API will be deprecated in the future.

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM cybexwebdev/php-laravel:8.4-alpine-devtools
+FROM cybexwebdev/php-laravel:8.5-alpine-devtools
 
 WORKDIR /var/www
 
