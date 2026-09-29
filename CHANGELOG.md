@@ -23,6 +23,7 @@
 - Now uses Laravel's SQS FIFO implementation
 - Video transcoding workers amount can no longer be configured via .env.
 - Sanctum Token permission checks now use more structured ability names
+- When creating new users using the `create:user` command, Sanctum Token permissions are now scoped to `transmorpher.*`
 
 #### For docker image users
 

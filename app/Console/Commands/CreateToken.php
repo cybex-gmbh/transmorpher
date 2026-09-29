@@ -43,7 +43,7 @@ class CreateToken extends Command
         $user->tokens()->delete();
 
         $userInformation = sprintf('%s: %s (%s)', $user->getKey(), $user->name, $user->email);
-        $token = $user->createToken('transmorpher');
+        $token = $user->createToken('transmorpher', ['transmorpher.*']);
 
         $this->warn(sprintf('Token for the user %s', $userInformation));
         $this->info(sprintf('TRANSMORPHER_AUTH_TOKEN="%s"', $token->plainTextToken));
