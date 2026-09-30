@@ -50,6 +50,11 @@
     - The upload handler to be used can be configured in the `.env` file
 - FFmpeg Encoders and Decoders are now interchangeable, check the [README](README.md#encoder-and-decoder) for more information
 - Queues can now run on separate connections, e.g. video transcoding on `sqs`, client-notifications on `database`
+- User token permissions are now stricter
+    - It is recommended to create a new token for each user
+- Users can now have multiple tokens to allow for a seamless token replacement
+    - The `create:token` command will no longer automatically delete existing tokens, use `--purge` for the old behaviour
+    - The latest token will expire after 7 days by default, use `--expiry` to set a custom expiry time
 
 ### Fixes
 
