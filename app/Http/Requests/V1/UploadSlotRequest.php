@@ -14,7 +14,7 @@ class UploadSlotRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:upload.reserve');
+        return $this->user()->tokenCanWithWildcard('transmorpher:upload.reserve');
     }
 
     /**

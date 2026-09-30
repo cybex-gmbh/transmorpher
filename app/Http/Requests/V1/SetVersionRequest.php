@@ -13,7 +13,7 @@ class SetVersionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:version.set');
+        return $this->user()->tokenCanWithWildcard('transmorpher:version.set');
     }
 
     /**

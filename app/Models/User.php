@@ -107,6 +107,50 @@ class User extends Authenticatable
         return 'name';
     }
 
+    /**
+     * Laravel Sanctum does not allow wildcard matching besides '*'.
+     * We want to allow nested wildcard matching, e.g. `transmorpher:*` or `transmorpher:upload.*`.
+     * This way we can grant token permissions for a whole scope or a whole branch of abilities.
+     *
+     * We start checking for the most generic wildcard ability first, as we assume this will be more common.
+     *
+     * @param string $ability
+     *
+     * @return bool
+     */
+    public function tokenCanWithWildcard(string $ability): bool
+    {
+        return array_any(
+            $this->expandAbilityToWildcards($ability),
+            $this->tokenCan(...)
+        );
+    }
+
+    /**
+     * Returns all matching abilities from least to most specific, e.g.
+     * `transmorpher:*`,
+     * `transmorpher:upload.*`,
+     * `transmorpher:upload.receive`
+     *
+     * @param string $ability
+     *
+     * @return array<string>
+     */
+    protected function expandAbilityToWildcards(string $ability): array
+    {
+        $candidates = [];
+
+        preg_match_all('/[:.]/', $ability, $matches, PREG_OFFSET_CAPTURE);
+
+        foreach ($matches[0] as [$separator, $offset]) {
+            $candidates[] = substr($ability, 0, $offset + 1) . '*';
+        }
+
+        $candidates[] = $ability;
+
+        return $candidates;
+    }
+
     protected function deleteRelatedModels(): void
     {
         DB::transaction(function () {

@@ -14,7 +14,7 @@ class GetUploadUrlRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:upload.url');
+        return $this->user()->tokenCanWithWildcard('transmorpher:upload.url');
     }
 
     /**
