@@ -60,6 +60,7 @@
 
 - fixed an issue where requesting PDF images with PPI < 2 would lead to a 500 server error
 - fixed an issue where passing only the quality transformation would lead to a 500 server error
+- fixed an issue where creating a new Transmorpher token would delete tokens for all scopes
 
 ### Development
 

@@ -17,7 +17,7 @@ use function Laravel\Prompts\warning;
 #[Signature(
     'create:token
         {userId : The user id the token is created for}
-        {--purge : Delete all old tokens before creating a new one}
+        {--purge : Delete all old Transmorpher tokens before creating a new one}
         {--expiry=7 days : Duration after which the old token expires (e.g., "2 hours", "1 day", "2 weeks")}'
 )]
 #[Description('Creates a new Laravel Sanctum token for a specified user id. By default, the old token will expire in 7 days')]
@@ -47,9 +47,9 @@ class CreateToken extends Command implements PromptsForMissingInput
 
     protected function purgeTokens(): void
     {
-        $this->user->tokens()->delete();
+        $this->user->tokens()->where('name', 'transmorpher')->delete();
 
-        note('Deleted all old tokens.');
+        note('Deleted all old Transmorpher tokens.');
     }
 
     protected function setTokenExpiry(): void
@@ -60,7 +60,7 @@ class CreateToken extends Command implements PromptsForMissingInput
             $this->fail(sprintf('Invalid expiry: "%s". Try "5 hours, "1 day", "2 weeks", "1 month", ...', $this->option('expiry')));
         }
 
-        $latestToken = $this->user->tokens()->orderBy('id', 'desc')->first();
+        $latestToken = $this->user->tokens()->where('name', 'transmorpher')->orderBy('id', 'desc')->first();
 
         if ($latestToken) {
             $latestToken->update(['expires_at' => $expiryTime]);
