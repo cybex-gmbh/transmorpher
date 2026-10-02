@@ -24904,10 +24904,10 @@ namespace App\Facades {
         /**
          * @static
          */
-        public static function getChunkUrlRequestValidationRules()
+        public static function getUploadUrlRequestValidationRules()
         {
             /** @var \App\Classes\UploadHandler\DefaultUploadHandler $instance */
-            return $instance->getChunkUrlRequestValidationRules();
+            return $instance->getUploadUrlRequestValidationRules();
         }
 
         /**

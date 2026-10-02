@@ -14,7 +14,7 @@ class AbortUploadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:upload.abort');
+        return $this->user()->tokenCanWithWildcard('transmorpher:upload.abort');
     }
 
     /**

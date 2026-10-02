@@ -85,6 +85,9 @@ services:
     build:
       <<: *common-build
       target: app
+    depends_on:
+      initialize:
+        condition: service_completed_successfully
     environment:
       <<: *app-url
       CONTAINER_ROLE: scheduler

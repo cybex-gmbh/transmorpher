@@ -1389,6 +1389,11 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
     - to use FIFO, set the according .env key to true, e.g. `TRANSMORPHER_VIDEO_TRANSCODING_USE_SQS_FIFO=true`.
       ".fifo" will automatically be appended to the queue name.
 
+##### User token permissions
+
+- User Sanctum token permissions are now stricter for newly created users
+- It is recommended to create a new token for existing users
+
 #### Client implementations
 
 - V1 will be deprecated in the near future, please use v2 routes

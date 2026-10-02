@@ -175,7 +175,7 @@ class S3MultipartUploadHandler implements UploadHandlerInterface
         return [];
     }
 
-    public function getChunkUrlRequestValidationRules(): array
+    public function getUploadUrlRequestValidationRules(): array
     {
         return [];
     }

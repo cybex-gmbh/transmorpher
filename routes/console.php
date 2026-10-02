@@ -1,8 +1,4 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
-
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Delete all Sanctum tokens which expired more than 24 hours ago.
+Schedule::command('sanctum:prune-expired --hours=24')->daily();
