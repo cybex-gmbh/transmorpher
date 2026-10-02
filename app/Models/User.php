@@ -142,8 +142,8 @@ class User extends Authenticatable
 
         preg_match_all('/[:.]/', $ability, $matches, PREG_OFFSET_CAPTURE);
 
-        foreach ($matches[0] as [$separator, $offset]) {
-            $candidates[] = substr($ability, 0, $offset + 1) . '*';
+        foreach ($matches[0] as [, $offset]) {
+            $candidates[] = substr($ability, 0, (int)$offset + 1) . '*';
         }
 
         $candidates[] = $ability;
