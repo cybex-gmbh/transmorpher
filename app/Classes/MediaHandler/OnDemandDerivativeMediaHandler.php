@@ -61,13 +61,13 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
      */
     public function getVersionsInfo(Media $media): array
     {
-        $processedVersions = $media->Versions()->where('processed', true)->get();
-        $currentVersionNumber = $processedVersions->max('number');
+        $processedVersions = $media->Versions()->whereProcessed(true)->orderByDesc('number')->get();
+        $currentVersionResource = $processedVersions->first()->toResource();
 
         return [
-            'currentVersion' => $currentVersionNumber,
-            'currentlyProcessedVersion' => $currentVersionNumber,
-            'versions' => $processedVersions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
+            'currentVersion' => $currentVersionResource,
+            'currentlyProcessedVersion' => $currentVersionResource,
+            'versions' => $processedVersions->toResourceCollection(),
         ];
     }
 
