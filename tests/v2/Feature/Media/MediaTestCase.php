@@ -23,7 +23,21 @@ abstract class MediaTestCase extends MediaTestBase
             'state' => UploadState::SUCCESS->value,
             'identifier' => $this->identifier,
         ]);
-        $this->assertArrayHasKey((string)$version->number, $response->json('versions'));
+
+        $versions = $response->json('versions');
+
+        $this->assertEquals($version->number, $versions[0]['number']);
+        $this->assertIsInt($versions[0]['createdAt']);
+
+        $currentVersion = $response->json('currentVersion');
+        $currentlyProcessedVersion = $response->json('currentlyProcessedVersion');
+
+        $this->assertEquals($versions[0], $currentVersion);
+
+        if ($currentlyProcessedVersion !== null) {
+            $this->assertIsArray($currentlyProcessedVersion);
+            $this->assertContains($currentlyProcessedVersion, $versions);
+        }
     }
 
     #[Test]

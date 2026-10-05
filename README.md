@@ -1396,10 +1396,82 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 
 #### Client implementations
 
+##### V1 API deprecation
+
 - V1 will be deprecated in the near future, please use v2 routes
+
+##### Uploading media
+
 - The upload process has changed
     - please refer to the [Implementing a client](#implementing-a-client)'s [uploading media](#uploading-media) section for details
     - please see the [Postman collection](postman.json) for example calls for all v2 routes
+
+##### Get versions response
+
+- The structure of the response when retrieving versions has changed and now includes more information, such as the filename
+
+Before:
+
+```json
+[
+    {
+        "state": "success",
+        "message": "Successfully retrieved version numbers.",
+        "identifier": "test",
+        "currentVersion": 3,
+        "currentlyProcessedVersion": 3,
+        "versions": {
+            "1": 1720201274,
+            "2": 1720205610,
+            "3": 1720208565
+        }
+    }
+]
+```
+
+After:
+
+```json
+[
+    {
+        "state": "success",
+        "message": "Successfully retrieved version numbers.",
+        "identifier": "test",
+        "currentVersion": {
+            "number": 3,
+            "filename": "<filename>",
+            "hash": "<hash>",
+            "createdAt": 1720208565
+        },
+        "currentlyProcessedVersion": {
+            "number": 3,
+            "filename": "<filename>",
+            "hash": "<hash>",
+            "createdAt": 1720208565
+        },
+        "versions": [
+            {
+                "number": 3,
+                "filename": "<filename>",
+                "hash": "<hash>",
+                "createdAt": 1720208565
+            },
+            {
+                "number": 2,
+                "filename": "<filename>",
+                "hash": "<hash>",
+                "createdAt": 1720205610
+            },
+            {
+                "number": 1,
+                "filename": "<filename>",
+                "hash": "<hash>",
+                "createdAt": 1720204610
+            }
+        ]
+    }
+]
+```
 
 Following v2 routes have different URLs or HTTP methods than their v1 equivalents:
 
