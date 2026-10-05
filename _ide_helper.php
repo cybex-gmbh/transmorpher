@@ -24732,16 +24732,16 @@ namespace App\Facades {
          *
          * Creates a temporary file since image optimizers only work locally.
          *
-         * @param string $fileData
+         * @param string $imageData
          * @param int|null $quality
          * @return string
          * @throws Exception
          * @static
          */
-        public static function image($fileData, $quality = null)
+        public static function image($imageData, $quality = null)
         {
             /** @var \App\Classes\Optimizer\Optimize $instance */
-            return $instance->image($fileData, $quality);
+            return $instance->image($imageData, $quality);
         }
 
         /**
@@ -24749,15 +24749,15 @@ namespace App\Facades {
          *
          * Creates a temporary file since removing metadata only works locally.
          *
-         * @param string $fileData
+         * @param string $documentData
          * @return string
          * @throws Exception
          * @static
          */
-        public static function document($fileData)
+        public static function document($documentData)
         {
             /** @var \App\Classes\Optimizer\Optimize $instance */
-            return $instance->document($fileData);
+            return $instance->document($documentData);
         }
 
             }

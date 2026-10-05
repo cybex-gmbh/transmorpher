@@ -28,13 +28,13 @@ class Transform implements TransformInterface
      */
     public function image(string $pathToOriginalImage, ?array $transformations = null): string
     {
-        $fileData = $this->getOriginalFileData($pathToOriginalImage);
+        $imageData = $this->getOriginalFileData($pathToOriginalImage);
 
         if (!$transformations) {
-            return $fileData;
+            return $imageData;
         }
 
-        return $this->applyTransformations($fileData, $transformations);
+        return $this->applyTransformations($imageData, $transformations);
     }
 
     /**
@@ -48,41 +48,41 @@ class Transform implements TransformInterface
      */
     public function document(string $pathToOriginalDocument, ?array $transformations = null): string
     {
-        $fileData = $this->getOriginalFileData($pathToOriginalDocument);
+        $documentData = $this->getOriginalFileData($pathToOriginalDocument);
 
         if (!$transformations) {
-            return $fileData;
+            return $documentData;
         }
 
-        $imageData = $this->pdfToImage($fileData, $transformations);
+        $imageData = $this->pdfToImage($documentData, $transformations);
 
         return $this->applyTransformations($imageData, $transformations);
     }
 
     /**
-     * @param string $fileData
+     * @param string $documentData
      * @param array|null $transformations
      *
      * @return string Binary string of the image.
      *
      * @throws ImageTransformationException
      */
-    protected function pdfToImage(string $fileData, ?array $transformations = null): string
+    protected function pdfToImage(string $documentData, ?array $transformations = null): string
     {
         // We need a local file for Imagick to be able to access only the requested page.
-        $tempFile = tempnam(sys_get_temp_dir(), 'transmorpher');
-        file_put_contents($tempFile, $fileData);
+        $tempDocumentFilePath = tempnam(sys_get_temp_dir(), 'transmorpher');
+        file_put_contents($tempDocumentFilePath, $documentData);
 
         $ppi = $transformations[Transformation::PPI->value] ?? config('transmorpher.media.document.defaults.ppi');
         $imagick = new Imagick();
         $imagick->setResolution($ppi, $ppi);
 
         try {
-            $imagick->readImage(sprintf('%s[%d]', $tempFile, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
+            $imagick->readImage(sprintf('%s[%d]', $tempDocumentFilePath, ($transformations[Transformation::PAGE->value] ?? 1) - 1));
         } catch (ImagickException $exception) {
             $this->handleReadImagickExceptions($exception, $transformations);
         } finally {
-            unlink($tempFile);
+            unlink($tempDocumentFilePath);
         }
 
         $imagick = $imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
