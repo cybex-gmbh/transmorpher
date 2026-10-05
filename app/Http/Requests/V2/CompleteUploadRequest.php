@@ -14,7 +14,7 @@ class CompleteUploadRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->tokenCan('transmorpher:upload.complete');
+        return $this->user()->tokenCanWithWildcard('transmorpher:upload.complete');
     }
 
     /**

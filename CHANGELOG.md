@@ -22,6 +22,8 @@
 - Various classes can now be configured via the .env, using config files for the name and class specification.
 - Now uses Laravel's SQS FIFO implementation
 - Video transcoding workers amount can no longer be configured via .env.
+- Sanctum Token permission checks now use more structured ability names
+- When creating new users using the `create:user` command, Sanctum Token permissions are now scoped to `transmorpher.*`
 
 #### For docker image users
 
@@ -48,11 +50,17 @@
     - The upload handler to be used can be configured in the `.env` file
 - FFmpeg Encoders and Decoders are now interchangeable, check the [README](README.md#encoder-and-decoder) for more information
 - Queues can now run on separate connections, e.g. video transcoding on `sqs`, client-notifications on `database`
+- User token permissions are now stricter
+    - It is recommended to create a new token for each user
+- Users can now have multiple tokens to allow for a seamless token replacement
+    - The `create:token` command will no longer automatically delete existing tokens, use `--purge` for the old behaviour
+    - The latest token will expire after 7 days by default, use `--expiry` to set a custom expiry time
 
 ### Fixes
 
 - fixed an issue where requesting PDF images with PPI < 2 would lead to a 500 server error
 - fixed an issue where passing only the quality transformation would lead to a 500 server error
+- fixed an issue where creating a new Transmorpher token would delete tokens for all scopes
 
 ### Development
 

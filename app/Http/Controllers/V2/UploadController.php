@@ -10,7 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\V2\AbortUploadRequest;
 use App\Http\Requests\V2\CompleteUploadRequest;
 use App\Http\Requests\V2\DefaultUploadRequest;
-use App\Http\Requests\V2\GetChunkUrlRequest;
+use App\Http\Requests\V2\GetUploadUrlRequest;
 use App\Http\Requests\V2\UploadSlotRequest;
 use App\Models\Media;
 use App\Models\UploadSlot;
@@ -136,13 +136,13 @@ class UploadController extends Controller
     /**
      * Returns an upload URL for the given chunk number.
      *
-     * @param GetChunkUrlRequest $request
+     * @param GetUploadUrlRequest $request
      * @param UploadSlot $uploadSlot
      * @param int $chunkNumber
      *
      * @return JsonResponse
      */
-    public function getUploadUrl(GetChunkUrlRequest $request, UploadSlot $uploadSlot, int $chunkNumber): JsonResponse
+    public function getUploadUrl(GetUploadUrlRequest $request, UploadSlot $uploadSlot, int $chunkNumber): JsonResponse
     {
         return response()->json([
             'url' => UploadHandler::getUploadUrl($uploadSlot, $chunkNumber),
