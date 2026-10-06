@@ -24732,28 +24732,32 @@ namespace App\Facades {
          *
          * Creates a temporary file since image optimizers only work locally.
          *
-         * @param string $fileData
+         * @param string $imageData
          * @param int|null $quality
          * @return string
          * @throws Exception
          * @static
          */
-        public static function optimize($fileData, $quality = null)
+        public static function image($imageData, $quality = null)
         {
             /** @var \App\Classes\Optimizer\Optimize $instance */
-            return $instance->optimize($fileData, $quality);
+            return $instance->image($imageData, $quality);
         }
 
         /**
-         * @param string $fileData
+         * Optimize a document derivative. Currently only removes metadata if enabled.
+         *
+         * Creates a temporary file since removing metadata only works locally.
+         *
+         * @param string $documentData
          * @return string
          * @throws Exception
          * @static
          */
-        public static function removeDocumentMetadata($fileData)
+        public static function document($documentData)
         {
             /** @var \App\Classes\Optimizer\Optimize $instance */
-            return $instance->removeDocumentMetadata($fileData);
+            return $instance->document($documentData);
         }
 
             }
@@ -24807,17 +24811,33 @@ namespace App\Facades {
      */
     class TransformFacade {
         /**
-         * Transform image based on specified transformations.
+         * Transform an image based on specified transformations.
          *
          * @param string $pathToOriginalImage
          * @param array|null $transformations
          * @return string Binary string of the image.
          * @static
          */
-        public static function transform($pathToOriginalImage, $transformations = null)
+        public static function image($pathToOriginalImage, $transformations = null)
         {
             /** @var \App\Classes\Intervention\Transform $instance */
-            return $instance->transform($pathToOriginalImage, $transformations);
+            return $instance->image($pathToOriginalImage, $transformations);
+        }
+
+        /**
+         * Transform a document based on specified transformations.
+         *
+         * Will first create an image from the document.
+         *
+         * @param string $pathToOriginalDocument
+         * @param array|null $transformations
+         * @return string Binary string of the image.
+         * @static
+         */
+        public static function document($pathToOriginalDocument, $transformations = null)
+        {
+            /** @var \App\Classes\Intervention\Transform $instance */
+            return $instance->document($pathToOriginalDocument, $transformations);
         }
 
             }

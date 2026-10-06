@@ -70,6 +70,7 @@
 - v2 API Tests have been added, with more extensive test cases
 - v2 API calls have been added to Postman, with only the happy path since tests should now cover failures
 - The `responses.php` language file has been restructured to use dot notation
+- The methods for transforming or optimizing images and documents have been split up by media type
 
 ## [v0.8.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.7.0...v0.8.0)
 
