@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 class VersionController extends Controller
 {
     /**
-     * Retrieve all version numbers for the given identifier.
+     * Retrieve all versions for the given identifier.
      *
      * @param Request $request
      * @param Media $media
@@ -30,7 +30,7 @@ class VersionController extends Controller
                 'message' => ResponseState::VERSIONS_RETRIEVED->getMessage(),
                 'identifier' => $media->identifier,
             ],
-                $media->type->handler()->getVersionsInfo($media)
+                $media->type->handler()->getVersionsResponse($media)
             )
         )->setStatusCode(ResponseState::VERSIONS_RETRIEVED->getResponseCode());
     }
