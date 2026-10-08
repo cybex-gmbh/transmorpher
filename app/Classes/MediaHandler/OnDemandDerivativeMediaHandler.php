@@ -57,7 +57,11 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
 
     /**
      * @param Media $media
+     *
      * @return array
+     *
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getVersionsResponse()} instead.
      */
     public function getVersionsInfo(Media $media): array
     {
@@ -68,6 +72,18 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
             'currentVersion' => $currentVersionNumber,
             'currentlyProcessedVersion' => $currentVersionNumber,
             'versions' => $processedVersions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
+        ];
+    }
+
+    public function getVersionsResponse(Media $media): array
+    {
+        $processedVersions = $media->Versions()->whereProcessed(true)->orderByDesc('number')->get();
+        $currentVersionResource = $processedVersions->first()->toResource();
+
+        return [
+            'currentVersion' => $currentVersionResource,
+            'currentlyProcessedVersion' => $currentVersionResource,
+            'versions' => $processedVersions->toResourceCollection(),
         ];
     }
 

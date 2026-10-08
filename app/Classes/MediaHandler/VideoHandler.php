@@ -82,7 +82,11 @@ class VideoHandler extends MediaHandler
 
     /**
      * @param Media $media
+     *
      * @return array
+     *
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getVersionsResponse()} instead.
      */
     public function getVersionsInfo(Media $media): array
     {
@@ -92,6 +96,22 @@ class VideoHandler extends MediaHandler
             'currentVersion' => $versions->max('number'),
             'currentlyProcessedVersion' => $versions->where('processed', true)->max('number'),
             'versions' => $versions->pluck('created_at', 'number')->map(fn($date) => strtotime($date)),
+        ];
+    }
+
+    public function getVersionsResponse(Media $media): array
+    {
+        $versions = $media->Versions()
+            ->orderByDesc('number')
+            ->get();
+
+        $currentVersion = $versions->first();
+        $currentlyProcessedVersion = $versions->firstWhere('processed', true);
+
+        return [
+            'currentVersion' => $currentVersion->toResource(),
+            'currentlyProcessedVersion' => $currentlyProcessedVersion?->toResource(),
+            'versions' => $versions->toResourceCollection(),
         ];
     }
 
