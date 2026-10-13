@@ -7,6 +7,7 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
 use App\Models\Media;
+use App\Models\Scopes\VersionSortScope;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
@@ -90,7 +91,7 @@ class VideoHandler extends MediaHandler
      */
     public function getVersionsInfo(Media $media): array
     {
-        $versions = $media->Versions;
+        $versions = $media->Versions()->withoutGlobalScope(VersionSortScope::class)->get();
 
         return [
             'currentVersion' => $versions->max('number'),
@@ -101,9 +102,7 @@ class VideoHandler extends MediaHandler
 
     public function getVersionsResponse(Media $media): array
     {
-        $versions = $media->Versions()
-            ->orderByDesc('number')
-            ->get();
+        $versions = $media->Versions()->get();
 
         $currentVersion = $versions->first();
         $currentlyProcessedVersion = $versions->firstWhere('processed', true);

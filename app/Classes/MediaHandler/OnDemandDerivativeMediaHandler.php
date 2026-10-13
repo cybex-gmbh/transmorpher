@@ -4,6 +4,7 @@ namespace App\Classes\MediaHandler;
 
 use App\Enums\ResponseState;
 use App\Models\Media;
+use App\Models\Scopes\VersionSortScope;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
@@ -65,7 +66,7 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
      */
     public function getVersionsInfo(Media $media): array
     {
-        $processedVersions = $media->Versions()->where('processed', true)->get();
+        $processedVersions = $media->Versions()->withoutGlobalScope(VersionSortScope::class)->where('processed', true)->get();
         $currentVersionNumber = $processedVersions->max('number');
 
         return [
@@ -77,7 +78,7 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
 
     public function getVersionsResponse(Media $media): array
     {
-        $processedVersions = $media->Versions()->whereProcessed(true)->orderByDesc('number')->get();
+        $processedVersions = $media->Versions()->whereProcessed(true)->get();
         $currentVersionResource = $processedVersions->first()->toResource();
 
         return [
