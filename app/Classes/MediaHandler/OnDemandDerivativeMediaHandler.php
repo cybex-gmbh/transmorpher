@@ -76,18 +76,6 @@ abstract class OnDemandDerivativeMediaHandler extends MediaHandler
         ];
     }
 
-    public function getVersionsResponse(Media $media): array
-    {
-        $processedVersions = $media->Versions()->whereProcessed(true)->get();
-        $currentVersionResource = $processedVersions->first()->toResource();
-
-        return [
-            'currentVersion' => $currentVersionResource,
-            'currentlyProcessedVersion' => $currentVersionResource,
-            'versions' => $processedVersions->toResourceCollection(),
-        ];
-    }
-
     /**
      * @return array
      */

@@ -56,8 +56,6 @@ interface MediaHandlerInterface
      */
     public function getVersionsInfo(Media $media): array;
 
-    public function getVersionsResponse(Media $media): array;
-
     /**
      * @return Filesystem
      */

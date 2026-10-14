@@ -93,7 +93,8 @@ A media server for images, pdfs and videos.
     - [Chunk a file in Artisan Tinker](#chunk-a-file-in-artisan-tinker)
 - [Upgrade Guide](#upgrade-guide)
     - [v0.8.0 to v0.9.0](#v080-to-v090)
-        - [For Docker image users](#for-docker-image-users)
+        - [Media Server operators](#for-media-server-operators)
+        - [Client implementations](#client-implementations)
     - [v0.7.0 to v0.8.0](#v070-to-v080)
 - [License](#license)
 
@@ -1437,41 +1438,45 @@ After:
         "state": "success",
         "message": "Successfully retrieved version numbers.",
         "identifier": "test",
-        "currentVersion": {
-            "number": 3,
-            "filename": "<filename>",
-            "hash": "<hash>",
-            "createdAt": 1720208565
-        },
-        "currentlyProcessedVersion": {
-            "number": 3,
-            "filename": "<filename>",
-            "hash": "<hash>",
-            "createdAt": 1720208565
-        },
         "versions": [
             {
+                "number": 4,
+                "processed": 0,
+                "hash": "<hash>",
+                "filename": "<filename>",
+                "createdAt": "2026-10-14T07:08:29.000000Z"
+            },
+            {
                 "number": 3,
+                "processed": 1,
                 "filename": "<filename>",
                 "hash": "<hash>",
-                "createdAt": 1720208565
+                "createdAt": "2026-10-13T05:12:59.000000Z"
             },
             {
                 "number": 2,
+                "processed": 1,
                 "filename": "<filename>",
                 "hash": "<hash>",
-                "createdAt": 1720205610
+                "createdAt": "2026-10-12T12:08:35.000000Z"
             },
             {
                 "number": 1,
+                "processed": 1,
                 "filename": "<filename>",
                 "hash": "<hash>",
-                "createdAt": 1720204610
+                "createdAt": "2026-10-11T23:45:12.000000Z"
             }
         ]
     }
 ]
 ```
+
+> [!NOTE]
+> The current version (not yet public) is the version with the highest number.
+> The currently processed version (public) is the processed version with the highest number.
+
+##### Route changes
 
 Following v2 routes have different URLs or HTTP methods than their v1 equivalents:
 

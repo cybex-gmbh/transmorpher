@@ -6,6 +6,7 @@ use App\Enums\ResponseState;
 use App\Enums\UploadState;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\V2\SetVersionRequest;
+use App\Http\Resources\V2\VersionResource;
 use App\Models\Media;
 use App\Models\User;
 use App\Models\Version;
@@ -25,13 +26,12 @@ class VersionController extends Controller
     public function getVersions(Request $request, Media $media): JsonResponse
     {
         return response()->json(
-            array_merge([
+            [
                 'state' => ResponseState::VERSIONS_RETRIEVED->getState()->value,
                 'message' => ResponseState::VERSIONS_RETRIEVED->getMessage(),
                 'identifier' => $media->identifier,
-            ],
-                $media->type->handler()->getVersionsResponse($media)
-            )
+                'versions' => VersionResource::collection($media->Versions)->toArray($request),
+            ]
         )->setStatusCode(ResponseState::VERSIONS_RETRIEVED->getResponseCode());
     }
 

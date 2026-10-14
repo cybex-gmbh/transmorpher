@@ -100,20 +100,6 @@ class VideoHandler extends MediaHandler
         ];
     }
 
-    public function getVersionsResponse(Media $media): array
-    {
-        $versions = $media->Versions()->get();
-
-        $currentVersion = $versions->first();
-        $currentlyProcessedVersion = $versions->firstWhere('processed', true);
-
-        return [
-            'currentVersion' => $currentVersion->toResource(),
-            'currentlyProcessedVersion' => $currentlyProcessedVersion?->toResource(),
-            'versions' => $versions->toResourceCollection(),
-        ];
-    }
-
     /**
      * @return array
      */

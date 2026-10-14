@@ -25,20 +25,16 @@ abstract class MediaTestCase extends MediaTestBase
             'identifier' => $this->identifier,
         ]);
 
-        $versions = $response->json('versions');
+        $versions = collect($response->json('versions'))->sortByDesc('number');
 
-        $this->assertEquals($version->number, $versions[0]['number']);
-        $this->assertNotFalse(Carbon::parse($versions[0]['createdAt']));
+        $this->assertEquals($version->number, $versions->first()['number']);
+        $this->assertNotFalse(Carbon::parse($versions->first()['createdAt']));
 
-        $currentVersion = $response->json('currentVersion');
-        $currentlyProcessedVersion = $response->json('currentlyProcessedVersion');
+        $currentVersion = $versions->first();
+        $currentlyProcessedVersion = $versions->firstWhere('processed', true);
 
-        $this->assertEquals($versions[0], $currentVersion);
-
-        if ($currentlyProcessedVersion !== null) {
-            $this->assertIsArray($currentlyProcessedVersion);
-            $this->assertContains($currentlyProcessedVersion, $versions);
-        }
+        $this->assertEquals($version->Media->Versions()->max('number'), $currentVersion['number']);
+        $this->assertEquals($version->Media->Versions()->whereProcessed(true)->max('number'), $currentlyProcessedVersion['number'] ?? null);
     }
 
     #[Test]
