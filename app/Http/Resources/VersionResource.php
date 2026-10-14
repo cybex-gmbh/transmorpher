@@ -16,9 +16,10 @@ class VersionResource extends JsonResource
     {
         return [
             'number' => $this->number,
-            'filename' => $this->filename,
+            'processed' => $this->processed,
             'hash' => $this->hash,
-            'createdAt' => $this->created_at->timestamp,
+            'filename' => $this->filename,
+            'createdAt' => $this->created_at,
         ];
     }
 }
