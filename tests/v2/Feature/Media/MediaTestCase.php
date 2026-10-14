@@ -25,7 +25,7 @@ abstract class MediaTestCase extends MediaTestBase
             'identifier' => $this->identifier,
         ]);
 
-        $versions = collect($response->json('versions'))->sortByDesc('number');
+        $versions = collect($response->json('versions'));
 
         $this->assertEquals($version->number, $versions->first()['number']);
         $this->assertNotFalse(Carbon::parse($versions->first()['createdAt']));
