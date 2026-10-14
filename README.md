@@ -93,7 +93,8 @@ A media server for images, pdfs and videos.
     - [Chunk a file in Artisan Tinker](#chunk-a-file-in-artisan-tinker)
 - [Upgrade Guide](#upgrade-guide)
     - [v0.8.0 to v0.9.0](#v080-to-v090)
-        - [For Docker image users](#for-docker-image-users)
+        - [Media Server operators](#for-media-server-operators)
+        - [Client implementations](#client-implementations)
     - [v0.7.0 to v0.8.0](#v070-to-v080)
 - [License](#license)
 
@@ -1396,10 +1397,86 @@ Storage::disk('local')->put('chunk2/chunkedVideo.mp4', fread($fh, $chunkSize));
 
 #### Client implementations
 
+##### V1 API deprecation
+
 - V1 will be deprecated in the near future, please use v2 routes
+
+##### Uploading media
+
 - The upload process has changed
     - please refer to the [Implementing a client](#implementing-a-client)'s [uploading media](#uploading-media) section for details
     - please see the [Postman collection](postman.json) for example calls for all v2 routes
+
+##### Get versions response
+
+- The structure of the response when retrieving versions has changed and now includes more information, such as the filename
+
+Before:
+
+```json
+[
+    {
+        "state": "success",
+        "message": "Successfully retrieved version numbers.",
+        "identifier": "test",
+        "currentVersion": 3,
+        "currentlyProcessedVersion": 3,
+        "versions": {
+            "1": 1720201274,
+            "2": 1720205610,
+            "3": 1720208565
+        }
+    }
+]
+```
+
+After:
+
+```json
+[
+    {
+        "state": "success",
+        "message": "Successfully retrieved version numbers.",
+        "identifier": "test",
+        "versions": [
+            {
+                "number": 4,
+                "processed": 0,
+                "hash": "<hash>",
+                "filename": "<filename>",
+                "createdAt": "2026-10-14T07:08:29.000000Z"
+            },
+            {
+                "number": 3,
+                "processed": 1,
+                "filename": "<filename>",
+                "hash": "<hash>",
+                "createdAt": "2026-10-13T05:12:59.000000Z"
+            },
+            {
+                "number": 2,
+                "processed": 1,
+                "filename": "<filename>",
+                "hash": "<hash>",
+                "createdAt": "2026-10-12T12:08:35.000000Z"
+            },
+            {
+                "number": 1,
+                "processed": 1,
+                "filename": "<filename>",
+                "hash": "<hash>",
+                "createdAt": "2026-10-11T23:45:12.000000Z"
+            }
+        ]
+    }
+]
+```
+
+> [!NOTE]
+> The current version (not yet public) is the version with the highest number.
+> The currently processed version (public) is the processed version with the highest number.
+
+##### Route changes
 
 Following v2 routes have different URLs or HTTP methods than their v1 equivalents:
 

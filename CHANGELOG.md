@@ -42,6 +42,7 @@
     - See ["Uploading Media README"](README.md#uploading-media) for more information, also on the updated upload process
 - The Postman collection has been updated with v2 API example calls
 - More accurate HTTP responses will be returned by the server, especially for errors
+- The structure of the response when retrieving versions has changed and now includes more information, such as the filename
 
 #### Server
 

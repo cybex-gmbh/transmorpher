@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use App\Models\Scopes\VersionSortScope;
 use Arr;
 use Eloquent;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -39,6 +41,7 @@ use Illuminate\Support\Carbon;
  * @mixin Eloquent
  */
 #[Fillable(['filename', 'number', 'processed'])]
+#[ScopedBy([VersionSortScope::class])]
 class Version extends Model
 {
     use HasFactory;
