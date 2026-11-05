@@ -18,8 +18,6 @@ class Transcode implements TranscodeInterface
 {
     /**
      * Returns the class which handles the actual transcoding.
-     *
-     * @return string
      */
     public function getJobClass(): string
     {
@@ -28,15 +26,11 @@ class Transcode implements TranscodeInterface
 
     /**
      * Creates a job which handles the transcoding of a video.
-     *
-     * @param Version $version
-     * @param UploadSlot $uploadSlot
-     * @return bool
      */
     public function createJob(Version $version, UploadSlot $uploadSlot): bool
     {
         try {
-            TranscodeVideo::dispatch($version, $uploadSlot);
+            TranscodeVideo::dispatch($version, $uploadSlot->token);
         } catch (Throwable $throwable) {
             report($throwable);
 
@@ -48,13 +42,6 @@ class Transcode implements TranscodeInterface
 
     /**
      * Inform client package about the transcoding result.
-     *
-     * @param ResponseState $responseState
-     * @param string $uploadToken
-     * @param Media $media
-     * @param int $versionNumber
-     *
-     * @return void
      */
     public function callback(ResponseState $responseState, string $uploadToken, Media $media, int $versionNumber): void
     {
