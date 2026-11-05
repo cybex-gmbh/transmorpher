@@ -6,7 +6,6 @@ use App\Enums\MediaType;
 use App\Enums\Queue as QueueEnum;
 use App\Exceptions\InvalidConfigurationException;
 use App\Jobs\ClientPurgeNotification;
-use App\Jobs\TranscodeVideo;
 use App\Models\User;
 use App\Notifications\ApiVersionDeprecationNotice;
 use App\Notifications\NewApiVersionNotice;
@@ -21,6 +20,7 @@ use Illuminate\Support\Facades\Queue;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
+use Transcode;
 
 class QueueTest extends TestCase
 {
@@ -29,8 +29,9 @@ class QueueTest extends TestCase
 
     #[Test]
     #[DataProvider('provideDispatchConfigs')]
-    public function dispatchesOnCorrectQueueAndConnection(string $dispatchableClass, QueueEnum $queue): void
+    public function dispatchesOnCorrectQueueAndConnection(?string $dispatchableClass, QueueEnum $queue): void
     {
+        $dispatchableClass ??= Transcode::getJobClass();
         config()->set(sprintf('transmorpher.queue.%s.queue', $queue->value), sprintf('configured-%s', $queue->value));
         config()->set(sprintf('transmorpher.queue.%s.connection', $queue->value), 'database');
         config()->set(sprintf('transmorpher.queue.%s.use_sqs_fifo', $queue->value), false);
@@ -118,12 +119,11 @@ class QueueTest extends TestCase
         QueueEnum::VIDEO_TRANSCODING->getName();
     }
 
-
     public static function provideDispatchConfigs(): array
     {
         return [
             'client purge notification job' => [ClientPurgeNotification::class, QueueEnum::CLIENT_NOTIFICATIONS],
-            'video transcode job' => [TranscodeVideo::class, QueueEnum::VIDEO_TRANSCODING],
+            'video transcode job' => [null, QueueEnum::VIDEO_TRANSCODING],
             'new api version notice notification' => [NewApiVersionNotice::class, QueueEnum::EMAIL],
             'api deprecation notice notification' => [ApiVersionDeprecationNotice::class, QueueEnum::EMAIL],
         ];
@@ -133,7 +133,7 @@ class QueueTest extends TestCase
     {
         match ($dispatchableClass) {
             ClientPurgeNotification::class => $this->dispatchClientPurgeNotification(),
-            TranscodeVideo::class => $this->dispatchTranscodeVideo(),
+            Transcode::getJobClass() => $this->dispatchTranscodeVideo(),
             NewApiVersionNotice::class => $this->dispatchNewApiVersionNotice(),
             ApiVersionDeprecationNotice::class => $this->dispatchApiVersionDeprecationNotice(),
         };
@@ -161,7 +161,7 @@ class QueueTest extends TestCase
             'media_type' => MediaType::VIDEO,
         ]);
 
-        TranscodeVideo::dispatch($version, $uploadSlot);
+        Transcode::getJobClass()::dispatch($version, $uploadSlot->token);
     }
 
     protected function dispatchNewApiVersionNotice(): void

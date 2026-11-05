@@ -29,8 +29,11 @@ class VideoTest extends MediaTest
     use RefreshDatabase;
 
     protected string $identifier = 'testVideo';
+
     protected string $mediaName = 'video.mp4';
+
     protected ResponseState $versionSetSuccessful = ResponseState::VIDEO_VERSION_SET;
+
     protected MediaType $mediaType = MediaType::VIDEO;
 
     protected function setUp(): void
@@ -47,7 +50,7 @@ class VideoTest extends MediaTest
         return $this->post(route('v1.upload', [$uploadToken]), [
             // Misnamed the file as "video.webm" because, for reasons unknown, Laravel infers the mime type as application/mp4 instead of video/mp4, when the file has the .mp4 extension.
             'file' => UploadedFile::fake()->createWithContent('video.webm', File::get(base_path('tests/data/test.mp4'))),
-            'identifier' => $this->identifier
+            'identifier' => $this->identifier,
         ]);
     }
 
@@ -91,17 +94,13 @@ class VideoTest extends MediaTest
     #[Test]
     public function ensureTranscodingWorks()
     {
+        Http::fake([
+            $this->user->api_url => Http::response(),
+        ]);
+
         $uploadResponse = $this->uploadVideo();
 
         $media = Media::whereIdentifier($uploadResponse['identifier'])->first();
-        $version = $media->Versions()->whereNumber($uploadResponse['version'])->first();
-        $uploadSlot = UploadSlot::withoutGlobalScopes()->whereToken($uploadResponse['upload_token'])->first();
-
-        Http::fake([
-            $this->user->api_url => Http::response()
-        ]);
-
-        $this->assertTrue(Transcode::createJob($version, $uploadSlot));
 
         Http::assertSent(function (Request $request) {
             $decryptedNotification = json_decode(SodiumHelper::decrypt($request['signed_notification']), true);
@@ -153,7 +152,7 @@ class VideoTest extends MediaTest
 
         Queue::fake();
         Http::fake([
-            $this->user->api_url => Http::response()
+            $this->user->api_url => Http::response(),
         ]);
 
         Artisan::call(PurgeDerivatives::class, ['--video' => true]);
