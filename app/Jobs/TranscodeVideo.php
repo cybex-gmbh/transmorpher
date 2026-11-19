@@ -153,10 +153,16 @@ class TranscodeVideo implements ShouldQueue
         // This directory stores local temp derivatives in case cloud storage is used.
         $localDisk->deleteDirectory($this->getTempDerivativesDirectoryPath());
 
+        $media = $this->version->Media;
         $this->version->delete();
-        $versionNumber = $this->version->Media->Versions->where('processed', true)->max('number') ?? 0;
 
-        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_FAILED, $this->uploadToken, $this->version->Media, $versionNumber);
+        if (!$media->Versions()->exists()) {
+            $media->delete();
+        }
+
+        $versionNumber = $media->Versions->where('processed', true)->max('number') ?? 0;
+
+        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_FAILED, $this->uploadToken, $media, $versionNumber);
     }
 
     /**

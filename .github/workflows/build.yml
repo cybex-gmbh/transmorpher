@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+  push:
+    branches:
+      - 'preview/**'
+  pull_request:
+    types: [ labeled, synchronize, closed ]
+  delete:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and push Docker images
+    # https://github.com/cybex-gmbh/github-workflows/blob/main/.github/workflows/build.yml
+    uses: cybex-gmbh/github-workflows/.github/workflows/build.yml@main
+    with:
+      DOCKER_REPOSITORY: cybexwebdev/transmorpher
+      BAKE_FILE: docker-bake.hcl
+    secrets: inherit
