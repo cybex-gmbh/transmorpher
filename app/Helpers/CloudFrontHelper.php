@@ -46,13 +46,16 @@ class CloudFrontHelper implements CdnHelperInterface
     {
         $awsConfig = config('transmorpher.interchangeable.cdn.cloudfront.aws');
 
+        // Do not pass credentials when none are set to allow the SDK to use the default credential provider chain.
+        $credentials = $awsConfig['key'] && $awsConfig['secret'] ? [
+            'key' => $awsConfig['key'],
+            'secret' => $awsConfig['secret'],
+        ] : null;
+
         $cloudFrontClient = new CloudFrontClient([
             'version' => 'latest',
             'region' => $awsConfig['region'],
-            'credentials' => [
-                'key' => $awsConfig['key'],
-                'secret' => $awsConfig['secret'],
-            ],
+            'credentials' => $credentials,
         ]);
 
         $cloudFrontClient->createInvalidation([

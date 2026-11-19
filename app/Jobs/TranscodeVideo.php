@@ -6,7 +6,6 @@ use App\Enums\MediaStorage;
 use App\Enums\Queue;
 use App\Enums\ResponseState;
 use App\Enums\StreamingFormat;
-use App\Models\UploadSlot;
 use App\Models\Version;
 use CdnHelper;
 use Decoder;
@@ -31,25 +30,27 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * The number of times the job may be attempted.
-     *
-     * @var int
      */
     public int $tries = 1;
 
     /**
      * The number of seconds the job can run before timing out.
-     *
-     * @var int
      */
     public int $timeout = 60 * 60 * 3;
 
     protected Filesystem $originalsDisk;
+
     protected Filesystem $derivativesDisk;
+
     protected Filesystem $localDisk;
+
     protected string $originalFilePath;
+
     protected string $uploadToken;
+
     // Videos stored in the cloud have to be downloaded for transcoding.
     protected string $tempOriginalFilename;
+
     protected string $derivativesDestinationPath;
 
     protected ResponseState $responseState;
@@ -61,15 +62,27 @@ class TranscodeVideo implements ShouldQueue
      */
     public function __construct(
         protected Version $version,
-        protected UploadSlot $uploadSlot,
+        string $uploadToken,
     )
     {
         $this->onQueue(Queue::VIDEO_TRANSCODING->getName());
         $this->onConnection(Queue::VIDEO_TRANSCODING->getConnection());
 
-        \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
+        \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadToken));
         $this->originalFilePath = $version->originalFilePath();
-        $this->uploadToken = $this->uploadSlot->token;
+        $this->uploadToken = $uploadToken;
+    }
+
+    /**
+     * Additional metadata attached to the job payload, which is not part of the serialized command.
+     * Can, for example, be extracted by EventBridge Pipes to be passed to AWS Batch.
+     */
+    public function jobMetadata(): array
+    {
+        return [
+            'version_id' => (string)$this->version->getKey(),
+            'upload_token' => $this->uploadToken,
+        ];
     }
 
     /**
@@ -78,8 +91,6 @@ class TranscodeVideo implements ShouldQueue
      * For FIFO queues (.fifo suffix): returns version key to enable parallel processing across videos.
      *   -> only the newest version will be accepted, other versions will be disposed either at the start of transcoding, or the end.
      * For standard queues: returns user key to enable fair queuing across tenants.
-     *
-     * @return string
      */
     public function messageGroup(): string
     {
@@ -96,20 +107,14 @@ class TranscodeVideo implements ShouldQueue
     /**
      * Get the message deduplication ID for SQS FIFO queues.
      * Combines upload token and version ID to uniquely identify each dispatch.
-     *
-     * @param string $payload
-     * @param string $queue
-     * @return string
      */
     public function deduplicationId(string $payload, string $queue): string
     {
-        return sprintf('%s:upload-%s:version-%s', Queue::VIDEO_TRANSCODING->name, $this->uploadSlot->token, $this->version->getKey());
+        return sprintf('%s:upload-%s:version-%s', Queue::VIDEO_TRANSCODING->name, $this->uploadToken, $this->version->getKey());
     }
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -135,9 +140,6 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Handle a job failure.
-     *
-     * @param Throwable|null $exception
-     * @return void
      */
     public function failed(?Throwable $exception): void
     {
@@ -161,14 +163,12 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Initiates all steps necessary to transcode a video.
-     *
-     * @return void
      */
     protected function transcode(): void
     {
         $ffmpeg = FFMpeg::create([
             'timeout' => $this->timeout,
-            'temporary_directory' => $this->localDisk->path($this->getFfmpegTempDirectory())
+            'temporary_directory' => $this->localDisk->path($this->getFfmpegTempDirectory()),
         ]);
 
         \Log::info(sprintf('Downloading video for media %s and version %s.', $this->version->Media->identifier, $this->version->getKey()));
@@ -189,10 +189,6 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Load a video to use it with FFmpeg.
-     *
-     * @param FFMpeg $ffmpeg
-     *
-     * @return StreamingMedia
      */
     protected function loadVideo(FFMpeg $ffmpeg): StreamingMedia
     {
@@ -208,10 +204,6 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Checks whether the used disk is a local disk.
-     *
-     * @param Filesystem $disk
-     *
-     * @return bool
      */
     protected function isLocalFilesystem(Filesystem $disk): bool
     {
@@ -220,8 +212,6 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Sets the file name and file paths which are needed for the transcoding process.
-     *
-     * @return void
      */
     protected function setFilePaths(): void
     {
@@ -230,11 +220,6 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Saves the transcoded video to storage.
-     *
-     * @param StreamingMedia $media
-     * @param StreamingFormat $streamingFormat
-     *
-     * @return void
      */
     protected function saveVideo(StreamingMedia $media, StreamingFormat $streamingFormat): void
     {
@@ -268,10 +253,6 @@ class TranscodeVideo implements ShouldQueue
      * Generates MP4 video.
      * The basic PHP-FFmpeg package is used for this, since the php-ffmpeg-video-streaming package only offers support for DASH and HLS.
      * Therefore, the mp4 file has to be saved locally first, since saving directly to cloud is not supported.
-     *
-     * @param StreamingMedia $video
-     *
-     * @return void
      */
     protected function generateMp4(StreamingMedia $video): void
     {
@@ -296,8 +277,6 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Handles the move from the temporary path to the destination path.
-     *
-     * @return void
      */
     protected function moveDerivativesToDestinationPath(): void
     {
@@ -325,8 +304,6 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Moves the transcoded video from the temporary path to the destination path.
-     *
-     * @return void
      */
     protected function moveFromTempDirectory(): void
     {
@@ -340,8 +317,6 @@ class TranscodeVideo implements ShouldQueue
     /**
      * Moves files one by one.
      * S3 can't move multiple files at once.
-     *
-     * @return void
      */
     protected function moveFromCloudTempDirectory(): void
     {
@@ -365,8 +340,6 @@ class TranscodeVideo implements ShouldQueue
 
     /**
      * Invalidates the CDN cache.
-     *
-     * @return void
      */
     protected function invalidateCdnCache(): void
     {
@@ -379,45 +352,30 @@ class TranscodeVideo implements ShouldQueue
         }
     }
 
-    /**
-     * @return string
-     */
     protected function getTempMp4Filename(): string
     {
         return sprintf('temp-derivative-%s-%s.mp4', $this->version->Media->identifier, $this->version->getKey());
     }
 
-    /**
-     * @return string
-     */
     protected function getTempOriginalFilename(): string
     {
         return sprintf('temp-original-%s-%s', $this->version->Media->identifier, $this->version->getKey());
     }
 
-    /**
-     * @return string
-     */
     protected function getFfmpegTempDirectory(): string
     {
         return sprintf('ffmpeg-temp%s%s-%s', DIRECTORY_SEPARATOR, $this->version->Media->identifier, $this->version->getKey());
     }
 
-    /**
-     * @return bool
-     */
     protected function isMostRecentVersion(): bool
     {
         return $this->version->number === $this->version->Media->Versions()->max('number')
-            && $this->version->Media->User->UploadSlots()->withoutGlobalScopes()->whereToken($this->uploadSlot->token)->first();
+            && $this->version->Media->User->UploadSlots()->withoutGlobalScopes()->whereToken($this->uploadToken)->first();
     }
 
     /**
      * Get the path to a temporary video derivative.
      * Path structure: {username}/{identifier}-{versionKey}-temp/{format}/video
-     *
-     * @param string $format
-     * @return string
      */
     protected function getTempDerivativeFilePath(string $format): string
     {
@@ -427,8 +385,6 @@ class TranscodeVideo implements ShouldQueue
     /**
      * Get the path to the temporary video derivatives directory.
      * Path structure: {username}/{identifier}-{versionKey}-temp
-     *
-     * @return string
      */
     protected function getTempDerivativesDirectoryPath(): string
     {
