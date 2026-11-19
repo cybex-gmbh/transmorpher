@@ -1,5 +1,4 @@
-variable "CACHE_KEY" {}
-variable "DOCKER_REPOSITORY" { default = "cybexwebdev/transmorpher" }
+variable "CACHE_REF" {}
 
 group "default" {
     targets = ["app", "transcoder"]
@@ -17,16 +16,16 @@ target "app" {
     # BuildKit cache: persist across runs via GitHub Actions cache and
     # also try to reuse layers from the previously pushed base image.
     cache-from = [
-        "type=gha,scope=${CACHE_KEY}-app",
+        "type=gha,scope=${CACHE_REF}-app",
         # Registry cache to speed up multi-run, multi-runner
-        "type=registry,ref=${DOCKER_REPOSITORY}:${CACHE_KEY}-app",
-        "type=registry,ref=${DOCKER_REPOSITORY}:cache-${CACHE_KEY}-app",
+        "type=registry,ref=${CACHE_REF}-app",
+        "type=registry,ref=${CACHE_REF}-app",
     ]
     cache-to = [
-        "type=gha,mode=max,scope=${CACHE_KEY}-app",
+        "type=gha,mode=max,scope=${CACHE_REF}-app",
         # Persist intermediate layers in the registry so they can be reused across runners
         # and events (faster cold-starts than GHA cache alone).
-        "type=registry,ref=${DOCKER_REPOSITORY}:cache-${CACHE_KEY}-app",
+        "type=registry,ref=${CACHE_REF}-app",
     ]
 }
 
@@ -40,15 +39,15 @@ target "transcoder" {
     # BuildKit cache: persist across runs via GitHub Actions cache and
     # also try to reuse layers from the previously pushed base image.
     cache-from = [
-        "type=gha,scope=${CACHE_KEY}-transcoder",
+        "type=gha,scope=${CACHE_REF}-transcoder",
         # Registry cache to speed up multi-run, multi-runner
-        "type=registry,ref=${DOCKER_REPOSITORY}:${CACHE_KEY}-transcoder",
-        "type=registry,ref=${DOCKER_REPOSITORY}:cache-${CACHE_KEY}-transcoder",
+        "type=registry,ref=${CACHE_REF}-transcoder",
+        "type=registry,ref=${CACHE_REF}-transcoder",
     ]
     cache-to = [
-        "type=gha,mode=max,scope=${CACHE_KEY}-transcoder",
+        "type=gha,mode=max,scope=${CACHE_REF}-transcoder",
         # Persist intermediate layers in the registry so they can be reused across runners
         # and events (faster cold-starts than GHA cache alone).
-        "type=registry,ref=${DOCKER_REPOSITORY}:cache-${CACHE_KEY}-transcoder",
+        "type=registry,ref=${CACHE_REF}-transcoder",
     ]
 }
