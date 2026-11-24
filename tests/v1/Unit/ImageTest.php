@@ -74,7 +74,8 @@ class ImageTest extends OnDemandDerivativeMediaTest
     #[Depends('ensureVersionCanBeSet')]
     public function ensureDeletingAVersionDoesNotDeleteOriginalFileIfAVersionPointingToThisFileStillExists(Version $version)
     {
-        $originalVersion = $version->Media->Versions()->where('filename', $version->filename)->oldest()->first();
+        $oldestVersionNumber = $version->Media->Versions()->min('number');
+        $originalVersion = $version->Media->Versions()->where('filename', $version->filename)->where('number', $oldestVersionNumber)->first();
 
         $this->assertNotEquals($version->id, $originalVersion->id);
 

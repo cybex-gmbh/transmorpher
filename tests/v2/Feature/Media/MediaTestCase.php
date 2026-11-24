@@ -5,6 +5,7 @@ namespace Tests\v2\Feature\Media;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
 use App\Models\UploadSlot;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\v2\Support\MediaTestBase;
@@ -23,7 +24,17 @@ abstract class MediaTestCase extends MediaTestBase
             'state' => UploadState::SUCCESS->value,
             'identifier' => $this->identifier,
         ]);
-        $this->assertArrayHasKey((string)$version->number, $response->json('versions'));
+
+        $versions = collect($response->json('versions'));
+
+        $this->assertEquals($version->number, $versions->first()['number']);
+        $this->assertNotFalse(Carbon::parse($versions->first()['createdAt']));
+
+        $currentVersion = $versions->first();
+        $currentlyProcessedVersion = $versions->firstWhere('processed', true);
+
+        $this->assertEquals($version->Media->Versions()->max('number'), $currentVersion['number']);
+        $this->assertEquals($version->Media->Versions()->whereProcessed(true)->max('number'), $currentlyProcessedVersion['number'] ?? null);
     }
 
     #[Test]

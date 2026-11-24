@@ -45,6 +45,15 @@ interface MediaHandlerInterface
      */
     public function processVersion(User $user, Version $version): array;
 
+
+    /**
+     * @param Media $media
+     *
+     * @return array
+     *
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getVersionsResponse()} instead.
+     */
     public function getVersionsInfo(Media $media): array;
 
     /**
