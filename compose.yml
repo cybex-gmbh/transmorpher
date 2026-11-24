@@ -57,7 +57,7 @@ services:
 
     worker-client-notifications:
         <<: *common
-        image: cybexwebdev/php-laravel:8.5-alpine
+        image: cybexwebdev/php-laravel:8.5
         command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
         # Database might take some time to be available.
         restart: on-failure:3
@@ -66,7 +66,7 @@ services:
 
     worker-email:
         <<: *common
-        image: cybexwebdev/php-laravel:8.5-alpine
+        image: cybexwebdev/php-laravel:8.5
         command: [ "shell", "php artisan transmorpher:queue-work email" ]
         # Database might take some time to be available.
         restart: on-failure:3
@@ -75,7 +75,7 @@ services:
 
     scheduler:
         <<: *common
-        image: cybexwebdev/php-laravel:8.5-alpine
+        image: cybexwebdev/php-laravel:8.5
         environment:
             <<: *common-env
             CONTAINER_ROLE: scheduler
