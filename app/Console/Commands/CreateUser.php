@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Enums\ValidationRegex;
 use App\Models\User;
-use Hash;
 use Illuminate\Console\Command;
 
 class CreateUser extends Command
@@ -60,7 +59,7 @@ class CreateUser extends Command
         }
 
         if (!filter_var($apiUrl, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)) {
-            $this->error(sprintf('The API URL must be a valid URL and include a path.'));
+            $this->error('The API URL must be a valid URL and include a path.');
             return Command::INVALID;
         }
 

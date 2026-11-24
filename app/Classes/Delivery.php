@@ -49,13 +49,13 @@ class Delivery
         $finfo = new finfo(FILEINFO_MIME_TYPE);
 
         // Check if derivative already exists and return if so.
-        if (!config('transmorpher.dev_mode') && config('transmorpher.store_derivatives') && $derivativesDisk->exists($derivativePath)) {
+        if (!config('transmorpher.app.dev_mode') && config('transmorpher.media.derivatives.store') && $derivativesDisk->exists($derivativePath)) {
             $derivative = $derivativesDisk->get($derivativePath);
         } else {
             // Apply transformations to the media.
             $derivative = $mediaType->handler()->applyTransformations($version, $transformationsArray);
 
-            if (config('transmorpher.store_derivatives')) {
+            if (config('transmorpher.media.derivatives.store')) {
                 $derivativesDisk->put($derivativePath, $derivative);
             }
         }

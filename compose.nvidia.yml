@@ -1,0 +1,12 @@
+services:
+  worker-transcoding:
+    extends:
+      file: compose.yml
+      service: worker-transcoding
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu,video,utility,compute ]

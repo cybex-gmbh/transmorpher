@@ -1,8 +1,8 @@
 <?php
 
 use App\Enums\MediaType;
-use App\Http\Controllers\V1\ImageController;
-use App\Http\Controllers\V1\DocumentController;
+use App\Http\Controllers\V2\DocumentController;
+use App\Http\Controllers\V2\ImageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Image
-Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::IMAGE->prefix()), [ImageController::class, 'get'])->name('getImageDerivative');
+Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::IMAGE->prefix()), [ImageController::class, 'get'])->name('delivery.image');
 
 // Document
-Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::DOCUMENT->prefix()), [DocumentController::class, 'get'])->name('getDocumentDerivative');
+Route::get(sprintf('%s/{user}/{media}/{transformations?}', MediaType::DOCUMENT->prefix()), [DocumentController::class, 'get'])->name('delivery.document');

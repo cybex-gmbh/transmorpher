@@ -4,8 +4,11 @@ namespace App\Models;
 
 use App\Enums\MediaStorage;
 use App\Enums\Transformation;
+use App\Models\Scopes\VersionSortScope;
 use Arr;
 use Eloquent;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -37,23 +40,11 @@ use Illuminate\Support\Carbon;
  * @method static Builder<static>|Version whereUpdatedAt($value)
  * @mixin Eloquent
  */
+#[Fillable(['filename', 'number', 'processed'])]
+#[ScopedBy([VersionSortScope::class])]
 class Version extends Model
 {
     use HasFactory;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     *  Version number determines the current version.
-     *  Version key distinguishes the files and database rows.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'filename',
-        'number',
-        'processed',
-    ];
 
     /**
      * The "booted" method of the model.
@@ -116,6 +107,8 @@ class Version extends Model
      * @param string $filename
      *
      * @return string
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Original file names are now managed via UploadSlots, since we need to know the file destination before creating a version.
      */
     public function createOriginalFileName(string $filename): string
     {
@@ -131,7 +124,6 @@ class Version extends Model
      */
     public function onDemandDerivativeFilePath(?array $transformations = null): string
     {
-        $mediaType = $this->Media->type;
         $originalFileExtension = pathinfo($this->filename, PATHINFO_EXTENSION);
 
         // Hash of transformation parameters and version number to identify already generated derivatives.
@@ -140,8 +132,9 @@ class Version extends Model
         return sprintf('%s/%s_%s.%s',
             $this->onDemandDerivativeDirectoryPath(),
             implode('_',
-                Arr::mapWithKeys(Arr::except($transformations ?? [], Transformation::FORMAT->value),
-                    function($value, $key) { return [sprintf('%s%s', $value, $key)]; }
+                Arr::mapWithKeys(
+                    array: Arr::except($transformations ?? [], Transformation::FORMAT->value),
+                    callback: fn($value, $key) => [sprintf('%s%s', $value, $key)]
                 )
             ),
             $derivativeHash,

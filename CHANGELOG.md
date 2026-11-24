@@ -1,14 +1,87 @@
 # Release Notes
 
+## [v0.9.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.8.0...v0.9.0)
+
+> [!WARNING]
+> Breaking changes!
+>
+> For more information, see the [upgrade guide](README.md#v080-to-v090).
+
+### General
+
+- The media server has been updated to use PHP 8.5 and Laravel 13
+- Restructured the README
+- Added a README section about [Implementing a client](README.md#implementing-a-client)
+- v2 API added, v1 API will be deprecated in the future.
+- v2 API URLs have been adjusted to be more uniform and RESTful
+- Upload process has been restructured, see ["Uploading Media README"](README.md#uploading-media) for more information
+- Routes have been slightly adjusted, the `upload` route now uses `PUT` instead of `POST`
+- Reserving an upload slot now requires to pass the final file name
+- Original file names now use the upload token as prefix instead of the version id
+- The config file has been split up into multiple files and was restructured
+- Various classes can now be configured via the .env, using config files for the name and class specification.
+- Now uses Laravel's SQS FIFO implementation
+- Video transcoding workers amount can no longer be configured via .env.
+- Sanctum Token permission checks now use more structured ability names
+- When creating new users using the `create:user` command, Sanctum Token permissions are now scoped to `transmorpher.*`
+
+#### For docker image users
+
+- The Transmorpher base images have changed, which leads to several structural changes. Refer to the [compose.prod.example.yml](compose.prod.example.yml) for an example production
+  setup
+    - Workers are now running in separate containers
+    - Transcoding workers have their own image and run in a separate container
+    - Scheduler has to run as its own container
+
+### Features
+
+#### Client-facing
+
+- The Media Server now has the ability to handle S3 Multipart Uploads, when it is configured so
+    - Added a route to retrieve the configured upload handler, `s3-multi-part` for S3 Multipart Uploads, `default` for the v1 API behaviour
+    - See ["Uploading Media README"](README.md#uploading-media) for more information, also on the updated upload process
+- The Postman collection has been updated with v2 API example calls
+- More accurate HTTP responses will be returned by the server, especially for errors
+- The structure of the response when retrieving versions has changed and now includes more information, such as the filename
+
+#### Server
+
+- The Upload process can now be customized
+    - It now consists of multiple steps, which allows for more complex upload processes, such as S3 Multipart Uploads
+    - The upload handler to be used can be configured in the `.env` file
+- FFmpeg Encoders and Decoders are now interchangeable, check the [README](README.md#encoder-and-decoder) for more information
+- Queues can now run on separate connections, e.g. video transcoding on `sqs`, client-notifications on `database`
+- User token permissions are now stricter
+    - It is recommended to create a new token for each user
+- Users can now have multiple tokens to allow for a seamless token replacement
+    - The `create:token` command will no longer automatically delete existing tokens, use `--purge` for the old behaviour
+    - The latest token will expire after 7 days by default, use `--expiry` to set a custom expiry time
+
+### Fixes
+
+- fixed an issue where requesting PDF images with PPI < 2 would lead to a 500 server error
+- fixed an issue where passing only the quality transformation would lead to a 500 server error
+- fixed an issue where creating a new Transmorpher token would delete tokens for all scopes
+
+### Development
+
+- Sail has been removed,
+  please refer to the [development section of the README](README.md#development) for information on running, connecting and testing with the new images
+- Docker Bake is now used to build and push images, which allows the simultaneous building of the app and transcoder images, including caching mechanisms
+- v2 API Tests have been added, with more extensive test cases
+- v2 API calls have been added to Postman, with only the happy path since tests should now cover failures
+- The `responses.php` language file has been restructured to use dot notation
+- The methods for transforming or optimizing images and documents have been split up by media type
+
 ## [v0.8.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.7.0...v0.8.0)
 
 ### Features
 
 - now uses Laravel 12 and PHP 8.4, this implies:
-  - local disk is now pointing to `storage/app/private` by default. The local disk is used for storing temporary files.
-  - session driver is now set to `database` by default in the .env.example
-  - cache store is now set to `database` by default in the .env.example
-  - migrations for the session and cache database tables have been published
+    - local disk is now pointing to `storage/app/private` by default. The local disk is used for storing temporary files.
+    - session driver is now set to `database` by default in the .env.example
+    - cache store is now set to `database` by default in the .env.example
+    - migrations for the session and cache database tables have been published
 - a worker for emails has been added to the docker image. Available notifications have been documented, see ["Email notifications README"](README.md#email-notifications)
 
 ### Bug Fixes
@@ -17,18 +90,18 @@
 
 ### Development
 
-- the `Intervention Image` package has been updated to v3, since v2 is EOL. 
-- `ImageMagick` v6 caused artifacts to appear in images when combined with `Intervention Image` v3, therefore we needed to update `ImageMagick` to v7. 
+- the `Intervention Image` package has been updated to v3, since v2 is EOL.
+- `ImageMagick` v6 caused artifacts to appear in images when combined with `Intervention Image` v3, therefore we needed to update `ImageMagick` to v7.
 
 ## [v0.7.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.6.0...v0.7.0)
 
 ### Features
 
 - PDFs are now supported, see ["PDF handling README"](README.md#pdf-handling)
-  - upload
-  - download
-  - images of specific pages, supporting image formats and transformations
-  - derivative purging
+    - upload
+    - download
+    - images of specific pages, supporting image formats and transformations
+    - derivative purging
 - the version history is now traceable, this means that restoring a version will now create a new version using the same original file as source
 
 ## [v0.6.0](https://github.com/cybex-gmbh/transmorpher/compare/v0.5.3...v0.6.0)
@@ -89,7 +162,7 @@
 
 ### Features
 
-- provide the possibility to configure a subdirectory for the laravel.log file 
+- provide the possibility to configure a subdirectory for the laravel.log file
 
 ### Development
 

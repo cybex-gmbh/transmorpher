@@ -4,7 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\MediaStorage;
+use Database\Factories\UserFactory;
 use DB;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,8 +15,6 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
- * App\Models\User
- *
  * @property int $id
  * @property string $name
  * @property string $email
@@ -48,33 +49,13 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @mixin \Eloquent
  */
+#[Fillable(['api_url', 'email', 'name', 'password'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
     use HasApiTokens;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'api_url',
-        'email',
-        'name',
-        'password',
-    ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
 
     /**
      * The "booted" method of the model.
@@ -85,20 +66,6 @@ class User extends Authenticatable
             $user->deleteRelatedModels();
             $user->deleteMediaDirectories();
         });
-    }
-
-    protected function deleteRelatedModels(): void
-    {
-        DB::transaction(function () {
-            $this->Media()->get()->each->delete();
-        });
-    }
-
-    protected function deleteMediaDirectories(): void
-    {
-        foreach (MediaStorage::cases() as $mediaStorage) {
-            $mediaStorage->getDisk()->deleteDirectory($this->name);
-        }
     }
 
     /**
@@ -138,5 +105,63 @@ class User extends Authenticatable
     public function getRouteKeyName(): string
     {
         return 'name';
+    }
+
+    /**
+     * Laravel Sanctum does not allow wildcard matching besides '*'.
+     * We want to allow nested wildcard matching, e.g. `transmorpher:*` or `transmorpher:upload.*`.
+     * This way we can grant token permissions for a whole scope or a whole branch of abilities.
+     *
+     * We start checking for the most generic wildcard ability first, as we assume this will be more common.
+     *
+     * @param string $ability
+     *
+     * @return bool
+     */
+    public function tokenCanWithWildcard(string $ability): bool
+    {
+        return array_any(
+            $this->expandAbilityToWildcards($ability),
+            $this->tokenCan(...)
+        );
+    }
+
+    /**
+     * Returns all matching abilities from least to most specific, e.g.
+     * `transmorpher:*`,
+     * `transmorpher:upload.*`,
+     * `transmorpher:upload.receive`
+     *
+     * @param string $ability
+     *
+     * @return array<string>
+     */
+    protected function expandAbilityToWildcards(string $ability): array
+    {
+        $candidates = [];
+
+        preg_match_all('/[:.]/', $ability, $matches, PREG_OFFSET_CAPTURE);
+
+        foreach ($matches[0] as [, $offset]) {
+            $candidates[] = substr($ability, 0, (int)$offset + 1) . '*';
+        }
+
+        $candidates[] = $ability;
+
+        return $candidates;
+    }
+
+    protected function deleteRelatedModels(): void
+    {
+        DB::transaction(function () {
+            $this->Media()->get()->each->delete();
+        });
+    }
+
+    protected function deleteMediaDirectories(): void
+    {
+        foreach (MediaStorage::cases() as $mediaStorage) {
+            $mediaStorage->getDisk()->deleteDirectory($this->name);
+        }
     }
 }

@@ -2,14 +2,15 @@
 
 namespace App\Jobs;
 
-use App\Enums\Decoder;
-use App\Enums\Encoder;
 use App\Enums\MediaStorage;
+use App\Enums\Queue;
 use App\Enums\ResponseState;
 use App\Enums\StreamingFormat;
 use App\Models\UploadSlot;
 use App\Models\Version;
 use CdnHelper;
+use Decoder;
+use Encoder;
 use FFMpeg\Format\Video\X264;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -45,8 +46,6 @@ class TranscodeVideo implements ShouldQueue
     protected Filesystem $originalsDisk;
     protected Filesystem $derivativesDisk;
     protected Filesystem $localDisk;
-    protected Decoder $decoder;
-    protected Encoder $encoder;
     protected string $originalFilePath;
     protected string $uploadToken;
     // Videos stored in the cloud have to be downloaded for transcoding.
@@ -65,12 +64,46 @@ class TranscodeVideo implements ShouldQueue
         protected UploadSlot $uploadSlot,
     )
     {
-        $this->onQueue('video-transcoding');
+        $this->onQueue(Queue::VIDEO_TRANSCODING->getName());
+        $this->onConnection(Queue::VIDEO_TRANSCODING->getConnection());
+
         \Log::info(sprintf('Constructing job for media %s and version %s with uploadToken %s.', $version->Media->identifier, $version->getKey(), $uploadSlot->token));
         $this->originalFilePath = $version->originalFilePath();
         $this->uploadToken = $this->uploadSlot->token;
-        $this->decoder = Decoder::from(config('transmorpher.decoder'));
-        $this->encoder = Encoder::from(config('transmorpher.encoder'));
+    }
+
+    /**
+     * Get the message group ID for fair queuing on standard SQS queues and FIFO ordering on FIFO queues.
+     *
+     * For FIFO queues (.fifo suffix): returns version key to enable parallel processing across videos.
+     *   -> only the newest version will be accepted, other versions will be disposed either at the start of transcoding, or the end.
+     * For standard queues: returns user key to enable fair queuing across tenants.
+     *
+     * @return string
+     */
+    public function messageGroup(): string
+    {
+        $queue = Queue::VIDEO_TRANSCODING->getName();
+        $prefix = Queue::VIDEO_TRANSCODING->name;
+
+        if (str_ends_with($queue, '.fifo')) {
+            return sprintf('%s:version-%s', $prefix, $this->version->getKey());
+        }
+
+        return sprintf('%s:user-%s', $prefix, $this->version->Media->User->getKey());
+    }
+
+    /**
+     * Get the message deduplication ID for SQS FIFO queues.
+     * Combines upload token and version ID to uniquely identify each dispatch.
+     *
+     * @param string $payload
+     * @param string $queue
+     * @return string
+     */
+    public function deduplicationId(string $payload, string $queue): string
+    {
+        return sprintf('%s:upload-%s:version-%s', Queue::VIDEO_TRANSCODING->name, $this->uploadSlot->token, $this->version->getKey());
     }
 
     /**
@@ -93,7 +126,7 @@ class TranscodeVideo implements ShouldQueue
             $this->responseState = ResponseState::TRANSCODING_ABORTED;
         }
 
-        \Log::info(sprintf('Transcoding finished for media %s and version %s with response state %s.', $this->version->Media->identifier, $this->version->getKey(), $this->responseState->value));
+        \Log::info(sprintf('Transcoding finished for media %s and version %s with response state %s.', $this->version->Media->identifier, $this->version->getKey(), $this->responseState->name));
         match ($this->responseState) {
             ResponseState::TRANSCODING_SUCCESSFUL => Transcode::callback($this->responseState, $this->uploadToken, $this->version->Media, $this->version->number),
             ResponseState::TRANSCODING_ABORTED => $this->failed(null),
@@ -120,10 +153,16 @@ class TranscodeVideo implements ShouldQueue
         // This directory stores local temp derivatives in case cloud storage is used.
         $localDisk->deleteDirectory($this->getTempDerivativesDirectoryPath());
 
+        $media = $this->version->Media;
         $this->version->delete();
-        $versionNumber = $this->version->Media->Versions->where('processed', true)->max('number') ?? 0;
 
-        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_FAILED, $this->uploadToken, $this->version->Media, $versionNumber);
+        if (!$media->Versions()->exists()) {
+            $media->delete();
+        }
+
+        $versionNumber = $media->Versions->where('processed', true)->max('number') ?? 0;
+
+        Transcode::callback($this->responseState ?? ResponseState::TRANSCODING_FAILED, $this->uploadToken, $media, $versionNumber);
     }
 
     /**
@@ -170,7 +209,7 @@ class TranscodeVideo implements ShouldQueue
             $localPath = $this->localDisk->path($this->tempOriginalFilename);
         }
 
-        return $ffmpeg->customInput($localPath, $this->decoder->getInitialParameters());
+        return $ffmpeg->customInput($localPath, Decoder::inputParameters());
     }
 
     /**
@@ -205,10 +244,10 @@ class TranscodeVideo implements ShouldQueue
      */
     protected function saveVideo(StreamingMedia $media, StreamingFormat $streamingFormat): void
     {
-        $configuredMedia = $streamingFormat->configure($media, $this->encoder);
+        $configuredMedia = $streamingFormat->configure($media);
         $tempDerivativeFilePath = $this->getTempDerivativeFilePath($streamingFormat->value);
 
-        \Log::info(sprintf('Generating %s for media %s and version %s. Using: %s -> %s', strtoupper($streamingFormat->value), $this->version->Media->identifier, $this->version->getKey(), $this->decoder->name, $this->encoder->name));
+        \Log::info(sprintf('Generating %s for media %s and version %s. Using: %s -> %s', strtoupper($streamingFormat->value), $this->version->Media->identifier, $this->version->getKey(), Decoder::name(), Encoder::name()));
         // Save to temporary folder first, to prevent race conditions when multiple versions are uploaded simultaneously.
         if ($this->isLocalFilesystem($this->derivativesDisk)) {
             $configuredMedia->save($this->derivativesDisk->path($tempDerivativeFilePath));
@@ -223,7 +262,8 @@ class TranscodeVideo implements ShouldQueue
             foreach ($this->localDisk->allFiles($tempDerivativesFormatDirectoryPath) as $filePath) {
                 $this->derivativesDisk->writeStream(
                     $filePath,
-                    $this->localDisk->readStream($filePath));
+                    $this->localDisk->readStream($filePath)
+                );
             }
 
             $this->localDisk->deleteDirectory($tempDerivativesFormatDirectoryPath);
@@ -242,12 +282,12 @@ class TranscodeVideo implements ShouldQueue
     protected function generateMp4(StreamingMedia $video): void
     {
         $tempMp4Filename = $this->getTempMp4Filename();
-        \Log::info(sprintf('Generating MP4 for media %s and version %s. Using: %s -> %s', $this->version->Media->identifier, $this->version->getKey(), $this->decoder->name, $this->encoder->name));
+        \Log::info(sprintf('Generating MP4 for media %s and version %s. Using: %s -> %s', $this->version->Media->identifier, $this->version->getKey(), Decoder::name(), Encoder::name()));
         // GPU accelerated encoding cannot be set via setVideoCodec(). h264_nvenc may be set through the additional params.
         $video->save(
-            (new X264())
-                ->setInitialParameters($this->decoder->getInitialParameters())
-                ->setAdditionalParameters($this->encoder->getAdditionalParameters(forMp4Fallback: true)),
+            new X264()
+                ->setInitialParameters(Decoder::inputParameters())
+                ->setAdditionalParameters(Encoder::outputParameters(forMp4Fallback: true)),
             $this->localDisk->path($tempMp4Filename)
         );
 

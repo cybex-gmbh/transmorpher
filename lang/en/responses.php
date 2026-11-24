@@ -10,22 +10,86 @@ return [
     | client.
     |
     */
-    'cdn_invalidation_failed' => 'CDN invalidation failed.',
-    'deletion_successful' => 'Successfully deleted media.',
-    'image_upload_successful' => 'Successfully uploaded new image version.',
-    'image_version_set' => 'Successfully set image version.',
-    'document_upload_successful' => 'Successfully uploaded new document version.',
-    'document_version_set' => 'Successfully set document version.',
-    'transcoding_aborted' => 'Transcoding process aborted due to a new version or upload.',
-    'transcoding_failed' => 'Video transcoding failed, version has been removed.',
-    'transcoding_job_dispatch_failed' => 'There was an error when trying to dispatch the transcoding job.',
-    'transcoding_successful' => 'Successfully transcoded video.',
-    'upload_slot_created' => 'Successfully created upload slot.',
-    'versions_retrieved' => 'Successfully retrieved version numbers.',
-    'video_version_set' => 'Successfully set video version, transcoding job has been dispatched.',
-    'video_upload_successful' => 'Successfully uploaded new video version, transcoding job has been dispatched.',
-    'write_failed' => 'Could not write media to disk.',
-    'file_name_invalid' => 'File name may not contain the following characters: :disallowedCharacters.',
-    'file_name_invalid_only_spaces' => 'File name may not only consist of spaces.',
-    'non_matching_identifier' => 'The provided identifier does not match the identifier of the reserved upload slot.',
+    'cdn' => [
+        'invalidation' => [
+            'failed' => 'CDN invalidation failed.',
+        ]
+    ],
+
+    'validation' => [
+        'file' => [
+            'name' => [
+                'invalid' => 'File name may not contain the following characters: :disallowedCharacters.',
+                'invalid_only_spaces' => 'File name may not only consist of spaces.',
+            ]
+        ],
+        'identifier' => [
+            'non_matching' => 'The provided identifier does not match the identifier of the reserved upload slot.',
+        ],
+    ],
+
+    'upload' => [
+        'abort' => [
+            'success' => 'Upload aborted.',
+            'failed' => 'Aborting upload failed.',
+        ],
+        'slot' => [
+            'created' => 'Successfully created upload slot.',
+            'failed' => 'Upload slot creation failed.',
+        ],
+        'image' => [
+            'success' => 'Successfully uploaded new image version.'
+        ],
+        'video' => [
+            'success' => 'Successfully uploaded new video version, transcoding job has been dispatched.'
+        ],
+        'document' => [
+            'success' => 'Successfully uploaded new document version.'
+        ],
+    ],
+
+    'image' => [
+        'version' => [
+            'set' => [
+                'success' => 'Successfully set image version.',
+            ]
+        ]
+    ],
+
+    'video' => [
+        'transcoding' => [
+            'success' => 'Successfully transcoded video.',
+            'aborted' => 'Transcoding process aborted due to a new version or upload.',
+            'failed' => 'Video transcoding failed, version has been removed.',
+            'job_dispatch_failed' => 'There was an error when trying to dispatch the transcoding job.',
+        ],
+        'version' => [
+            'set' => [
+                'success' => 'Successfully set video version, transcoding job has been dispatched.',
+            ]
+        ]
+    ],
+
+    'document' => [
+        'version' => [
+            'set' => [
+                'success' => 'Successfully set document version.',
+            ]
+        ]
+    ],
+
+    'media' => [
+        'versions' => [
+            'retrieved' => 'Successfully retrieved version numbers.',
+        ],
+        'deletion' => [
+            'success' => 'Successfully deleted media.'
+        ]
+    ],
+
+    'disk' => [
+        'write' => [
+            'failed' => 'Could not write media to disk.'
+        ]
+    ],
 ];

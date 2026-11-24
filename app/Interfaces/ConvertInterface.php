@@ -7,8 +7,8 @@ interface ConvertInterface
     /**
      * Encode to specified format and, if possible, set quality.
      *
-     * @param string   $image Binary string of the image.
-     * @param string   $format
+     * @param string $image Binary string of the image.
+     * @param string $format
      * @param int $quality
      *
      * @return ConvertedImageInterface

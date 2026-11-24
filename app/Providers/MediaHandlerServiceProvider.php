@@ -2,15 +2,16 @@
 
 namespace App\Providers;
 
+use App\Enums\MediaType;
 use App\Interfaces\MediaHandlerInterface;
 use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Support\ServiceProvider;
 
 class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableProvider
 {
-    const DOCUMENT_SERVICE_NAME = 'media-handler.document';
-    const IMAGE_SERVICE_NAME = 'media-handler.image';
-    const VIDEO_SERVICE_NAME = 'media-handler.video';
+    const string DOCUMENT_SERVICE_NAME = 'media-handler.document';
+    const string IMAGE_SERVICE_NAME = 'media-handler.image';
+    const string VIDEO_SERVICE_NAME = 'media-handler.video';
 
     /**
      * Register services.
@@ -19,9 +20,18 @@ class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableP
      */
     public function register(): void
     {
-        $this->app->singleton(static::DOCUMENT_SERVICE_NAME, fn(): MediaHandlerInterface => app()->make(config('transmorpher.media_handlers.document')));
-        $this->app->singleton(static::IMAGE_SERVICE_NAME, fn(): MediaHandlerInterface => app()->make(config('transmorpher.media_handlers.image')));
-        $this->app->singleton(static::VIDEO_SERVICE_NAME, fn(): MediaHandlerInterface => app()->make(config('transmorpher.media_handlers.video')));
+        $this->app->singleton(
+            static::DOCUMENT_SERVICE_NAME,
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath(MediaType::DOCUMENT)))
+        );
+        $this->app->singleton(
+            static::IMAGE_SERVICE_NAME,
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath(MediaType::IMAGE)))
+        );
+        $this->app->singleton(
+            static::VIDEO_SERVICE_NAME,
+            fn(): MediaHandlerInterface => app()->make(config($this->getMediaHandlerClassPath(MediaType::VIDEO)))
+        );
     }
 
     /**
@@ -36,5 +46,14 @@ class MediaHandlerServiceProvider extends ServiceProvider implements DeferrableP
             static::IMAGE_SERVICE_NAME,
             static::VIDEO_SERVICE_NAME,
         ];
+    }
+
+    protected function getMediaHandlerClassPath(MediaType $mediaType): string
+    {
+        return sprintf(
+            'transmorpher.interchangeable.handler.media.%s.%s.class',
+            $mediaType->value,
+            config(sprintf('transmorpher.media.%s.handler', $mediaType->value))
+        );
     }
 }

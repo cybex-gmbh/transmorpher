@@ -7,10 +7,12 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\UploadState;
 use App\Models\Media;
+use App\Models\Scopes\VersionSortScope;
 use App\Models\UploadSlot;
 use App\Models\User;
 use App\Models\Version;
 use BadMethodCallException;
+use Illuminate\Support\Collection;
 use Transcode;
 
 class VideoHandler extends MediaHandler
@@ -33,17 +35,30 @@ class VideoHandler extends MediaHandler
     {
         \Log::info(sprintf('Dispatching transcoding job for media %s and version %s.', $version->Media->identifier, $version->getKey()));
         $success = Transcode::createJob($version, $uploadSlot);
-        \Log::info(sprintf('Transcoding job dispatched with result %s for media %s and version %s.', $success, $version->Media->identifier, $version->getKey()));
+        \Log::info(sprintf('Transcoding job dispatch returned result "%s" for media %s and version %s.', $success ? 'success' : 'error', $version->Media->identifier, $version->getKey()));
 
         return $success ? $this->uploadSuccessful : $this->uploadFailed;
     }
 
     /**
-     * @return string
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string
     {
         return 'mimetypes:video/x-msvideo,video/mpeg,video/ogg,video/webm,video/mp4,video/x-matroska';
+    }
+
+    public function getAllowedMimetypes(): Collection
+    {
+        return collect([
+            'video/x-msvideo',
+            'video/mpeg',
+            'video/ogg',
+            'video/webm',
+            'video/mp4',
+            'video/x-matroska'
+        ]);
     }
 
     /**
@@ -68,11 +83,15 @@ class VideoHandler extends MediaHandler
 
     /**
      * @param Media $media
+     *
      * @return array
+     *
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getVersionsResponse()} instead.
      */
-    public function getVersions(Media $media): array
+    public function getVersionsInfo(Media $media): array
     {
-        $versions = $media->Versions;
+        $versions = $media->Versions()->withoutGlobalScope(VersionSortScope::class)->get();
 
         return [
             'currentVersion' => $versions->max('number'),

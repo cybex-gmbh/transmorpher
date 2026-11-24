@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force the App URL to prevent issues with S2S requests in Docker Networks and HTTPS issues behind proxies.
+        URL::useOrigin(config('app.url'));
+        URL::forceScheme(parse_url(config('app.url'), PHP_URL_SCHEME));
+
         Relation::enforceMorphMap([
             'user' => User::class,
         ]);

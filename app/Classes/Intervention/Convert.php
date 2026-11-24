@@ -25,7 +25,7 @@ class Convert implements ConvertInterface
     public function encode(string|Image $image, string $format, int $quality = 100): ConvertedImageInterface
     {
         try {
-            $convertedImage = ImageManager::read($image)->encodeByExtension(FileExtension::from($format), quality: $quality);
+            $convertedImage = ImageManager::decode($image)->encodeUsingFileExtension(FileExtension::from($format), quality: $quality);
         } catch (ImagickException $exception) {
             $this->handleImagickException($exception);
         }

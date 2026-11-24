@@ -116,7 +116,7 @@ return [
     | manage Laravel's "maintenance mode" status. The "cache" driver will
     | allow maintenance mode to be controlled across multiple machines.
     |
-    | Supported drivers: "file", "cache"
+    | Supported drivers: "file", "cache", "array"
     |
     */
 
@@ -138,11 +138,14 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'CdnHelper' => App\Facades\CdnHelperFacade::class,
+        'Decoder' => App\Facades\DecoderFacade::class,
         'Delivery' => App\Facades\DeliveryFacade::class,
+        'Encoder' => App\Facades\EncoderFacade::class,
         'InterventionImage' => Intervention\Image\Facades\Image::class,
         'Optimize' => App\Facades\OptimizeFacade::class,
         'Transcode' => App\Facades\TranscodeFacade::class,
         'Transform' => App\Facades\TransformFacade::class,
+        'UploadHandler' => App\Facades\UploadHandlerFacade::class,
     ])->toArray(),
 
 ];

@@ -1,0 +1,2 @@
+// Will be mounted in the traefik container.
+// Needs to exist so no "File not found" error occurs during pullpreview boot.

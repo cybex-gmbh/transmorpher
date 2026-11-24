@@ -8,6 +8,7 @@ use App\Enums\MediaType;
 use App\Enums\ResponseState;
 use App\Enums\Transformation;
 use App\Models\Version;
+use Illuminate\Support\Collection;
 use Optimize;
 use Transform;
 
@@ -21,11 +22,17 @@ class ImageHandler extends OnDemandDerivativeMediaHandler
     protected ResponseState $versionSetFailed = ResponseState::CDN_INVALIDATION_FAILED;
 
     /**
-     * @return string
+     * @deprecated Will be removed once the v1 API has been discontinued.
+     *             Use {@link getAllowedMimetypes()} instead.
      */
     public function getValidationRules(): string
     {
         return sprintf('mimes:%s', implode(',', ImageFormat::getFormats()));
+    }
+
+    public function getAllowedMimetypes(): Collection
+    {
+        return collect(ImageFormat::getMimetypes());
     }
 
     /**
@@ -35,8 +42,8 @@ class ImageHandler extends OnDemandDerivativeMediaHandler
      */
     public function applyTransformations(Version $version, ?array $transformationsArray): false|string
     {
-        $derivativeFileData = Transform::transform($version->originalFilePath(), $transformationsArray);
+        $imageData = Transform::image($version->originalFilePath(), $transformationsArray);
 
-        return Optimize::optimize($derivativeFileData, $transformationsArray[Transformation::QUALITY->value] ?? null);
+        return Optimize::image($imageData, $transformationsArray[Transformation::QUALITY->value] ?? null);
     }
 }

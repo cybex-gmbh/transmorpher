@@ -35,7 +35,7 @@ class SodiumHelper
      */
     protected static function getPrivateKey(): string
     {
-        return sodium_crypto_sign_secretkey(sodium_hex2bin(config('transmorpher.signing_keypair')));
+        return sodium_crypto_sign_secretkey(sodium_hex2bin(config('transmorpher.app.signing_keypair')));
     }
 
     /**
@@ -45,6 +45,6 @@ class SodiumHelper
      */
     public static function getPublicKey(): string
     {
-        return sodium_crypto_sign_publickey(sodium_hex2bin(config('transmorpher.signing_keypair')));
+        return sodium_crypto_sign_publickey(sodium_hex2bin(config('transmorpher.app.signing_keypair')));
     }
 }
