@@ -17,7 +17,7 @@ x-common-build: &common-build
 x-app-url: &app-url
   APP_URL: https://transmorpher.${PULLPREVIEW_PUBLIC_DNS}
 
-x-amigor-image: &amigor-image cybexwebdev/transmorpher-amigor:branch-chore-v2-version-response
+x-amigor-image: &amigor-image cybexwebdev/transmorpher-amigor:0.6
 
 x-amigor-app-url: &amigor-app-url
   APP_URL: https://${PULLPREVIEW_PUBLIC_DNS}
