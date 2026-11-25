@@ -8,6 +8,7 @@ services:
       CONTAINER_ROLE: web
     volumes:
       # If you are using local disks, persist the storage across container restarts.
+      # Also needed for cleaning up chunk files.
       - 'storage:/var/www/storage'
     networks:
       - external
