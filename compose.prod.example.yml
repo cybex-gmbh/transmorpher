@@ -2,10 +2,14 @@ services:
   app:
     image: cybexwebdev/transmorpher:x.x-app
     restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CONTAINER_ROLE: web
     volumes:
       # If you are using local disks, persist the storage across container restarts.
+      # Also needed for cleaning up chunk files.
       - 'storage:/var/www/storage'
-      - './.env:/var/www/.env:ro'
     networks:
       - external
     # If you are using Traefik.
@@ -19,40 +23,36 @@ services:
     image: cybexwebdev/transmorpher:x.x-transcoder
     command: [ "shell", "php artisan transmorpher:queue-work video_transcoding" ]
     restart: unless-stopped
+    env_file:
+      - .env
     volumes:
       # If you are using local disks, persist the storage across container restarts.
       - 'storage:/var/www/storage'
-      - './.env:/var/www/.env:ro'
-    networks:
-      - external
 
   worker-client-notifications:
     image: cybexwebdev/transmorpher:x.x-app
     command: [ "shell", "php artisan transmorpher:queue-work client_notifications" ]
     restart: unless-stopped
-    volumes:
-      - './.env:/var/www/.env:ro'
-    networks:
-      - external
+    env_file:
+      - .env
 
   worker-email:
     image: cybexwebdev/transmorpher:x.x-app
     command: [ "shell", "php artisan transmorpher:queue-work email" ]
     restart: unless-stopped
-    volumes:
-      - './.env:/var/www/.env:ro'
-    networks:
-      - external
+    env_file:
+      - .env
 
   scheduler:
     image: cybexwebdev/transmorpher:x.x-app
     restart: unless-stopped
     environment:
       CONTAINER_ROLE: scheduler
+    env_file:
+      - .env
     volumes:
       # Needs storage for cleaning up chunk files.
       - 'storage:/var/www/storage'
-      - './.env:/var/www/.env:ro'
 
 networks:
   external:

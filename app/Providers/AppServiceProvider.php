@@ -11,9 +11,11 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Transcode;
 use URL;
 
 class AppServiceProvider extends ServiceProvider
@@ -32,6 +34,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Queue::createPayloadUsing(function ($connection, $queue, array $payload): array {
+            $job = $payload['data']['command'] ?? null;
+            $transcodeJobClass = Transcode::getJobClass();
+
+            return $job instanceof $transcodeJobClass ? ['meta' => $job->jobMetadata()] : [];
+        });
+
         // Force the App URL to prevent issues with S2S requests in Docker Networks and HTTPS issues behind proxies.
         URL::useOrigin(config('app.url'));
         URL::forceScheme(parse_url(config('app.url'), PHP_URL_SCHEME));
@@ -44,19 +53,19 @@ class AppServiceProvider extends ServiceProvider
 
         Route::bind('media', function (string $identifier): Media {
             $user = Auth::user() ?? User::whereName(Route::getCurrentRoute()->parameter('user'))->firstOrFail();
+
             return $user->Media()->whereIdentifier($identifier)->firstOrFail();
         });
 
         Route::bind('version', function (int $versionNumber): Version {
             $media = Route::getCurrentRoute()->parameter('media');
+
             return $media->Versions()->whereNumber($versionNumber)->firstOrFail();
         });
     }
 
     /**
      * Configure the rate limiters for the application.
-     *
-     * @return void
      */
     protected function configureRateLimiting(): void
     {
